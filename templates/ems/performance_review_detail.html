@@ -1,0 +1,169 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Review Details - EMS{% endblock %}
+{% block page_title %}Performance Review Details{% endblock %}
+
+{% block content %}
+<a href="{% url 'performance_reviews_list' %}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 14px; margin-bottom: 16px;">← Back to Reviews</a>
+
+<!-- Review Header -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">{{ review.title }}</div>
+            <div class="card-subtitle">{{ review.employee.get_full_name }} • {{ review.get_review_type_display }}</div>
+        </div>
+        <span class="status {{ review.status|lower }}">{{ review.get_status_display }}</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
+            <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Review Period</div>
+                <div style="font-weight: 500;">{{ review.review_period_start|date:'M d, Y' }} - {{ review.review_period_end|date:'M d, Y' }}</div>
+            </div>
+            <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Review Date</div>
+                <div style="font-weight: 500;">{{ review.review_date|date:'M d, Y' }}</div>
+            </div>
+            <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Reviewer</div>
+                <div style="font-weight: 500;">{{ review.reviewer.get_full_name|default:'—' }}</div>
+            </div>
+            <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Overall Rating</div>
+                <span class="status {{ review.overall_rating|lower }}">{{ review.get_overall_rating_display }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Form -->
+<form method="post" style="display: grid; gap: 24px;">
+    {% csrf_token %}
+    
+    <!-- Achievements -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Achievements</div>
+        </div>
+        <div class="card-body">
+            <textarea name="achievements" class="control-input" rows="4" placeholder="List key achievements during the review period..." {% if user.role == 'EMPLOYEE' %}readonly{% endif %}>{{ review.achievements }}</textarea>
+        </div>
+    </div>
+
+    <!-- Strengths -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Strengths</div>
+        </div>
+        <div class="card-body">
+            <textarea name="strengths" class="control-input" rows="3" placeholder="Highlight key strengths demonstrated..." {% if user.role == 'EMPLOYEE' %}readonly{% endif %}>{{ review.strengths }}</textarea>
+        </div>
+    </div>
+
+    <!-- Areas for Improvement -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Areas for Improvement</div>
+        </div>
+        <div class="card-body">
+            <textarea name="areas_for_improvement" class="control-input" rows="3" placeholder="Identify areas that need development..." {% if user.role == 'EMPLOYEE' %}readonly{% endif %}>{{ review.areas_for_improvement }}</textarea>
+        </div>
+    </div>
+
+    <!-- Development Plan -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Development Plan</div>
+        </div>
+        <div class="card-body">
+            <textarea name="development_plan" class="control-input" rows="4" placeholder="Outline specific development actions and training needed..." {% if user.role == 'EMPLOYEE' %}readonly{% endif %}>{{ review.development_plan }}</textarea>
+        </div>
+    </div>
+
+    <!-- Goals for Next Period -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Goals for Next Period</div>
+        </div>
+        <div class="card-body">
+            <textarea name="goals_next_period" class="control-input" rows="4" placeholder="Set clear objectives for the upcoming period..." {% if user.role == 'EMPLOYEE' %}readonly{% endif %}>{{ review.goals_next_period }}</textarea>
+        </div>
+    </div>
+
+    <!-- Additional Comments -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Additional Comments</div>
+        </div>
+        <div class="card-body">
+            <textarea name="additional_comments" class="control-input" rows="3" placeholder="Any other relevant notes or feedback..." {% if user.role == 'EMPLOYEE' %}readonly{% endif %}>{{ review.additional_comments }}</textarea>
+        </div>
+    </div>
+
+    {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+    <!-- Overall Rating and Status -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Review Assessment</div>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label class="control-label">Overall Rating</label>
+                    <select name="overall_rating" class="control-input">
+                        {% for value, label in overall_ratings %}
+                            <option value="{{ value }}" {% if review.overall_rating == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="control-label">Status</label>
+                    <select name="status" class="control-input">
+                        <option value="DRAFT" {% if review.status == 'DRAFT' %}selected{% endif %}>Draft</option>
+                        <option value="SUBMITTED" {% if review.status == 'SUBMITTED' %}selected{% endif %}>Submitted</option>
+                        <option value="UNDER_REVIEW" {% if review.status == 'UNDER_REVIEW' %}selected{% endif %}>Under Review</option>
+                        <option value="COMPLETED" {% if review.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                        <option value="APPROVED" {% if review.status == 'APPROVED' %}selected{% endif %}>Approved</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 12px;">
+        <button type="submit" class="btn btn-primary">Save Review</button>
+        <a href="{% url 'performance_reviews_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+    {% endif %}
+</form>
+
+<!-- Goals Section -->
+{% if review.goals.all %}
+<div class="content-card" style="margin-top: 24px;">
+    <div class="card-header">
+        <div class="card-title">Performance Goals</div>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; gap: 16px;">
+            {% for goal in review.goals.all %}
+                <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="font-weight: 600;">{{ goal.title }}</div>
+                        <span class="status {{ goal.status|lower }}">{{ goal.get_status_display }}</span>
+                    </div>
+                    <div style="font-size: 14px; color: #64748b; margin-bottom: 8px;">{{ goal.description }}</div>
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #64748b;">
+                        <span>Priority: {{ goal.get_priority_display }}</span>
+                        <span>Progress: {{ goal.progress_percentage }}%</span>
+                        {% if goal.target_completion_date %}
+                            <span>Target: {{ goal.target_completion_date|date:'M d, Y' }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,269 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Request #{{ request.request_number }} - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Request #{{ request.request_number }}</h1>
+        <p class="page-subtitle">{{ request.request_type.name }} • Submitted {{ request.created_at|date:"M d, Y" }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'employee_requests_list' %}" class="btn btn-secondary">
+            ← Back to Requests
+        </a>
+    </div>
+</div>
+
+<!-- Status Banner -->
+<div style="background: {% if request.status == 'APPROVED' %}#d1fae5{% elif request.status == 'REJECTED' %}#fee2e2{% elif request.status == 'PENDING' %}#fef3c7{% else %}#f1f5f9{% endif %}; border: 2px solid {% if request.status == 'APPROVED' %}#065f46{% elif request.status == 'REJECTED' %}#991b1b{% elif request.status == 'PENDING' %}#92400e{% else %}#64748b{% endif %}; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="font-size: 48px;">
+            {% if request.status == 'APPROVED' %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>{% elif request.status == 'REJECTED' %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>{% elif request.status == 'PENDING' %}⏳{% else %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>{% endif %}
+        </div>
+        <div style="flex: 1;">
+            <h2 style="margin: 0 0 4px 0; font-size: 20px; color: #1e293b;">{{ request.title }}</h2>
+            <p style="margin: 0; color: #64748b;">
+                Status: <strong style="color: {% if request.status == 'APPROVED' %}#065f46{% elif request.status == 'REJECTED' %}#991b1b{% elif request.status == 'PENDING' %}#92400e{% else %}#475569{% endif %};">{{ request.get_status_display }}</strong>
+                {% if request.amount %}
+                • Amount: <strong>{{ request.currency }} {{ request.amount|floatformat:2 }}</strong>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <!-- Main Content -->
+    <div>
+        <!-- Request Details -->
+        <div class="content-card" style="margin-bottom: 24px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                Request Details
+            </h3>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Description</label>
+                <p style="margin: 0; color: #1e293b; line-height: 1.6; white-space: pre-wrap;">{{ request.description }}</p>
+            </div>
+            
+            {% if request.required_by %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Required By</label>
+                <p style="margin: 0; color: #1e293b;">{{ request.required_by|date:"F d, Y" }}</p>
+            </div>
+            {% endif %}
+            
+            {% if request.attachment %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Attachment</label>
+                <a href="{{ request.attachment.url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: #f1f5f9; color: #475569; border-radius: 4px; text-decoration: none; font-size: 14px;">
+                    📎 View Attachment
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Type-Specific Details -->
+        {% if request.petty_cash_details %}
+        <div class="content-card" style="margin-bottom: 24px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg> Petty Cash Details
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                {% if request.petty_cash_details.purpose %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Purpose</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.petty_cash_details.purpose }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.petty_cash_details.expense_category %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Category</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.petty_cash_details.expense_category }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.petty_cash_details.payment_method %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Payment Method</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.petty_cash_details.get_payment_method_display }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.petty_cash_details.disbursed_date %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Disbursed Date</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.petty_cash_details.disbursed_date|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if request.advance_details %}
+        <div class="content-card" style="margin-bottom: 24px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg> Salary Advance Details
+            </h3>
+            
+            {% if request.advance_details.reason %}
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Reason</label>
+                <p style="margin: 0; color: #1e293b; line-height: 1.6;">{{ request.advance_details.reason }}</p>
+            </div>
+            {% endif %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                {% if request.advance_details.installments %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Installments</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.advance_details.installments }} months</p>
+                </div>
+                {% endif %}
+                
+                {% if request.advance_details.deduction_start_date %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Deduction Start Date</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.advance_details.deduction_start_date|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if request.reimbursement_details %}
+        <div class="content-card" style="margin-bottom: 24px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg> Reimbursement Details
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                {% if request.reimbursement_details.expense_date %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Expense Date</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.reimbursement_details.expense_date|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.reimbursement_details.expense_category %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Category</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.reimbursement_details.expense_category }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.reimbursement_details.vendor_name %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Vendor</label>
+                    <p style="margin: 0; color: #1e293b;">{{ request.reimbursement_details.vendor_name }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Approval History -->
+        {% if approvals %}
+        <div class="content-card">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                Approval History
+            </h3>
+            
+            <div style="position: relative; padding-left: 32px;">
+                {% for approval in approvals %}
+                <div style="position: relative; padding-bottom: 24px;">
+                    <div style="position: absolute; left: -32px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: {% if approval.action == 'APPROVED' %}#10b981{% elif approval.action == 'REJECTED' %}#ef4444{% else %}#94a3b8{% endif %}; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">
+                        {% if approval.action == 'APPROVED' %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>{% elif approval.action == 'REJECTED' %}✗{% else %}⏳{% endif %}
+                    </div>
+                    {% if not forloop.last %}
+                    <div style="position: absolute; left: -20px; top: 24px; width: 2px; height: calc(100% - 24px); background: #e2e8f0;"></div>
+                    {% endif %}
+                    
+                    <div>
+                        <div style="font-weight: 600; color: #1e293b;">Level {{ approval.approval_level }} - {{ approval.approver.get_full_name }}</div>
+                        <div style="font-size: 13px; color: #64748b; margin-top: 2px;">
+                            {{ approval.approver.email }}
+                            {% if approval.action %}
+                            • <span style="color: {% if approval.action == 'APPROVED' %}#10b981{% elif approval.action == 'REJECTED' %}#ef4444{% else %}#94a3b8{% endif %}; font-weight: 600;">{{ approval.get_action_display }}</span>
+                            {% endif %}
+                        </div>
+                        {% if approval.comments %}
+                        <div style="margin-top: 8px; padding: 8px 12px; background: #f8fafc; border-left: 3px solid #e2e8f0; font-size: 13px; color: #475569;">
+                            {{ approval.comments }}
+                        </div>
+                        {% endif %}
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+                            {% if approval.action_date %}{{ approval.action_date|date:"M d, Y g:i A" }}{% else %}Pending{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <!-- Request Info Card -->
+        <div class="content-card" style="margin-bottom: 24px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 14px; font-weight: 600;">Request Information</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px; font-size: 13px;">
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</label>
+                    <span style="background: {% if request.status == 'APPROVED' %}#d1fae5{% elif request.status == 'REJECTED' %}#fee2e2{% elif request.status == 'PENDING' %}#fef3c7{% else %}#f1f5f9{% endif %}; color: {% if request.status == 'APPROVED' %}#065f46{% elif request.status == 'REJECTED' %}#991b1b{% elif request.status == 'PENDING' %}#92400e{% else %}#475569{% endif %}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                        {{ request.get_status_display }}
+                    </span>
+                </div>
+                
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Priority</label>
+                    <span style="background: {% if request.priority == 'URGENT' or request.priority == 'HIGH' %}#fee2e2{% else %}#f1f5f9{% endif %}; color: {% if request.priority == 'URGENT' or request.priority == 'HIGH' %}#991b1b{% else %}#475569{% endif %}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                        {{ request.get_priority_display }}
+                    </span>
+                </div>
+                
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Created</label>
+                    <div style="color: #1e293b;">{{ request.created_at|date:"M d, Y g:i A" }}</div>
+                </div>
+                
+                {% if request.updated_at %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Last Updated</label>
+                    <div style="color: #1e293b;">{{ request.updated_at|date:"M d, Y g:i A" }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

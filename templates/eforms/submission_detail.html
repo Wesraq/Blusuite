@@ -1,0 +1,182 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Form Submission - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">{{ submission.template.title }}</h1>
+        <p class="page-subtitle">Submission Details</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'form_submissions_list' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; text-decoration: none; font-size: 14px; font-weight: 500;">
+            Back to Submissions
+        </a>
+    </div>
+</div>
+
+<!-- Status Card -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-content">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Status</div>
+                <div style="font-size: 20px; font-weight: 700; color: #1e293b;">
+                    {% if submission.status == 'DRAFT' %}
+                    <span style="color: #64748b;">Draft</span>
+                    {% elif submission.status == 'SUBMITTED' %}
+                    <span style="color: #3b82f6;">Submitted</span>
+                    {% elif submission.status == 'PENDING_APPROVAL' %}
+                    <span style="color: #f59e0b;">Pending Approval</span>
+                    {% elif submission.status == 'APPROVED' %}
+                    <span style="color: #22c55e;">Approved</span>
+                    {% elif submission.status == 'REJECTED' %}
+                    <span style="color: #ef4444;">Rejected</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Submitted</div>
+                <div style="font-weight: 600; color: #1e293b;">
+                    {% if submission.submitted_at %}
+                    {{ submission.submitted_at|date:"M d, Y H:i" }}
+                    {% else %}
+                    Not yet submitted
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if submission.status == 'REJECTED' and submission.rejection_reason %}
+        <div style="margin-top: 20px; padding: 16px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px;">
+            <div style="font-weight: 600; color: #991b1b; margin-bottom: 4px;">Rejection Reason:</div>
+            <div style="color: #7f1d1d;">{{ submission.rejection_reason }}</div>
+        </div>
+        {% endif %}
+        
+        {% if submission.status == 'APPROVED' %}
+        <div style="margin-top: 20px; padding: 16px; background: #d1fae5; border: 1px solid #86efac; border-radius: 8px;">
+            <div style="font-weight: 600; color: #065f46; margin-bottom: 4px;">Approved by {{ submission.approved_by.get_full_name }}</div>
+            <div style="font-size: 13px; color: #166534;">{{ submission.approved_at|date:"M d, Y H:i" }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Form Data -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Form Data</div>
+    </div>
+    <div class="card-content">
+        {% if submission.form_data %}
+        <div style="display: grid; gap: 20px;">
+            {% for field_id, value in submission.form_data.items %}
+            {% if field_id != 'csrfmiddlewaretoken' and field_id != 'action' and field_id != 'submission_id' %}
+            <div style="padding: 16px; background: #f8fafc; border-radius: 8px;">
+                <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">{{ field_id|title }}</div>
+                <div style="color: #475569;">{{ value|default:"(Not provided)" }}</div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #94a3b8; padding: 20px;">No form data submitted yet</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Signatures -->
+{% if submission.signatures.exists %}
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Electronic Signatures</div>
+    </div>
+    <div class="card-content">
+        <div style="display: grid; gap: 16px;">
+            {% for signature in submission.signatures.all %}
+            <div style="padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div>
+                        <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px;">{{ signature.signer.get_full_name }}</div>
+                        <div style="font-size: 13px; color: #64748b;">Signed: {{ signature.signed_at|date:"M d, Y H:i" }}</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Type: {{ signature.get_signature_type_display }}</div>
+                    </div>
+                    <a href="{% url 'signature_audit_trail' signature.id %}" style="padding: 6px 16px; background: #1e293b; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                        View Audit Trail
+                    </a>
+                </div>
+                
+                {% if signature.signature_type == 'DRAWN' %}
+                <div style="padding: 16px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <img src="{{ signature.signature_data }}" alt="Signature" style="max-width: 300px; height: auto;">
+                </div>
+                {% elif signature.signature_type == 'TYPED' %}
+                <div style="padding: 20px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; font-family: 'Brush Script MT', cursive; font-size: 32px; color: #1e293b;">
+                    {{ signature.signature_data }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% elif submission.template.requires_signature and submission.status == 'SUBMITTED' %}
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Signature Required</div>
+    </div>
+    <div class="card-content">
+        <div style="text-align: center; padding: 40px;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="margin: 0 auto 16px;">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                <path d="M2 2l7.586 7.586"></path>
+                <circle cx="11" cy="11" r="2"></circle>
+            </svg>
+            <p style="font-size: 16px; color: #64748b; margin-bottom: 16px;">This form requires your electronic signature</p>
+            <a href="{% url 'form_sign' submission.id %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: #3b82f6; color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                Add Signature Now
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Approval History -->
+{% if submission.approvals.exists %}
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Approval History</div>
+    </div>
+    <div class="card-content">
+        <div style="display: grid; gap: 12px;">
+            {% for approval in submission.approvals.all %}
+            <div style="padding: 16px; background: #f8fafc; border-radius: 8px; border-left: 3px solid {% if approval.status == 'APPROVED' %}#22c55e{% elif approval.status == 'REJECTED' %}#ef4444{% else %}#f59e0b{% endif %};">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <div style="font-weight: 600; color: #1e293b;">{{ approval.approver.get_full_name }}</div>
+                        <div style="font-size: 13px; color: #64748b; margin-top: 4px;">
+                            {% if approval.status == 'PENDING' %}
+                            Assigned: {{ approval.assigned_at|date:"M d, Y" }}
+                            {% else %}
+                            {{ approval.get_status_display }}: {{ approval.reviewed_at|date:"M d, Y H:i" }}
+                            {% endif %}
+                        </div>
+                        {% if approval.comments %}
+                        <div style="margin-top: 8px; padding: 12px; background: white; border-radius: 6px; font-size: 13px; color: #475569;">
+                            {{ approval.comments }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <span style="padding: 4px 12px; background: {% if approval.status == 'APPROVED' %}#d1fae5{% elif approval.status == 'REJECTED' %}#fee2e2{% else %}#fef3c7{% endif %}; color: {% if approval.status == 'APPROVED' %}#065f46{% elif approval.status == 'REJECTED' %}#991b1b{% else %}#92400e{% endif %}; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                        {{ approval.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

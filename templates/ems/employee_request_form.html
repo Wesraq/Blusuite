@@ -1,0 +1,230 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}New Request - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Submit New Request</h1>
+        <p class="page-subtitle">Create a new request for approval</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'employee_requests_list' %}" class="btn btn-secondary">
+            ← Back to My Requests
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+<div style="margin-bottom: 20px;">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" style="padding: 12px 16px; background: {% if message.tags == 'success' %}#d4edda{% elif message.tags == 'error' %}#f8d7da{% else %}#d1ecf1{% endif %}; border: 1px solid {% if message.tags == 'success' %}#c3e6cb{% elif message.tags == 'error' %}#f5c6cb{% else %}#bee5eb{% endif %}; border-radius: 4px; color: {% if message.tags == 'success' %}#155724{% elif message.tags == 'error' %}#721c24{% else %}#0c5460{% endif %};">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="content-card">
+    <form method="POST" enctype="multipart/form-data" id="requestForm">
+        {% csrf_token %}
+        
+        <!-- Request Type Selection -->
+        <div style="margin-bottom: 32px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                Request Type
+            </h3>
+            
+            <div class="form-group">
+                <label for="request_type" class="form-label">Select Request Type <span style="color: #dc2626;">*</span></label>
+                <select id="request_type" name="request_type" class="form-control" required onchange="toggleRequestFields()">
+                    <option value="">-- Select Type --</option>
+                    {% for type in request_types %}
+                    <option value="{{ type.id }}" data-code="{{ type.code }}" data-requires-amount="{{ type.requires_amount }}">
+                        {{ type.icon }} {{ type.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div style="margin-bottom: 32px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                Request Details
+            </h3>
+            
+            <div class="form-group">
+                <label for="title" class="form-label">Request Title <span style="color: #dc2626;">*</span></label>
+                <input type="text" id="title" name="title" class="form-control" required placeholder="Brief description of your request">
+            </div>
+            
+            <div class="form-group">
+                <label for="description" class="form-label">Description <span style="color: #dc2626;">*</span></label>
+                <textarea id="description" name="description" class="form-control" rows="4" required placeholder="Provide detailed information about your request"></textarea>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="amount" class="form-label">Amount</label>
+                    <input type="number" id="amount" name="amount" class="form-control" step="0.01" min="0" placeholder="0.00">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="currency" class="form-label">Currency</label>
+                    <select id="currency" name="currency" class="form-control">
+                        <option value="ZMW" selected>ZMW (Kwacha)</option>
+                        <option value="USD">USD (Dollar)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="priority" class="form-label">Priority</label>
+                    <select id="priority" name="priority" class="form-control">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM" selected>Medium</option>
+                        <option value="HIGH">High</option>
+                        <option value="URGENT">Urgent</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="required_by" class="form-label">Required By Date</label>
+                    <input type="date" id="required_by" name="required_by" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="attachment" class="form-label">Attachment (Optional)</label>
+                <input type="file" id="attachment" name="attachment" class="form-control">
+                <small style="color: #64748b; font-size: 12px;">💡 Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max: 10MB)</small>
+            </div>
+        </div>
+
+        <!-- Petty Cash Specific Fields -->
+        <div id="petty_cash_fields" style="display: none; margin-bottom: 32px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                Petty Cash Details
+            </h3>
+            
+            <div class="form-group">
+                <label for="purpose" class="form-label">Purpose</label>
+                <input type="text" id="purpose" name="purpose" class="form-control" placeholder="What will the money be used for?">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="expense_category" class="form-label">Expense Category</label>
+                    <select id="expense_category" name="expense_category" class="form-control">
+                        <option value="">-- Select Category --</option>
+                        <option value="Office Supplies">Office Supplies</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Meals">Meals</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment_method" class="form-label">Payment Method</label>
+                    <select id="payment_method" name="payment_method" class="form-control">
+                        <option value="CASH">Cash</option>
+                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                        <option value="MOBILE_MONEY">Mobile Money</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advance Specific Fields -->
+        <div id="advance_fields" style="display: none; margin-bottom: 32px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                Salary Advance Details
+            </h3>
+            
+            <div class="form-group">
+                <label for="reason" class="form-label">Reason for Advance</label>
+                <textarea id="reason" name="reason" class="form-control" rows="3" placeholder="Explain why you need this advance"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="repayment_plan" class="form-label">Repayment Plan</label>
+                <textarea id="repayment_plan" name="repayment_plan" class="form-control" rows="2" placeholder="How do you plan to repay this advance?"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="installments" class="form-label">Number of Installments (Months)</label>
+                <input type="number" id="installments" name="installments" class="form-control" min="1" max="12" value="1">
+                <small style="color: #64748b; font-size: 12px;">Maximum 12 months</small>
+            </div>
+        </div>
+
+        <!-- Reimbursement Specific Fields -->
+        <div id="reimbursement_fields" style="display: none; margin-bottom: 32px;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                Reimbursement Details
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="expense_date" class="form-label">Expense Date</label>
+                    <input type="date" id="expense_date" name="expense_date" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="reimbursement_category" class="form-label">Expense Category</label>
+                    <select id="reimbursement_category" name="expense_category" class="form-control">
+                        <option value="">-- Select Category --</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Accommodation">Accommodation</option>
+                        <option value="Meals">Meals</option>
+                        <option value="Fuel">Fuel</option>
+                        <option value="Communication">Communication</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="vendor_name" class="form-label">Vendor/Supplier Name</label>
+                <input type="text" id="vendor_name" name="vendor_name" class="form-control" placeholder="Where did you make the purchase?">
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display: flex; gap: 12px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <button type="submit" class="btn btn-primary" style="min-width: 120px;">
+                📤 Submit Request
+            </button>
+            <a href="{% url 'employee_requests_list' %}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleRequestFields() {
+    const select = document.getElementById('request_type');
+    const selectedOption = select.options[select.selectedIndex];
+    const code = selectedOption.getAttribute('data-code');
+    
+    // Hide all specific fields
+    document.getElementById('petty_cash_fields').style.display = 'none';
+    document.getElementById('advance_fields').style.display = 'none';
+    document.getElementById('reimbursement_fields').style.display = 'none';
+    
+    // Show relevant fields based on type
+    if (code === 'PETTY_CASH') {
+        document.getElementById('petty_cash_fields').style.display = 'block';
+    } else if (code === 'ADVANCE') {
+        document.getElementById('advance_fields').style.display = 'block';
+    } else if (code === 'REIMBURSEMENT') {
+        document.getElementById('reimbursement_fields').style.display = 'block';
+    }
+}
+</script>
+{% endblock %}

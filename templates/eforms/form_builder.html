@@ -1,0 +1,197 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Form Builder - {{ template.title }} - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Form Builder: {{ template.title }}</h1>
+        <p class="page-subtitle">Drag and drop fields to build your form</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'form_templates_list' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; text-decoration: none; font-size: 14px; font-weight: 500;">
+            Back to Templates
+        </a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 250px 1fr; gap: 24px;">
+    <!-- Left Sidebar: Field Types -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Field Types</div>
+        </div>
+        <div class="card-content">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="field-type" data-type="TEXT" draggable="true" style="padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: move; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📝</span>
+                    <span style="font-weight: 500; color: #1e293b;">Text Input</span>
+                </div>
+                <div class="field-type" data-type="TEXTAREA" draggable="true" style="padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: move; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📄</span>
+                    <span style="font-weight: 500; color: #1e293b;">Text Area</span>
+                </div>
+                <div class="field-type" data-type="NUMBER" draggable="true" style="padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: move; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">🔢</span>
+                    <span style="font-weight: 500; color: #1e293b;">Number</span>
+                </div>
+                <div class="field-type" data-type="EMAIL" draggable="true" style="padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: move; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">✉️</span>
+                    <span style="font-weight: 500; color: #1e293b;">Email</span>
+                </div>
+                <div class="field-type" data-type="DATE" draggable="true" style="padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: move; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📅</span>
+                    <span style="font-weight: 500; color: #1e293b;">Date</span>
+                </div>
+                <div class="field-type" data-type="CHECKBOX" draggable="true" style="padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: move; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">☑️</span>
+                    <span style="font-weight: 500; color: #1e293b;">Checkbox</span>
+                </div>
+                <div class="field-type" data-type="SELECT" draggable="true" style="padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: move; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📋</span>
+                    <span style="font-weight: 500; color: #1e293b;">Dropdown</span>
+                </div>
+                <div class="field-type" data-type="SIGNATURE" draggable="true" style="padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: move; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">✍️</span>
+                    <span style="font-weight: 500; color: #1e293b;">Signature</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Center: Form Canvas -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Form Preview</div>
+        </div>
+        <div class="card-content">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="form_fields" id="form_fields_json">
+                <input type="hidden" name="status" id="status_input" value="DRAFT">
+                
+                <div id="form-canvas" style="min-height: 400px; padding: 20px; background: white; border: 2px dashed #e2e8f0; border-radius: 8px;">
+                    <p style="text-align: center; color: #94a3b8; font-size: 14px;">Drag fields here to build your form</p>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                    <button type="submit" onclick="saveForm('DRAFT')" style="padding: 12px 32px; background: #64748b; color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer;">
+                        Save as Draft
+                    </button>
+                    <button type="submit" onclick="saveForm('ACTIVE')" style="padding: 12px 32px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer;">
+                        Save & Activate
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let formFields = {{ template.form_fields|safe }} || { fields: [] };
+let fieldCounter = formFields.fields ? formFields.fields.length : 0;
+
+// Drag and Drop
+document.querySelectorAll('.field-type').forEach(item => {
+    item.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('fieldType', e.target.dataset.type);
+    });
+});
+
+const canvas = document.getElementById('form-canvas');
+canvas.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    canvas.style.borderColor = '#3b82f6';
+});
+
+canvas.addEventListener('dragleave', () => {
+    canvas.style.borderColor = '#e2e8f0';
+});
+
+canvas.addEventListener('drop', (e) => {
+    e.preventDefault();
+    canvas.style.borderColor = '#e2e8f0';
+    
+    const fieldType = e.dataTransfer.getData('fieldType');
+    addField(fieldType);
+});
+
+function addField(type) {
+    fieldCounter++;
+    const fieldId = 'field_' + fieldCounter;
+    
+    const field = {
+        id: fieldId,
+        type: type,
+        label: type + ' Field ' + fieldCounter,
+        placeholder: '',
+        required: false,
+        width: 'full'
+    };
+    
+    if (!formFields.fields) formFields.fields = [];
+    formFields.fields.push(field);
+    
+    renderCanvas();
+}
+
+function removeField(fieldId) {
+    formFields.fields = formFields.fields.filter(f => f.id !== fieldId);
+    renderCanvas();
+}
+
+function updateField(fieldId, property, value) {
+    const field = formFields.fields.find(f => f.id === fieldId);
+    if (field) {
+        field[property] = value;
+    }
+}
+
+function renderCanvas() {
+    if (!formFields.fields || formFields.fields.length === 0) {
+        canvas.innerHTML = '<p style="text-align: center; color: #94a3b8; font-size: 14px;">Drag fields here to build your form</p>';
+        return;
+    }
+    
+    let html = '';
+    formFields.fields.forEach(field => {
+        html += `
+            <div style="padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                        <input type="text" value="${field.label}" 
+                               onchange="updateField('${field.id}', 'label', this.value); renderCanvas();"
+                               style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 600;">
+                    </div>
+                    <button type="button" onclick="removeField('${field.id}')" 
+                            style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; margin-left: 12px; cursor: pointer;">
+                        Remove
+                    </button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" ${field.required ? 'checked' : ''} 
+                               onchange="updateField('${field.id}', 'required', this.checked)">
+                        Required
+                    </label>
+                    <select onchange="updateField('${field.id}', 'width', this.value)" 
+                            style="padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <option value="full" ${field.width === 'full' ? 'selected' : ''}>Full Width</option>
+                        <option value="half" ${field.width === 'half' ? 'selected' : ''}>Half Width</option>
+                    </select>
+                </div>
+            </div>
+        `;
+    });
+    canvas.innerHTML = html;
+}
+
+function saveForm(status) {
+    document.getElementById('form_fields_json').value = JSON.stringify(formFields);
+    document.getElementById('status_input').value = status;
+}
+
+// Initial render
+renderCanvas();
+</script>
+{% endblock %}

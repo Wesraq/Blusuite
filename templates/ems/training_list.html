@@ -1,0 +1,293 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Training - EMS{% endblock %}
+{% block page_title %}Training & Development{% endblock %}
+
+{% block content %}
+<!-- Statistics Dashboard -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;">📚</div>
+        <div class="stat-details">
+            <div class="stat-value">{{ total_enrollments }}</div>
+            <div class="stat-label">Total Enrollments</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">⏳</div>
+        <div class="stat-details">
+            <div class="stat-value">{{ in_progress_count }}</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #d1fae5; color: #047857;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ completed_count }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;">🎓</div>
+        <div class="stat-details">
+            <div class="stat-value">{{ total_certifications }}</div>
+            <div class="stat-label">Certifications</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+{% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+<div class="content-card" style="margin-top: 24px; padding: 20px;">
+    <form method="get" id="training-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+        <div class="filter-group">
+            <label for="search" class="control-label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg> Search</label>
+            <input type="text" id="search" name="search" class="control-input" placeholder="Employee, program..." value="{{ search_query }}">
+        </div>
+        <div class="filter-group">
+            <label for="status" class="control-label">Status</label>
+            <select id="status" name="status" class="control-input">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="program_type" class="control-label">Program Type</label>
+            <select id="program_type" name="program_type" class="control-input">
+                <option value="">All Types</option>
+                {% for value, label in program_type_choices %}
+                    <option value="{{ value }}" {% if program_type_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: end;">
+            <button class="btn" type="submit">Apply Filters</button>
+            <a class="btn btn-secondary" href="{% url 'training_list' %}">Reset</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<!-- Action Buttons -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; gap: 8px;">
+        {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+        <button class="btn btn-secondary" onclick="exportCSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export CSV</button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Training Enrollments Table -->
+<div class="content-card" style="max-width: 100%; margin-top: 24px;">
+    <div class="card-header">
+        <div class="card-title">{% if user.role == 'EMPLOYEE' %}My Training{% else %}Employee Training Enrollments{% endif %}</div>
+        <div class="card-subtitle">Track training progress and completion</div>
+    </div>
+    <div class="card-body">
+        {% if enrollments %}
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}<th>Employee</th>{% endif %}
+                            <th>Program</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Enrollment Date</th>
+                            <th>Start Date</th>
+                            <th>Completion Date</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                            <tr>
+                                {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+                                    <td>
+                                        <div style="font-weight: 500;">{{ enrollment.employee.first_name }} {{ enrollment.employee.last_name }}</div>
+                                        <div style="font-size: 12px; color: #64748b;">{{ enrollment.employee.employee_profile.job_title|default:'No position assigned' }}</div>
+                                    </td>
+                                {% endif %}
+                                <td>
+                                    <div style="font-weight: 500;">{{ enrollment.program.title }}</div>
+                                    {% if enrollment.program.instructor %}
+                                        <div style="font-size: 11px; color: #64748b;">{{ enrollment.program.instructor }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ enrollment.program.get_program_type_display }}</td>
+                                <td>{{ enrollment.program.duration_hours }}h</td>
+                                <td>{{ enrollment.enrollment_date|date:'M d, Y' }}</td>
+                                <td>{{ enrollment.start_date|date:'M d, Y'|default:'—' }}</td>
+                                <td>{{ enrollment.completion_date|date:'M d, Y'|default:'—' }}</td>
+                                <td>
+                                    {% if enrollment.score %}
+                                        <span style="font-weight: 600;">{{ enrollment.score }}%</span>
+                                    {% else %}
+                                        <span style="color: #94a3b8;">—</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="status {{ enrollment.status|lower }}">{{ enrollment.get_status_display }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #64748b;">
+                <div style="font-size: 48px; margin-bottom: 16px;">📚</div>
+                <h3>No Training Enrollments Found</h3>
+                <p>{% if user.role == 'EMPLOYEE' %}You haven't enrolled in any training programs yet.{% else %}No training enrollments to display.{% endif %}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Available Training Programs -->
+<div class="content-card" style="max-width: 100%; margin-top: 24px;">
+    <div class="card-header">
+        <div class="card-title">Available Training Programs</div>
+        <div class="card-subtitle">{{ total_programs }} program{{ total_programs|pluralize }} offered by the company</div>
+    </div>
+    <div class="card-body">
+        {% if programs %}
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Program Title</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Provider</th>
+                            <th>Cost</th>
+                            <th>Mandatory</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for program in programs %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 500;">{{ program.title }}</div>
+                                    {% if program.description %}
+                                        <div style="font-size: 11px; color: #64748b;">{{ program.description|truncatewords:12 }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ program.get_program_type_display }}</td>
+                                <td>{{ program.duration_hours }} hours</td>
+                                <td>{{ program.provider|default:'—' }}</td>
+                                <td>${{ program.cost|floatformat:2 }}</td>
+                                <td>
+                                    {% if program.is_mandatory %}
+                                        <span style="color: #ef4444; font-weight: 500;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg> Required</span>
+                                    {% else %}
+                                        <span style="color: #64748b;">Optional</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #64748b;">
+                <p>No training programs available.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Certifications -->
+{% if certifications %}
+<div class="content-card" style="max-width: 100%; margin-top: 24px;">
+    <div class="card-header">
+        <div class="card-title">{% if user.role == 'EMPLOYEE' %}My Certifications{% else %}Employee Certifications{% endif %}</div>
+        <div class="card-subtitle">Professional certifications and credentials</div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}<th>Employee</th>{% endif %}
+                        <th>Certification</th>
+                        <th>Issuing Organization</th>
+                        <th>Issue Date</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cert in certifications %}
+                        <tr>
+                            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+                                <td>
+                                    <div style="font-weight: 500;">{{ cert.employee.first_name }} {{ cert.employee.last_name }}</div>
+                                    <div style="font-size: 12px; color: #64748b;">{{ cert.employee.employee_profile.job_title|default:'No position assigned' }}</div>
+                                </td>
+                            {% endif %}
+                            <td>
+                                <div style="font-weight: 500;">{{ cert.name }}</div>
+                                {% if cert.credential_id %}
+                                    <div style="font-size: 11px; color: #64748b;">ID: {{ cert.credential_id }}</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ cert.issuing_organization }}</td>
+                            <td>{{ cert.issue_date|date:'M d, Y' }}</td>
+                            <td>
+                                {% if cert.expiry_date %}
+                                    {{ cert.expiry_date|date:'M d, Y' }}
+                                {% else %}
+                                    <span style="color: #64748b;">No expiry</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="status {{ cert.status|lower }}">{{ cert.get_status_display }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    function exportCSV() {
+        const form = document.getElementById('training-filters');
+        const params = new URLSearchParams(new FormData(form));
+        params.set('format', 'csv');
+        window.location.href = `${window.location.pathname}?${params.toString()}`;
+    }
+</script>
+
+<style>
+    @media (max-width: 640px) {
+        #training-filters {
+            grid-template-columns: 1fr !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+        
+        .table-responsive {
+            font-size: 13px;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Leave Request {{ status }}{% endblock %}
+
+{% block header %}{% if status == 'Approved' %}✅{% else %}❌{% endif %} Leave Request {{ status }}{% endblock %}
+
+{% block content %}
+<p>Hello {{ employee.first_name }},</p>
+
+<p>Your leave request has been <strong>{{ status|lower }}</strong>.</p>
+
+<div class="info-box">
+    <div class="info-row">
+        <span class="info-label">Leave Type:</span>
+        <span class="info-value">{{ leave_type }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Start Date:</span>
+        <span class="info-value">{{ start_date|date:"F d, Y" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">End Date:</span>
+        <span class="info-value">{{ end_date|date:"F d, Y" }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Status:</span>
+        <span class="info-value">
+            <span class="badge {% if status == 'Approved' %}badge-success{% else %}badge-danger{% endif %}">
+                {{ status }}
+            </span>
+        </span>
+    </div>
+    {% if approved_by %}
+    <div class="info-row">
+        <span class="info-label">{{ status|title }} By:</span>
+        <span class="info-value">{{ approved_by.first_name }} {{ approved_by.last_name }}</span>
+    </div>
+    {% endif %}
+</div>
+
+{% if rejection_reason %}
+<p><strong>Reason for rejection:</strong></p>
+<p style="background-color: #fee2e2; padding: 15px; border-radius: 4px; color: #991b1b;">{{ rejection_reason }}</p>
+{% endif %}
+
+<p style="text-align: center;">
+    <a href="{{ base_url }}/leave-requests/" class="btn">View My Leave Requests</a>
+</p>
+{% endblock %}

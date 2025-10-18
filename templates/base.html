@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Employee Management System{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/universal.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    
+    <!-- Dynamic Company Theme Colors -->
+    {% if user.is_authenticated and user.company %}
+    <style>
+        :root {
+            /* Override primary color with company's primary color */
+            --primary: {{ user.company.primary_color|default:"#3b82f6" }};
+            
+            /* Company custom colors */
+            --company-primary: {{ user.company.primary_color|default:"#3b82f6" }};
+            --company-secondary: {{ user.company.secondary_color|default:"#10b981" }};
+            --company-text: {{ user.company.text_color|default:"#1e293b" }};
+            --company-background: {{ user.company.background_color|default:"#ffffff" }};
+        }
+        
+        /* PRIMARY COLOR - Top Bar & Sidebar */
+        .top-header {
+            background: {{ user.company.primary_color|default:"#3b82f6" }} !important;
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: #000000 !important;
+            border-bottom: 1px solid #e5e7eb !important;
+            {% else %}
+            color: white !important;
+            border-bottom: none !important;
+            {% endif %}
+        }
+        
+        .top-header .page-title h1 {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: #000000 !important;
+            {% else %}
+            color: white !important;
+            {% endif %}
+        }
+        
+        .top-header .welcome-text {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: rgba(0, 0, 0, 0.7) !important;
+            {% else %}
+            color: rgba(255, 255, 255, 0.9) !important;
+            {% endif %}
+        }
+        
+        .top-header svg {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            stroke: #000000 !important;
+            {% else %}
+            stroke: white !important;
+            {% endif %}
+        }
+        
+        .top-header a:not(.logout-btn) {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: rgba(0, 0, 0, 0.6) !important;
+            {% else %}
+            color: rgba(255, 255, 255, 0.8) !important;
+            {% endif %}
+        }
+        
+        .top-header a:not(.logout-btn):hover {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: #000000 !important;
+            {% else %}
+            color: white !important;
+            {% endif %}
+        }
+        
+        .sidebar {
+            background: {{ user.company.primary_color|default:"#3b82f6" }} !important;
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            border-right: 1px solid #e5e7eb !important;
+            {% endif %}
+        }
+        
+        .sidebar-header {
+            background: {{ user.company.primary_color|default:"#3b82f6" }} !important;
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            border-bottom: 1px solid #e5e7eb !important;
+            {% else %}
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            {% endif %}
+        }
+        
+        .sidebar-title {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: #000000 !important;
+            {% else %}
+            color: white !important;
+            {% endif %}
+        }
+        
+        .nav-link {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: rgba(0, 0, 0, 0.7) !important;
+            {% else %}
+            color: rgba(255, 255, 255, 0.8) !important;
+            {% endif %}
+        }
+        
+        .nav-link svg {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            stroke: rgba(0, 0, 0, 0.7) !important;
+            {% else %}
+            stroke: rgba(255, 255, 255, 0.8) !important;
+            {% endif %}
+        }
+        
+        .nav-link.active {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            background: #000000 !important;
+            color: white !important;
+            {% else %}
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: white !important;
+            {% endif %}
+        }
+        
+        .nav-link.active svg {
+            stroke: white !important;
+        }
+        
+        .nav-link:hover {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            background: rgba(0, 0, 0, 0.05) !important;
+            color: #000000 !important;
+            {% else %}
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            {% endif %}
+        }
+        
+        .nav-link:hover svg {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            stroke: #000000 !important;
+            {% else %}
+            stroke: white !important;
+            {% endif %}
+        }
+        
+        /* CARD HEADER COLOR - Content Page Headers */
+        .card-header {
+            background: {{ user.company.card_header_color|default:"#10b981" }} !important;
+            {% if user.company.card_header_color == '#f9fafb' or user.company.card_header_color == '#F9FAFB' %}
+            color: #000000 !important;
+            border: 1px solid #e5e7eb !important;
+            {% else %}
+            color: white !important;
+            {% endif %}
+            border-left: none !important;
+        }
+        
+        .card-title {
+            {% if user.company.card_header_color == '#f9fafb' or user.company.card_header_color == '#F9FAFB' %}
+            color: #000000 !important;
+            {% else %}
+            color: white !important;
+            {% endif %}
+        }
+        
+        .card-subtitle {
+            {% if user.company.card_header_color == '#f9fafb' or user.company.card_header_color == '#F9FAFB' %}
+            color: rgba(0, 0, 0, 0.7) !important;
+            {% else %}
+            color: rgba(255, 255, 255, 0.9) !important;
+            {% endif %}
+        }
+        
+        /* BUTTON COLOR - Primary action buttons (but NOT semantic buttons) */
+        .btn:not(.btn-secondary):not(.btn-destructive):not(.btn-warning):not(.btn-success):not(.btn-danger) {
+            background: {{ user.company.button_color|default:"#3b82f6" }} !important;
+            border-color: {{ user.company.button_color|default:"#3b82f6" }} !important;
+        }
+        
+        .btn:not(.btn-secondary):not(.btn-destructive):not(.btn-warning):not(.btn-success):not(.btn-danger):hover {
+            background: {{ user.company.button_color|default:"#3b82f6" }}dd !important;
+        }
+        
+        /* Preserve semantic button colors */
+        .btn-secondary {
+            background: hsl(var(--secondary)) !important;
+            color: hsl(var(--secondary-foreground)) !important;
+        }
+        
+        .btn-destructive,
+        .btn-danger,
+        button[onclick*="delete"],
+        button[onclick*="remove"],
+        a[href*="delete"] {
+            background: hsl(var(--destructive)) !important;
+            color: white !important;
+            border-color: hsl(var(--destructive)) !important;
+        }
+        
+        .btn-warning {
+            background: hsl(var(--warning)) !important;
+            color: hsl(var(--warning-foreground)) !important;
+            border-color: hsl(var(--warning)) !important;
+        }
+        
+        .btn-success {
+            background: hsl(var(--success)) !important;
+            color: white !important;
+            border-color: hsl(var(--success)) !important;
+        }
+        
+        /* Status badges with secondary color */
+        .status.approved,
+        .status.active {
+            background: {{ user.company.secondary_color|default:"#10b981" }}20 !important;
+            color: {{ user.company.secondary_color|default:"#10b981" }} !important;
+        }
+        
+        /* Links use secondary color */
+        a:not(.btn):not(.nav-link) {
+            color: {{ user.company.secondary_color|default:"#10b981" }};
+        }
+        
+        /* Progress bars, loaders */
+        .progress-bar,
+        .loader {
+            background: {{ user.company.secondary_color|default:"#10b981" }} !important;
+        }
+        
+        /* Focus states use secondary color */
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: {{ user.company.secondary_color|default:"#10b981" }} !important;
+            box-shadow: 0 0 0 3px {{ user.company.secondary_color|default:"#10b981" }}20 !important;
+        }
+        
+        /* Tab buttons */
+        .tab-btn {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            background: #f3f4f6 !important;
+            color: #374151 !important;
+            border: 1px solid #d1d5db !important;
+            {% endif %}
+        }
+        
+        .tab-btn.active {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            background: #000000 !important;
+            color: white !important;
+            border: 1px solid #000000 !important;
+            {% else %}
+            background: {{ user.company.secondary_color|default:"#10b981" }} !important;
+            color: white !important;
+            {% endif %}
+        }
+        
+        .tab-btn:hover {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            background: #e5e7eb !important;
+            color: #000000 !important;
+            {% endif %}
+        }
+        
+        /* Checkbox and radio use secondary color */
+        input[type="checkbox"]:checked,
+        input[type="radio"]:checked {
+            background-color: {{ user.company.secondary_color|default:"#10b981" }} !important;
+            border-color: {{ user.company.secondary_color|default:"#10b981" }} !important;
+        }
+        
+        /* TEXT COLOR - Apply to general content ONLY (NOT top bar or sidebar) */
+        .main-content p:not(.status):not(.badge),
+        .main-content label:not(.status):not(.badge),
+        .main-content td:not(.status):not(.badge),
+        .main-content th,
+        .main-content .card-content,
+        .main-content .form-hint,
+        .main-content span:not(.status):not(.badge):not(.welcome-text),
+        .content-card p,
+        .content-card label,
+        .content-card td,
+        .content-card th {
+            color: {{ user.company.text_color|default:"#1e293b" }} !important;
+        }
+        
+        /* Theme toggle button */
+        .theme-toggle-btn {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: #000000 !important;
+            {% else %}
+            color: rgba(255, 255, 255, 0.9) !important;
+            {% endif %}
+        }
+        
+        .theme-toggle-btn:hover {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            background: rgba(0, 0, 0, 0.05) !important;
+            {% else %}
+            background: rgba(255, 255, 255, 0.1) !important;
+            {% endif %}
+        }
+        
+        .theme-toggle-btn svg {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            stroke: #000000 !important;
+            {% else %}
+            stroke: rgba(255, 255, 255, 0.9) !important;
+            {% endif %}
+        }
+        
+        /* Logout button styling */
+        .top-header .logout-btn,
+        a.logout-btn {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            color: #ffffff !important;
+            background: #000000 !important;
+            {% else %}
+            color: #000000 !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            {% endif %}
+            padding: 6px 16px !important;
+            border-radius: 6px !important;
+            font-weight: 500 !important;
+        }
+        
+        .top-header .logout-btn:hover,
+        a.logout-btn:hover {
+            {% if user.company.primary_color == '#ffffff' or user.company.primary_color == '#FFFFFF' %}
+            background: #1f2937 !important;
+            color: white !important;
+            {% else %}
+            background: white !important;
+            color: #000000 !important;
+            {% endif %}
+        }
+        
+        /* Keep semantic colors for status indicators */
+        .status.pending,
+        .badge.pending {
+            background: #fef3c7 !important;
+            color: #92400e !important;
+        }
+        
+        .status.rejected,
+        .status.inactive,
+        .badge.rejected {
+            background: #fee2e2 !important;
+            color: #991b1b !important;
+        }
+        
+        .status.draft,
+        .badge.draft {
+            background: #dbeafe !important;
+            color: #1e40af !important;
+        }
+        
+        /* Error and success messages keep their colors */
+        .alert-error,
+        .alert-danger,
+        .text-danger,
+        .error-message {
+            color: hsl(var(--destructive)) !important;
+        }
+        
+        .alert-success,
+        .text-success,
+        .success-message {
+            color: hsl(var(--success)) !important;
+        }
+        
+        .alert-warning,
+        .text-warning {
+            color: hsl(var(--warning)) !important;
+        }
+        
+        .alert-info,
+        .text-info {
+            color: hsl(var(--info)) !important;
+        }
+        
+        /* Required field asterisks stay red */
+        .required,
+        span[style*="color:#ef4444"],
+        span[style*="color:red"] {
+            color: #ef4444 !important;
+        }
+    </style>
+    {% endif %}
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-layout">
+        {% block sidebar %}
+        <!-- Auto-detect sidebar based on user role for communication pages -->
+        {% if user.is_authenticated %}
+            {% if user.role in 'ADMINISTRATOR,EMPLOYER_ADMIN' %}
+                {% include 'ems/partials/sidebar_employer.html' %}
+            {% elif user.role == 'EMPLOYEE' %}
+                <!-- Employee sidebar is provided by base_employee.html -->
+            {% endif %}
+        {% endif %}
+        {% endblock %}
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="page-title">
+                    <h1>{% block page_title %}Employee Management System{% endblock %}</h1>
+                </div>
+                <div class="user-info">
+                    <span class="welcome-text">
+                        Welcome, {{ user.get_full_name|default:user.email }} ({{ user.get_role_display }})
+                    </span>
+                    
+                    <!-- Notification & Message Icons -->
+                    <div style="display: flex; gap: 16px; align-items: center; margin-left: 24px;">
+                        <!-- Messages Icon -->
+                        <a href="{% url 'direct_messages_list' %}" style="position: relative; text-decoration: none; color: #64748b; transition: color 0.2s; display: inline-block;" title="Messages" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            {% if unread_messages_count > 0 %}
+                            <span style="position: absolute; top: -6px; right: -8px; background: #ef4444; color: white; border-radius: 10px; padding: 2px 6px; font-size: 10px; font-weight: 600; min-width: 18px; text-align: center;">
+                                {{ unread_messages_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                        
+                        <!-- Notifications Icon -->
+                        <a href="{% url 'notifications_list' %}" style="position: relative; text-decoration: none; color: #64748b; transition: color 0.2s; display: inline-block;" title="Notifications" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            {% if unread_notifications_count > 0 %}
+                            <span style="position: absolute; top: -6px; right: -8px; background: #ef4444; color: white; border-radius: 10px; padding: 2px 6px; font-size: 10px; font-weight: 600; min-width: 18px; text-align: center;">
+                                {{ unread_notifications_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </div>
+                    
+                    {% if user.role == 'ADMIN' or user.role == 'SUPERADMIN' or user.role == 'ADMINISTRATOR' or user.role == 'EMPLOYER_ADMIN' %}
+                    <button onclick="toggleSystemTheme()" class="theme-toggle-btn" title="Toggle Light/Dark Theme" style="background:none; border:none; cursor:pointer; padding:6px 12px; display:flex; align-items:center; gap:6px; border-radius:6px; transition:background 0.2s;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    {% endif %}
+                    
+                    <a href="{% url 'ems_logout' %}" class="logout-btn">Sign Out</a>
+                </div>
+            </header>
+
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    {% block scripts %}{% endblock %}
+    
+    <script>
+    function toggleSystemTheme() {
+        // Toggle theme for current user only (stored in localStorage)
+        const currentTheme = localStorage.getItem('userThemePreference') || 'company';
+        const newTheme = currentTheme === 'company' ? 'light' : 'company';
+        
+        localStorage.setItem('userThemePreference', newTheme);
+        
+        // Reload to apply theme
+        window.location.reload();
+    }
+    
+    // Apply user's theme preference on page load
+    (function() {
+        const userPref = localStorage.getItem('userThemePreference');
+        if (userPref === 'light') {
+            // Apply light theme CSS overrides
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .top-header, .sidebar, .sidebar-header { background: #ffffff !important; border: 1px solid #e5e7eb !important; }
+                .top-header *, .sidebar *, .nav-link { color: rgba(0, 0, 0, 0.7) !important; }
+                .top-header h1, .sidebar-title { color: #000000 !important; }
+                .top-header svg, .nav-link svg { stroke: #000000 !important; }
+                .nav-link.active { background: #2d3748 !important; color: white !important; }
+                .nav-link.active svg { stroke: white !important; }
+                .nav-link:hover:not(.active) { background: #f3f4f6 !important; color: #000000 !important; }
+                .nav-link:hover:not(.active) svg { stroke: #000000 !important; }
+                .logout-btn { background: #2d3748 !important; color: white !important; }
+                .theme-toggle-btn { color: #000000 !important; }
+                .theme-toggle-btn svg { stroke: #000000 !important; }
+                .card-header { background: #f9fafb !important; color: #000000 !important; border: 1px solid #e5e7eb !important; }
+                .card-title { color: #000000 !important; }
+                .btn:not(.btn-secondary):not(.btn-destructive):not(.btn-warning):not(.btn-success):not(.btn-danger) { background: #2d3748 !important; border-color: #2d3748 !important; }
+                .tab-btn { background: #f3f4f6 !important; color: #374151 !important; border: 1px solid #d1d5db !important; }
+                .tab-btn.active { background: #2d3748 !important; color: white !important; }
+            `;
+            document.head.appendChild(style);
+        }
+    })();
+    </script>
+</body>
+</html>

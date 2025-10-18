@@ -1,0 +1,1188 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Edit Employee - {{ employee.first_name }} {{ employee.last_name }} - EMS{% endblock %}
+
+{% block page_title %}Edit Employee{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <a href="{% url 'employer_employee_management' %}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 14px;">
+        ← Back to Employee Management
+    </a>
+    <div style="font-size: 14px; color: #64748b;">
+        {{ company.name }} {{ user.role|title }}
+    </div>
+</div>
+
+<style>
+    .tab-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .tab-list {
+        display: inline-flex;
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        background: hsl(var(--muted));
+        padding: 4px;
+        gap: 4px;
+    }
+
+    .tab-button {
+        border: none;
+        background: transparent;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: hsl(var(--muted));
+        color: hsl(var(--muted-foreground));
+        border: 1px solid transparent;
+    }
+
+    .tab-button:hover {
+        background: hsl(var(--accent));
+        color: hsl(var(--accent-foreground));
+    }
+
+    .tab-button.active {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        box-shadow: 0 5px 15px rgba(15, 23, 42, 0.18);
+        border-color: hsl(var(--primary));
+    }
+
+    .tab-panel {
+        display: none;
+    }
+
+    .tab-panel.active {
+        display: block;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 18px;
+        color: #0f172a;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .checkbox-field {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .simple-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+    }
+
+    .simple-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 16px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .document-upload {
+        margin-bottom: 16px;
+    }
+
+    .detail-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 14px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .detail-item span:first-child {
+        font-weight: 600;
+        color: hsl(var(--foreground));
+    }
+
+    .section-divider {
+        border-top: 1px solid #e2e8f0;
+        margin: 20px 0;
+    }
+
+    .summary-heading {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 10px;
+    }
+
+    .document-summary {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        background: hsl(var(--muted));
+    }
+
+    .document-progress {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        color: hsl(var(--foreground));
+    }
+
+    .document-progress strong {
+        font-size: 18px;
+    }
+
+    .document-tab-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .document-tab-list {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+
+    .document-tab-button {
+        border: 1px solid hsl(var(--border));
+        background: hsl(var(--card));
+        border-radius: 8px;
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 180px;
+        align-items: flex-start;
+        cursor: pointer;
+        transition: background 0.2s ease, border 0.2s ease;
+    }
+
+    .document-tab-button.active {
+        border-color: hsl(var(--primary));
+        background: rgba(15, 23, 42, 0.12);
+    }
+
+    .document-tab-button span {
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .document-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: hsl(var(--muted));
+        color: hsl(var(--muted-foreground));
+    }
+
+    .document-pill.required {
+        background: rgba(239, 68, 68, 0.12);
+        color: #ef4444;
+    }
+
+    .document-pill.complete {
+        background: rgba(34, 197, 94, 0.18);
+        color: #047857;
+    }
+
+    .document-pill.incomplete {
+        background: rgba(234, 179, 8, 0.18);
+        color: #92400e;
+    }
+
+    .document-tab-panel {
+        display: none;
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        padding: 20px;
+        background: hsl(var(--card));
+    }
+
+    .document-tab-panel.active {
+        display: block;
+    }
+
+    .document-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .document-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid hsl(var(--border));
+        border-radius: 8px;
+        padding: 12px 16px;
+    }
+
+    .document-row-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        color: hsl(var(--muted-foreground));
+        font-size: 12px;
+    }
+
+    .document-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .document-upload-form {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid hsl(var(--border));
+        display: grid;
+        gap: 16px;
+    }
+
+    .document-upload-form .grid-2 {
+        margin-bottom: 0;
+    }
+
+    .document-empty {
+        padding: 24px;
+        text-align: center;
+        color: hsl(var(--muted-foreground));
+        border: 1px dashed hsl(var(--border));
+        border-radius: 8px;
+    }
+
+    .document-link {
+        color: hsl(var(--primary));
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .document-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 900px) {
+        .tab-list {
+            flex-wrap: wrap;
+        }
+        .tab-button {
+            flex: 1 1 auto;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-document-tabs]').forEach(container => {
+            const buttons = container.querySelectorAll('[data-doc-tab]');
+            const panels = container.querySelectorAll('.document-tab-panel');
+
+            function activate(tabId) {
+                buttons.forEach(btn => btn.classList.toggle('active', btn.dataset.docTab === tabId));
+                panels.forEach(panel => panel.classList.toggle('active', panel.id === tabId));
+            }
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => activate(btn.dataset.docTab));
+            });
+
+            const firstButton = buttons[0];
+            if (firstButton) {
+                activate(firstButton.dataset.docTab);
+            }
+        });
+    });
+</script>
+
+<!-- Enhanced Statistics Dashboard -->
+{% if contract_expiry_warning %}
+<div style="background: {% if contract_expiry_warning.is_critical %}#fee2e2{% else %}#fef3c7{% endif %}; border: 1px solid {% if contract_expiry_warning.is_critical %}#ef4444{% else %}#f59e0b{% endif %}; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{% if contract_expiry_warning.is_critical %}#dc2626{% else %}#d97706{% endif %}" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <div>
+            <strong style="color: {% if contract_expiry_warning.is_critical %}#dc2626{% else %}#d97706{% endif %};">
+                {% if contract_expiry_warning.is_critical %}Critical: {% endif %}{{ contract_expiry_warning.type|default:"Contract" }} Expiry Warning
+            </strong>
+            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 14px;">
+                Expires in <strong>{{ contract_expiry_warning.days }} days</strong> on {{ contract_expiry_warning.date|date:"F d, Y" }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Stats Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    <!-- Profile Completeness -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 14px; color: #64748b;">Profile Complete</span>
+            <span style="font-size: 20px; font-weight: 600; color: {% if profile_completeness >= 80 %}#10b981{% elif profile_completeness >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">{{ profile_completeness }}%</span>
+        </div>
+        <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+            <div style="width: {{ profile_completeness }}%; height: 100%; background: {% if profile_completeness >= 80 %}#10b981{% elif profile_completeness >= 50 %}#f59e0b{% else %}#ef4444{% endif %}; transition: width 0.3s;"></div>
+        </div>
+        <p style="margin: 8px 0 0 0; font-size: 12px; color: #94a3b8;">{{ completed_fields }}/{{ total_fields }} fields</p>
+    </div>
+
+    <!-- Attendance Rate -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 14px; color: #64748b;">Attendance (30d)</span>
+            <span style="font-size: 20px; font-weight: 600; color: {% if attendance_rate >= 90 %}#10b981{% elif attendance_rate >= 75 %}#f59e0b{% else %}#ef4444{% endif %};">{{ attendance_rate }}%</span>
+        </div>
+        <div style="display: flex; gap: 8px; font-size: 12px; color: #64748b;">
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg> {{ present_days }}</span>
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg> {{ late_days }}</span>
+            <span>✗ {{ absent_days }}</span>
+        </div>
+    </div>
+
+    <!-- Leave Requests -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px; color: #64748b;">Leave Requests</span>
+            {% if pending_leaves > 0 %}
+            <span style="background: #fef3c7; color: #d97706; font-size: 12px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">{{ pending_leaves }} pending</span>
+            {% endif %}
+        </div>
+        <div style="display: flex; gap: 12px; font-size: 12px; color: #64748b;">
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg> {{ approved_leaves }}</span>
+            <span>✗ {{ rejected_leaves }}</span>
+        </div>
+    </div>
+
+    <!-- Time with Company -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px; color: #64748b;">Time Employed</span>
+        </div>
+        <div style="font-size: 18px; font-weight: 600; color: #0f172a;">
+            {{ years_employed }}y {{ months_employed }}m
+        </div>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">{{ days_employed }} days total</p>
+    </div>
+
+    <!-- Documents -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px; color: #64748b;">Documents</span>
+            {% if pending_documents > 0 %}
+            <span style="background: #dbeafe; color: #2563eb; font-size: 12px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">{{ pending_documents }} pending</span>
+            {% endif %}
+        </div>
+        <div style="font-size: 18px; font-weight: 600; color: #0f172a;">{{ total_documents }}</div>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">{{ approved_documents }} approved</p>
+    </div>
+
+    <!-- Performance Reviews -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px; color: #64748b;">Reviews</span>
+        </div>
+        <div style="font-size: 18px; font-weight: 600; color: #0f172a;">{{ performance_reviews_count }}</div>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Performance reviews</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: flex-start;">
+    <!-- Employee Summary -->
+    <div class="content-card" style="position: sticky; top: 96px;">
+        <div class="card-header">
+            <div class="card-title">Employee Summary</div>
+        </div>
+        <div class="card-content">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <form id="profilePictureForm" method="post" action="{% url 'employee_profile_picture_upload' employee.id %}" enctype="multipart/form-data" style="display: inline-block; position: relative;">
+                    {% csrf_token %}
+                    <label for="profilePictureInput" style="cursor: pointer; display: block; position: relative;">
+                        {% if employee.profile_picture %}
+                        <img src="{{ employee.profile_picture.url }}" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid hsl(var(--border));">
+                        {% else %}
+                        <div style="width: 80px; height: 80px; background: hsl(var(--primary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: hsl(var(--primary-foreground)); border: 2px solid hsl(var(--border));">
+                            {{ employee.first_name|first|upper }}{{ employee.last_name|first|upper }}
+                        </div>
+                        {% endif %}
+                        <div style="position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; background: hsl(var(--primary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; cursor: pointer;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"></path>
+                            </svg>
+                        </div>
+                    </label>
+                    <input type="file" id="profilePictureInput" name="profile_picture" accept="image/*" style="display: none;" onchange="document.getElementById('profilePictureForm').submit();">
+                </form>
+                <h3 style="margin: 8px 0 0 0; color: hsl(var(--foreground));">{{ employee.first_name }} {{ employee.last_name }}</h3>
+                <p style="margin: 4px 0 0 0; color: hsl(var(--muted-foreground));">{{ profile.job_title|default:profile.position|default:'Employee' }}</p>
+            </div>
+
+            <div class="detail-list" style="border-top: 1px solid hsl(var(--border)); padding-top: 16px;">
+                {% if employee.profile_picture %}
+                <div class="detail-item" style="flex-direction: column; align-items: flex-start;">
+                    <span>Profile Picture</span>
+                    <a href="{{ employee.profile_picture.url }}" target="_blank" style="color: hsl(var(--primary)); text-decoration: none;">View</a>
+                </div>
+                {% endif %}
+
+                <div class="summary-heading">Employment</div>
+                <div class="detail-item">
+                    <span>Status</span>
+                    <span style="{% if employee.is_active %}color: hsl(var(--success));{% else %}color: hsl(var(--destructive));{% endif %}">{{ employee.is_active|yesno:"Active,Inactive" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Role</span>
+                    <span>{% if profile and profile.employee_role %}{{ profile.get_employee_role_display }}{% else %}{{ employee.get_role_display|default:"Employee" }}{% endif %}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Employee ID</span>
+                    <span>{{ profile.employee_id|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Department</span>
+                    <span>{{ profile.department|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Position</span>
+                    <span>{{ profile.position|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Hire Date</span>
+                    <span>{% if profile.hire_date %}{{ profile.hire_date|date:'M d, Y' }}{% else %}—{% endif %}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Pay Grade</span>
+                    <span>{{ profile.pay_grade|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Salary</span>
+                    <span>{% if profile.salary %}${{ profile.salary }}{% else %}—{% endif %}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Contract Type</span>
+                    <span>{{ profile.get_employment_type_display|default:'Not specified' }}</span>
+                </div>
+
+                <div class="section-divider"></div>
+                <div class="summary-heading">Contact</div>
+                <div class="detail-item">
+                    <span>Email</span>
+                    <span>{{ employee.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Phone</span>
+                    <span>{{ employee.phone|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Date of Birth</span>
+                    <span>{% if employee.date_of_birth %}{{ employee.date_of_birth|date:'M d, Y' }}{% else %}—{% endif %}</span>
+                </div>
+                <div class="detail-item" style="flex-direction: column; align-items: flex-start;">
+                    <span>Address</span>
+                    <span style="color: hsl(var(--muted-foreground));">{{ employee.address|default:'—' }}</span>
+                </div>
+
+                <div class="section-divider"></div>
+                <div class="summary-heading">Bank Details</div>
+                <div class="detail-item">
+                    <span>Bank</span>
+                    <span>{{ profile.bank_name|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Account #</span>
+                    <span>{{ profile.account_number|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Branch</span>
+                    <span>{{ profile.bank_branch|default:'—' }}</span>
+                </div>
+
+                <div class="section-divider"></div>
+                <div class="summary-heading">Emergency Contact</div>
+                <div class="detail-item">
+                    <span>Name</span>
+                    <span>{{ profile.emergency_contact_name|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Phone</span>
+                    <span>{{ profile.emergency_contact_phone|default:'—' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Email</span>
+                    <span>{{ profile.emergency_contact_email|default:'—' }}</span>
+                </div>
+                <div class="detail-item" style="flex-direction: column; align-items: flex-start;">
+                    <span>Address</span>
+                    <span style="color: hsl(var(--muted-foreground));">{{ profile.emergency_contact_address|default:'—' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Forms with Tabs -->
+    <div class="content-card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Edit Information</div>
+                <div class="card-subtitle">Update employee details</div>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="tab-container">
+                <div class="tab-list" role="tablist">
+                    <button class="tab-button active" data-tab="personal" role="tab">Personal</button>
+                    <button class="tab-button" data-tab="employment" role="tab">Employment</button>
+                    <button class="tab-button" data-tab="documents" role="tab">Documents</button>
+                    <button class="tab-button" data-tab="permissions" role="tab">Permissions</button>
+                </div>
+
+                <form id="editEmployeeForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="tab-panel active" id="tab-personal" role="tabpanel">
+                        <h3 class="section-title">Personal Information</h3>
+                        <div class="grid-2">
+                            <div>
+                                <label class="control-label">First Name *</label>
+                                <input type="text" name="first_name" class="control-input" value="{{ employee.first_name }}" required>
+                            </div>
+                            <div>
+                                <label class="control-label">Last Name *</label>
+                                <input type="text" name="last_name" class="control-input" value="{{ employee.last_name }}" required>
+                            </div>
+                            <div>
+                                <label class="control-label">Email *</label>
+                                <input type="email" name="email" class="control-input" value="{{ employee.email }}" required>
+                            </div>
+                            <div>
+                                <label class="control-label">Phone</label>
+                                <input type="tel" name="phone" class="control-input" value="{{ employee.phone_number|default:"" }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Date of Birth</label>
+                                <input type="date" name="date_of_birth" class="control-input" value="{{ employee.date_of_birth|date:'Y-m-d'|default:"" }}">
+                            </div>
+                        </div>
+
+                        <div class="grid-2" style="align-items: end;">
+                            <div>
+                                <label class="control-label">Profile Picture</label>
+                                <input type="file" name="profile_picture" class="control-input" accept="image/*">
+                                {% if employee.profile_picture %}
+                                    <div style="margin-top: 8px; font-size: 12px; color: #64748b;">Current: <a href="{{ employee.profile_picture.url }}" target="_blank">View</a></div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <label class="control-label">Address</label>
+                            <textarea name="address" class="control-input" style="min-height: 80px;">{{ employee.address|default:"" }}</textarea>
+                        </div>
+
+                        <label class="checkbox-field">
+                            <input type="checkbox" name="is_active" {% if employee.is_active %}checked{% endif %}>
+                            Active Employee
+                        </label>
+                    </div>
+
+                    <div class="tab-panel" id="tab-employment" role="tabpanel">
+                        <h3 class="section-title">Employment Information</h3>
+                        <div class="grid-2">
+                            <div>
+                                <label class="control-label">Employee ID</label>
+                                <input type="text" name="employee_id" class="control-input" value="{{ profile.employee_id|default:"" }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Department</label>
+                                <select name="department" class="control-input">
+                                    <option value="">Select department</option>
+                                    {% for dept in company_departments %}
+                                        <option value="{{ dept.name }}" {% if profile.department == dept.name %}selected{% endif %}>{{ dept.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="control-label">Job Title</label>
+                                <select name="job_title" class="control-input">
+                                    <option value="">Select job title</option>
+                                    {% for pos in company_positions %}
+                                        <option value="{{ pos.name }}" {% if profile.job_title == pos.name %}selected{% endif %}>{{ pos.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="control-label">Position</label>
+                                <select name="position" class="control-input">
+                                    <option value="">Select position</option>
+                                    {% for pos in company_positions %}
+                                        <option value="{{ pos.name }}" {% if profile.position == pos.name %}selected{% endif %}>{{ pos.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="control-label">Hire Date</label>
+                                <input type="date" name="hire_date" class="control-input" value="{{ profile.hire_date|date:"Y-m-d"|default:"" }}">
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div>
+                                <label class="control-label">Employee Role</label>
+                                <select name="employee_role" class="control-input">
+                                    {% for value, label in employee_role_choices %}
+                                        <option value="{{ value }}" {% if value == selected_employee_role %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="control-label">Salary</label>
+                                <input type="number" name="salary" class="control-input" value="{{ profile.salary|default:"" }}" step="0.01">
+                            </div>
+                            <div>
+                                <label class="control-label">Pay Grade</label>
+                                <select name="pay_grade" class="control-input">
+                                    <option value="">Select pay grade</option>
+                                    {% for grade in company_pay_grades %}
+                                        <option value="{{ grade.name }}" {% if profile.pay_grade == grade.name %}selected{% endif %}>{{ grade.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="control-label">Employment Type</label>
+                                <select name="employment_type" id="employment_type" class="control-input">
+                                    <option value="">Select type</option>
+                                    {% for value, label in employment_type_choices %}
+                                        <option value="{{ value }}" {% if value == selected_employment_type %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Employment Type Specific Dates -->
+                        <div id="probation-dates" class="grid-2" style="display: none; margin-top: 16px;">
+                            <div>
+                                <label class="control-label">Probation Start Date</label>
+                                <input type="date" name="probation_start_date" class="control-input" value="{{ profile.probation_start_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Probation End Date</label>
+                                <input type="date" name="probation_end_date" class="control-input" value="{{ profile.probation_end_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div id="contract-dates" class="grid-2" style="display: none; margin-top: 16px;">
+                            <div>
+                                <label class="control-label">Contract Start Date</label>
+                                <input type="date" name="contract_start_date" class="control-input" value="{{ profile.contract_start_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Contract End Date</label>
+                                <input type="date" name="contract_end_date" class="control-input" value="{{ profile.contract_end_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div id="temporary-dates" class="grid-2" style="display: none; margin-top: 16px;">
+                            <div>
+                                <label class="control-label">Temporary Start Date</label>
+                                <input type="date" name="temporary_start_date" class="control-input" value="{{ profile.temporary_start_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Temporary End Date</label>
+                                <input type="date" name="temporary_end_date" class="control-input" value="{{ profile.temporary_end_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="section-divider"></div>
+
+                        <h3 class="section-title">Payroll & Banking</h3>
+                        <div class="grid-2">
+                            <div>
+                                <label class="control-label">Currency</label>
+                                <select name="currency" class="control-input">
+                                    {% for value, label in currency_choices %}
+                                        <option value="{{ value }}" {% if value == selected_currency %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div></div>
+                            <div>
+                                <label class="control-label">Bank Name</label>
+                                <input type="text" name="bank_name" class="control-input" value="{{ profile.bank_name|default:"" }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Account Number</label>
+                                <input type="text" name="account_number" class="control-input" value="{{ profile.account_number|default:"" }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Bank Branch</label>
+                                <input type="text" name="bank_branch" class="control-input" value="{{ profile.bank_branch|default:"" }}">
+                            </div>
+                        </div>
+
+                        <div class="section-divider"></div>
+
+                        <h3 class="section-title">Emergency Contact</h3>
+                        <div class="grid-2">
+                            <div>
+                                <label class="control-label">Contact Name</label>
+                                <input type="text" name="emergency_contact_name" class="control-input" value="{{ profile.emergency_contact_name|default:"" }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Contact Phone</label>
+                                <input type="text" name="emergency_contact_phone" class="control-input" value="{{ profile.emergency_contact_phone|default:"" }}">
+                            </div>
+                            <div>
+                                <label class="control-label">Contact Email</label>
+                                <input type="email" name="emergency_contact_email" class="control-input" value="{{ profile.emergency_contact_email|default:"" }}">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label class="control-label">Contact Address</label>
+                            <textarea name="emergency_contact_address" class="control-input" style="min-height: 80px;">{{ profile.emergency_contact_address|default:"" }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tab-documents" role="tabpanel">
+                        <h3 class="section-title">Documents</h3>
+
+                        <div class="document-summary">
+                            <div class="document-progress">
+                                <strong>Required documents {{ required_documents_completed }}/{{ required_documents_total }}</strong>
+                                <span>Keep employee records up to date with signed contracts, IDs, and more.</span>
+                            </div>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <a href="{% url 'documents_list' %}" class="btn btn-secondary">Open Documents Workspace</a>
+                            </div>
+                        </div>
+
+                        {% if documents_by_category or uncategorized_documents %}
+                        <div class="document-tab-container" data-document-tabs>
+                            <div class="document-tab-list" role="tablist">
+                                {% for entry in documents_by_category %}
+                                <button type="button" class="document-tab-button {% if forloop.first %}active{% endif %}" data-doc-tab="{{ entry.tab_id }}" role="tab">
+                                    <div style="font-weight: 600; color: hsl(var(--foreground));">{{ entry.category.name }}</div>
+                                    <span>
+                                        <span class="document-pill {{ entry.is_required|yesno:'required,' }}">{% if entry.is_required %}Required{% else %}Optional{% endif %}</span>
+                                        <span class="document-pill {{ entry.is_completed|yesno:'complete,incomplete' }}">{{ entry.is_completed|yesno:'Complete,Missing' }}</span>
+                                    </span>
+                                </button>
+                                {% endfor %}
+                                {% if uncategorized_documents %}
+                                <button type="button" class="document-tab-button {% if not documents_by_category %}active{% endif %}" data-doc-tab="category-uncategorized" role="tab">
+                                    <div style="font-weight: 600; color: hsl(var(--foreground));">Other Documents</div>
+                                    <span>
+                                        <span class="document-pill">Uncategorized</span>
+                                        <span class="document-pill complete">{{ uncategorized_documents|length }} file{% if uncategorized_documents|length != 1 %}s{% endif %}</span>
+                                    </span>
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            <div class="document-tab-panels">
+                                {% for entry in documents_by_category %}
+                                <div class="document-tab-panel {% if forloop.first %}active{% endif %}" id="{{ entry.tab_id }}" role="tabpanel">
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                                        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                                            <div>
+                                                <div style="font-weight: 600; color: hsl(var(--foreground));">{{ entry.category.name }}</div>
+                                                {% if entry.category.description %}
+                                                <div style="font-size: 13px; color: hsl(var(--muted-foreground));">{{ entry.category.description }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div style="display: flex; gap: 8px; align-items: center;">
+                                                <span class="document-pill">Auto type: {{ entry.default_document_type_label }}</span>
+                                                {% if entry.is_required %}<span class="document-pill required">Required</span>{% endif %}
+                                            </div>
+                                        </div>
+
+                                        {% if entry.documents %}
+                                        <div class="document-list">
+                                            {% for doc in entry.documents %}
+                                            <div class="document-row">
+                                                <div>
+                                                    <div style="font-weight: 600; color: hsl(var(--foreground));">{{ doc.title }}</div>
+                                                    <div class="document-row-meta">
+                                                        <span>Version {{ doc.version }}</span>
+                                                        <span>{{ doc.get_status_display }}</span>
+                                                        <span>{{ doc.get_document_type_display }}</span>
+                                                        <span>Uploaded {{ doc.created_at|date:'M d, Y' }}</span>
+                                                        <span>By {{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.email }}</span>
+                                                        {% if doc.expiry_date %}<span>Expires {{ doc.expiry_date|date:'M d, Y' }}</span>{% endif %}
+                                                        {% if doc.is_confidential %}<span>Confidential</span>{% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="document-actions">
+                                                    <a href="{% url 'document_download' doc.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Download</a>
+                                                    {% if doc.status == 'PENDING' and request.user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+                                                        <a href="{% url 'document_approve' doc.id %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Approve</a>
+                                                        <a href="{% url 'document_reject' doc.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Reject</a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        <div class="document-empty">
+                                            No documents uploaded for this category yet.
+                                        </div>
+                                        {% endif %}
+
+                                        <form method="post" action="{% url 'employee_document_upload' employee.id %}" enctype="multipart/form-data" class="document-upload-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="category_id" value="{{ entry.category.id }}">
+                                            <input type="hidden" name="document_type" value="{{ entry.default_document_type }}">
+                                            <div class="grid-2">
+                                                <div>
+                                                    <label class="control-label">Title *</label>
+                                                    <input type="text" name="title" class="control-input" required placeholder="e.g. {{ entry.category.name }}">
+                                                </div>
+                                                <div>
+                                                    <label class="control-label">Expiry Date</label>
+                                                    <input type="date" name="expiry_date" class="control-input">
+                                                </div>
+                                                <div>
+                                                    <label class="control-label">Description</label>
+                                                    <textarea name="description" class="control-input" rows="2" placeholder="Optional notes"></textarea>
+                                                </div>
+                                                <div>
+                                                    <label class="control-label">File *</label>
+                                                    <input type="file" name="file" class="control-input" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx,.txt,.rtf">
+                                                </div>
+                                            </div>
+                                            <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: hsl(var(--muted-foreground));">
+                                                <input type="checkbox" name="is_confidential">
+                                                Mark as confidential
+                                            </label>
+                                            <div style="display: flex; gap: 12px;">
+                                                <button type="submit" class="btn btn-primary">Upload Document</button>
+                                                <span style="font-size: 12px; color: hsl(var(--muted-foreground));">Automatically tagged as {{ entry.default_document_type_label }}.</span>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                                {% if uncategorized_documents %}
+                                <div class="document-tab-panel {% if not documents_by_category %}active{% endif %}" id="category-uncategorized" role="tabpanel">
+                                    {% if uncategorized_documents %}
+                                    <div class="document-list">
+                                        {% for doc in uncategorized_documents %}
+                                        <div class="document-row">
+                                            <div>
+                                                <div style="font-weight: 600; color: hsl(var(--foreground));">{{ doc.title }}</div>
+                                                <div class="document-row-meta">
+                                                    <span>Version {{ doc.version }}</span>
+                                                    <span>{{ doc.get_status_display }}</span>
+                                                    <span>{{ doc.get_document_type_display }}</span>
+                                                    <span>Uploaded {{ doc.created_at|date:'M d, Y' }}</span>
+                                                    <span>By {{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.email }}</span>
+                                                    {% if doc.expiry_date %}<span>Expires {{ doc.expiry_date|date:'M d, Y' }}</span>{% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="document-actions">
+                                                <a href="{% url 'document_download' doc.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Download</a>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <div class="document-empty" style="margin-top: 16px;">
+                                        Upload new documents directly to required categories above for automatic tagging.
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="document-empty" style="margin-top: 16px;">
+                            No document categories configured yet. Visit the <a href="{% url 'documents_list' %}" class="document-link">Documents workspace</a> to add categories.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="tab-panel" id="tab-permissions" role="tabpanel">
+                        <h3 class="section-title">Employee Activity & History</h3>
+
+                        <!-- Recent Leave Requests -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0f172a;">Recent Leave Requests</h4>
+                            {% if recent_leaves %}
+                            <div style="border: 1px solid hsl(var(--border)); border-radius: 8px; overflow: hidden;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead style="background: hsl(var(--muted));">
+                                        <tr>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">Type</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">Start Date</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">End Date</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">Days</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for leave in recent_leaves %}
+                                        <tr style="border-top: 1px solid hsl(var(--border));">
+                                            <td style="padding: 12px; font-size: 14px;">{{ leave.leave_type }}</td>
+                                            <td style="padding: 12px; font-size: 14px;">{{ leave.start_date|date:"M d, Y" }}</td>
+                                            <td style="padding: 12px; font-size: 14px;">{{ leave.end_date|date:"M d, Y" }}</td>
+                                            <td style="padding: 12px; font-size: 14px;">{{ leave.number_of_days }}</td>
+                                            <td style="padding: 12px;">
+                                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
+                                                    {% if leave.status == 'APPROVED' %}background: #d1fae5; color: #065f46;
+                                                    {% elif leave.status == 'PENDING' %}background: #fef3c7; color: #92400e;
+                                                    {% elif leave.status == 'REJECTED' %}background: #fee2e2; color: #991b1b;
+                                                    {% endif %}">
+                                                    {{ leave.get_status_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p style="color: #94a3b8; font-style: italic;">No leave requests found</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Recent Performance Reviews -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0f172a;">Performance Reviews</h4>
+                            {% if performance_reviews %}
+                            <div style="border: 1px solid hsl(var(--border)); border-radius: 8px; overflow: hidden;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead style="background: hsl(var(--muted));">
+                                        <tr>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">Review Date</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">Reviewer</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">Period</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b;">Rating</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for review in performance_reviews %}
+                                        <tr style="border-top: 1px solid hsl(var(--border));">
+                                            <td style="padding: 12px; font-size: 14px;">{{ review.review_date|date:"M d, Y" }}</td>
+                                            <td style="padding: 12px; font-size: 14px;">{{ review.reviewer.get_full_name }}</td>
+                                            <td style="padding: 12px; font-size: 14px;">{{ review.review_period_start|date:"M Y" }} - {{ review.review_period_end|date:"M Y" }}</td>
+                                            <td style="padding: 12px;">
+                                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
+                                                    {% if review.overall_rating >= 4 %}background: #d1fae5; color: #065f46;
+                                                    {% elif review.overall_rating >= 3 %}background: #dbeafe; color: #1e40af;
+                                                    {% else %}background: #fef3c7; color: #92400e;
+                                                    {% endif %}">
+                                                    {{ review.overall_rating }}/5
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p style="color: #94a3b8; font-style: italic;">No performance reviews found</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div>
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0f172a;">Quick Actions</h4>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                <a href="{% url 'attendance_dashboard' %}?employee={{ employee.id }}" class="btn btn-secondary" style="text-decoration: none;">
+                                    View Attendance
+                                </a>
+                                <a href="{% url 'leave_management' %}?employee={{ employee.id }}" class="btn btn-secondary" style="text-decoration: none;">
+                                    Manage Leaves
+                                </a>
+                                {% if performance_reviews_count > 0 %}
+                                <a href="#" class="btn btn-secondary" style="text-decoration: none;">
+                                    View All Reviews
+                                </a>
+                                {% else %}
+                                <a href="#" class="btn btn-primary" style="text-decoration: none;">
+                                    Create First Review
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 32px; padding: 16px; background: hsl(var(--muted)); border-radius: 8px;">
+                            <p style="color: #64748b; font-size: 14px; margin: 0;">
+                                <strong>Note:</strong> Advanced access controls and permissions are managed by the system administrator. Contact your administrator for role-based access adjustments.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 24px; border-top: 2px solid hsl(var(--border));">
+                        <div style="color: #64748b; font-size: 14px;">
+                            <span style="font-weight: 600;">Note:</span> All changes will be saved immediately upon submission.
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <a href="{% url 'employer_employee_management' %}" class="btn btn-secondary" style="text-decoration: none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; vertical-align: middle;">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" style="background: #10b981; border-color: #10b981; min-width: 180px; font-weight: 600;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; vertical-align: middle;">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                Update Employee
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab navigation
+    const buttons = document.querySelectorAll('.tab-button');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tab = this.dataset.tab;
+            buttons.forEach(btn => btn.classList.remove('active'));
+            panels.forEach(panel => panel.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        });
+    });
+
+    // Employment type conditional fields
+    const employmentTypeSelect = document.getElementById('employment_type');
+    const probationDates = document.getElementById('probation-dates');
+    const contractDates = document.getElementById('contract-dates');
+    const temporaryDates = document.getElementById('temporary-dates');
+
+    function toggleEmploymentDateSections(type) {
+        if (!probationDates || !contractDates || !temporaryDates) {
+            return;
+        }
+
+        probationDates.style.display = 'none';
+        contractDates.style.display = 'none';
+        temporaryDates.style.display = 'none';
+
+        if (type === 'PROBATION') {
+            probationDates.style.display = 'grid';
+        } else if (type === 'CONTRACT') {
+            contractDates.style.display = 'grid';
+        } else if (type === 'TEMPORARY') {
+            temporaryDates.style.display = 'grid';
+        }
+    }
+
+    if (employmentTypeSelect) {
+        employmentTypeSelect.addEventListener('change', function() {
+            toggleEmploymentDateSections(this.value);
+        });
+        toggleEmploymentDateSections(employmentTypeSelect.value);
+    }
+
+    // Form submission handler - Target the CORRECT form by ID
+    const form = document.getElementById('editEmployeeForm');
+    const submitButton = form ? form.querySelector('button[type="submit"]') : null;
+    
+    if (form) {
+        console.log('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg> CORRECT Form found:', form.id);
+        console.log('Form action:', form.action || 'Current page');
+        
+        // Add submit event listener to form
+        form.addEventListener('submit', function(e) {
+            console.log('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg> Form is submitting!');
+            console.log('Form will POST to:', form.action || window.location.href);
+            // Don't prevent default - let it submit naturally
+        });
+    } else {
+        console.error('✗ Main edit form not found!');
+    }
+    
+    if (submitButton) {
+        console.log('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg> Submit button found inside correct form');
+        
+        submitButton.addEventListener('click', function(e) {
+            console.log('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg> Update Employee button clicked!');
+            console.log('Button type:', this.type);
+            
+            // The button is type="submit" inside the form, so it should submit automatically
+            // But if something is preventing it, this will force submission
+            if (!e.defaultPrevented) {
+                console.log('Default action not prevented - form will submit naturally');
+            }
+        });
+    } else {
+        console.error('✗ Submit button not found in main form!');
+    }
+    
+    console.log('Edit employee page initialized - Ready to update!');
+});
+</script>
+{% endblock %}

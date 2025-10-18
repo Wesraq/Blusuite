@@ -1,0 +1,73 @@
+{% extends 'performance/base_performance.html' %}
+
+{% block performance_title %}Delete Performance Review{% endblock %}
+
+{% block performance_content %}
+<div class="delete-confirmation">
+    <h2>Delete Performance Review</h2>
+    <p>Are you sure you want to delete the performance review for {{ object.employee.get_full_name|default:object.employee.username }}?</p>
+    <p><strong>Review Date:</strong> {{ object.review_date|date:"F j, Y" }}</p>
+    <p><strong>Review Type:</strong> {{ object.get_review_type_display }}</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+            <a href="{% url 'performance:review_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.delete-confirmation {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.delete-confirmation h2 {
+    color: #dc3545;
+    margin-bottom: 1.5rem;
+}
+
+.delete-confirmation p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+</style>
+{% endblock %}

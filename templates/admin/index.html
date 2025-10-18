@@ -1,0 +1,398 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Employee Management System{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <img src="{% static 'admin/img/logo.png' %}" alt="EMS" style="height: 30px; margin-right: 10px;">
+        Employee Management System
+    </a>
+</h1>
+{% endblock %}
+
+{% block userlinks %}
+    <a href="{% url 'admin:logout' %}">Log out</a>
+    {% if user.is_superuser %}
+        <a href="{% url 'admin:index' %}" class="viewlink">Admin Dashboard</a>
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>Welcome to EMS Admin Dashboard</h2>
+        <p class="dashboard-subtitle">Manage employees, attendance, documents, and performance</p>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ user_count }}</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ attendance_count }}</h3>
+                <p>Attendance Records</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ document_count }}</h3>
+                <p>Documents</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ review_count }}</h3>
+                <p>Performance Reviews</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-sections">
+        <div class="section-card">
+            <h3><i class="fas fa-user-cog"></i> User Management</h3>
+            <div class="section-actions">
+                <a href="{% url 'admin:accounts_user_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-users"></i> Manage Users
+                </a>
+                <a href="{% url 'admin:accounts_employeeprofile_changelist' %}" class="btn btn-secondary">
+                    <i class="fas fa-id-card"></i> Employee Profiles
+                </a>
+                <a href="{% url 'admin:accounts_employerprofile_changelist' %}" class="btn btn-secondary">
+                    <i class="fas fa-building"></i> Employer Profiles
+                </a>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="fas fa-calendar-check"></i> Attendance Management</h3>
+            <div class="section-actions">
+                <a href="{% url 'admin:attendance_attendance_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-clock"></i> View Attendance
+                </a>
+                <a href="{% url 'admin:attendance_leaverequest_changelist' %}" class="btn btn-secondary">
+                    <i class="fas fa-calendar-minus"></i> Leave Requests
+                </a>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="fas fa-file-pdf"></i> Document Management</h3>
+            <div class="section-actions">
+                <a href="{% url 'admin:documents_employeedocument_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-file-alt"></i> Employee Documents
+                </a>
+                <a href="{% url 'admin:documents_documentcategory_changelist' %}" class="btn btn-secondary">
+                    <i class="fas fa-folder"></i> Categories
+                </a>
+                <a href="{% url 'admin:documents_documenttemplate_changelist' %}" class="btn btn-secondary">
+                    <i class="fas fa-file-contract"></i> Templates
+                </a>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="fas fa-chart-bar"></i> Performance Management</h3>
+            <div class="section-actions">
+                <a href="{% url 'admin:performance_performancereview_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-clipboard-list"></i> Reviews
+                </a>
+                <a href="{% url 'admin:performance_performancegoal_changelist' %}" class="btn btn-secondary">
+                    <i class="fas fa-bullseye"></i> Goals
+                </a>
+                <a href="{% url 'admin:performance_performancefeedback_changelist' %}" class="btn btn-secondary">
+                    <i class="fas fa-comments"></i> Feedback
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-footer">
+        <div class="quick-actions">
+            <h4>Quick Actions</h4>
+            <div class="action-buttons">
+                <a href="{% url 'admin:accounts_user_add' %}" class="btn btn-success">
+                    <i class="fas fa-user-plus"></i> Add New User
+                </a>
+                <a href="{% url 'admin:attendance_attendance_add' %}" class="btn btn-info">
+                    <i class="fas fa-clock"></i> Add Attendance
+                </a>
+                <a href="{% url 'admin:documents_employeedocument_add' %}" class="btn btn-warning">
+                    <i class="fas fa-file-upload"></i> Upload Document
+                </a>
+                <a href="{% url 'admin:performance_performancereview_add' %}" class="btn btn-danger">
+                    <i class="fas fa-plus"></i> New Review
+                </a>
+            </div>
+        </div>
+
+        <div class="system-info">
+            <p><strong>Server Time:</strong> {{ server_time|date:"Y-m-d H:i:s" }}</p>
+            <p><strong>User Role:</strong> {{ user.role|title }}</p>
+            <p><strong>Last Login:</strong> {{ user.last_login|date:"Y-m-d H:i:s" }}</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+}
+
+.dashboard-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 2.5em;
+    font-weight: 300;
+}
+
+.dashboard-subtitle {
+    margin: 0;
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    color: white;
+    font-size: 24px;
+}
+
+.stat-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 2em;
+    color: #333;
+}
+
+.stat-content p {
+    margin: 0;
+    color: #666;
+    font-weight: 500;
+}
+
+.dashboard-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.section-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.section-card h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.3em;
+    display: flex;
+    align-items: center;
+}
+
+.section-card h3 i {
+    margin-right: 10px;
+    color: #667eea;
+}
+
+.section-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e0;
+}
+
+.btn-success {
+    background: #48bb78;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #38a169;
+}
+
+.btn-info {
+    background: #4299e1;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #3182ce;
+}
+
+.btn-warning {
+    background: #ed8936;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #dd7324;
+}
+
+.btn-danger {
+    background: #f56565;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #e53e3e;
+}
+
+.dashboard-footer {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.quick-actions h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.3em;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.system-info {
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.system-info p {
+    margin: 8px 0;
+    color: #4a5568;
+}
+
+.system-info strong {
+    color: #2d3748;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-footer {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

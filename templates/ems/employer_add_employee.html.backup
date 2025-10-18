@@ -1,0 +1,693 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Add Employee - {{ company.name }} - EMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .form-header h1 {
+        color: #1e293b;
+        margin-bottom: 10px;
+    }
+    .form-header p {
+        color: #64748b;
+        margin: 0;
+    }
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 20px;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Tab Navigation Styles */
+    .tab-nav {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #e2e8f0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+        padding: 12px 20px;
+        border: 1px solid #e2e8f0;
+        border-bottom: none;
+        border-radius: 6px 6px 0 0;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #f8fafc;
+        color: #64748b;
+        white-space: nowrap;
+        position: relative;
+    }
+
+    .tab-btn:hover {
+        background: #f1f5f9;
+        color: #334155;
+    }
+
+    .tab-btn.active {
+        background: #ffffff;
+        color: #1e293b;
+        border-color: #e2e8f0;
+        border-bottom: 1px solid #ffffff;
+        margin-bottom: -1px;
+        z-index: 10;
+    }
+
+    .tab-content {
+        display: none;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0 6px 6px 6px;
+        padding: 24px;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .form-section {
+        margin-bottom: 24px;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 20px;
+    }
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .section-title {
+        margin: 0 0 16px 0;
+        color: #1e293b;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    .form-grid {
+        display: grid;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    .form-grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+    .form-actions {
+        margin-top: 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    .btn-success {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+    .btn-success:hover {
+        background: #059669;
+        border-color: #059669;
+    }
+    .field-help {
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+    .alert {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+    .alert-error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+    .alert-success {
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .form-grid-2 {
+            grid-template-columns: 1fr;
+        }
+        .form-actions {
+            flex-direction: column;
+        }
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .tab-nav {
+            flex-wrap: wrap;
+            border-bottom: none;
+        }
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 8px;
+        }
+        .tab-btn.active {
+            border: 2px solid #3b82f6;
+            margin-bottom: 6px;
+        }
+        .tab-content {
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-card" style="max-width: 1000px; margin: 0 auto;">
+    <div class="card-header">
+        <div class="card-title">Add New Employee</div>
+        <div class="card-subtitle">Fill in the employee details below</div>
+    </div>
+    
+    <div class="card-content">
+        <a href="{% url 'employee_management' %}" class="back-link">
+            ← Back to Employee List
+        </a>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav" style="margin-bottom: 20px;">
+            <button class="tab-btn active" onclick="showTab('personal')">Personal Information</button>
+            <button class="tab-btn" onclick="showTab('employment')">Employment Details</button>
+            <button class="tab-btn" onclick="showTab('financial')">Financial</button>
+            <button class="tab-btn" onclick="showTab('emergency')">Emergency Contacts</button>
+            <button class="tab-btn" onclick="showTab('documents')">Documents</button>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" id="employeeForm">
+            {% csrf_token %}
+            
+            <!-- Personal Information Tab -->
+            <div id="personal" class="tab-content active">
+                <div class="form-section">
+                    <h3 class="section-title">Basic Information</h3>
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.first_name.id_for_label }}">First Name *</label>
+                            <input type="text" name="first_name" id="id_first_name" class="form-control" 
+                                   value="{{ form.first_name.value|default:'' }}" required>
+                            {% if form.first_name.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.last_name.id_for_label }}">Last Name *</label>
+                            <input type="text" name="last_name" id="id_last_name" class="form-control" 
+                                   value="{{ form.last_name.value|default:'' }}" required>
+                            {% if form.last_name.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.email.id_for_label }}">Email *</label>
+                            <input type="email" name="email" id="id_email" class="form-control" 
+                                   value="{{ form.email.value|default:'' }}" required>
+                            {% if form.email.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+                            <input type="tel" name="phone_number" id="id_phone_number" class="form-control" 
+                                   value="{{ form.phone_number.value|default:'' }}">
+                            {% if form.phone_number.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.phone_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth</label>
+                            <input type="date" name="date_of_birth" id="id_date_of_birth" class="form-control" 
+                                   value="{{ form.date_of_birth.value|default:'' }}">
+                            {% if form.date_of_birth.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.date_of_birth.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.gender.id_for_label }}">Gender</label>
+                            <select name="gender" id="id_gender" class="form-control">
+                                <option value="">Select Gender</option>
+                                <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>Male</option>
+                                <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>Female</option>
+                                <option value="O" {% if form.gender.value == 'O' %}selected{% endif %}>Other</option>
+                            </select>
+                            {% if form.gender.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.gender.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div>
+                            <label for="{{ form.address.id_for_label }}">Address</label>
+                            <textarea name="address" id="id_address" class="form-control" rows="3">{{ form.address.value|default:'' }}</textarea>
+                            {% if form.address.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.address.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.city.id_for_label }}">City</label>
+                            <input type="text" name="city" id="id_city" class="form-control" 
+                                   value="{{ form.city.value|default:'' }}">
+                            {% if form.city.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.city.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.postal_code.id_for_label }}">Postal Code</label>
+                            <input type="text" name="postal_code" id="id_postal_code" class="form-control" 
+                                   value="{{ form.postal_code.value|default:'' }}">
+                            {% if form.postal_code.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.postal_code.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="section-title">Account Setup</h3>
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.username.id_for_label }}">Username *</label>
+                            <input type="text" name="username" id="id_username" class="form-control" 
+                                   value="{{ form.username.value|default:'' }}" required>
+                            {% if form.username.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.password.id_for_label }}">Password *</label>
+                            <input type="password" name="password" id="id_password" class="form-control" required>
+                            <div class="field-help">Minimum 8 characters</div>
+                            {% if form.password.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.password.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div>
+                            <label for="id_confirm_password">Confirm Password *</label>
+                            <input type="password" name="confirm_password" id="id_confirm_password" class="form-control" required>
+                            <div class="field-help">Re-enter password to confirm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Employment Details Tab -->
+            <div id="employment" class="tab-content">
+                <div class="form-section">
+                    <h3 class="section-title">Employment Information</h3>
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.employee_id.id_for_label }}">Employee ID *</label>
+                            <input type="text" name="employee_id" id="id_employee_id" class="form-control" 
+                                   value="{{ form.employee_id.value|default:'' }}" required>
+                            {% if form.employee_id.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.employee_id.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.job_title.id_for_label }}">Job Title *</label>
+                            <input type="text" name="job_title" id="id_job_title" class="form-control" 
+                                   value="{{ form.job_title.value|default:'' }}" required>
+                            {% if form.job_title.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.job_title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.department.id_for_label }}">Department</label>
+                            <input type="text" name="department" id="id_department" class="form-control" 
+                                   value="{{ form.department.value|default:'' }}">
+                            {% if form.department.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.department.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.manager.id_for_label }}">Manager</label>
+                            <select name="manager" id="id_manager" class="form-control">
+                                <option value="">Select Manager</option>
+                                <!-- Manager options would be populated by the view -->
+                            </select>
+                            {% if form.manager.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.manager.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.hire_date.id_for_label }}">Hire Date *</label>
+                            <input type="date" name="hire_date" id="id_hire_date" class="form-control" 
+                                   value="{{ form.hire_date.value|default:'' }}" required>
+                            {% if form.hire_date.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.hire_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.employment_type.id_for_label }}">Employment Type</label>
+                            <select name="employment_type" id="id_employment_type" class="form-control">
+                                <option value="">Select Type</option>
+                                <option value="FT" {% if form.employment_type.value == 'FT' %}selected{% endif %}>Full Time</option>
+                                <option value="PT" {% if form.employment_type.value == 'PT' %}selected{% endif %}>Part Time</option>
+                                <option value="CT" {% if form.employment_type.value == 'CT' %}selected{% endif %}>Contract</option>
+                                <option value="IN" {% if form.employment_type.value == 'IN' %}selected{% endif %}>Intern</option>
+                            </select>
+                            {% if form.employment_type.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.employment_type.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.status.id_for_label }}">Status</label>
+                            <select name="status" id="id_status" class="form-control">
+                                <option value="AC" {% if form.status.value == 'AC' %}selected{% endif %}>Active</option>
+                                <option value="IA" {% if form.status.value == 'IA' %}selected{% endif %}>Inactive</option>
+                                <option value="TE" {% if form.status.value == 'TE' %}selected{% endif %}>Terminated</option>
+                                <option value="SU" {% if form.status.value == 'SU' %}selected{% endif %}>Suspended</option>
+                            </select>
+                            {% if form.status.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.status.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.work_location.id_for_label }}">Work Location</label>
+                            <input type="text" name="work_location" id="id_work_location" class="form-control" 
+                                   value="{{ form.work_location.value|default:'' }}">
+                            {% if form.work_location.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.work_location.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Financial Tab -->
+            <div id="financial" class="tab-content">
+                <div class="form-section">
+                    <h3 class="section-title">Salary & Benefits</h3>
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.salary.id_for_label }}">Annual Salary</label>
+                            <input type="number" name="salary" id="id_salary" class="form-control" step="0.01"
+                                   value="{{ form.salary.value|default:'' }}">
+                            {% if form.salary.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.salary.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.pay_frequency.id_for_label }}">Pay Frequency</label>
+                            <select name="pay_frequency" id="id_pay_frequency" class="form-control">
+                                <option value="">Select Frequency</option>
+                                <option value="WE" {% if form.pay_frequency.value == 'WE' %}selected{% endif %}>Weekly</option>
+                                <option value="BW" {% if form.pay_frequency.value == 'BW' %}selected{% endif %}>Bi-weekly</option>
+                                <option value="MO" {% if form.pay_frequency.value == 'MO' %}selected{% endif %}>Monthly</option>
+                                <option value="AN" {% if form.pay_frequency.value == 'AN' %}selected{% endif %}>Annual</option>
+                            </select>
+                            {% if form.pay_frequency.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.pay_frequency.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.bank_name.id_for_label }}">Bank Name</label>
+                            <input type="text" name="bank_name" id="id_bank_name" class="form-control" 
+                                   value="{{ form.bank_name.value|default:'' }}">
+                            {% if form.bank_name.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.bank_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.bank_account.id_for_label }}">Bank Account Number</label>
+                            <input type="text" name="bank_account" id="id_bank_account" class="form-control" 
+                                   value="{{ form.bank_account.value|default:'' }}">
+                            {% if form.bank_account.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.bank_account.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.tax_id.id_for_label }}">Tax ID/Social Security Number</label>
+                            <input type="text" name="tax_id" id="id_tax_id" class="form-control" 
+                                   value="{{ form.tax_id.value|default:'' }}">
+                            {% if form.tax_id.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.tax_id.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.insurance_plan.id_for_label }}">Insurance Plan</label>
+                            <input type="text" name="insurance_plan" id="id_insurance_plan" class="form-control" 
+                                   value="{{ form.insurance_plan.value|default:'' }}">
+                            {% if form.insurance_plan.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.insurance_plan.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Emergency Contacts Tab -->
+            <div id="emergency" class="tab-content">
+                <div class="form-section">
+                    <h3 class="section-title">Primary Emergency Contact</h3>
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.emergency_contact_name.id_for_label }}">Contact Name</label>
+                            <input type="text" name="emergency_contact_name" id="id_emergency_contact_name" class="form-control" 
+                                   value="{{ form.emergency_contact_name.value|default:'' }}">
+                            {% if form.emergency_contact_name.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.emergency_contact_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.emergency_contact_relationship.id_for_label }}">Relationship</label>
+                            <input type="text" name="emergency_contact_relationship" id="id_emergency_contact_relationship" class="form-control" 
+                                   value="{{ form.emergency_contact_relationship.value|default:'' }}">
+                            {% if form.emergency_contact_relationship.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.emergency_contact_relationship.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.emergency_contact_phone.id_for_label }}">Phone Number</label>
+                            <input type="tel" name="emergency_contact_phone" id="id_emergency_contact_phone" class="form-control" 
+                                   value="{{ form.emergency_contact_phone.value|default:'' }}">
+                            {% if form.emergency_contact_phone.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.emergency_contact_phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.emergency_contact_email.id_for_label }}">Email</label>
+                            <input type="email" name="emergency_contact_email" id="id_emergency_contact_email" class="form-control" 
+                                   value="{{ form.emergency_contact_email.value|default:'' }}">
+                            {% if form.emergency_contact_email.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.emergency_contact_email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div>
+                            <label for="{{ form.emergency_contact_address.id_for_label }}">Address</label>
+                            <textarea name="emergency_contact_address" id="id_emergency_contact_address" class="form-control" rows="3">{{ form.emergency_contact_address.value|default:'' }}</textarea>
+                            {% if form.emergency_contact_address.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.emergency_contact_address.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Documents Tab -->
+            <div id="documents" class="tab-content">
+                <div class="form-section">
+                    <h3 class="section-title">Document Uploads</h3>
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.profile_picture.id_for_label }}">Profile Picture</label>
+                            <input type="file" name="profile_picture" id="id_profile_picture" class="form-control" accept="image/*">
+                            <div class="field-help">Upload employee photo (JPG, PNG)</div>
+                            {% if form.profile_picture.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.profile_picture.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.resume.id_for_label }}">Resume/CV</label>
+                            <input type="file" name="resume" id="id_resume" class="form-control" accept=".pdf,.doc,.docx">
+                            <div class="field-help">Upload resume (PDF, DOC, DOCX)</div>
+                            {% if form.resume.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.resume.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid form-grid-2">
+                        <div>
+                            <label for="{{ form.id_document.id_for_label }}">ID Document</label>
+                            <input type="file" name="id_document" id="id_id_document" class="form-control" accept="image/*,.pdf">
+                            <div class="field-help">ID card, passport, driver's license</div>
+                            {% if form.id_document.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.id_document.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.contract.id_for_label }}">Employment Contract</label>
+                            <input type="file" name="contract" id="id_contract" class="form-control" accept=".pdf,.doc,.docx">
+                            <div class="field-help">Signed employment contract</div>
+                            {% if form.contract.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.contract.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div>
+                            <label for="{{ form.notes.id_for_label }}">Additional Notes</label>
+                            <textarea name="notes" id="id_notes" class="form-control" rows="4" placeholder="Any additional information about the employee...">{{ form.notes.value|default:'' }}</textarea>
+                            {% if form.notes.errors %}
+                                <div class="field-help" style="color: #dc2626;">{{ form.notes.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Employee</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab navigation
+    function showTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+            tab.classList.remove('active');
+        });
+
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show the selected tab content
+        const targetTab = document.getElementById(tabName);
+        if (targetTab) {
+            targetTab.style.display = 'block';
+            targetTab.classList.add('active');
+        }
+
+        // Add active class to the clicked tab button
+        event.target.classList.add('active');
+    }
+
+    // Initialize the first tab as active on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show the first tab by default
+        const firstTab = document.querySelector('.tab-btn');
+        if (firstTab) {
+            firstTab.click();
+        }
+
+        // Set today's date as default hire date if the field exists
+        const hireDateField = document.querySelector('input[name="hire_date"]');
+        if (hireDateField) {
+            const today = new Date().toISOString().split('T')[0];
+            hireDateField.value = today;
+        }
+    });
+
+    // Password confirmation validation
+    const confirmPasswordField = document.getElementById('id_confirm_password');
+    if (confirmPasswordField) {
+        confirmPasswordField.addEventListener('input', function() {
+            const password = document.getElementById('id_password').value;
+            const confirmPassword = this.value;
+
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+
+    // Form validation on submit
+    document.querySelector('form').addEventListener('submit', function(e) {
+        let isValid = true;
+
+        // Password validation
+        const password = document.getElementById('id_password');
+        const confirmPassword = document.getElementById('id_confirm_password');
+
+        if (password && confirmPassword) {
+            if (password.value !== confirmPassword.value) {
+                e.preventDefault();
+                alert('Passwords do not match');
+                isValid = false;
+            } else if (password.value.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long');
+                isValid = false;
+            }
+        }
+
+        // If form is valid, show loading state
+        if (isValid) {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+            }
+        }
+
+        return isValid;
+    });
+</script>
+{% endblock %}

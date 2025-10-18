@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ department.name }} - Training Dashboard{% endblock %}
+
+{% block content %}
+<div class="content-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:8px;">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        {{ department.name }} Training Dashboard
+      </div>
+      <div class="card-subtitle">Manage your department's training programs and requests</div>
+    </div>
+    <a href="{% url 'training_request_create' %}" class="btn" style="white-space:nowrap;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Request Training
+    </a>
+  </div>
+
+  <div class="card-content">
+    <!-- Statistics Grid -->
+    <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:16px; margin-bottom:32px;">
+      <div class="stat-box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="stat-value">{{ stats.total_programs }}</div>
+        <div class="stat-label">Total Programs</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+        <div class="stat-value">{{ stats.active_programs }}</div>
+        <div class="stat-label">Active Programs</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+        <div class="stat-value">{{ stats.total_enrolled }}</div>
+        <div class="stat-label">Enrolled Employees</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+        <div class="stat-value">{{ stats.completed_count }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+        <div class="stat-value">{{ stats.pending_requests }}</div>
+        <div class="stat-label">Pending Requests</div>
+      </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px;">
+      <!-- Active Training Programs -->
+      <div>
+        <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between;">
+          <span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+              <path d="M12 14l9-5-9-5-9 5 9 5z"></path>
+              <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+            </svg>
+            Active Training Programs
+          </span>
+          <a href="{% url 'training_list' %}" style="font-size:13px; color:#3b82f6; text-decoration:none;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#3b82f6'">View All →</a>
+        </h3>
+
+        {% if active_programs %}
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          {% for program in active_programs %}
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; transition:all 0.2s;" onmouseover="this.style.background='#fff'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';" onmouseout="this.style.background='#f8fafc'; this.style.boxShadow='none';">
+            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
+              <h4 style="font-size:15px; font-weight:600; color:#1e293b; margin:0;">
+                <a href="{% url 'training_detail' program.id %}" style="color:#1e293b; text-decoration:none;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#1e293b'">
+                  {{ program.title }}
+                </a>
+              </h4>
+              <span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap;">
+                Active
+              </span>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+              <span style="background:#e0e7ff; color:#3730a3; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600;">
+                {{ program.get_program_type_display }}
+              </span>
+              <span style="font-size:12px; color:#64748b;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                {{ program.duration_hours }}h
+              </span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#64748b;">
+              <span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                {{ program.trainingassignment_set.count }} enrolled
+              </span>
+              {% if program.start_date %}
+              <span>{{ program.start_date|date:"M d, Y" }}</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:40px 20px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin:0 auto 12px;">
+            <path d="M12 14l9-5-9-5-9 5 9 5z"></path>
+          </svg>
+          <p style="font-size:13px; color:#64748b; margin:0;">No active training programs</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Recent Training Requests -->
+      <div>
+        <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between;">
+          <span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Recent Training Requests
+          </span>
+          <a href="{% url 'training_request_list' %}" style="font-size:13px; color:#3b82f6; text-decoration:none;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#3b82f6'">View All →</a>
+        </h3>
+
+        {% if recent_requests %}
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          {% for request in recent_requests %}
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; transition:all 0.2s;" onmouseover="this.style.background='#fff'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';" onmouseout="this.style.background='#f8fafc'; this.style.boxShadow='none';">
+            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
+              <h4 style="font-size:15px; font-weight:600; color:#1e293b; margin:0;">{{ request.training_title }}</h4>
+              {% if request.status == 'PENDING' %}
+              <span style="background:#fef3c7; color:#92400e; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap;">
+                Pending
+              </span>
+              {% elif request.status == 'APPROVED' %}
+              <span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap;">
+                Approved
+              </span>
+              {% elif request.status == 'REJECTED' %}
+              <span style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap;">
+                Rejected
+              </span>
+              {% endif %}
+            </div>
+            <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+              <span style="background:#e0e7ff; color:#3730a3; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600;">
+                {{ request.get_program_type_display }}
+              </span>
+              {% if request.priority == 'URGENT' %}
+              <span style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600;">
+                Urgent
+              </span>
+              {% elif request.priority == 'HIGH' %}
+              <span style="background:#fed7aa; color:#92400e; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600;">
+                High
+              </span>
+              {% endif %}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#64748b;">
+              <span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                {{ request.target_employees }} employees
+              </span>
+              <span>{{ request.created_at|date:"M d" }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:40px 20px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin:0 auto 12px;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <p style="font-size:13px; color:#64748b; margin:0 0 12px;">No training requests yet</p>
+          <a href="{% url 'training_request_create' %}" class="btn" style="font-size:13px; padding:8px 16px;">
+            Create Request
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Enrollment Statistics -->
+    <div>
+      <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        Enrollment Statistics
+      </h3>
+
+      <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:20px; text-align:center;">
+          <div style="font-size:28px; font-weight:700; color:#3b82f6; margin-bottom:8px;">{{ stats.total_enrolled }}</div>
+          <div style="font-size:13px; color:#64748b; font-weight:600;">Total Enrolled</div>
+        </div>
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:20px; text-align:center;">
+          <div style="font-size:28px; font-weight:700; color:#16a34a; margin-bottom:8px;">{{ stats.completed_count }}</div>
+          <div style="font-size:13px; color:#15803d; font-weight:600;">Completed</div>
+        </div>
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:20px; text-align:center;">
+          <div style="font-size:28px; font-weight:700; color:#2563eb; margin-bottom:8px;">{{ stats.in_progress_count }}</div>
+          <div style="font-size:13px; color:#1e40af; font-weight:600;">In Progress</div>
+        </div>
+        <div style="background:#fef3c7; border:1px solid #fde047; border-radius:8px; padding:20px; text-align:center;">
+          <div style="font-size:28px; font-weight:700; color:#ca8a04; margin-bottom:8px;">
+            {% if stats.total_enrolled > 0 %}
+            {{ stats.completion_rate|floatformat:0 }}%
+            {% else %}
+            0%
+            {% endif %}
+          </div>
+          <div style="font-size:13px; color:#92400e; font-weight:600;">Completion Rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

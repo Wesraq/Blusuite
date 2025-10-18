@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ asset.name }} - Asset Details{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:20px;">
+  <a href="{% url 'asset_list' %}" style="display:inline-flex; align-items:center; gap:6px; color:#64748b; text-decoration:none; font-size:14px;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Assets
+  </a>
+</div>
+
+<div class="content-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:8px;">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+        </svg>
+        {{ asset.name }}
+      </div>
+      <div class="card-subtitle">Asset Tag: {{ asset.asset_tag }}</div>
+    </div>
+    <div style="display:flex; gap:12px;">
+      {% if asset.status == 'ASSIGNED' %}
+      <span style="background:#dcfce7; color:#166534; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600;">Assigned</span>
+      {% elif asset.status == 'AVAILABLE' %}
+      <span style="background:#dbeafe; color:#1e40af; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600;">Available</span>
+      {% elif asset.status == 'IN_REPAIR' %}
+      <span style="background:#fef3c7; color:#92400e; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600;">In Repair</span>
+      {% elif asset.status == 'RETIRED' %}
+      <span style="background:#e5e7eb; color:#1f2937; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600;">Retired</span>
+      {% elif asset.status == 'LOST' %}
+      <span style="background:#fee2e2; color:#991b1b; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600;">Lost</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card-content">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+      <!-- Left Column - Asset Information -->
+      <div>
+        <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Asset Information
+        </h3>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Asset Type</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset.get_asset_type_display }}</div>
+          </div>
+
+          {% if asset.category %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Category</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset.category.name }}</div>
+          </div>
+          {% endif %}
+
+          {% if asset.brand %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Brand</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset.brand }}</div>
+          </div>
+          {% endif %}
+
+          {% if asset.model %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Model</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset.model }}</div>
+          </div>
+          {% endif %}
+
+          {% if asset.serial_number %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Serial Number</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500; font-family:monospace;">{{ asset.serial_number }}</div>
+          </div>
+          {% endif %}
+
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Condition</label>
+            {% if asset.condition == 'NEW' or asset.condition == 'EXCELLENT' %}
+            <span style="background:#dcfce7; color:#166534; padding:6px 12px; border-radius:12px; font-size:13px; font-weight:600; display:inline-block;">{{ asset.get_condition_display }}</span>
+            {% elif asset.condition == 'GOOD' %}
+            <span style="background:#dbeafe; color:#1e40af; padding:6px 12px; border-radius:12px; font-size:13px; font-weight:600; display:inline-block;">Good</span>
+            {% elif asset.condition == 'FAIR' %}
+            <span style="background:#fef3c7; color:#92400e; padding:6px 12px; border-radius:12px; font-size:13px; font-weight:600; display:inline-block;">Fair</span>
+            {% else %}
+            <span style="background:#fee2e2; color:#991b1b; padding:6px 12px; border-radius:12px; font-size:13px; font-weight:600; display:inline-block;">Poor</span>
+            {% endif %}
+          </div>
+
+          {% if asset.description %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Description</label>
+            <div style="font-size:14px; color:#475569; line-height:1.6;">{{ asset.description }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Purchase Information -->
+        <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin:32px 0 20px 0; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          Purchase Information
+        </h3>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          {% if asset.purchase_date %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Purchase Date</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset.purchase_date|date:"F d, Y" }}</div>
+          </div>
+          {% endif %}
+
+          {% if asset.purchase_price %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Purchase Price</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">K{{ asset.purchase_price|floatformat:2 }}</div>
+          </div>
+          {% endif %}
+
+          {% if asset.warranty_expiry %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Warranty Expiry</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">
+              {{ asset.warranty_expiry|date:"F d, Y" }}
+              {% if asset.is_warranty_valid %}
+              <span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:8px; font-size:11px; font-weight:600; margin-left:8px;">VALID</span>
+              {% else %}
+              <span style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:8px; font-size:11px; font-weight:600; margin-left:8px;">EXPIRED</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right Column - Assignment & Location -->
+      <div>
+        <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Assignment & Location
+        </h3>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          {% if asset.department %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Department</label>
+            <span style="background:#e0e7ff; color:#3730a3; padding:6px 12px; border-radius:8px; font-size:14px; font-weight:600; display:inline-block;">
+              {{ asset.department.name }}
+            </span>
+          </div>
+          {% endif %}
+
+          {% if asset.custodian %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Custodian/Manager</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset.custodian.get_full_name }}</div>
+          </div>
+          {% endif %}
+
+          {% if asset.location %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Location</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset.location }}</div>
+          </div>
+          {% endif %}
+
+          {% if asset.employee %}
+          <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:16px; margin-top:12px;">
+            <label style="font-size:12px; font-weight:600; color:#0369a1; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Assigned To</label>
+            <div style="font-size:16px; color:#0c4a6e; font-weight:600; margin-bottom:4px;">{{ asset.employee.get_full_name }}</div>
+            <div style="font-size:13px; color:#0369a1;">
+              Since {{ asset.assigned_date|date:"F d, Y" }}
+              {% if asset.days_with_employee > 0 %}
+              ({{ asset.days_with_employee }} days)
+              {% endif %}
+            </div>
+            {% if asset.assigned_by %}
+            <div style="font-size:12px; color:#0369a1; margin-top:8px;">
+              Assigned by: {{ asset.assigned_by.get_full_name }}
+            </div>
+            {% endif %}
+          </div>
+          {% else %}
+          <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:16px; margin-top:12px; text-align:center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" style="margin:0 auto 8px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+            <div style="font-size:14px; color:#15803d; font-weight:600;">Asset Available</div>
+            <div style="font-size:12px; color:#16a34a; margin-top:4px;">Ready for assignment</div>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if asset.notes %}
+        <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin:32px 0 20px 0; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Notes
+        </h3>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px;">
+          <p style="font-size:14px; color:#475569; line-height:1.6; white-space:pre-wrap;">{{ asset.notes }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Maintenance History -->
+    {% if maintenance_logs %}
+    <div style="margin-top:40px;">
+      <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+        </svg>
+        Maintenance History
+      </h3>
+
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+              <th style="padding:12px; text-align:left; font-size:13px; font-weight:600; color:#475569;">Date</th>
+              <th style="padding:12px; text-align:left; font-size:13px; font-weight:600; color:#475569;">Type</th>
+              <th style="padding:12px; text-align:left; font-size:13px; font-weight:600; color:#475569;">Description</th>
+              <th style="padding:12px; text-align:left; font-size:13px; font-weight:600; color:#475569;">Performed By</th>
+              <th style="padding:12px; text-align:left; font-size:13px; font-weight:600; color:#475569;">Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in maintenance_logs %}
+            <tr style="border-bottom:1px solid #e2e8f0;">
+              <td style="padding:12px; font-size:14px; color:#1e293b; white-space:nowrap;">{{ log.performed_date|date:"M d, Y" }}</td>
+              <td style="padding:12px;">
+                <span style="background:#e0e7ff; color:#3730a3; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
+                  {{ log.get_maintenance_type_display }}
+                </span>
+              </td>
+              <td style="padding:12px; font-size:14px; color:#475569;">{{ log.description|truncatewords:15 }}</td>
+              <td style="padding:12px; font-size:14px; color:#475569;">{{ log.performed_by }}</td>
+              <td style="padding:12px; font-size:14px; font-weight:600; color:#1e293b;">
+                {% if log.cost %}K{{ log.cost|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Training{% endblock %}
+
+{% block content %}
+<div class="content-card">
+  <div class="card-header">
+    <div class="card-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:8px;">
+        <path d="M12 14l9-5-9-5-9 5 9 5z"></path>
+        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+        <path d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path>
+      </svg>
+      My Training
+    </div>
+    <div class="card-subtitle">Track your training programs and enrollments</div>
+  </div>
+
+  <div class="card-content">
+    <!-- Statistics -->
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:32px;">
+      <div class="stat-box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="stat-value">{{ stats.total_enrolled }}</div>
+        <div class="stat-label">Total Enrolled</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+        <div class="stat-value">{{ stats.completed }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+        <div class="stat-value">{{ stats.in_progress }}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-box" style="background:linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+        <div class="stat-value">{{ stats.total_hours }}</div>
+        <div class="stat-label">Total Hours</div>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div style="margin-bottom:24px; border-bottom:2px solid #e2e8f0;">
+      <div style="display:flex; gap:4px;">
+        <a href="?status=" style="{% if not current_filter %}border-bottom:2px solid #3b82f6; color:#3b82f6;{% else %}color:#64748b;{% endif %} text-decoration:none; padding:12px 20px; font-weight:600; font-size:14px; transition:all 0.2s;">
+          All Trainings
+        </a>
+        <a href="?status=IN_PROGRESS" style="{% if current_filter == 'IN_PROGRESS' %}border-bottom:2px solid #3b82f6; color:#3b82f6;{% else %}color:#64748b;{% endif %} text-decoration:none; padding:12px 20px; font-weight:600; font-size:14px; transition:all 0.2s;">
+          In Progress
+        </a>
+        <a href="?status=COMPLETED" style="{% if current_filter == 'COMPLETED' %}border-bottom:2px solid #3b82f6; color:#3b82f6;{% else %}color:#64748b;{% endif %} text-decoration:none; padding:12px 20px; font-weight:600; font-size:14px; transition:all 0.2s;">
+          Completed
+        </a>
+        <a href="?status=NOT_STARTED" style="{% if current_filter == 'NOT_STARTED' %}border-bottom:2px solid #3b82f6; color:#3b82f6;{% else %}color:#64748b;{% endif %} text-decoration:none; padding:12px 20px; font-weight:600; font-size:14px; transition:all 0.2s;">
+          Not Started
+        </a>
+      </div>
+    </div>
+
+    <!-- Training Cards -->
+    {% if enrollments %}
+    <div style="display:grid; gap:20px;">
+      {% for enrollment in enrollments %}
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px; transition:all 0.3s; box-shadow:0 1px 3px rgba(0,0,0,0.1);" onmouseover="this.style.boxShadow='0 8px 16px rgba(0,0,0,0.1)'; this.style.borderColor='#cbd5e1';" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'; this.style.borderColor='#e2e8f0';">
+        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:16px;">
+          <div style="flex:1;">
+            <h3 style="font-size:18px; font-weight:700; color:#1e293b; margin-bottom:8px;">
+              <a href="{% url 'training_detail' enrollment.program.id %}" style="color:#1e293b; text-decoration:none;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#1e293b'">
+                {{ enrollment.program.title }}
+              </a>
+            </h3>
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <span style="background:#f1f5f9; color:#64748b; padding:4px 12px; border-radius:6px; font-size:12px; font-weight:600;">
+                {{ enrollment.program.get_program_type_display }}
+              </span>
+              <span style="font-size:13px; color:#64748b;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                {{ enrollment.program.duration_hours }} Hours
+              </span>
+              {% if enrollment.program.instructor %}
+              <span style="font-size:13px; color:#64748b;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {{ enrollment.program.instructor }}
+              </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="text-align:right;">
+            {% if enrollment.status == 'COMPLETED' %}
+            <span style="background:#dcfce7; color:#166534; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600; white-space:nowrap;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Completed
+            </span>
+            {% elif enrollment.status == 'IN_PROGRESS' %}
+            <span style="background:#dbeafe; color:#1e40af; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600; white-space:nowrap;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              In Progress
+            </span>
+            {% elif enrollment.status == 'NOT_STARTED' %}
+            <span style="background:#fef3c7; color:#92400e; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600; white-space:nowrap;">
+              Not Started
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        {% if enrollment.status == 'IN_PROGRESS' or enrollment.status == 'COMPLETED' %}
+        <div style="margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:600; color:#64748b;">Progress</span>
+            <span style="font-size:12px; font-weight:600; color:#3b82f6;">{{ enrollment.progress_percentage|floatformat:0 }}%</span>
+          </div>
+          <div style="background:#e2e8f0; height:8px; border-radius:999px; overflow:hidden;">
+            <div style="background:linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%); height:100%; width:{{ enrollment.progress_percentage }}%; transition:width 0.5s;"></div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Training Details -->
+        <p style="font-size:14px; color:#64748b; line-height:1.7; margin-bottom:16px;">
+          {{ enrollment.program.description|truncatewords:30 }}
+        </p>
+
+        <!-- Date Information -->
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; padding:16px; background:#f8fafc; border-radius:8px; margin-bottom:16px;">
+          <div>
+            <div style="font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Enrolled Date</div>
+            <div style="font-size:14px; color:#1e293b; font-weight:500;">{{ enrollment.enrollment_date|date:"M d, Y" }}</div>
+          </div>
+          {% if enrollment.program.start_date %}
+          <div>
+            <div style="font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Start Date</div>
+            <div style="font-size:14px; color:#1e293b; font-weight:500;">{{ enrollment.program.start_date|date:"M d, Y" }}</div>
+          </div>
+          {% endif %}
+          {% if enrollment.program.end_date %}
+          <div>
+            <div style="font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">End Date</div>
+            <div style="font-size:14px; color:#1e293b; font-weight:500;">{{ enrollment.program.end_date|date:"M d, Y" }}</div>
+          </div>
+          {% endif %}
+          {% if enrollment.completion_date %}
+          <div>
+            <div style="font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Completed</div>
+            <div style="font-size:14px; color:#16a34a; font-weight:600;">{{ enrollment.completion_date|date:"M d, Y" }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Certificate -->
+        {% if enrollment.status == 'COMPLETED' and enrollment.certificate_url %}
+        <div style="display:flex; align-items:center; gap:12px; padding:12px; background:#dcfce7; border:1px solid #bbf7d0; border-radius:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2">
+            <circle cx="12" cy="8" r="7"></circle>
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+          </svg>
+          <div>
+            <div style="font-size:13px; font-weight:600; color:#166534;">Certificate Issued</div>
+            <div style="font-size:12px; color:#15803d;">View Certificate</div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Button -->
+        <div style="margin-top:16px;">
+          <a href="{% url 'training_detail' enrollment.program.id %}" class="btn" style="width:100%; text-align:center; display:block; text-decoration:none;">
+            View Training Details
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-left:6px;">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:60px 20px;">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin:0 auto 20px;">
+        <path d="M12 14l9-5-9-5-9 5 9 5z"></path>
+        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+      </svg>
+      <h3 style="font-size:18px; font-weight:600; color:#64748b; margin-bottom:8px;">No Training Enrollments</h3>
+      <p style="font-size:14px; color:#94a3b8; max-width:400px; margin:0 auto 24px;">You are not currently enrolled in any training programs.</p>
+      <a href="{% url 'training_list' %}" class="btn">
+        Browse Available Trainings
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

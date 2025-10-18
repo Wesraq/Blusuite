@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Review Scheduled</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .review-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Performance Review Scheduled</h1>
+    </div>
+
+    <div class="content">
+        <h2>Dear {{ employee.get_full_name }},</h2>
+
+        <p>A performance review has been scheduled for you. Please prepare accordingly.</p>
+
+        <div class="review-info">
+            <h3><strong>Review Details:</strong></h3>
+            <ul>
+                <li><strong>Review Type:</strong> {{ review.get_review_type_display }}</li>
+                <li><strong>Review Date:</strong> {{ review.review_date|date:"F j, Y" }}</li>
+                <li><strong>Reviewer:</strong> {{ review.reviewer.get_full_name }}</li>
+                <li><strong>Review Period:</strong> {{ review.review_period_start|date:"M j, Y" }} - {{ review.review_period_end|date:"M j, Y" }}</li>
+                <li><strong>Title:</strong> {{ review.title }}</li>
+            </ul>
+        </div>
+
+        <p><strong>Preparation Tips:</strong></p>
+        <ul>
+            <li>Review your objectives and achievements from the review period</li>
+            <li>Prepare examples of your work and accomplishments</li>
+            <li>Think about areas where you can improve</li>
+            <li>Consider your goals for the next review period</li>
+        </ul>
+
+        <p>Your reviewer will contact you to schedule a meeting time.</p>
+
+        <p>Best regards,<br>HR Team</p>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Employee Management System. All rights reserved.</p>
+    </div>
+</body>
+</html>

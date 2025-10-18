@@ -1,0 +1,671 @@
+{% extends 'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Payslip Designer - EMS{% endblock %}
+
+{% block styles %}
+<style>
+  .designer-container {
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    gap: 20px;
+    padding: 20px;
+    min-height: calc(100vh - 200px);
+  }
+
+  .designer-panel {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .panel-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  /* Sections Panel */
+  .sections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .section-item {
+    padding: 12px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+  }
+
+  .section-item:hover {
+    background: #e0f2fe;
+    border-color: #0ea5e9;
+    transform: translateX(4px);
+  }
+
+  .section-item.dragging {
+    opacity: 0.5;
+  }
+
+  .section-icon {
+    font-size: 20px;
+  }
+
+  .section-name {
+    font-weight: 500;
+    color: #334155;
+  }
+
+  /* Canvas */
+  .payslip-canvas {
+    background: white;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    min-height: 800px;
+    position: relative;
+    padding: 40px;
+    transition: all 0.3s;
+  }
+
+  .payslip-canvas.portrait {
+    aspect-ratio: 8.5 / 11;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .payslip-canvas.landscape {
+    aspect-ratio: 11 / 8.5;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .payslip-canvas.drag-over {
+    background: #f0f9ff;
+    border-color: #0ea5e9;
+    border-style: solid;
+  }
+
+  .canvas-section {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    position: relative;
+    cursor: move;
+  }
+
+  .canvas-section:hover {
+    border-color: #0ea5e9;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
+  }
+
+  .canvas-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .canvas-section-title {
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .canvas-section-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .section-btn {
+    padding: 4px 8px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .section-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+
+  .section-btn.delete:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+  }
+
+  /* Properties Panel */
+  .property-group {
+    margin-bottom: 20px;
+  }
+
+  .property-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .property-input, .property-select, .property-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .property-input:focus, .property-select:focus, .property-textarea:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+  }
+
+  .property-textarea {
+    min-height: 80px;
+    resize: vertical;
+    font-family: monospace;
+  }
+
+  .position-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .position-option {
+    padding: 12px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .position-option:hover {
+    background: #e0f2fe;
+    border-color: #0ea5e9;
+  }
+
+  .position-option.selected {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+    color: white;
+    font-weight: 600;
+  }
+
+  /* Action Buttons */
+  .action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: #0ea5e9;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #0284c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(14, 165, 233, 0.3);
+  }
+
+  .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  .btn-secondary:hover {
+    background: #e2e8f0;
+  }
+
+  .orientation-toggle {
+    display: flex;
+    gap: 8px;
+  }
+
+  .orientation-btn {
+    padding: 8px 16px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    transition: all 0.2s;
+  }
+
+  .orientation-btn:hover {
+    background: #e0f2fe;
+    border-color: #0ea5e9;
+  }
+
+  .orientation-btn.active {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+    color: white;
+  }
+
+  /* Drag placeholder */
+  .drag-placeholder {
+    background: #dbeafe;
+    border: 2px dashed #0ea5e9;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    text-align: center;
+    color: #0369a1;
+    font-weight: 500;
+  }
+
+  /* Empty state */
+  .empty-canvas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #94a3b8;
+    text-align: center;
+  }
+
+  .empty-canvas svg {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .empty-canvas-text {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .empty-canvas-hint {
+    font-size: 14px;
+  }
+
+  @media (max-width: 1200px) {
+    .designer-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="action-bar">
+  <div>
+    <h2 style="margin: 0; font-size: 20px; color: #1e293b;">Payslip Designer</h2>
+    <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Customize your payslip layout with drag-and-drop</p>
+  </div>
+  <div style="display: flex; gap: 12px; align-items: center;">
+    <div class="orientation-toggle">
+      <button type="button" class="orientation-btn {% if company.payslip_orientation == 'portrait' %}active{% endif %}" data-orientation="portrait">
+        📄 Portrait
+      </button>
+      <button type="button" class="orientation-btn {% if company.payslip_orientation == 'landscape' %}active{% endif %}" data-orientation="landscape">
+        📃 Landscape
+      </button>
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="previewPayslip()">
+      👁️ Preview
+    </button>
+    <button type="button" class="btn btn-primary" onclick="saveDesign()">
+      💾 Save Design
+    </button>
+  </div>
+</div>
+
+<form id="payslipDesignForm" method="POST">
+  {% csrf_token %}
+  <input type="hidden" name="orientation" id="orientationInput" value="{{ company.payslip_orientation }}">
+  <input type="hidden" name="section_order" id="sectionOrderInput" value="{{ company.payslip_section_order|default:'[]' }}">
+  <input type="hidden" name="field_positions" id="fieldPositionsInput" value="{{ company.payslip_field_positions|default:'{}' }}">
+  <input type="hidden" name="logo_position" id="logoPositionInput" value="{{ company.payslip_logo_position }}">
+  <input type="hidden" name="stamp_position" id="stampPositionInput" value="{{ company.payslip_stamp_position }}">
+  <input type="hidden" name="address_position" id="addressPositionInput" value="{{ company.payslip_address_position }}">
+  <input type="hidden" name="header_content" id="headerContentInput" value="{{ company.payslip_header_content }}">
+  <input type="hidden" name="footer_content" id="footerContentInput" value="{{ company.payslip_footer_content }}">
+</form>
+
+<div class="designer-container">
+  <!-- Left Panel: Available Sections -->
+  <div class="designer-panel">
+    <div class="panel-title">📦 Available Sections</div>
+    <div class="sections-list" id="availableSections">
+      {% for section in available_sections %}
+      <div class="section-item" draggable="true" data-section-id="{{ section.id }}">
+        <span class="section-icon">{{ section.icon }}</span>
+        <span class="section-name">{{ section.name }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Center: Canvas -->
+  <div class="designer-panel" style="padding: 0;">
+    <div class="payslip-canvas {{ company.payslip_orientation }}" id="payslipCanvas">
+      <div class="empty-canvas" id="emptyState">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <div class="empty-canvas-text">Start Designing Your Payslip</div>
+        <div class="empty-canvas-hint">Drag sections from the left panel to build your layout</div>
+      </div>
+      <div id="canvasSections"></div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Properties -->
+  <div class="designer-panel">
+    <div class="panel-title">⚙️ Properties</div>
+    
+    <div class="property-group">
+      <label class="property-label">Logo Position</label>
+      <div class="position-grid" id="logoPositionGrid">
+        {% for pos in position_options %}
+        <div class="position-option {% if company.payslip_logo_position == pos.value %}selected{% endif %}" 
+             data-position="{{ pos.value }}" data-type="logo">
+          {{ pos.label }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="property-group">
+      <label class="property-label">Stamp Position</label>
+      <div class="position-grid" id="stampPositionGrid">
+        {% for pos in position_options %}
+        <div class="position-option {% if company.payslip_stamp_position == pos.value %}selected{% endif %}" 
+             data-position="{{ pos.value }}" data-type="stamp">
+          {{ pos.label }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="property-group">
+      <label class="property-label">Address Position</label>
+      <div class="position-grid" id="addressPositionGrid">
+        {% for pos in position_options %}
+        <div class="position-option {% if company.payslip_address_position == pos.value %}selected{% endif %}" 
+             data-position="{{ pos.value }}" data-type="address">
+          {{ pos.label }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="property-group">
+      <label class="property-label">Header Content</label>
+      <textarea class="property-textarea" id="headerContent" placeholder="Custom header text or HTML...">{{ company.payslip_header_content }}</textarea>
+    </div>
+
+    <div class="property-group">
+      <label class="property-label">Footer Content</label>
+      <textarea class="property-textarea" id="footerContent" placeholder="Custom footer text or HTML...">{{ company.payslip_footer_content }}</textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+let draggedElement = null;
+let currentSections = {{ company.payslip_section_order|safe }};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  initializeDragAndDrop();
+  loadExistingSections();
+  initializePositionSelectors();
+  initializeOrientationToggle();
+});
+
+function initializeDragAndDrop() {
+  const availableSections = document.querySelectorAll('.section-item');
+  const canvas = document.getElementById('payslipCanvas');
+
+  availableSections.forEach(item => {
+    item.addEventListener('dragstart', handleDragStart);
+    item.addEventListener('dragend', handleDragEnd);
+  });
+
+  canvas.addEventListener('dragover', handleDragOver);
+  canvas.addEventListener('drop', handleDrop);
+  canvas.addEventListener('dragleave', handleDragLeave);
+}
+
+function handleDragStart(e) {
+  draggedElement = e.target;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'copy';
+  e.dataTransfer.setData('text/html', e.target.innerHTML);
+}
+
+function handleDragEnd(e) {
+  e.target.classList.remove('dragging');
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  document.getElementById('payslipCanvas').classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+  if (e.target.id === 'payslipCanvas') {
+    document.getElementById('payslipCanvas').classList.remove('drag-over');
+  }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('payslipCanvas').classList.remove('drag-over');
+  
+  if (draggedElement) {
+    const sectionId = draggedElement.dataset.sectionId;
+    const sectionName = draggedElement.querySelector('.section-name').textContent;
+    const sectionIcon = draggedElement.querySelector('.section-icon').textContent;
+    
+    addSectionToCanvas(sectionId, sectionName, sectionIcon);
+    hideEmptyState();
+  }
+}
+
+function addSectionToCanvas(id, name, icon) {
+  // Check if already exists
+  if (currentSections.includes(id)) {
+    alert('This section is already on the canvas');
+    return;
+  }
+
+  const canvasSections = document.getElementById('canvasSections');
+  const section = document.createElement('div');
+  section.className = 'canvas-section';
+  section.dataset.sectionId = id;
+  section.draggable = true;
+  
+  section.innerHTML = `
+    <div class="canvas-section-header">
+      <div class="canvas-section-title">
+        <span>${icon}</span>
+        <span>${name}</span>
+      </div>
+      <div class="canvas-section-actions">
+        <button type="button" class="section-btn" onclick="moveSectionUp(this)">↑</button>
+        <button type="button" class="section-btn" onclick="moveSectionDown(this)">↓</button>
+        <button type="button" class="section-btn delete" onclick="removeSection(this)">✕</button>
+      </div>
+    </div>
+    <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
+      Section content will appear here in the actual payslip
+    </div>
+  `;
+
+  canvasSections.appendChild(section);
+  currentSections.push(id);
+  updateSectionOrder();
+}
+
+function removeSection(btn) {
+  const section = btn.closest('.canvas-section');
+  const sectionId = section.dataset.sectionId;
+  
+  section.remove();
+  currentSections = currentSections.filter(id => id !== sectionId);
+  updateSectionOrder();
+  
+  if (currentSections.length === 0) {
+    showEmptyState();
+  }
+}
+
+function moveSectionUp(btn) {
+  const section = btn.closest('.canvas-section');
+  const prev = section.previousElementSibling;
+  if (prev) {
+    section.parentNode.insertBefore(section, prev);
+    updateSectionOrder();
+  }
+}
+
+function moveSectionDown(btn) {
+  const section = btn.closest('.canvas-section');
+  const next = section.nextElementSibling;
+  if (next) {
+    section.parentNode.insertBefore(next, section);
+    updateSectionOrder();
+  }
+}
+
+function updateSectionOrder() {
+  const sections = document.querySelectorAll('.canvas-section');
+  currentSections = Array.from(sections).map(s => s.dataset.sectionId);
+  document.getElementById('sectionOrderInput').value = JSON.stringify(currentSections);
+}
+
+function loadExistingSections() {
+  if (currentSections && currentSections.length > 0) {
+    currentSections.forEach(sectionId => {
+      const sectionItem = document.querySelector(`[data-section-id="${sectionId}"]`);
+      if (sectionItem) {
+        const name = sectionItem.querySelector('.section-name').textContent;
+        const icon = sectionItem.querySelector('.section-icon').textContent;
+        addSectionToCanvas(sectionId, name, icon);
+      }
+    });
+    hideEmptyState();
+  }
+}
+
+function hideEmptyState() {
+  document.getElementById('emptyState').style.display = 'none';
+}
+
+function showEmptyState() {
+  document.getElementById('emptyState').style.display = 'flex';
+}
+
+function initializePositionSelectors() {
+  document.querySelectorAll('.position-option').forEach(option => {
+    option.addEventListener('click', function() {
+      const type = this.dataset.type;
+      const position = this.dataset.position;
+      
+      // Remove selected from siblings
+      this.parentElement.querySelectorAll('.position-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
+      // Add selected to clicked
+      this.classList.add('selected');
+      
+      // Update hidden input
+      document.getElementById(`${type}PositionInput`).value = position;
+    });
+  });
+
+  // Update header and footer content
+  document.getElementById('headerContent').addEventListener('input', function() {
+    document.getElementById('headerContentInput').value = this.value;
+  });
+
+  document.getElementById('footerContent').addEventListener('input', function() {
+    document.getElementById('footerContentInput').value = this.value;
+  });
+}
+
+function initializeOrientationToggle() {
+  document.querySelectorAll('.orientation-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const orientation = this.dataset.orientation;
+      
+      // Update buttons
+      document.querySelectorAll('.orientation-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Update canvas
+      const canvas = document.getElementById('payslipCanvas');
+      canvas.classList.remove('portrait', 'landscape');
+      canvas.classList.add(orientation);
+      
+      // Update hidden input
+      document.getElementById('orientationInput').value = orientation;
+    });
+  });
+}
+
+function saveDesign() {
+  document.getElementById('payslipDesignForm').submit();
+}
+
+function previewPayslip() {
+  alert('Preview functionality will open a new window showing how the payslip will look with actual data.');
+  // TODO: Implement preview in a modal or new window
+}
+</script>
+{% endblock %}

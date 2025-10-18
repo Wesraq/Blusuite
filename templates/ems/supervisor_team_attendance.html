@@ -1,0 +1,192 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Team Attendance - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Team Attendance</h1>
+        <p class="page-subtitle">Monitor and track your team's attendance</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'supervisor_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; text-decoration: none; font-size: 14px; font-weight: 500;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Date Filter -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-content">
+        <form method="GET" style="display: flex; gap: 16px; align-items: end;">
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Start Date</label>
+                <input type="date" name="start_date" value="{{ start_date|date:'Y-m-d' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+            </div>
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">End Date</label>
+                <input type="date" name="end_date" value="{{ end_date|date:'Y-m-d' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+            </div>
+            <button type="submit" style="padding: 10px 24px; background: #1e293b; color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer;">
+                Apply Filter
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Statistics Summary -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px;">
+    <div class="content-card">
+        <div style="padding: 20px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Total Days</div>
+            <div style="font-size: 24px; font-weight: 700; color: #1e293b;">{{ stats.total_days }}</div>
+        </div>
+    </div>
+    <div class="content-card">
+        <div style="padding: 20px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Present</div>
+            <div style="font-size: 24px; font-weight: 700; color: #22c55e;">{{ stats.present }}</div>
+        </div>
+    </div>
+    <div class="content-card">
+        <div style="padding: 20px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Absent</div>
+            <div style="font-size: 24px; font-weight: 700; color: #ef4444;">{{ stats.absent }}</div>
+        </div>
+    </div>
+    <div class="content-card">
+        <div style="padding: 20px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Late</div>
+            <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">{{ stats.late }}</div>
+        </div>
+    </div>
+    <div class="content-card">
+        <div style="padding: 20px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Half Day</div>
+            <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">{{ stats.half_day }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Summary -->
+<div class="content-card" style="margin-bottom: 30px;">
+    <div class="card-header">
+        <div class="card-title">Employee Attendance Summary</div>
+    </div>
+    <div class="card-content">
+        {% if employee_summary %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <th style="text-align: left; padding: 12px; font-weight: 600; color: #475569;">Employee</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Present</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Absent</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Late</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Attendance Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for summary in employee_summary %}
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 13px;">
+                                    {{ summary.employee.first_name|first }}{{ summary.employee.last_name|first }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #1e293b;">{{ summary.employee.get_full_name }}</div>
+                                    <div style="font-size: 13px; color: #64748b;">{{ summary.employee.employee_profile.job_title }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="text-align: center; padding: 16px; color: #22c55e; font-weight: 600;">{{ summary.total_present }}</td>
+                        <td style="text-align: center; padding: 16px; color: #ef4444; font-weight: 600;">{{ summary.total_absent }}</td>
+                        <td style="text-align: center; padding: 16px; color: #f59e0b; font-weight: 600;">{{ summary.total_late }}</td>
+                        <td style="text-align: center; padding: 16px;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px;">
+                                <div style="width: 80px; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                                    <div style="width: {{ summary.attendance_rate }}%; height: 100%; background: {% if summary.attendance_rate >= 90 %}#22c55e{% elif summary.attendance_rate >= 70 %}#f59e0b{% else %}#ef4444{% endif %}; border-radius: 4px;"></div>
+                                </div>
+                                <span style="font-weight: 600; color: #1e293b;">{{ summary.attendance_rate }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 60px; color: #94a3b8;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 16px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <p>No attendance records found for the selected period</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Detailed Attendance Records -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Detailed Attendance Records</div>
+    </div>
+    <div class="card-content">
+        {% if attendance_records %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <th style="text-align: left; padding: 12px; font-weight: 600; color: #475569;">Date</th>
+                        <th style="text-align: left; padding: 12px; font-weight: 600; color: #475569;">Employee</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Status</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Clock In</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Clock Out</th>
+                        <th style="text-align: left; padding: 12px; font-weight: 600; color: #475569;">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records|slice:":50" %}
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px; color: #475569;">{{ record.date|date:"M d, Y" }}</td>
+                        <td style="padding: 12px;">
+                            <div style="font-weight: 600; color: #1e293b;">{{ record.employee.get_full_name }}</div>
+                            <div style="font-size: 13px; color: #64748b;">{{ record.employee.employee_profile.employee_id }}</div>
+                        </td>
+                        <td style="text-align: center; padding: 12px;">
+                            {% if record.status == 'PRESENT' %}
+                            <span style="padding: 4px 12px; background: #d1fae5; color: #065f46; border-radius: 12px; font-size: 12px; font-weight: 600;">PRESENT</span>
+                            {% elif record.status == 'ABSENT' %}
+                            <span style="padding: 4px 12px; background: #fee2e2; color: #991b1b; border-radius: 12px; font-size: 12px; font-weight: 600;">ABSENT</span>
+                            {% elif record.status == 'LATE' %}
+                            <span style="padding: 4px 12px; background: #fef3c7; color: #92400e; border-radius: 12px; font-size: 12px; font-weight: 600;">LATE</span>
+                            {% else %}
+                            <span style="padding: 4px 12px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ record.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center; padding: 12px; color: #475569;">{{ record.clock_in|time:"H:i"|default:"--:--" }}</td>
+                        <td style="text-align: center; padding: 12px; color: #475569;">{{ record.clock_out|time:"H:i"|default:"--:--" }}</td>
+                        <td style="padding: 12px; color: #64748b; font-size: 13px;">{{ record.notes|default:"--" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if attendance_records|length > 50 %}
+        <div style="padding: 16px; text-align: center; color: #64748b; border-top: 1px solid #f1f5f9;">
+            Showing first 50 records. Adjust date filter to see more specific results.
+        </div>
+        {% endif %}
+        {% else %}
+        <div style="text-align: center; padding: 60px; color: #94a3b8;">
+            <p>No detailed records available</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

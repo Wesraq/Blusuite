@@ -1,0 +1,1340 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+
+{% block title %}{% if is_supervisor_view %}View{% else %}Edit{% endif %} Employee - {{ employee.first_name }} {{ employee.last_name }} - EMS{% endblock %}
+
+{% block page_title %}{% if is_supervisor_view %}View{% else %}Edit{% endif %} Employee{% endblock %}
+
+{% block content %}
+{% if is_supervisor_view %}
+<!-- Supervisor Read-Only Banner -->
+<div style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; border-radius: 8px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+    <div style="flex: 1;">
+        <div style="font-weight: 700; color: #92400e; font-size: 15px; margin-bottom: 2px;">👁️ Viewing Team Member Profile</div>
+        <div style="font-size: 13px; color: #b45309;">You have read-only access to this employee's information. Contact an administrator to make changes.</div>
+    </div>
+</div>
+{% endif %}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    {% if is_supervisor_view %}
+    <a href="{% url 'supervisor_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 14px;">
+        ← Back to My Team
+    </a>
+    {% else %}
+    <a href="{% url 'employer_employee_management' %}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 14px;">
+        ← Back to Employee Management
+    </a>
+    {% endif %}
+    <div style="font-size: 14px; color: #64748b;">
+        {{ company.name }}
+    </div>
+</div>
+
+<style>
+    .edit-container {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 24px;
+        align-items: flex-start;
+    }
+    
+    .tab-list {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 24px;
+    }
+    
+    .tab-button {
+        padding: 12px 24px;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-weight: 600;
+        color: #64748b;
+        transition: all 0.2s;
+    }
+    
+    .tab-button.active {
+        color: #0f172a;
+        border-bottom-color: #3b82f6;
+    }
+    
+    .tab-panel {
+        display: none;
+    }
+    
+    .tab-panel.active {
+        display: block;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    
+    .form-input {
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+</style>
+
+<!-- Success Message Alert -->
+{% if messages %}
+<div id="messageAlert" style="background: #d1fae5; border: 1px solid #10b981; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+    {% for message in messages %}
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span style="color: #065f46; font-weight: 600;">{{ message }}</span>
+    </div>
+    <button onclick="this.parentElement.style.display='none'" style="background: none; border: none; color: #065f46; cursor: pointer; font-size: 20px;">&times;</button>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Contract Expiry Warning -->
+{% if contract_expiry_warning %}
+<div style="background: {% if contract_expiry_warning.is_critical %}#fee2e2{% else %}#fef3c7{% endif %}; border: 1px solid {% if contract_expiry_warning.is_critical %}#ef4444{% else %}#f59e0b{% endif %}; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{% if contract_expiry_warning.is_critical %}#dc2626{% else %}#d97706{% endif %}" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>
+    <div>
+        <strong style="color: {% if contract_expiry_warning.is_critical %}#dc2626{% else %}#d97706{% endif %};">
+            {% if contract_expiry_warning.is_critical %}⚠️ Critical: {% endif %}{{ contract_expiry_warning.type|default:"Contract" }} Expiry Warning
+        </strong>
+        <p style="margin: 4px 0 0 0; color: #64748b; font-size: 14px;">
+            Expires in <strong>{{ contract_expiry_warning.days }} days</strong> on {{ contract_expiry_warning.date|date:"F d, Y" }}
+        </p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Enhanced Stats Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    <!-- Profile Completeness -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 14px; color: #64748b;">Profile Complete</span>
+            <span style="font-size: 20px; font-weight: 700; color: {% if profile_completeness >= 80 %}#10b981{% elif profile_completeness >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">{{ profile_completeness }}%</span>
+        </div>
+        <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+            <div style="width: {{ profile_completeness }}%; height: 100%; background: {% if profile_completeness >= 80 %}#10b981{% elif profile_completeness >= 50 %}#f59e0b{% else %}#ef4444{% endif %}; transition: width 0.3s;"></div>
+        </div>
+        <p style="margin: 8px 0 0 0; font-size: 12px; color: #94a3b8;">{{ completed_fields }}/{{ total_fields }} fields</p>
+    </div>
+
+    <!-- Attendance Rate -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="font-size: 14px; color: #64748b; margin-bottom: 8px;">Attendance (30d)</div>
+        <div style="font-size: 24px; font-weight: 700; color: {% if attendance_rate >= 90 %}#10b981{% elif attendance_rate >= 75 %}#f59e0b{% else %}#ef4444{% endif %};">{{ attendance_rate }}%</div>
+        <div style="display: flex; gap: 8px; font-size: 12px; color: #64748b; margin-top: 8px;">
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg> {{ present_days }}</span>
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg> {{ late_days }}</span>
+            <span>✗ {{ absent_days }}</span>
+        </div>
+    </div>
+
+    <!-- Leave Requests -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px; color: #64748b;">Leave Requests</span>
+            {% if pending_leaves > 0 %}
+            <span style="background: #fef3c7; color: #d97706; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">{{ pending_leaves }} pending</span>
+            {% endif %}
+        </div>
+        <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">{{ approved_leaves }}</div>
+        <div style="display: flex; gap: 12px; font-size: 12px; color: #64748b; margin-top: 4px;">
+            <span>✗ {{ rejected_leaves }}</span>
+        </div>
+    </div>
+
+    <!-- Time Employed -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="font-size: 14px; color: #64748b; margin-bottom: 8px;">Time Employed</div>
+        <div style="font-size: 24px; font-weight: 700; color: #0f172a;">{{ years_employed }}y {{ months_employed }}m</div>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">{{ days_employed }} days total</p>
+    </div>
+
+    <!-- Documents -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px; color: #64748b;">Documents</span>
+            {% if pending_documents > 0 %}
+            <span style="background: #dbeafe; color: #2563eb; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">{{ pending_documents }} pending</span>
+            {% endif %}
+        </div>
+        <div style="font-size: 24px; font-weight: 700; color: #0f172a;">{{ total_documents }}</div>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">{{ approved_documents }} approved</p>
+    </div>
+
+    <!-- Performance Reviews -->
+    <div class="content-card" style="padding: 16px;">
+        <div style="font-size: 14px; color: #64748b; margin-bottom: 8px;">Reviews</div>
+        <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;">{{ performance_reviews_count }}</div>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Performance reviews</p>
+    </div>
+</div>
+
+<div class="edit-container">
+    <!-- LEFT: Employee Summary -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Employee Summary</div>
+        </div>
+        <div class="card-content">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="position: relative; display: inline-block; margin-bottom: 12px;">
+                    {% if employee.profile_picture %}
+                    <img id="profilePicPreview" src="{{ employee.profile_picture.url }}" alt="{{ employee.get_full_name }}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e2e8f0;">
+                    {% else %}
+                    <div id="profilePicPreview" style="width: 80px; height: 80px; background: #3b82f6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; color: white; border: 3px solid #e2e8f0;">
+                        {{ employee.first_name|first|upper }}{{ employee.last_name|first|upper }}
+                    </div>
+                    {% endif %}
+                    <button type="button" onclick="document.getElementById('profilePicInput').click()" style="position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; background: #10b981; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </button>
+                    <input type="file" id="profilePicInput" accept="image/jpeg,image/jpg,image/png" style="display: none;" onchange="uploadProfilePicture(event)">
+                </div>
+                <h3 style="margin: 0; font-size: 18px; color: #0f172a;">{{ employee.first_name }} {{ employee.last_name }}</h3>
+                <p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">{{ profile.job_title|default:'Employee' }}</p>
+            </div>
+            
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #64748b;">Status</div>
+                    <div style="font-size: 14px; font-weight: 600; color: {% if employee.is_active %}#10b981{% else %}#ef4444{% endif %};">
+                        {{ employee.is_active|yesno:"Active,Inactive" }}
+                    </div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #64748b;">Employee ID</div>
+                    <div style="font-size: 14px; font-weight: 600;">{{ profile.employee_id|default:'—' }}</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #64748b;">Department</div>
+                    <div style="font-size: 14px; font-weight: 600;">{{ profile.department|default:'—' }}</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #64748b;">Email</div>
+                    <div style="font-size: 14px;">{{ employee.email }}</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #64748b;">Phone</div>
+                    <div style="font-size: 14px;">{{ employee.phone_number|default:'—' }}</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+                <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 12px;">Quick Actions</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="{% url 'attendance_dashboard' %}?employee={{ employee.id }}" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8fafc; border-radius: 6px; text-decoration: none; color: #0f172a; font-size: 13px; transition: background 0.2s;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        View Attendance
+                    </a>
+                    <a href="{% url 'leave_management' %}?employee={{ employee.id }}" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8fafc; border-radius: 6px; text-decoration: none; color: #0f172a; font-size: 13px; transition: background 0.2s;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Manage Leaves
+                    </a>
+                    <a href="{% url 'documents_list' %}?employee={{ employee.id }}" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8fafc; border-radius: 6px; text-decoration: none; color: #0f172a; font-size: 13px; transition: background 0.2s;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                            <polyline points="13 2 13 9 20 9"></polyline>
+                        </svg>
+                        View Documents
+                    </a>
+                    <button onclick="window.print()" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8fafc; border-radius: 6px; border: none; color: #0f172a; font-size: 13px; cursor: pointer; transition: background 0.2s; width: 100%; text-align: left;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                        Print Profile
+                    </button>
+                    <button onclick="generateNewPassword()" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fef3c7; border-radius: 6px; border: 1px solid #f59e0b; color: #92400e; font-size: 13px; cursor: pointer; transition: all 0.2s; width: 100%; text-align: left; font-weight: 600;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Reset Password
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            {% if recent_leaves %}
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+                <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 12px;">Recent Leave Requests</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for leave in recent_leaves|slice:":3" %}
+                    <div style="padding: 8px; background: #f8fafc; border-radius: 6px; font-size: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="font-weight: 600; color: #0f172a;">{{ leave.leave_type }}</span>
+                            <span style="padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 600;
+                                {% if leave.status == 'APPROVED' %}background: #d1fae5; color: #065f46;
+                                {% elif leave.status == 'PENDING' %}background: #fef3c7; color: #92400e;
+                                {% elif leave.status == 'REJECTED' %}background: #fee2e2; color: #991b1b;
+                                {% endif %}">
+                                {{ leave.status }}
+                            </span>
+                        </div>
+                        <div style="color: #64748b;">{{ leave.start_date|date:"M d" }} - {{ leave.end_date|date:"M d" }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- RIGHT: Edit Form -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Edit Information</div>
+        </div>
+        <div class="card-content">
+            <!-- Tabs -->
+            <div class="tab-list">
+                <button type="button" class="tab-button active" onclick="switchTab('personal', this)">Personal</button>
+                <button type="button" class="tab-button" onclick="switchTab('employment', this)">Employment</button>
+                <button type="button" class="tab-button" onclick="switchTab('bank', this)">Bank Details</button>
+                <button type="button" class="tab-button" onclick="switchTab('emergency', this)">Emergency Contact</button>
+                <button type="button" class="tab-button" onclick="switchTab('documents', this)">Documents</button>
+                <button type="button" class="tab-button" onclick="switchTab('assets', this)">Assets</button>
+                <button type="button" class="tab-button" onclick="switchTab('activity', this)">Activity & History</button>
+            </div>
+
+            <!-- MAIN EDIT FORM -->
+            <form method="POST" action="">
+                {% csrf_token %}
+
+                <!-- Personal Tab -->
+                <div id="tab-personal" class="tab-panel active">
+                    <h3 style="font-size: 18px; margin-bottom: 20px;">Personal Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">First Name *</label>
+                            <input type="text" name="first_name" class="form-input" value="{{ employee.first_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name *</label>
+                            <input type="text" name="last_name" class="form-input" value="{{ employee.last_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" class="form-input" value="{{ employee.email }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" name="phone" class="form-input" value="{{ employee.phone_number|default:'' }}">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Address</label>
+                            <input type="text" name="address" class="form-input" value="{{ profile.address|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employment Tab -->
+                <div id="tab-employment" class="tab-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px;">Employment Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Employee ID</label>
+                            <input type="text" name="employee_id" class="form-input" value="{{ profile.employee_id|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Department</label>
+                            <select name="department" class="form-input">
+                                <option value="">Select Department</option>
+                                {% for dept in company_departments %}
+                                <option value="{{ dept.name }}" {% if profile.department == dept.name %}selected{% endif %}>{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" name="job_title" class="form-input" value="{{ profile.job_title|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hire Date</label>
+                            <input type="date" name="hire_date" class="form-input" value="{{ profile.date_hired|date:'Y-m-d' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Salary</label>
+                            <input type="number" name="salary" class="form-input" value="{{ profile.salary|default:'' }}" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Currency</label>
+                            <select name="currency" class="form-input">
+                                {% for value, label in currency_choices %}
+                                <option value="{{ value }}" {% if selected_currency == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Employment Type</label>
+                            <select name="employment_type" id="employment_type" class="form-input">
+                                <option value="">Select Type</option>
+                                {% for value, label in employment_type_choices %}
+                                <option value="{{ value }}" {% if selected_employment_type == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Employee Role</label>
+                            <select name="employee_role" class="form-input">
+                                {% for value, label in employee_role_choices %}
+                                <option value="{{ value }}" {% if selected_employee_role == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Supervisor</label>
+                            <select name="supervisor" class="form-input">
+                                <option value="">No Supervisor</option>
+                                {% for supervisor in available_supervisors %}
+                                <option value="{{ supervisor.id }}" {% if profile.supervisor_id == supervisor.id %}selected{% endif %}>
+                                    {{ supervisor.get_full_name }} - {{ supervisor.employee_profile.job_title|default:"Supervisor" }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small style="color: #64748b; font-size: 12px; margin-top: 4px;">Select the direct supervisor for this employee</small>
+                        </div>
+
+                        <!-- Probation Period Dates (conditional) -->
+                        <div id="probation-dates" class="form-group full-width" style="display: {% if selected_employment_type == 'PROBATION' %}grid{% else %}none{% endif %}; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label class="form-label">Probation Start Date</label>
+                                <input type="date" name="probation_start_date" class="form-input" value="{{ profile.probation_start_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div>
+                                <label class="form-label">Probation End Date</label>
+                                <input type="date" name="probation_end_date" class="form-input" value="{{ profile.probation_end_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                        </div>
+
+                        <!-- Contract Period Dates (conditional) -->
+                        <div id="contract-dates" class="form-group full-width" style="display: {% if selected_employment_type == 'CONTRACT' %}grid{% else %}none{% endif %}; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label class="form-label">Contract Start Date</label>
+                                <input type="date" name="contract_start_date" class="form-input" value="{{ profile.contract_start_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div>
+                                <label class="form-label">Contract End Date</label>
+                                <input type="date" name="contract_end_date" class="form-input" value="{{ profile.contract_end_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                        </div>
+
+                        <!-- Temporary Period Dates (conditional) -->
+                        <div id="temporary-dates" class="form-group full-width" style="display: {% if selected_employment_type == 'TEMPORARY' %}grid{% else %}none{% endif %}; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label class="form-label">Temporary Start Date</label>
+                                <input type="date" name="temporary_start_date" class="form-input" value="{{ profile.temporary_start_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div>
+                                <label class="form-label">Temporary End Date</label>
+                                <input type="date" name="temporary_end_date" class="form-input" value="{{ profile.temporary_end_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" name="is_active" {% if employee.is_active %}checked{% endif %}>
+                                <span class="form-label" style="margin: 0;">Active Employee</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Details Tab -->
+                <div id="tab-bank" class="tab-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px;">Bank Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Bank Name</label>
+                            <input type="text" name="bank_name" class="form-input" value="{{ profile.bank_name|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Account Number</label>
+                            <input type="text" name="account_number" class="form-input" value="{{ profile.account_number|default:'' }}">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Bank Branch</label>
+                            <input type="text" name="bank_branch" class="form-input" value="{{ profile.bank_branch|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact Tab -->
+                <div id="tab-emergency" class="tab-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px;">Emergency Contact</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Contact Name</label>
+                            <input type="text" name="emergency_contact_name" class="form-input" value="{{ profile.emergency_contact_name|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Contact Phone</label>
+                            <input type="tel" name="emergency_contact_phone" class="form-input" value="{{ profile.emergency_contact_phone|default:'' }}">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Contact Email</label>
+                            <input type="email" name="emergency_contact_email" class="form-input" value="{{ profile.emergency_contact_email|default:'' }}">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Contact Address</label>
+                            <input type="text" name="emergency_contact_address" class="form-input" value="{{ profile.emergency_contact_address|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents Tab -->
+                <div id="tab-documents" class="tab-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px;">Employee Documents</h3>
+                    
+                    <!-- Document Upload Section -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0f172a;">Upload New Document</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label class="form-label">Document Type</label>
+                                <select id="doc-type" class="form-input">
+                                    <option value="">Select Type</option>
+                                    <option value="CONTRACT">Employment Contract</option>
+                                    <option value="CERTIFICATE">Certificate</option>
+                                    <option value="ID">Identification Document</option>
+                                    <option value="LICENSE">Professional License</option>
+                                    <option value="MEDICAL">Medical Record</option>
+                                    <option value="TRAINING">Training Record</option>
+                                    <option value="PERFORMANCE">Performance Review</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Document Title</label>
+                                <input type="text" id="doc-title" class="form-input" placeholder="e.g., Employment Contract 2025">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label class="form-label">Description (Optional)</label>
+                            <textarea id="doc-description" class="form-input" rows="2" placeholder="Brief description of the document"></textarea>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label class="form-label">Choose File</label>
+                            <input type="file" id="doc-file" class="form-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx">
+                            <p style="font-size: 12px; color: #64748b; margin-top: 4px;">Allowed: PDF, DOC, DOCX, JPG, PNG, XLS, XLSX (Max 10MB)</p>
+                        </div>
+                        <button type="button" onclick="uploadDocument()" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; vertical-align: middle;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Upload Document
+                        </button>
+                    </div>
+
+                    <!-- Documents List -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4 style="font-size: 16px; font-weight: 600; color: #0f172a;">All Documents ({{ employee_documents_count }})</h4>
+                            <div style="display: flex; gap: 8px;">
+                                <select class="form-input" style="width: auto; font-size: 13px;" onchange="filterDocuments(this.value)">
+                                    <option value="">All Types</option>
+                                    <option value="CONTRACT">Contracts</option>
+                                    <option value="CERTIFICATE">Certificates</option>
+                                    <option value="ID">ID Documents</option>
+                                    <option value="LICENSE">Licenses</option>
+                                </select>
+                                <select class="form-input" style="width: auto; font-size: 13px;" onchange="filterDocumentStatus(this.value)">
+                                    <option value="">All Status</option>
+                                    <option value="APPROVED">Approved</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="REJECTED">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        {% if employee_documents %}
+                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                            {% for doc in employee_documents %}
+                            <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center; {% if not forloop.last %}border-bottom: 1px solid #e2e8f0;{% endif %}">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                            <polyline points="13 2 13 9 20 9"></polyline>
+                                        </svg>
+                                        <div>
+                                            <div style="font-weight: 600; color: #0f172a;">{{ doc.title }}</div>
+                                            <div style="font-size: 13px; color: #64748b;">
+                                                {{ doc.get_document_type_display }} • Uploaded {{ doc.created_at|date:"M d, Y" }}
+                                                {% if doc.file_size %} • {{ doc.file_size|filesizeformat }}{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if doc.description %}
+                                    <p style="font-size: 13px; color: #64748b; margin: 0 0 0 32px;">{{ doc.description }}</p>
+                                    {% endif %}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
+                                        {% if doc.status == 'APPROVED' %}background: #d1fae5; color: #065f46;
+                                        {% elif doc.status == 'PENDING' %}background: #fef3c7; color: #92400e;
+                                        {% elif doc.status == 'REJECTED' %}background: #fee2e2; color: #991b1b;
+                                        {% endif %}">
+                                        {{ doc.get_status_display }}
+                                    </span>
+                                    <a href="{% url 'document_download' doc.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div style="padding: 48px; text-align: center; background: #f8fafc; border-radius: 8px; border: 1px dashed #e2e8f0;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="margin: 0 auto 16px;">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                <polyline points="13 2 13 9 20 9"></polyline>
+                            </svg>
+                            <p style="color: #94a3b8; margin: 0; font-size: 15px;">No documents uploaded yet</p>
+                            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 13px;">Upload documents using the form above</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Assets Tab -->
+                <div id="tab-assets" class="tab-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px;">Employee Assets</h3>
+                    
+                    <!-- Assign Existing Asset Section -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0f172a;">Assign Existing Asset</h4>
+                        <div style="margin-bottom: 16px;">
+                            <label class="form-label">Select Asset from Inventory <span style="color: #ef4444;">*</span></label>
+                            <select id="available-asset" class="form-input">
+                                <option value="">-- Select an Available Asset --</option>
+                                {% if available_assets %}
+                                    {% for asset in available_assets %}
+                                    <option value="{{ asset.id }}" data-tag="{{ asset.asset_tag }}" data-name="{{ asset.name }}" data-type="{{ asset.get_asset_type_display }}">
+                                        {{ asset.asset_tag }} - {{ asset.name }} ({{ asset.get_asset_type_display }})
+                                        {% if asset.serial_number %} • SN: {{ asset.serial_number }}{% endif %}
+                                    </option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="" disabled>No available assets. Please add assets first.</option>
+                                {% endif %}
+                            </select>
+                            <p style="font-size: 12px; color: #64748b; margin-top: 6px;">
+                                💡 Only showing available (unassigned) assets. 
+                                <a href="{% url 'asset_create' %}" style="color: #3b82f6; text-decoration: none;">Add new asset</a>
+                            </p>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label class="form-label">Assignment Notes</label>
+                            <textarea id="asset-notes" class="form-input" rows="2" placeholder="Reason for assignment or special instructions..."></textarea>
+                        </div>
+                        <button type="button" onclick="assignExistingAsset()" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; vertical-align: middle;">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="8.5" cy="7" r="4"></circle>
+                                <line x1="20" y1="8" x2="20" y2="14"></line>
+                                <line x1="23" y1="11" x2="17" y2="11"></line>
+                            </svg>
+                            Assign Asset to Employee
+                        </button>
+                    </div>
+
+                    <!-- Assets List -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4 style="font-size: 16px; font-weight: 600; color: #0f172a;">Assigned Assets ({{ employee_assets_count|default:0 }})</h4>
+                            <select class="form-input" style="width: auto; font-size: 13px;" onchange="filterAssets(this.value)">
+                                <option value="">All Assets</option>
+                                <option value="LAPTOP">Laptops</option>
+                                <option value="PHONE">Phones</option>
+                                <option value="VEHICLE">Vehicles</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        
+                        {% if employee_assets %}
+                        <div style="display: grid; gap: 16px;">
+                            {% for asset in employee_assets %}
+                            <div class="content-card" style="padding: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                    <div style="display: flex; gap: 12px;">
+                                        <div style="width: 48px; height: 48px; background: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">{{ asset.name }}</div>
+                                            <div style="font-size: 13px; color: #64748b;">
+                                                {{ asset.get_asset_type_display }} • {{ asset.asset_tag }}
+                                                {% if asset.serial_number %} • SN: {{ asset.serial_number }}{% endif %}
+                                            </div>
+                                            {% if asset.assigned_date %}
+                                            <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+                                                Assigned: {{ asset.assigned_date|date:"M d, Y" }} ({{ asset.days_with_employee }} days)
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #065f46;">
+                                        {{ asset.get_status_display }}
+                                    </span>
+                                </div>
+                                {% if asset.notes %}
+                                <p style="font-size: 13px; color: #64748b; margin: 0; padding-top: 12px; border-top: 1px solid #e2e8f0;">{{ asset.notes }}</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div style="padding: 48px; text-align: center; background: #f8fafc; border-radius: 8px; border: 1px dashed #e2e8f0;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="margin: 0 auto 16px;">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            <p style="color: #94a3b8; margin: 0; font-size: 15px;">No assets assigned yet</p>
+                            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 13px;">Assign assets using the form above</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Activity & History Tab -->
+                <div id="tab-activity" class="tab-panel">
+                    <h3 style="font-size: 18px; margin-bottom: 20px;">Activity & History</h3>
+                    
+                    <!-- Performance Reviews -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0f172a;">Performance Reviews ({{ performance_reviews_count }})</h4>
+                        {% if performance_reviews %}
+                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                            {% for review in performance_reviews %}
+                            <div style="padding: 16px; {% if not forloop.last %}border-bottom: 1px solid #e2e8f0;{% endif %}">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                    <div>
+                                        <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">{{ review.review_date|date:"F d, Y" }}</div>
+                                        <div style="font-size: 13px; color: #64748b;">Reviewed by {{ review.reviewer.get_full_name }}</div>
+                                    </div>
+                                    <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
+                                        {% if review.overall_rating >= 4 %}background: #d1fae5; color: #065f46;
+                                        {% elif review.overall_rating >= 3 %}background: #dbeafe; color: #1e40af;
+                                        {% else %}background: #fef3c7; color: #92400e;
+                                        {% endif %}">
+                                        {{ review.overall_rating }}/5
+                                    </span>
+                                </div>
+                                <div style="font-size: 13px; color: #64748b;">
+                                    Period: {{ review.review_period_start|date:"M Y" }} - {{ review.review_period_end|date:"M Y" }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div style="padding: 32px; text-align: center; background: #f8fafc; border-radius: 8px; border: 1px dashed #e2e8f0;">
+                            <p style="color: #94a3b8; margin: 0;">No performance reviews yet</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Leave History -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0f172a;">Leave History</h4>
+                        {% if recent_leaves %}
+                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                            {% for leave in recent_leaves %}
+                            <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center; {% if not forloop.last %}border-bottom: 1px solid #e2e8f0;{% endif %}">
+                                <div>
+                                    <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">{{ leave.leave_type }}</div>
+                                    <div style="font-size: 13px; color: #64748b;">
+                                        {{ leave.start_date|date:"M d, Y" }} - {{ leave.end_date|date:"M d, Y" }} ({{ leave.number_of_days }} days)
+                                    </div>
+                                </div>
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
+                                    {% if leave.status == 'APPROVED' %}background: #d1fae5; color: #065f46;
+                                    {% elif leave.status == 'PENDING' %}background: #fef3c7; color: #92400e;
+                                    {% elif leave.status == 'REJECTED' %}background: #fee2e2; color: #991b1b;
+                                    {% endif %}">
+                                    {{ leave.get_status_display }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div style="padding: 32px; text-align: center; background: #f8fafc; border-radius: 8px; border: 1px dashed #e2e8f0;">
+                            <p style="color: #94a3b8; margin: 0;">No leave requests found</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Attendance Summary -->
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0f172a;">Attendance Summary (Last 30 Days)</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                            <div style="padding: 16px; background: #d1fae5; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 28px; font-weight: 700; color: #065f46;">{{ present_days }}</div>
+                                <div style="font-size: 13px; color: #065f46; margin-top: 4px;">Present Days</div>
+                            </div>
+                            <div style="padding: 16px; background: #fef3c7; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 28px; font-weight: 700; color: #92400e;">{{ late_days }}</div>
+                                <div style="font-size: 13px; color: #92400e; margin-top: 4px;">Late Days</div>
+                            </div>
+                            <div style="padding: 16px; background: #fee2e2; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 28px; font-weight: 700; color: #991b1b;">{{ absent_days }}</div>
+                                <div style="font-size: 13px; color: #991b1b; margin-top: 4px;">Absent Days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                {% if is_supervisor_view %}
+                <!-- Read-only notice for supervisors -->
+                <div style="margin-top: 32px; padding: 16px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; display: flex; align-items: center; gap: 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">View-Only Mode</div>
+                        <div style="font-size: 13px; color: #b45309;">You are viewing this employee's information. Only administrators can make changes.</div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
+                    <a href="{% url 'supervisor_dashboard' %}" class="btn btn-secondary">Back to My Team</a>
+                </div>
+                {% else %}
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 2px solid #e2e8f0;">
+                    <a href="{% url 'employer_employee_management' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary" style="background: #10b981; border-color: #10b981;">Update Employee</button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Track unsaved changes
+let hasUnsavedChanges = false;
+let originalFormData = {};
+
+function switchTab(tabName, button) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+    
+    // Remove active from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    const tabPanel = document.getElementById('tab-' + tabName);
+    if (tabPanel) {
+        tabPanel.classList.add('active');
+    }
+    
+    // Activate button
+    if (button) {
+        button.classList.add('active');
+    }
+}
+
+// Initialize form tracking
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const employmentTypeSelect = document.getElementById('employment_type');
+    const probationDates = document.getElementById('probation-dates');
+    const contractDates = document.getElementById('contract-dates');
+    const temporaryDates = document.getElementById('temporary-dates');
+    
+    // Handle employment type change to show/hide date fields
+    function toggleEmploymentDates() {
+        const selectedType = employmentTypeSelect.value;
+        
+        // Hide all date sections first
+        if (probationDates) probationDates.style.display = 'none';
+        if (contractDates) contractDates.style.display = 'none';
+        if (temporaryDates) temporaryDates.style.display = 'none';
+        
+        // Show relevant section based on selection
+        if (selectedType === 'PROBATION' && probationDates) {
+            probationDates.style.display = 'grid';
+        } else if (selectedType === 'CONTRACT' && contractDates) {
+            contractDates.style.display = 'grid';
+        } else if (selectedType === 'TEMPORARY' && temporaryDates) {
+            temporaryDates.style.display = 'grid';
+        }
+    }
+    
+    // Attach employment type change handler
+    if (employmentTypeSelect) {
+        employmentTypeSelect.addEventListener('change', function() {
+            toggleEmploymentDates();
+            hasUnsavedChanges = true;
+            updateSubmitButton(true);
+        });
+        
+        // Initialize on page load
+        toggleEmploymentDates();
+    }
+    
+    // Store original form data
+    const formData = new FormData(form);
+    formData.forEach((value, key) => {
+        originalFormData[key] = value;
+    });
+    
+    // Track changes
+    form.addEventListener('input', function() {
+        hasUnsavedChanges = true;
+        updateSubmitButton(true);
+    });
+    
+    form.addEventListener('change', function() {
+        hasUnsavedChanges = true;
+        updateSubmitButton(true);
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', function() {
+        hasUnsavedChanges = false;
+        console.log('Form submitting...');
+    });
+    
+    // Warn before leaving page with unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            return e.returnValue;
+        }
+    });
+    
+    // Auto-dismiss success message
+    const messageAlert = document.getElementById('messageAlert');
+    if (messageAlert) {
+        setTimeout(() => {
+            messageAlert.style.opacity = '0';
+            messageAlert.style.transition = 'opacity 0.5s';
+            setTimeout(() => messageAlert.remove(), 500);
+        }, 5000);
+    }
+    
+    console.log('Edit employee page loaded and tracking changes');
+});
+
+function updateSubmitButton(hasChanges) {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        if (hasChanges) {
+            submitBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; vertical-align: middle;">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Save Changes
+            `;
+            submitBtn.style.background = '#f59e0b';
+            submitBtn.style.borderColor = '#f59e0b';
+        }
+    }
+}
+
+// Hover effects for quick actions
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('a[href*="attendance"], a[href*="leave"], a[href*="documents"], button[onclick*="print"]').forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.background = '#e2e8f0';
+        });
+        link.addEventListener('mouseleave', function() {
+            this.style.background = '#f8fafc';
+        });
+    });
+});
+
+// Document Upload Function
+function uploadDocument() {
+    const docType = document.getElementById('doc-type').value;
+    const docTitle = document.getElementById('doc-title').value;
+    const docDescription = document.getElementById('doc-description').value;
+    const docFile = document.getElementById('doc-file').files[0];
+
+    if (!docType || !docTitle || !docFile) {
+        alert('Please fill in all required fields (Type, Title, and File)');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('document_type', docType);
+    formData.append('title', docTitle);
+    formData.append('description', docDescription);
+    formData.append('file', docFile);
+    formData.append('employee_id', '{{ employee.id }}');
+
+    // Show loading state
+    const uploadBtn = event.target;
+    const originalText = uploadBtn.innerHTML;
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<span style="display: inline-block; animation: spin 1s linear infinite;">⏳</span> Uploading...';
+
+    fetch('{% url "document_upload" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Document uploaded successfully!');
+            location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'Upload failed'));
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error uploading document. Please try again.');
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = originalText;
+    });
+}
+
+// Assign Existing Asset Function
+function assignExistingAsset() {
+    const assetId = document.getElementById('available-asset').value;
+    const assetNotes = document.getElementById('asset-notes').value;
+
+    if (!assetId) {
+        alert('Please select an asset from the dropdown');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('asset_id', assetId);
+    formData.append('employee_id', '{{ employee.id }}');
+    formData.append('notes', assetNotes);
+
+    // Show loading state
+    const assignBtn = event.target;
+    const originalText = assignBtn.innerHTML;
+    assignBtn.disabled = true;
+    assignBtn.innerHTML = '<span style="display: inline-block; animation: spin 1s linear infinite;">⏳</span> Assigning...';
+
+    fetch('{% url "asset_assign" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Asset assigned successfully!');
+            location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'Assignment failed'));
+            assignBtn.disabled = false;
+            assignBtn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error assigning asset. Please try again.');
+        assignBtn.disabled = false;
+        assignBtn.innerHTML = originalText;
+    });
+}
+
+// Profile Picture Upload Function
+function uploadProfilePicture(event) {
+    const file = event.target.files[0];
+    
+    if (!file) return;
+    
+    // Validate file type
+    if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+        alert('Please upload a valid image file (JPG or PNG)');
+        return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+    }
+    
+    // Preview image immediately
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('profilePicPreview');
+        if (preview.tagName === 'IMG') {
+            preview.src = e.target.result;
+        } else {
+            // Replace div with img
+            const newImg = document.createElement('img');
+            newImg.id = 'profilePicPreview';
+            newImg.src = e.target.result;
+            newImg.alt = '{{ employee.get_full_name }}';
+            newImg.style.cssText = 'width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e2e8f0;';
+            preview.parentNode.replaceChild(newImg, preview);
+        }
+    };
+    reader.readAsDataURL(file);
+    
+    // Upload to server
+    const formData = new FormData();
+    formData.append('profile_picture', file);
+    formData.append('employee_id', '{{ employee.id }}');
+    
+    fetch('{% url "employee_profile_picture_upload" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Profile picture uploaded successfully!');
+            // Show subtle success indicator
+            const preview = document.getElementById('profilePicPreview');
+            const oldBorder = preview.style.border;
+            preview.style.border = '3px solid #10b981';
+            setTimeout(() => {
+                preview.style.border = oldBorder;
+            }, 2000);
+        } else {
+            alert('Error: ' + (data.error || 'Upload failed'));
+            location.reload(); // Reload to reset preview
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error uploading profile picture. Please try again.');
+        location.reload();
+    });
+}
+
+// Filter functions
+function filterDocuments(type) {
+    console.log('Filtering documents by type:', type);
+    // TODO: Implement client-side filtering or reload with query params
+}
+
+function filterDocumentStatus(status) {
+    console.log('Filtering documents by status:', status);
+    // TODO: Implement client-side filtering or reload with query params
+}
+
+function filterAssets(type) {
+    console.log('Filtering assets by type:', type);
+    // TODO: Implement client-side filtering or reload with query params
+}
+
+// Generate New Password Function
+function generateNewPassword() {
+    if (!confirm('Are you sure you want to generate a new password for this employee? The old password will no longer work.')) {
+        return;
+    }
+    
+    // Generate strong random password
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    
+    // Send to server
+    fetch('{% url "employee_reset_password" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `employee_id={{ employee.id }}&new_password=${encodeURIComponent(password)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show password in a modal-like alert
+            const message = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Password Reset Successful!\n\nNew Password: ${password}\n\nEmployee Email: {{ employee.email }}\n\n⚠️ IMPORTANT: Copy this password now and send it to the employee securely. This password will not be shown again!`;
+            
+            // Create a custom modal
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+            modal.innerHTML = `
+                <div style="background: white; padding: 32px; border-radius: 12px; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="margin: 0 auto;">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h2 style="margin: 16px 0 8px 0; color: #0f172a;">Password Reset Successful!</h2>
+                    </div>
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 2px dashed #3b82f6;">
+                        <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">New Password:</div>
+                        <div id="passwordDisplay" style="font-family: monospace; font-size: 18px; font-weight: 700; color: #0f172a; letter-spacing: 1px;">${password}</div>
+                    </div>
+                    <div style="background: #fef3c7; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #f59e0b;">
+                        <div style="display: flex; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <div style="font-size: 13px; color: #92400e;">
+                                <strong>Important:</strong> Copy this password now! It will not be shown again.
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Send to:</div>
+                        <div style="font-weight: 600; color: #0f172a;">{{ employee.email }}</div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="copyPasswordToClipboard('${password}')" style="flex: 1; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg> Copy Password
+                        </button>
+                        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="flex: 1; padding: 12px; background: #e2e8f0; color: #0f172a; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        } else {
+            alert('Error: ' + (data.error || 'Failed to reset password'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error resetting password. Please try again.');
+    });
+}
+
+function copyPasswordToClipboard(password) {
+    navigator.clipboard.writeText(password).then(() => {
+        alert('Password copied to clipboard!');
+    }).catch(err => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = password;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Password copied to clipboard!');
+    });
+}
+
+// Make form read-only for supervisors
+{% if is_supervisor_view %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Disable all input fields
+    const form = document.querySelector('form');
+    if (form) {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.disabled = true;
+            input.style.backgroundColor = '#f8fafc';
+            input.style.cursor = 'not-allowed';
+        });
+        
+        // Prevent form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('You do not have permission to edit employee information.');
+        });
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

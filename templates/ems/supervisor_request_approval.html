@@ -1,0 +1,212 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Request Approvals - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Request Approval Center</h1>
+        <p class="page-subtitle">Review and approve team requests</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'supervisor_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; text-decoration: none; font-size: 14px; font-weight: 500;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- My Pending Approvals -->
+<div class="content-card" style="margin-bottom: 30px;">
+    <div class="card-header">
+        <div class="card-title">
+            <span style="display: flex; align-items: center; gap: 8px;">
+                My Pending Approvals
+                {% if my_pending_approvals %}
+                <span style="padding: 2px 8px; background: #fef3c7; color: #92400e; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ my_pending_approvals|length }}</span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="card-content">
+        {% if my_pending_approvals %}
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            {% for approval in my_pending_approvals %}
+            <div style="padding: 20px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 13px;">
+                                {{ approval.request.employee.first_name|first }}{{ approval.request.employee.last_name|first }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #1e293b; font-size: 16px;">{{ approval.request.employee.get_full_name }}</div>
+                                <div style="font-size: 13px; color: #64748b;">{{ approval.request.employee.employee_profile.job_title }}</div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 12px;">
+                            <div>
+                                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Request Type</div>
+                                <div style="font-weight: 600; color: #1e293b;">{{ approval.request.request_type.name }}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Request Number</div>
+                                <div style="font-weight: 600; color: #1e293b;">{{ approval.request.request_number }}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Submitted</div>
+                                <div style="font-weight: 600; color: #1e293b;">{{ approval.request.created_at|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                        {% if approval.request.description %}
+                        <div style="margin-top: 12px; padding: 12px; background: white; border-radius: 6px;">
+                            <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Description</div>
+                            <div style="color: #475569; font-size: 14px;">{{ approval.request.description }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <form method="POST" style="display: flex; gap: 12px; align-items: end;">
+                    {% csrf_token %}
+                    <input type="hidden" name="approval_id" value="{{ approval.id }}">
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #1e293b; font-size: 13px;">Comments (Optional)</label>
+                        <textarea name="comments" rows="2" placeholder="Add your comments..." style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+                    </div>
+                    <button type="submit" name="action" value="APPROVED" style="padding: 10px 24px; background: #22c55e; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Approve
+                        </span>
+                    </button>
+                    <button type="submit" name="action" value="REJECTED" style="padding: 10px 24px; background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Reject
+                        </span>
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 60px; color: #94a3b8;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 16px;">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <p>No pending approvals</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- All Team Pending Requests -->
+<div class="content-card" style="margin-bottom: 30px;">
+    <div class="card-header">
+        <div class="card-title">All Team Pending Requests</div>
+    </div>
+    <div class="card-content">
+        {% if pending_requests %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <th style="text-align: left; padding: 12px; font-weight: 600; color: #475569;">Employee</th>
+                        <th style="text-align: left; padding: 12px; font-weight: 600; color: #475569;">Request Type</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Request Number</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Status</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Submitted</th>
+                        <th style="text-align: center; padding: 12px; font-weight: 600; color: #475569;">Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in pending_requests %}
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px;">
+                                    {{ request.employee.first_name|first }}{{ request.employee.last_name|first }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #1e293b;">{{ request.employee.get_full_name }}</div>
+                                    <div style="font-size: 12px; color: #64748b;">{{ request.employee.employee_profile.job_title }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 12px; color: #475569;">{{ request.request_type.name }}</td>
+                        <td style="text-align: center; padding: 12px; color: #475569; font-family: monospace;">{{ request.request_number }}</td>
+                        <td style="text-align: center; padding: 12px;">
+                            <span style="padding: 4px 12px; background: #fef3c7; color: #92400e; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ request.status }}</span>
+                        </td>
+                        <td style="text-align: center; padding: 12px; color: #64748b; font-size: 13px;">{{ request.created_at|date:"M d, Y" }}</td>
+                        <td style="text-align: center; padding: 12px;">
+                            {% if request.priority == 'HIGH' %}
+                            <span style="padding: 4px 12px; background: #fee2e2; color: #991b1b; border-radius: 12px; font-size: 12px; font-weight: 600;">HIGH</span>
+                            {% elif request.priority == 'MEDIUM' %}
+                            <span style="padding: 4px 12px; background: #fef3c7; color: #92400e; border-radius: 12px; font-size: 12px; font-weight: 600;">MEDIUM</span>
+                            {% else %}
+                            <span style="padding: 4px 12px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-size: 12px; font-weight: 600;">LOW</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 60px; color: #94a3b8;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 16px;">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <p>No pending requests from team</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Recently Processed Requests -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Recently Processed Requests</div>
+    </div>
+    <div class="card-content">
+        {% if recent_processed %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for request in recent_processed %}
+            <div style="padding: 16px; background: #f8fafc; border-radius: 8px; border-left: 3px solid {% if request.status == 'APPROVED' %}#22c55e{% else %}#ef4444{% endif %};">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px;">{{ request.employee.get_full_name }}</div>
+                        <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">{{ request.request_type.name }} - {{ request.request_number }}</div>
+                        <div style="font-size: 12px; color: #94a3b8;">Processed: {{ request.updated_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    <div>
+                        {% if request.status == 'APPROVED' %}
+                        <span style="padding: 4px 12px; background: #d1fae5; color: #065f46; border-radius: 12px; font-size: 12px; font-weight: 600;">APPROVED</span>
+                        {% elif request.status == 'REJECTED' %}
+                        <span style="padding: 4px 12px; background: #fee2e2; color: #991b1b; border-radius: 12px; font-size: 12px; font-weight: 600;">REJECTED</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+            <p>No recently processed requests</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

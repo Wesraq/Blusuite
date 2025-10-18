@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to EMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Employee Management System</h1>
+    </div>
+
+    <div class="content">
+        <h2>Hello {{ user.get_full_name }}!</h2>
+
+        <p>Welcome to the Employee Management System! Your account has been successfully created.</p>
+
+        <p><strong>Your Account Details:</strong></p>
+        <ul>
+            <li><strong>Email:</strong> {{ user.email }}</li>
+            <li><strong>Role:</strong> {{ user.get_role_display }}</li>
+            <li><strong>Registration Date:</strong> {{ user.date_joined|date:"F j, Y" }}</li>
+        </ul>
+
+        <p>You can now access the system using the login credentials provided during registration.</p>
+
+        <a href="{{ login_url }}" class="button">Login to EMS</a>
+
+        <p>If you have any questions, please contact your system administrator.</p>
+
+        <p>Best regards,<br>EMS Team</p>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Employee Management System. All rights reserved.</p>
+    </div>
+</body>
+</html>

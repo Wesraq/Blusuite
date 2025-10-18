@@ -1,0 +1,213 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}{{ company.company_name|default:company.name }} Dashboard - EMS{% endblock %}
+
+{% block page_title %}{{ company.company_name|default:"Company Dashboard" }}{% endblock %}
+
+{% block content %}
+<!-- Dashboard Content -->
+<div id="dashboard-content">
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+        <button class="tab-btn" onclick="showTab('employees')">Employees</button>
+        <button class="tab-btn" onclick="showTab('company')">Company</button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="overview" class="tab-content active">
+        <div class="welcome-card">
+            <h2>Company Overview</h2>
+            <p>Manage your organization, monitor employee performance, and oversee all HR activities.</p>
+            {% if company %}
+                <h3>{{ company.company_name }}</h3>
+                <p>{{ company.company_address }}</p>
+            {% endif %}
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg></div>
+                <h3>{{ total_employees }}</h3>
+                <p>Total Employees</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🕒</div>
+                <h3>{{ present_today }}</h3>
+                <p>Present Today</p>
+                <small style="color: #10b981;">{{ attendance_rate }}% attendance rate</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg></div>
+                <h3>{{ pending_leaves }}</h3>
+                <p>Pending Leave Requests</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg></div>
+                <h3>{{ recent_docs|length }}</h3>
+                <p>Recent Documents</p>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Leave Management</div>
+                    <div class="card-subtitle">Manage employee leave requests</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">
+                        {% if pending_leaves > 0 %}
+                            You have {{ pending_leaves }} leave request(s) awaiting approval.
+                        {% else %}
+                            All leave requests are up to date.
+                        {% endif %}
+                    </p>
+                    {% url 'leave_management' as leave_url %}
+                    {% if leave_url %}
+                        <a href="{{ leave_url }}" class="btn">Review Leave Requests</a>
+                    {% else %}
+                        <a href="#" class="btn disabled" onclick="alert('Leave management not available'); return false;">Review Leave Requests</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Employee Management</div>
+                    <div class="card-subtitle">Manage employee profiles and roles</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">View and manage all employees in your organization.</p>
+                    {% url 'employee_management' as employee_url %}
+                    {% if employee_url %}
+                        <a href="{{ employee_url }}" class="btn">Manage Employees</a>
+                    {% else %}
+                        <a href="#" class="btn disabled" onclick="alert('Employee management not available'); return false;">Manage Employees</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Performance Reviews</div>
+                    <div class="card-subtitle">Track employee performance</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">Monitor and manage employee performance reviews.</p>
+                    <a href="/performance/" class="btn">View Reviews</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees Tab -->
+    <div id="employees" class="tab-content">
+        <div class="content-card" style="max-width: 100%;">
+            <div class="card-header">
+                <div class="card-title">Employee Management</div>
+                <div class="card-subtitle">Manage your team members</div>
+            </div>
+            <div class="card-content">
+                <p class="card-text">Access comprehensive employee management tools and information.</p>
+                <div style="margin-top: 20px;">
+                    {% url 'employee_management' as employee_url %}
+                    {% if employee_url %}
+                        <a href="{{ employee_url }}" class="btn" style="margin-right: 10px;">View All Employees</a>
+                        <a href="{{ employee_url }}" class="btn btn-secondary">Add New Employee</a>
+                    {% else %}
+                        <a href="#" class="btn disabled" style="margin-right: 10px;" onclick="alert('Employee management not available'); return false;">View All Employees</a>
+                        <a href="#" class="btn btn-secondary disabled" onclick="alert('Add employee feature not available'); return false;">Add New Employee</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Tab -->
+    <div id="company" class="tab-content">
+        <div class="content-card" style="max-width: 100%;">
+            <div class="card-header">
+                <div class="card-title">Company Information</div>
+                <div class="card-subtitle">Manage your company details</div>
+            </div>
+            <div class="card-content">
+                {% if company %}
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div>
+                            <h4 style="color: #1e293b; margin-bottom: 12px;">Company Details</h4>
+                            <p><strong>Company:</strong> {{ company.company_name }}</p>
+                            <p><strong>Address:</strong> {{ company.company_address }}</p>
+                            <p><strong>Email:</strong> {{ company.company_email }}</p>
+                        </div>
+                        <div>
+                            <h4 style="color: #1e293b; margin-bottom: 12px;">Quick Actions</h4>
+                            {% if company.id %}
+                                {% url 'company_edit' company.id as company_edit_url %}
+                                {% if company_edit_url %}
+                                    <a href="{{ company_edit_url }}" class="btn" style="display: block; margin-bottom: 10px;">Edit Company Info</a>
+                                {% else %}
+                                    <a href="#" class="btn disabled" style="display: block; margin-bottom: 10px;" onclick="alert('Company edit not available'); return false;">Edit Company Info</a>
+                                {% endif %}
+                            {% else %}
+                                <a href="#" class="btn disabled" style="display: block; margin-bottom: 10px;" onclick="alert('Company ID not available'); return false;">Edit Company Info</a>
+                            {% endif %}
+                            
+                            <a href="/performance/" class="btn" style="display: block; margin-bottom: 10px;">View Reviews</a>
+                            
+                            {% url 'attendance_dashboard' as attendance_url %}
+                            {% if attendance_url %}
+                                <a href="{{ attendance_url }}" class="btn btn-secondary" style="display: block;">View Attendance</a>
+                            {% else %}
+                                <a href="#" class="btn btn-secondary disabled" style="display: block;" onclick="alert('Attendance dashboard not available'); return false;">View Attendance</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="card-text">No company information available. Please contact your administrator.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Show selected tab content
+    document.getElementById(tabName).style.display = 'block';
+
+    // Add active class to clicked tab button
+    event.target.classList.add('active');
+}
+</script>
+{% endblock %}

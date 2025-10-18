@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Company Registration Request</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; margin-bottom: 20px; }
+        .content { background: white; padding: 20px; border-radius: 5px; border: 1px solid #ddd; }
+        .company-info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 5px; text-align: center; }
+        .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 New Company Registration Request</h1>
+            <p>A new employer wants to join your EMS platform</p>
+        </div>
+
+        <div class="content">
+            <h2>Request Details</h2>
+            <p><strong>Request Number:</strong> {{ request.request_number }}</p>
+            <p><strong>Submitted:</strong> {{ request.created_at|date:"M j, Y H:i" }}</p>
+
+            <div class="company-info">
+                <h3>Company Information</h3>
+                <p><strong>Company Name:</strong> {{ request.company_name }}</p>
+                <p><strong>Address:</strong> {{ request.company_address }}</p>
+                <p><strong>Phone:</strong> {{ request.company_phone }}</p>
+                <p><strong>Email:</strong> {{ request.company_email }}</p>
+                <p><strong>Website:</strong> {{ request.company_website|default:"Not provided" }}</p>
+                <p><strong>Tax ID:</strong> {{ request.tax_id|default:"Not provided" }}</p>
+            </div>
+
+            <div class="company-info">
+                <h3>Contact Person</h3>
+                <p><strong>Name:</strong> {{ request.contact_first_name }} {{ request.contact_last_name }}</p>
+                <p><strong>Email:</strong> {{ request.contact_email }}</p>
+                <p><strong>Phone:</strong> {{ request.contact_phone }}</p>
+                <p><strong>Position:</strong> {{ request.contact_position|default:"Not specified" }}</p>
+            </div>
+
+            <div class="company-info">
+                <h3>Subscription Request</h3>
+                <p><strong>Plan:</strong> {{ request.get_subscription_plan_display }}</p>
+                <p><strong>Number of Employees:</strong> {{ request.number_of_employees }}</p>
+                <p><strong>Business Type:</strong> {{ request.business_type|default:"Not specified" }}</p>
+                <p><strong>Company Size:</strong> {{ request.company_size|default:"Not specified" }}</p>
+            </div>
+
+            <div class="footer">
+                <p><strong>Action Required:</strong> Please review this request in your admin panel.</p>
+                <a href="{{ admin_url }}" class="btn">Review Request</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

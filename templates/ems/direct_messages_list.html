@@ -1,0 +1,129 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Messages - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Direct Messages</h1>
+        <p class="page-subtitle">Private conversations with colleagues</p>
+    </div>
+    <div class="page-header-actions">
+        <button onclick="showNewMessageModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="9" y1="10" x2="15" y2="10"></line>
+                <line x1="12" y1="7" x2="12" y2="13"></line>
+            </svg>
+            New Message
+        </button>
+    </div>
+</div>
+
+<div class="content-card">
+    {% if conversations %}
+    <div style="display: flex; flex-direction: column; gap: 1px; background: #e2e8f0; border-radius: 8px; overflow: hidden;">
+        {% for conv in conversations %}
+        <a href="{% url 'direct_message_conversation' conv.user.id %}" style="display: block; padding: 16px; background: white; text-decoration: none; transition: background 0.2s; position: relative;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="position: relative;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 18px;">
+                        {{ conv.user.first_name|first }}{{ conv.user.last_name|first }}
+                    </div>
+                    {% if conv.unread_count > 0 %}
+                    <div style="position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; border: 2px solid white;">
+                        {{ conv.unread_count }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px;">
+                        <h3 style="margin: 0; color: #1e293b; font-size: 16px; font-weight: 600;">
+                            {{ conv.user.get_full_name }}
+                        </h3>
+                        <span style="font-size: 12px; color: #94a3b8;">
+                            {{ conv.last_message.created_at|date:"M d, g:i A" }}
+                        </span>
+                    </div>
+                    
+                    <p style="margin: 0; color: {% if conv.unread_count > 0 %}#1e293b{% else %}#64748b{% endif %}; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; {% if conv.unread_count > 0 %}font-weight: 500;{% endif %}">
+                        {% if conv.last_message.sender.id == request.user.id %}You: {% endif %}
+                        {{ conv.last_message.message|truncatewords:10 }}
+                    </p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px;">
+        <div style="font-size: 48px; margin-bottom: 16px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg></div>
+        <h3 style="color: #64748b; margin: 0 0 8px 0;">No conversations yet</h3>
+        <p style="color: #94a3b8; margin: 0;">Start chatting with your colleagues</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- New Message Modal -->
+<div id="newMessageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+        <div style="padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 600; color: #1e293b;">New Message</h2>
+            <button onclick="closeNewMessageModal()" style="background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px;">×</button>
+        </div>
+        <div style="padding: 24px;">
+            <p style="margin: 0 0 16px 0; color: #64748b;">Select a colleague to start a conversation:</p>
+            <div id="colleaguesList" style="max-height: 400px; overflow-y: auto;">
+                {% if colleagues %}
+                {% for colleague in colleagues %}
+                <a href="{% url 'direct_message_conversation' colleague.id %}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; transition: background 0.2s; margin-bottom: 4px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                        {{ colleague.first_name|first }}{{ colleague.last_name|first }}
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: #1e293b;">{{ colleague.get_full_name }}</div>
+                        <div style="font-size: 13px; color: #64748b;">{{ colleague.employee_profile.job_title|default:"Employee" }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <p style="text-align: center; color: #94a3b8; padding: 40px 20px;">No colleagues available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#newMessageModal a:hover {
+    background: #f8fafc;
+}
+</style>
+
+<script>
+function showNewMessageModal() {
+    document.getElementById('newMessageModal').style.display = 'flex';
+}
+
+function closeNewMessageModal() {
+    document.getElementById('newMessageModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.getElementById('newMessageModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeNewMessageModal();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeNewMessageModal();
+    }
+});
+</script>
+{% endblock %}

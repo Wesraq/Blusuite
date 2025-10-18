@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Registration Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #dc3545; color: white; padding: 20px; text-align: center; border-radius: 5px; margin-bottom: 20px; }
+        .content { background: white; padding: 20px; border-radius: 5px; border: 1px solid #ddd; }
+        .rejection-reason { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #dc3545; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 5px; text-align: center; }
+        .btn { display: inline-block; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Company Registration Update</h1>
+            <p>Status update for your registration request</p>
+        </div>
+
+        <div class="content">
+            <h2>Request Status: Rejected</h2>
+            <p>Dear {{ request.contact_first_name }} {{ request.contact_last_name }},</p>
+
+            <p>We regret to inform you that your company registration request for <strong>{{ request.company_name }}</strong> has been reviewed and unfortunately cannot be approved at this time.</p>
+
+            {% if rejection_reason %}
+            <div class="rejection-reason">
+                <h4>Reason for Rejection:</h4>
+                <p>{{ rejection_reason }}</p>
+            </div>
+            {% endif %}
+
+            <p>If you believe this decision was made in error or if you have additional information that might help us reconsider your application, please don't hesitate to contact our support team.</p>
+
+            <div class="footer">
+                <p><strong>What you can do:</strong></p>
+                <ul style="text-align: left;">
+                    <li>Review the rejection reason above</li>
+                    <li>Contact our support team for clarification</li>
+                    <li>Submit a new registration request with corrected information</li>
+                </ul>
+                <a href="mailto:support@eiscomtech.com" class="btn">Contact Support</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

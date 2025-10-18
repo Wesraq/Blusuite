@@ -1,0 +1,118 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}My Form Submissions - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">My Form Submissions</h1>
+        <p class="page-subtitle">View and manage your submitted forms</p>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-content">
+        <form method="GET" style="display: flex; gap: 16px; align-items: end;">
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Status</label>
+                <select name="status" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    <option value="">All Status</option>
+                    <option value="DRAFT" {% if selected_status == 'DRAFT' %}selected{% endif %}>Draft</option>
+                    <option value="SUBMITTED" {% if selected_status == 'SUBMITTED' %}selected{% endif %}>Submitted</option>
+                    <option value="PENDING_APPROVAL" {% if selected_status == 'PENDING_APPROVAL' %}selected{% endif %}>Pending Approval</option>
+                    <option value="APPROVED" {% if selected_status == 'APPROVED' %}selected{% endif %}>Approved</option>
+                    <option value="REJECTED" {% if selected_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <button type="submit" style="padding: 10px 24px; background: #1e293b; color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer;">
+                Filter
+            </button>
+            <a href="{% url 'form_submissions_list' %}" style="padding: 10px 24px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                Clear
+            </a>
+        </form>
+    </div>
+</div>
+
+<!-- Submissions List -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Form Submissions ({{ submissions|length }})</div>
+    </div>
+    <div class="card-content">
+        {% if submissions %}
+        <div style="display: grid; gap: 16px;">
+            {% for submission in submissions %}
+            <div style="padding: 20px; background: #f8fafc; border-radius: 8px; border-left: 3px solid {% if submission.status == 'APPROVED' %}#22c55e{% elif submission.status == 'REJECTED' %}#ef4444{% elif submission.status == 'PENDING_APPROVAL' %}#f59e0b{% else %}#94a3b8{% endif %};">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1e293b; font-size: 16px; margin-bottom: 4px;">
+                            {{ submission.template.title }}
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: center; font-size: 12px; color: #94a3b8;">
+                            <span>{{ submission.template.get_category_display }}</span>
+                            <span>•</span>
+                            <span>{{ submission.created_at|date:"M d, Y H:i" }}</span>
+                            {% if submission.submitted_at %}
+                            <span>•</span>
+                            <span>Submitted {{ submission.submitted_at|date:"M d, Y" }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        {% if submission.status == 'DRAFT' %}
+                        <span style="padding: 4px 12px; background: #f1f5f9; color: #64748b; border-radius: 12px; font-size: 12px; font-weight: 600;">DRAFT</span>
+                        {% elif submission.status == 'SUBMITTED' %}
+                        <span style="padding: 4px 12px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-size: 12px; font-weight: 600;">SUBMITTED</span>
+                        {% elif submission.status == 'PENDING_APPROVAL' %}
+                        <span style="padding: 4px 12px; background: #fef3c7; color: #92400e; border-radius: 12px; font-size: 12px; font-weight: 600;">PENDING APPROVAL</span>
+                        {% elif submission.status == 'APPROVED' %}
+                        <span style="padding: 4px 12px; background: #d1fae5; color: #065f46; border-radius: 12px; font-size: 12px; font-weight: 600;">APPROVED</span>
+                        {% elif submission.status == 'REJECTED' %}
+                        <span style="padding: 4px 12px; background: #fee2e2; color: #991b1b; border-radius: 12px; font-size: 12px; font-weight: 600;">REJECTED</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px;">
+                    <a href="{% url 'form_submission_detail' submission.id %}" 
+                       style="padding: 8px 16px; background: #1e293b; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                        View Details
+                    </a>
+                    
+                    {% if submission.status == 'DRAFT' %}
+                    <a href="{% url 'form_fill' submission.template.id %}" 
+                       style="padding: 8px 16px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                        Continue Editing
+                    </a>
+                    {% endif %}
+                    
+                    {% if submission.template.requires_signature and submission.status == 'SUBMITTED' %}
+                    {% if not submission.signatures.exists %}
+                    <a href="{% url 'form_sign' submission.id %}" 
+                       style="padding: 8px 16px; background: #3b82f6; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                        Add Signature
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 60px; color: #94a3b8;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 16px;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <p style="font-size: 16px; margin-bottom: 16px;">No form submissions yet</p>
+            <a href="{% url 'form_templates_list' %}" 
+               style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #1e293b; color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                Browse Available Forms
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

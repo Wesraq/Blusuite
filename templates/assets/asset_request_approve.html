@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Review Asset Request #{{ asset_request.id }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:20px;">
+  <a href="{% url 'asset_request_list' %}" style="display:inline-flex; align-items:center; gap:6px; color:#64748b; text-decoration:none; font-size:14px;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Requests
+  </a>
+</div>
+
+<div class="content-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:8px;">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Review Asset Request #{{ asset_request.id }}
+      </div>
+      <div class="card-subtitle">Approve or reject this asset request</div>
+    </div>
+    <div>
+      {% if asset_request.priority == 'URGENT' %}
+      <span style="background:#fee2e2; color:#991b1b; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        Urgent Priority
+      </span>
+      {% elif asset_request.priority == 'HIGH' %}
+      <span style="background:#fed7aa; color:#92400e; padding:8px 16px; border-radius:12px; font-size:13px; font-weight:600;">High Priority</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card-content">
+    <div style="display:grid; grid-template-columns:2fr 1fr; gap:32px;">
+      <!-- Left Column - Request Details -->
+      <div>
+        <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+          Request Details
+        </h3>
+
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div style="background:#f8fafc; padding:16px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div>
+                <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Department</label>
+                <span style="background:#e0e7ff; color:#3730a3; padding:6px 12px; border-radius:8px; font-size:14px; font-weight:600; display:inline-block;">
+                  {{ asset_request.department.name }}
+                </span>
+              </div>
+              <div>
+                <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Requested By</label>
+                <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset_request.requested_by.get_full_name }}</div>
+                <div style="font-size:12px; color:#64748b;">{{ asset_request.created_at|date:"F d, Y" }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Asset Type</label>
+            <div style="font-size:15px; color:#1e293b; font-weight:500;">{{ asset_request.get_asset_type_display }}</div>
+          </div>
+
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Asset Name</label>
+            <div style="font-size:17px; color:#1e293b; font-weight:600;">{{ asset_request.asset_name }}</div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+            <div>
+              <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Quantity</label>
+              <div style="font-size:20px; color:#1e293b; font-weight:700;">{{ asset_request.quantity }}</div>
+            </div>
+            {% if asset_request.estimated_cost %}
+            <div>
+              <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Estimated Cost</label>
+              <div style="font-size:20px; color:#1e293b; font-weight:700;">K{{ asset_request.estimated_cost|floatformat:2 }}</div>
+            </div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Description & Justification</label>
+            <div style="background:#f8fafc; padding:16px; border-radius:8px; border:1px solid #e2e8f0;">
+              <p style="font-size:14px; color:#475569; line-height:1.8; white-space:pre-wrap;">{{ asset_request.description }}</p>
+            </div>
+          </div>
+
+          {% if asset_request.urgency_reason %}
+          <div>
+            <label style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Urgency Reason</label>
+            <div style="background:#fef3c7; padding:16px; border-radius:8px; border:1px solid #fde047; border-left:4px solid #f59e0b;">
+              <p style="font-size:14px; color:#78350f; line-height:1.8; white-space:pre-wrap;">{{ asset_request.urgency_reason }}</p>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right Column - Action Form -->
+      <div>
+        <h3 style="font-size:16px; font-weight:600; color:#1e293b; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+          Take Action
+        </h3>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div style="margin-bottom:24px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:12px;">Decision</label>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <button type="submit" name="action" value="approve" class="btn" style="width:100%; padding:14px; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px; background:#10b981; border-color:#10b981;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Approve Request
+              </button>
+
+              <button type="button" onclick="document.getElementById('rejectForm').style.display='block'; this.style.display='none';" class="btn btn-secondary" style="width:100%; padding:14px; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px; background:#ef4444; border-color:#ef4444; color:white;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+                Reject Request
+              </button>
+            </div>
+          </div>
+
+          <!-- Rejection Form (Hidden by default) -->
+          <div id="rejectForm" style="display:none; margin-top:20px; padding:16px; background:#fee2e2; border:1px solid #fca5a5; border-radius:8px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#991b1b; margin-bottom:8px;">
+              Rejection Reason <span style="color:#7f1d1d;">*</span>
+            </label>
+            <textarea name="rejection_reason" rows="4" placeholder="Explain why this request is being rejected..." style="width:100%; padding:10px 12px; border:1px solid #fca5a5; border-radius:6px; font-size:14px; resize:vertical; margin-bottom:12px;"></textarea>
+            <button type="submit" name="action" value="reject" class="btn" style="width:100%; background:#dc2626; border-color:#dc2626;">
+              Confirm Rejection
+            </button>
+          </div>
+
+          <div style="margin-top:24px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">Admin Notes (Optional)</label>
+            <textarea name="admin_notes" rows="3" placeholder="Add any internal notes about this decision..." style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px; resize:vertical;"></textarea>
+          </div>
+        </form>
+
+        <!-- Request Summary Box -->
+        <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:16px; margin-top:24px;">
+          <h4 style="font-size:13px; font-weight:600; color:#0369a1; margin-bottom:12px;">Request Summary</h4>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; color:#0c4a6e;">
+            <div style="display:flex; justify-content:space-between;">
+              <span>Status:</span>
+              <span style="font-weight:600;">{{ asset_request.get_status_display }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>Priority:</span>
+              <span style="font-weight:600;">{{ asset_request.get_priority_display }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>Request ID:</span>
+              <span style="font-weight:600;">#{{ asset_request.id }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>Created:</span>
+              <span style="font-weight:600;">{{ asset_request.created_at|date:"M d, Y" }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

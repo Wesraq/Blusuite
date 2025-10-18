@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Request New Training Program{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:20px;">
+  <a href="{% url 'training_request_list' %}" style="display:inline-flex; align-items:center; gap:6px; color:#64748b; text-decoration:none; font-size:14px;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Requests
+  </a>
+</div>
+
+<div class="content-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:8px;">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="12" y1="18" x2="12" y2="12"></line>
+          <line x1="9" y1="15" x2="15" y2="15"></line>
+        </svg>
+        Request New Training Program
+      </div>
+      <div class="card-subtitle">Submit a request for new training programs for your department</div>
+    </div>
+  </div>
+
+  <div class="card-content">
+    <form method="post" style="max-width:900px;">
+      {% csrf_token %}
+
+      <div style="background:#dbeafe; border-left:4px solid #3b82f6; padding:16px; margin-bottom:32px; border-radius:6px;">
+        <h4 style="color:#1e40af; font-size:14px; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Request Guidelines
+        </h4>
+        <ul style="color:#1e40af; font-size:13px; margin-left:20px; line-height:1.8;">
+          <li>Provide clear business justification for the training</li>
+          <li>Include accurate participant count and cost estimates</li>
+          <li>Specify preferred providers if applicable</li>
+          <li>Set appropriate priority based on business needs</li>
+          <li>Requests are subject to admin approval</li>
+        </ul>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+        <!-- Left Column -->
+        <div>
+          <h3 style="font-size:15px; font-weight:600; color:#1e293b; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+            Training Details
+          </h3>
+
+          {% if not user_dept %}
+          <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+              Department <span style="color:#ef4444;">*</span>
+            </label>
+            <select name="department" required style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+              <option value="">Select Department</option>
+              {% for dept in departments %}
+              <option value="{{ dept.id }}">{{ dept.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+              Training Title <span style="color:#ef4444;">*</span>
+            </label>
+            <input type="text" name="training_title" required placeholder="e.g., Advanced Project Management" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+              Program Type <span style="color:#ef4444;">*</span>
+            </label>
+            <select name="program_type" required style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+              <option value="">Select Type</option>
+              {% for value, label in program_types %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+            <div>
+              <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+                Number of Employees <span style="color:#ef4444;">*</span>
+              </label>
+              <input type="number" name="target_employees" required min="1" value="1" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+            </div>
+
+            <div>
+              <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+                Duration (Hours) <span style="color:#ef4444;">*</span>
+              </label>
+              <input type="number" name="duration_hours" required step="0.5" min="0.5" placeholder="8" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+            <div>
+              <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+                Estimated Cost (K)
+              </label>
+              <input type="number" name="estimated_cost" step="0.01" placeholder="0.00" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+            </div>
+
+            <div>
+              <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+                Priority <span style="color:#ef4444;">*</span>
+              </label>
+              <select name="priority" required style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+                {% for value, label in priorities %}
+                <option value="{{ value }}" {% if value == 'MEDIUM' %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+              Preferred Provider
+            </label>
+            <input type="text" name="preferred_provider" placeholder="e.g., Dale Carnegie, Coursera" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+            <div style="font-size:12px; color:#64748b; margin-top:4px;">Optional - specify if you have a preferred training provider</div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+          <h3 style="font-size:15px; font-weight:600; color:#1e293b; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #e2e8f0;">
+            Justification
+          </h3>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+              Description <span style="color:#ef4444;">*</span>
+            </label>
+            <textarea name="description" required rows="6" placeholder="Describe the training program and what participants will learn..." style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px; resize:vertical;"></textarea>
+            <div style="font-size:12px; color:#64748b; margin-top:4px;">Provide a clear description of the training content</div>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+              Business Justification <span style="color:#ef4444;">*</span>
+            </label>
+            <textarea name="business_justification" required rows="6" placeholder="Explain why this training is needed and the expected benefits..." style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px; resize:vertical;"></textarea>
+            <div style="font-size:12px; color:#64748b; margin-top:4px;">Explain the business need and expected ROI</div>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">
+              Urgency Reason
+            </label>
+            <textarea name="urgency_reason" rows="4" placeholder="If urgent or high priority, explain why..." style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px; resize:vertical;"></textarea>
+            <div style="font-size:12px; color:#64748b; margin-top:4px;">Required for urgent/high priority requests</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div style="display:flex; gap:12px; margin-top:32px; padding-top:24px; border-top:2px solid #e2e8f0;">
+        <button type="submit" class="btn" style="padding:12px 24px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:6px;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          Submit Request
+        </button>
+        <a href="{% url 'training_request_list' %}" class="btn btn-secondary" style="padding:12px 24px;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

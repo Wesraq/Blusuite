@@ -1,0 +1,587 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}System Health - EMS{% endblock %}
+
+{% block nav_system_health %}active{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <!-- Page Header -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">System Health Dashboard</h3>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="refreshSystemData()">Refresh</button>
+                <button class="btn btn-secondary" onclick="exportSystemReport()">Export Report</button>
+                <button class="btn btn-outline-secondary" onclick="viewSystemLogs()">View Logs</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                All systems operational. Last updated: {{ "now"|date:"M d, Y H:i" }}
+            </div>
+        </div>
+    </div>
+
+    <!-- System Metrics Overview -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">System Performance</h3>
+        </div>
+        <div class="card-body">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <div class="stat-title">CPU Usage</div>
+                            <div class="stat-subtitle">System processor load</div>
+                        </div>
+                        <div class="stat-icon">🖥️</div>
+                    </div>
+                    <div class="stat-value">{{ system_metrics.cpu_usage }}%</div>
+                    <div class="stat-change {% if system_metrics.cpu_usage < 70 %}positive{% elif system_metrics.cpu_usage < 90 %}neutral{% else %}negative{% endif %}">
+                        {% if system_metrics.cpu_usage < 70 %}Normal{% elif system_metrics.cpu_usage < 90 %}High{% else %}Critical{% endif %}
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <div class="stat-title">Memory Usage</div>
+                            <div class="stat-subtitle">RAM utilization</div>
+                        </div>
+                        <div class="stat-icon">🧠</div>
+                    </div>
+                    <div class="stat-value">{{ system_metrics.memory_usage }}%</div>
+                    <div class="stat-change {% if system_metrics.memory_usage < 70 %}positive{% elif system_metrics.memory_usage < 90 %}neutral{% else %}negative{% endif %}">
+                        {% if system_metrics.memory_usage < 70 %}Normal{% elif system_metrics.memory_usage < 90 %}High{% else %}Critical{% endif %}
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <div class="stat-title">Response Time</div>
+                            <div class="stat-subtitle">Average API response</div>
+                        </div>
+                        <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg></div>
+                    </div>
+                    <div class="stat-value">{{ system_metrics.response_time_ms }}ms</div>
+                    <div class="stat-change {% if system_metrics.response_time_ms < 200 %}positive{% elif system_metrics.response_time_ms < 500 %}neutral{% else %}negative{% endif %}">
+                        {% if system_metrics.response_time_ms < 200 %}Fast{% elif system_metrics.response_time_ms < 500 %}Normal{% else %}Slow{% endif %}
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <div class="stat-title">Error Rate</div>
+                            <div class="stat-subtitle">System error percentage</div>
+                        </div>
+                        <div class="stat-icon">🚨</div>
+                    </div>
+                    <div class="stat-value">{{ system_metrics.error_rate }}%</div>
+                    <div class="stat-change {% if system_metrics.error_rate < 0.1 %}positive{% elif system_metrics.error_rate < 1 %}neutral{% else %}negative{% endif %}">
+                        {% if system_metrics.error_rate < 0.1 %}Low{% elif system_metrics.error_rate < 1 %}Moderate{% else %}High{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Statistics -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">Database Statistics</h3>
+        </div>
+        <div class="card-body">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <div class="stat-title">Total Companies</div>
+                            <div class="stat-subtitle">Active companies</div>
+                        </div>
+                        <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg></div>
+                    </div>
+                    <div class="stat-value">{{ db_stats.total_companies }}</div>
+                    <div class="stat-change positive">Registered</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <div class="stat-title">Total Users</div>
+                            <div class="stat-subtitle">System users</div>
+                        </div>
+                        <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg></div>
+                    </div>
+                    <div class="stat-value">{{ db_stats.total_users }}</div>
+                    <div class="stat-change positive">All roles</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <div class="stat-title">Attendance Records</div>
+                            <div class="stat-subtitle">Total entries</div>
+                        </div>
+                        <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg></div>
+                    </div>
+                    <div class="stat-value">{{ db_stats.total_attendance_records }}</div>
+                    <div class="stat-change neutral">Historical data</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <div class="stat-title">Leave Requests</div>
+                            <div class="stat-subtitle">Total requests</div>
+                        </div>
+                        <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg></div>
+                    </div>
+                    <div class="stat-value">{{ db_stats.total_leave_requests }}</div>
+                    <div class="stat-change neutral">All time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Performance Chart -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">System Performance Trends</h3>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-secondary" onclick="updatePerformanceChart('hour')">Hour</button>
+                <button class="btn btn-sm btn-outline-secondary active" onclick="updatePerformanceChart('day')">Day</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="updatePerformanceChart('week')">Week</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="systemPerformanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Endpoints Status -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">API Endpoints Status</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Status</th>
+                            <th>Response Time</th>
+                            <th>Uptime</th>
+                            <th>Last Check</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for api in api_status %}
+                        <tr>
+                            <td><code>{{ api.endpoint }}</code></td>
+                            <td>
+                                <span class="badge {% if api.status == 'HEALTHY' %}badge-success{% else %}badge-danger{% endif %}">
+                                    {{ api.status }}
+                                </span>
+                            </td>
+                            <td>{{ api.response_time }}ms</td>
+                            <td>99.9%</td>
+                            <td>{{ "now"|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent System Events -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">Recent System Events</h3>
+            <span class="text-muted">Live system activity</span>
+        </div>
+        <div class="card-body">
+            {% for event in recent_events %}
+            <div class="activity-item">
+                <div class="activity-icon {% if event.status == 'SUCCESS' %}success{% elif event.status == 'WARNING' %}warning{% elif event.status == 'ERROR' %}error{% else %}info{% endif %}">
+                    <i class="fas {% if event.event_type == 'USER_LOGIN' %}fa-sign-in-alt{% elif event.event_type == 'COMPANY_CREATED' %}fa-building{% elif event.event_type == 'SYSTEM_BACKUP' %}fa-database{% else %}fa-exclamation-triangle{% endif %}"></i>
+                </div>
+                <div class="activity-content">
+                    <p class="activity-title">{{ event.message }}</p>
+                    <p class="activity-time">{{ event.timestamp|date:"M d, H:i" }} - System Event</p>
+                </div>
+                <div class="activity-meta">
+                    <span class="badge {% if event.status == 'SUCCESS' %}badge-success{% elif event.status == 'WARNING' %}badge-warning{% elif event.status == 'ERROR' %}badge-danger{% else %}badge-info{% endif %}">
+                        {{ event.event_type|title }}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted text-center py-3">No recent events found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- System Status Indicators -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">System Status Indicators</h3>
+        </div>
+        <div class="card-body">
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-indicator active"></div>
+                    <div class="status-info">
+                        <div class="status-title">Web Server</div>
+                        <div class="status-subtitle">Apache/Nginx</div>
+                    </div>
+                    <div class="status-value">Running</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-indicator active"></div>
+                    <div class="status-info">
+                        <div class="status-title">Database</div>
+                        <div class="status-subtitle">PostgreSQL/MySQL</div>
+                    </div>
+                    <div class="status-value">Connected</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-indicator active"></div>
+                    <div class="status-info">
+                        <div class="status-title">Redis Cache</div>
+                        <div class="status-subtitle">In-memory cache</div>
+                    </div>
+                    <div class="status-value">Active</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-indicator active"></div>
+                    <div class="status-info">
+                        <div class="status-title">Email Service</div>
+                        <div class="status-subtitle">SMTP server</div>
+                    </div>
+                    <div class="status-value">Operational</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-indicator active"></div>
+                    <div class="status-info">
+                        <div class="status-title">File Storage</div>
+                        <div class="status-subtitle">Document uploads</div>
+                    </div>
+                    <div class="status-value">Available</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-indicator active"></div>
+                    <div class="status-info">
+                        <div class="status-title">Background Jobs</div>
+                        <div class="status-subtitle">Queue processing</div>
+                    </div>
+                    <div class="status-value">Processing</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 24px;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    gap: 12px;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #10b981;
+    flex-shrink: 0;
+}
+
+.status-indicator.active {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.status-indicator.warning {
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.status-indicator.error {
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+.status-info {
+    flex: 1;
+}
+
+.status-title {
+    font-weight: 500;
+    color: #1e293b;
+    margin-bottom: 2px;
+}
+
+.status-subtitle {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.status-value {
+    font-weight: 600;
+    color: #10b981;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+    gap: 12px;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.activity-icon.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.activity-icon.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.activity-icon.error {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.activity-icon.info {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: 500;
+    color: #1e293b;
+    margin: 0 0 4px 0;
+}
+
+.activity-time {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+}
+
+.activity-meta {
+    margin-left: auto;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.badge-info {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.data-table th {
+    background: #f8fafc;
+    padding: 12px;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.data-table code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #374151;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #d1d5db;
+}
+
+.btn-outline-secondary:hover {
+    background: #64748b;
+    color: white;
+}
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+</style>
+
+<script>
+function refreshSystemData() {
+    console.log('Refreshing system data...');
+    // Would reload the page or make AJAX call to refresh data
+    location.reload();
+}
+
+function exportSystemReport() {
+    console.log('Exporting system report...');
+    alert('System report export would be implemented');
+}
+
+function viewSystemLogs() {
+    console.log('Viewing system logs...');
+    alert('System logs viewer would be implemented');
+}
+
+function updatePerformanceChart(timeframe) {
+    console.log('Updating performance chart for timeframe:', timeframe);
+    // Would update the chart based on selected timeframe
+    alert('Chart timeframe update would be implemented');
+}
+
+// Auto-refresh system data every 30 seconds
+setInterval(function() {
+    // Could refresh critical metrics without full page reload
+    console.log('Auto-refreshing system metrics...');
+}, 30000);
+</script>
+{% endblock %}

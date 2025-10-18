@@ -1,0 +1,103 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Chat with {{ other_user.get_full_name }} - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 18px;">
+                {{ other_user.first_name|first }}{{ other_user.last_name|first }}
+            </div>
+            <div>
+                <h1 class="page-title" style="margin: 0;">{{ other_user.get_full_name }}</h1>
+                <p class="page-subtitle" style="margin: 0;">{{ other_user.email }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'direct_messages_list' %}" class="btn btn-secondary">
+            ← Back to Messages
+        </a>
+    </div>
+</div>
+
+<div class="content-card" style="display: flex; flex-direction: column; height: calc(100vh - 280px); min-height: 500px;">
+    <!-- Messages -->
+    <div id="messagesContainer" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 4px;">
+        {% if messages %}
+            {% for msg in messages %}
+            <div style="display: flex; gap: 8px; {% if msg.sender.id == request.user.id %}flex-direction: row-reverse;{% endif %}; margin-bottom: 2px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #64748b; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 13px; flex-shrink: 0; align-self: flex-end;">
+                    {{ msg.sender.first_name|first }}{{ msg.sender.last_name|first }}
+                </div>
+                <div style="max-width: 65%;">
+                    <div style="background: {% if msg.sender.id == request.user.id %}#dbeafe{% else %}#f1f5f9{% endif %}; padding: 8px 12px; border-radius: 8px;">
+                        <p style="margin: 0; line-height: 1.4; white-space: pre-wrap; font-size: 14px; color: #1e293b;">{{ msg.message }}</p>
+                        {% if msg.attachment %}
+                        <a href="{{ msg.attachment.url }}" target="_blank" style="display: block; margin-top: 6px; padding: 6px 8px; background: rgba(0,0,0,0.05); border-radius: 4px; color: #1e293b; text-decoration: none; font-size: 12px;">
+                            📎 {{ msg.attachment.name }}
+                        </a>
+                        {% endif %}
+                        <div style="font-size: 10px; color: #64748b; margin-top: 4px; text-align: right;">
+                            {{ msg.created_at|date:"g:i A" }}
+                            {% if msg.is_read and msg.sender.id == request.user.id %}
+                            <span style="color: #10b981; margin-left: 2px;">✓✓</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; color: #94a3b8; padding: 40px;">
+                <div style="font-size: 48px; margin-bottom: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg></div>
+                <p style="margin: 0;">No messages yet. Start the conversation!</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Message Input -->
+    <div style="border-top: 1px solid #e2e8f0; padding: 16px; background: white;">
+        <form method="POST" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: flex-end;">
+            {% csrf_token %}
+            <div style="flex: 1;">
+                <textarea name="message" rows="3" placeholder="Type your message..." required style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+            </div>
+            <div>
+                <input type="file" name="attachment" id="fileInput" style="display: none;">
+                <button type="button" onclick="document.getElementById('fileInput').click()" class="btn btn-secondary" style="padding: 12px 16px; height: 48px;">
+                    📎
+                </button>
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 32px; height: 48px;">
+                Send
+            </button>
+        </form>
+        <div id="filePreview" style="margin-top: 8px; font-size: 13px; color: #64748b;"></div>
+    </div>
+</div>
+
+<script>
+// Auto-scroll to bottom
+const container = document.getElementById('messagesContainer');
+if (container) {
+    container.scrollTop = container.scrollHeight;
+}
+
+// File preview
+document.getElementById('fileInput')?.addEventListener('change', function(e) {
+    const preview = document.getElementById('filePreview');
+    if (e.target.files.length > 0) {
+        preview.textContent = `📎 ${e.target.files[0].name}`;
+    } else {
+        preview.textContent = '';
+    }
+});
+
+// REMOVED: Auto-refresh that was causing continuous polling
+// Messages will refresh when you send/receive new messages or manually refresh the page
+</script>
+{% endblock %}

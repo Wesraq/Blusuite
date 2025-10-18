@@ -1,0 +1,140 @@
+{% extends 'performance/base_performance.html' %}
+
+{% block performance_title %}Performance Reviews{% endblock %}
+
+{% block performance_actions %}
+{{ block.super }}
+<a href="{% url 'performance:goal_list' %}" class="btn btn-outline">View Goals</a>
+{% endblock %}
+
+{% block performance_content %}
+<div class="performance-filters">
+    <form method="get" class="filter-form">
+        <div class="form-group">
+            <label for="review_type">Review Type:</label>
+            <select name="review_type" id="review_type" class="form-control">
+                <option value="">All Types</option>
+                {% for value, label in review_types %}
+                <option value="{{ value }}" {% if request.GET.review_type == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select name="status" id="status" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>Draft</option>
+                <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+        <a href="{% url 'performance:review_list' %}" class="btn btn-link">Clear</a>
+    </form>
+</div>
+
+<div class="performance-reviews">
+    {% if reviews %}
+        {% for review in reviews %}
+        <div class="performance-card">
+            <div class="review-header">
+                <div>
+                    <h3>
+                        <a href="{% url 'performance:review_detail' review.id %}">
+                            {{ review.employee.get_full_name }} - {{ review.get_review_type_display }}
+                        </a>
+                    </h3>
+                    <div class="text-muted">
+                        {{ review.review_period_start|date:"M j, Y" }} - {{ review.review_period_end|date:"M j, Y" }}
+                    </div>
+                </div>
+                <div class="review-status">
+                    <span class="status-badge status-{{ review.status|lower|slugify }}">
+                        {{ review.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="review-summary">
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ review.overall_rating|default:"-" }}</div>
+                        <div class="metric-label">Overall Rating</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">{{ review.goals_completed|default:0 }}/{{ review.goals_total|default:0 }}</div>
+                        <div class="metric-label">Goals Completed</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">{{ review.metrics_average|default:0 }}%</div>
+                        <div class="metric-label">Metrics Average</div>
+                    </div>
+                </div>
+                
+                {% if review.achievements %}
+                <div class="achievements">
+                    <h4>Key Achievements</h4>
+                    <p>{{ review.achievements|truncatewords:30 }}</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="review-actions">
+                <a href="{% url 'performance:review_detail' review.id %}" class="btn btn-sm btn-outline">View Details</a>
+                {% if review.status == 'DRAFT' %}
+                <a href="{% url 'performance:review_edit' review.id %}" class="btn btn-sm btn-primary">Edit</a>
+                <a href="{% url 'performance:review_submit' review.id %}" class="btn btn-sm btn-success">Submit</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if is_paginated %}
+        <div class="pagination">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET.review_type %}&review_type={{ request.GET.review_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.review_type %}&review_type={{ request.GET.review_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">previous</a>
+                {% endif %}
+                
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.review_type %}&review_type={{ request.GET.review_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.review_type %}&review_type={{ request.GET.review_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <h3>No performance reviews found</h3>
+            <p>Get started by creating a new performance review.</p>
+            <a href="{% url 'performance:review_create' %}" class="btn btn-primary">Create Review</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any client-side interactivity here
+    const filterForm = document.querySelector('.filter-form');
+    const selectElements = filterForm.querySelectorAll('select');
+    
+    // Auto-submit form when filter values change
+    selectElements.forEach(select => {
+        select.addEventListener('change', function() {
+            filterForm.submit();
+        });
+    });
+});
+</script>
+{% endblock %}

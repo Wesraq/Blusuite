@@ -1,0 +1,3124 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Company Settings - EMS{% endblock %}
+
+{% block styles %}
+<style>
+  /* Tab Navigation Styles */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    background: #f8fafc;
+    padding: 6px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover {
+    background: #e2e8f0;
+    color: #334155;
+  }
+
+  .tab-btn.active {
+    background: #fff;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+  }
+
+  /* Tab Content Styles */
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive tabs */
+  @media (max-width: 768px) {
+    .tab-nav {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      width: 100%;
+      text-align: left;
+    }
+  }
+
+  /* Settings Content Styling */
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .settings-section {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .settings-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+  }
+
+  .settings-section .card-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 16px;
+  }
+
+  /* Form Styling */
+  .settings-section input[type="text"],
+  .settings-section input[type="number"],
+  .settings-section select,
+  .settings-section textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+
+  .settings-section input:focus,
+  .settings-section select:focus,
+  .settings-section textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .settings-section label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  .settings-section button[type="submit"],
+  .settings-section .btn {
+    background: #1e293b;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .settings-section button[type="submit"]:hover,
+  .settings-section .btn:hover {
+    background: #334155;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* List Styling */
+  .settings-section .list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0 0;
+  }
+
+  .settings-section .list-item {
+    padding: 12px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .settings-section .list-item:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transform: translateX(4px);
+  }
+
+  .settings-section .list-item > div:first-child {
+    font-weight: 500;
+    color: #1e293b;
+    font-size: 14px;
+  }
+
+  /* Preview Box */
+  .preview-box {
+    background: #f0f9ff;
+    border: 2px dashed #3b82f6;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e40af;
+    text-align: center;
+  }
+
+  /* Three Column Grid */
+  .content-grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .content-grid.three-cols {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  /* Empty State */
+  .form-hint {
+    font-size: 13px;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 32px 20px;
+    color: #9ca3af;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px dashed #d1d5db;
+  }
+
+  /* Django Form Fields Styling */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="url"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1e293b;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  input[type="url"]:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  input[type="text"]:disabled,
+  input[type="email"]:disabled,
+  input[type="password"]:disabled,
+  input[type="number"]:disabled,
+  select:disabled,
+  textarea:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+    color: #9ca3af;
+  }
+
+  /* Checkbox styling */
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+  }
+
+  /* Select dropdown arrow */
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 20px;
+    padding-right: 36px;
+  }
+
+  /* Error states */
+  .errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0 0;
+  }
+
+  .errorlist li {
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Form labels */
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  label:not(.settings-section label) {
+    color: #4b5563;
+  }
+
+  /* Textarea specific */
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  /* Placeholder styling */
+  ::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+  }
+
+  /* Button styling - general */
+  button, .btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  button.btn, .btn {
+    background: #1e293b;
+    color: white;
+  }
+
+  button.btn:hover, .btn:hover {
+    background: #334155;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  button.btn-secondary, .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  button.btn-secondary:hover, .btn-secondary:hover {
+    background: #e2e8f0;
+  }
+
+  /* Toast Notifications */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .toast {
+    background: white;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    animation: slideIn 0.3s ease;
+  }
+
+  .toast.success { border-left: 4px solid #10b981; }
+  .toast.error { border-left: 4px solid #ef4444; }
+  .toast.info { border-left: 4px solid #3b82f6; }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* Tooltips */
+  .tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: help;
+    margin-left: 6px;
+    position: relative;
+  }
+
+  .tooltip-trigger:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .tooltip-trigger:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1e293b;
+  }
+
+  /* Action Buttons */
+  .action-btn {
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .action-btn.edit {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .action-btn.edit:hover {
+    background: #bfdbfe;
+  }
+
+  .action-btn.delete {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .action-btn.delete:hover {
+    background: #fecaca;
+  }
+
+  /* Collapsible Sections */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px 0;
+    user-select: none;
+  }
+
+  .section-header h3 {
+    margin: 0;
+  }
+
+  .collapse-icon {
+    transition: transform 0.3s ease;
+    font-size: 14px;
+  }
+
+  .section-header.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+  }
+
+  .section-body {
+    max-height: 2000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .section-body.collapsed {
+    max-height: 0;
+  }
+
+  /* Search Input */
+  .search-box {
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .search-box input {
+    padding-left: 36px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 14px;
+  }
+
+  /* Drag and Drop */
+  .draggable {
+    cursor: move;
+    transition: all 0.2s;
+  }
+
+  .draggable:hover {
+    background: #f9fafb;
+  }
+
+  .dragging {
+    opacity: 0.5;
+  }
+
+  .drag-over {
+    border-top: 2px solid #3b82f6;
+  }
+
+  /* Modal/Dialog */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.2s ease;
+  }
+
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #1e293b;
+  }
+
+  .modal-body {
+    margin-bottom: 20px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  /* Loading Spinner */
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f4f6;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Form Validation */
+  input.error, select.error, textarea.error {
+    border-color: #ef4444;
+  }
+
+  .error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block page_title %}Company Settings{% endblock %}
+
+{% block content %}
+<!-- Hidden CSRF token for JavaScript -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<div class="page-content" style="max-width: 1400px; margin: 0 auto;">
+  <!-- Statistics Dashboard -->
+  <div class="stats-grid" style="margin-bottom: 24px;">
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg></div>
+      <div class="stat-details">
+        <div class="stat-value">{{ total_departments }}</div>
+        <div class="stat-label">Departments</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #dcfce7; color: #16a34a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg></div>
+      <div class="stat-details">
+        <div class="stat-value">{{ total_positions }}</div>
+        <div class="stat-label">Positions</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg></div>
+      <div class="stat-details">
+        <div class="stat-value">{{ total_pay_grades }}</div>
+        <div class="stat-label">Pay Grades</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #e0e7ff; color: #6366f1;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                        </svg></div>
+      <div class="stat-details">
+        <div class="stat-value">{{ total_configurations }}</div>
+        <div class="stat-label">Total Configurations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Export -->
+  <div class="content-card" style="margin-bottom: 24px; padding: 20px;">
+    <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+      <div class="filter-group">
+        <label for="search" class="control-label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg> Search</label>
+        <input type="text" id="search" name="search" class="control-input" placeholder="Name, description..." value="{{ search_query }}">
+      </div>
+      <div class="filter-group">
+        <label for="department" class="control-label">Department Filter</label>
+        <select id="department" name="department" class="control-input">
+          <option value="">All Departments</option>
+          {% for dept in all_departments %}
+            <option value="{{ dept.id }}" {% if dept_filter == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: end;">
+        <button class="btn" type="submit">Apply Filters</button>
+        <a class="btn btn-secondary" href="{% url 'settings_dashboard' %}">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Export Buttons -->
+  <div style="display: flex; justify-content: flex-start; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+    <a href="?export=departments" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export Departments</a>
+    <a href="?export=positions" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export Positions</a>
+    <a href="?export=pay_grades" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export Pay Grades</a>
+  </div>
+
+  <div class="tab-nav" id="settings-tabs" style="margin-bottom: 20px;">
+    <button class="tab-btn active" data-tab="company-profile">🏢 Company Profile</button>
+    <button class="tab-btn" data-tab="employee-config"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg> Employee Configuration</button>
+    <button class="tab-btn" data-tab="email-smtp">📧 Email / SMTP</button>
+    <button class="tab-btn" data-tab="biometric"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg> Biometric Attendance</button>
+    <button class="tab-btn" data-tab="notifications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg> Notifications</button>
+    <button class="tab-btn" data-tab="integrations">🔗 Integrations</button>
+    <button class="tab-btn" data-tab="payslip-designer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      Payslip Designer
+    </button>
+  </div>
+
+  <!-- Company Profile Tab -->
+  <div class="content-card tab-content active" id="company-profile">
+    <div class="card-header">
+      <div class="card-title">Company Profile</div>
+      <div class="card-subtitle">Manage company information, logo, and official stamp for payslips.</div>
+    </div>
+    <div class="card-content">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="company_profile">
+        
+        <div class="content-grid three-cols" style="margin-bottom: 24px;">
+          <div>
+            <label>Company Name *</label>
+            <input type="text" name="company_name" value="{{ company.name }}" required>
+          </div>
+          <div>
+            <label>Phone</label>
+            <input type="text" name="company_phone" value="{{ company.phone }}">
+          </div>
+          <div>
+            <label>Email</label>
+            <input type="email" name="company_email" value="{{ company.email }}">
+          </div>
+        </div>
+        
+        <div class="content-grid" style="grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+          <div>
+            <label>Address</label>
+            <textarea name="company_address" rows="3">{{ company.address }}</textarea>
+          </div>
+          <div>
+            <label>City</label>
+            <input type="text" name="company_city" value="{{ company.city }}">
+          </div>
+          <div>
+            <label>Country</label>
+            <input type="text" name="company_country" value="{{ company.country }}">
+          </div>
+        </div>
+        
+        <div>
+          <label>Website</label>
+          <input type="url" name="company_website" value="{{ company.website }}" placeholder="https://example.com">
+        </div>
+        
+        <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
+        
+        <h3 class="section-title">Company Logo & Stamp</h3>
+        
+        <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <label>Company Logo</label>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">Used in payslips and documents. Recommended: PNG/JPG, max 2MB</p>
+            {% if company.logo %}
+            <div style="margin-bottom: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+              <img src="{{ company.logo.url }}" alt="Company Logo" style="max-height: 100px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;">
+            </div>
+            {% endif %}
+            <input type="file" name="company_logo" accept="image/*" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+          </div>
+          
+          <div>
+            <label>Company Stamp</label>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">Official stamp for payslips. Recommended: PNG with transparency, max 2MB</p>
+            {% if company.company_stamp %}
+            <div style="margin-bottom: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+              <img src="{{ company.company_stamp.url }}" alt="Company Stamp" style="max-height: 100px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;">
+            </div>
+            {% endif %}
+            <input type="file" name="company_stamp" accept="image/*" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+          </div>
+        </div>
+        
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+          <button type="submit" class="btn">Save Company Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Employee configuration tab -->
+  <div class="content-card tab-content" id="employee-config">
+    <div class="card-header">
+      <div class="card-title">Employee Configuration</div>
+      <div class="card-subtitle">Manage employee identifiers, departments, positions, and pay grades.</div>
+    </div>
+    <div class="card-content">
+
+      <!-- Employee ID Configuration -->
+      <div class="form-section" style="margin-bottom: 32px;">
+        <h3 class="section-title">Employee ID Format</h3>
+        <form method="post" class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; align-items: end;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="employee_id">
+          <div>
+            <label>Prefix</label>
+            {{ employee_id_form.prefix }}
+          </div>
+          <div>
+            <label>Padding</label>
+            {{ employee_id_form.padding }}
+          </div>
+          <div>
+            <label>Suffix</label>
+            {{ employee_id_form.suffix }}
+          </div>
+          <div>
+            <label>Preview</label>
+            <div class="preview-box">{{ employee_id_preview }}</div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button type="submit" class="btn">Save</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="content-grid three-cols">
+        <!-- Departments -->
+        <div class="settings-section">
+          <h3>Departments</h3>
+          <div class="card-subtitle">Maintain the list of departments.</div>
+          <div>
+            <form method="post" style="display:flex; gap:10px; margin-bottom: 16px;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="department">
+              {{ department_form.name }}
+              <button type="submit" class="btn" style="white-space:nowrap;">Add</button>
+            </form>
+            {% if departments %}
+            <ul class="list">
+              {% for dept in departments %}
+              <li class="list-item" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>{{ dept.name }}</div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="action-btn edit" onclick="editItem('Department', {{ dept.id }}, '{{ dept.name|escapejs }}', '{{ dept.description|default:''|escapejs }}')">✏️ Edit</button>
+                  <button class="action-btn delete" onclick="deleteItem('Department', {{ dept.id }}, '{{ dept.name }}')">🗑️ Delete</button>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p class="form-hint">No departments yet. Add your first department above.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Positions -->
+        <div class="settings-section">
+          <h3>Positions</h3>
+          <div class="card-subtitle">Associate positions with departments.</div>
+          <div>
+            <form method="post" style="display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom: 16px;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="position">
+              {{ position_form.name }}
+              {{ position_form.department }}
+              <button type="submit" class="btn">Add</button>
+            </form>
+            {% if positions %}
+            <ul class="list">
+              {% for pos in positions %}
+              <li class="list-item" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex: 1;">
+                  <div style="font-weight:500;">{{ pos.name }}</div>
+                  {% if pos.department %}
+                  <div class="form-hint">Department: {{ pos.department.name }}</div>
+                  {% endif %}
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="action-btn edit" onclick="editItem('Position', {{ pos.id }}, '{{ pos.name|escapejs }}', '{{ pos.description|default:''|escapejs }}', '{{ pos.department.id|default:'' }}')">✏️</button>
+                  <button class="action-btn delete" onclick="deleteItem('Position', {{ pos.id }}, '{{ pos.name }}')">🗑️</button>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p class="form-hint">No positions yet. Add positions and link them to departments.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Pay Grades -->
+        <div class="settings-section">
+          <h3>Pay Grades</h3>
+          <div class="card-subtitle">Standardize salary bands across employees.</div>
+          <div>
+            <form method="post" style="display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom: 16px;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="pay_grade">
+              {{ pay_grade_form.name }}
+              {{ pay_grade_form.description }}
+              <button type="submit" class="btn">Add</button>
+            </form>
+            {% if pay_grades %}
+            <ul class="list">
+              {% for grade in pay_grades %}
+              <li class="list-item" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex: 1;">
+                  <div style="font-weight:500;">{{ grade.name }}</div>
+                  {% if grade.description %}
+                  <div class="form-hint">{{ grade.description }}</div>
+                  {% endif %}
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="action-btn edit" onclick="editItem('Pay Grade', {{ grade.id }}, '{{ grade.name|escapejs }}', '{{ grade.description|default:''|escapejs }}')">✏️</button>
+                  <button class="action-btn delete" onclick="deleteItem('Pay Grade', {{ grade.id }}, '{{ grade.name }}')">🗑️</button>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p class="form-hint">No pay grades yet. Add pay grades to standardize compensation.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Email SMTP tab -->
+  <div class="content-card tab-content" id="email-smtp">
+    <div class="card-header">
+      <div class="card-title">Email & SMTP Settings</div>
+      <div class="card-subtitle">Configure outgoing mail server for notifications.</div>
+    </div>
+    <div class="card-content">
+      <div class="settings-section">
+        <p class="form-hint" style="margin-bottom: 20px;">📧 SMTP configuration will enable system emails such as password resets, alerts, and notifications.</p>
+        <form method="post" class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="email_smtp">
+        <div>
+          <label>
+            SMTP Host
+            <span class="tooltip-trigger" data-tooltip="Email server address (e.g., smtp.gmail.com)">?</span>
+          </label>
+          {{ email_form.smtp_host }}
+          {% if email_form.smtp_host.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ email_form.smtp_host.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>
+            Port
+            <span class="tooltip-trigger" data-tooltip="Usually 587 for TLS or 465 for SSL">?</span>
+          </label>
+          {{ email_form.smtp_port }}
+          {% if email_form.smtp_port.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ email_form.smtp_port.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>
+            Username
+            <span class="tooltip-trigger" data-tooltip="Your email server login username">?</span>
+          </label>
+          {{ email_form.smtp_username }}
+          {% if email_form.smtp_username.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ email_form.smtp_username.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>
+            Password
+            <span class="tooltip-trigger" data-tooltip="Your email server password or app password">?</span>
+          </label>
+          {{ email_form.smtp_password }}
+          {% if email_form.smtp_password.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ email_form.smtp_password.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Sender Name</label>
+          {{ email_form.smtp_sender_name }}
+          {% if email_form.smtp_sender_name.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ email_form.smtp_sender_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Use TLS</label>
+          {{ email_form.smtp_use_tls }}
+          {% if email_form.smtp_use_tls.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ email_form.smtp_use_tls.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div style="grid-column: 1 / -1; display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="testSMTPConnection()">🔌 Test Connection</button>
+          <button type="submit" class="btn">💾 Save SMTP Settings</button>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Biometric tab -->
+  <div class="content-card tab-content" id="biometric">
+    <div class="card-header">
+      <div class="card-title">Biometric Attendance</div>
+      <div class="card-subtitle">Integrate biometric devices for accurate attendance tracking.</div>
+    </div>
+    <div class="card-content">
+      <div class="settings-section">
+        <p class="form-hint" style="margin-bottom: 20px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg> Configure device endpoints and synchronization preferences.</p>
+        <form method="post" class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="biometric">
+        <div>
+          <label>Device Provider</label>
+          {{ biometric_form.provider }}
+          {% if biometric_form.provider.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.provider.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Device Name</label>
+          {{ biometric_form.device_name }}
+          {% if biometric_form.device_name.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.device_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Device Serial</label>
+          {{ biometric_form.device_serial }}
+          {% if biometric_form.device_serial.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.device_serial.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>API Endpoint</label>
+          {{ biometric_form.endpoint }}
+          {% if biometric_form.endpoint.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.endpoint.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Device IP</label>
+          {{ biometric_form.device_ip }}
+          {% if biometric_form.device_ip.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.device_ip.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>API Key</label>
+          {{ biometric_form.api_key }}
+          {% if biometric_form.api_key.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.api_key.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>API Secret</label>
+          {{ biometric_form.api_secret }}
+          {% if biometric_form.api_secret.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.api_secret.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Webhook URL</label>
+          {{ biometric_form.webhook_url }}
+          {% if biometric_form.webhook_url.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.webhook_url.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Location</label>
+          {{ biometric_form.location }}
+          {% if biometric_form.location.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.location.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Device Timezone</label>
+          {{ biometric_form.timezone }}
+          {% if biometric_form.timezone.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.timezone.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <label>Sync Frequency (minutes)</label>
+          {{ biometric_form.sync_interval }}
+          {% if biometric_form.sync_interval.errors %}
+            <div class="form-hint" style="color:#dc2626;">{{ biometric_form.sync_interval.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div style="grid-column: 1 / -1; display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn btn-secondary" onclick="testBiometricConnection()">🔌 Test Device</button>
+          <button type="submit" class="btn">💾 Save Biometric Settings</button>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications tab -->
+  <div class="content-card tab-content" id="notifications">
+    <div class="card-header">
+      <div class="card-title">Notifications Settings</div>
+      <div class="card-subtitle">Configure system alerts and communication preferences.</div>
+    </div>
+    <div class="card-content">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="notifications">
+        
+        <div class="settings-section" style="margin-bottom: 24px;">
+          <h3>Email Notifications</h3>
+          <p class="form-hint" style="margin-bottom: 16px;">Control which email notifications are sent to employees and administrators.</p>
+          
+          <div style="display: grid; gap: 16px;">
+            <label style="display: flex; align-items: center; padding: 12px; background: #f9fafb; border-radius: 6px; cursor: pointer;">
+              {{ notification_form.email_leave_requests }}
+              <div style="margin-left: 12px;">
+                <div style="font-weight: 500; color: #1e293b;">Leave Request Notifications</div>
+                <div class="form-hint" style="margin: 4px 0 0 0;">Notify managers when employees submit leave requests</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px; background: #f9fafb; border-radius: 6px; cursor: pointer;">
+              {{ notification_form.email_leave_approvals }}
+              <div style="margin-left: 12px;">
+                <div style="font-weight: 500; color: #1e293b;">Leave Approval Notifications</div>
+                <div class="form-hint" style="margin: 4px 0 0 0;">Notify employees when their leave requests are approved/rejected</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px; background: #f9fafb; border-radius: 6px; cursor: pointer;">
+              {{ notification_form.email_document_uploads }}
+              <div style="margin-left: 12px;">
+                <div style="font-weight: 500; color: #1e293b;">Document Upload Notifications</div>
+                <div class="form-hint" style="margin: 4px 0 0 0;">Notify when new documents are uploaded or require review</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px; background: #f9fafb; border-radius: 6px; cursor: pointer;">
+              {{ notification_form.email_performance_reminders }}
+              <div style="margin-left: 12px;">
+                <div style="font-weight: 500; color: #1e293b;">Performance Review Reminders</div>
+                <div class="form-hint" style="margin: 4px 0 0 0;">Send reminders for upcoming performance reviews</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px; background: #f9fafb; border-radius: 6px; cursor: pointer;">
+              {{ notification_form.email_training_assignments }}
+              <div style="margin-left: 12px;">
+                <div style="font-weight: 500; color: #1e293b;">Training Assignment Notifications</div>
+                <div class="form-hint" style="margin: 4px 0 0 0;">Notify employees when new training is assigned</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        
+        <div class="settings-section" style="margin-bottom: 24px;">
+          <h3>In-App Notifications</h3>
+          <p class="form-hint" style="margin-bottom: 16px;">Configure browser-based notifications within the system.</p>
+          
+          <div style="display: grid; gap: 16px;">
+            <label style="display: flex; align-items: center; padding: 12px; background: #f9fafb; border-radius: 6px; cursor: pointer;">
+              {{ notification_form.inapp_realtime }}
+              <div style="margin-left: 12px;">
+                <div style="font-weight: 500; color: #1e293b;">Real-time Notifications</div>
+                <div class="form-hint" style="margin: 4px 0 0 0;">Show notifications immediately when events occur</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px; background: #f9fafb; border-radius: 6px; cursor: pointer;">
+              {{ notification_form.inapp_sound_alerts }}
+              <div style="margin-left: 12px;">
+                <div style="font-weight: 500; color: #1e293b;">Sound Alerts</div>
+                <div class="form-hint" style="margin: 4px 0 0 0;">Play sound when receiving important notifications</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px; background: #f9fafb; border-radius: 6px; cursor: pointer;">
+              {{ notification_form.inapp_desktop_notifications }}
+              <div style="margin-left: 12px;">
+                <div style="font-weight: 500; color: #1e293b;">Desktop Notifications</div>
+                <div class="form-hint" style="margin: 4px 0 0 0;">Show browser notifications even when tab is inactive</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h3>Notification Frequency</h3>
+          <p class="form-hint" style="margin-bottom: 16px;">Control how often notification emails are sent.</p>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+            <div>
+              <label>Daily Digest Time
+                <span class="tooltip-trigger" data-tooltip="Time to send daily summary emails">?</span>
+              </label>
+              {{ notification_form.digest_time }}
+            </div>
+            
+            <div>
+              <label>Digest Frequency</label>
+              {{ notification_form.digest_frequency }}
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+          <button type="submit" class="btn">💾 Save Notification Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Integrations tab -->
+  <div class="content-card tab-content" id="integrations">
+    <div class="card-header">
+      <div class="card-title">Integrations</div>
+      <div class="card-subtitle">Connect with third-party tools and services.</div>
+    </div>
+    <div class="card-content">
+      <div class="settings-section" style="margin-bottom: 24px;">
+        <h3>Available Integrations</h3>
+        <p class="form-hint" style="margin-bottom: 20px;">Connect your EMS with external services to enhance functionality.</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+          <!-- Slack Integration -->
+          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: white;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; background: #e0f2fe; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+              </div>
+              <div>
+                <h4 style="font-size: 16px; font-weight: 600; margin: 0;">Slack</h4>
+                <span style="font-size: 12px; color: #6b7280;">Not Connected</span>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Send notifications and updates to your Slack workspace.</p>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="Toast.show('Slack integration coming soon!', 'info')">Connect Slack</button>
+          </div>
+          
+          <!-- Google Calendar -->
+          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: white;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; background: #fef3c7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+              </div>
+              <div>
+                <h4 style="font-size: 16px; font-weight: 600; margin: 0;">Google Calendar</h4>
+                <span style="font-size: 12px; color: #6b7280;">Not Connected</span>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Sync leave requests and events with Google Calendar.</p>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="Toast.show('Google Calendar integration coming soon!', 'info')">Connect Google</button>
+          </div>
+          
+          <!-- Payroll System -->
+          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: white;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; background: #dcfce7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+              </div>
+              <div>
+                <h4 style="font-size: 16px; font-weight: 600; margin: 0;">Payroll API</h4>
+                <span style="font-size: 12px; color: #6b7280;">Not Connected</span>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Connect to external payroll processing systems.</p>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="Toast.show('Payroll integration coming soon!', 'info')">Connect Payroll</button>
+          </div>
+          
+          <!-- Microsoft Teams -->
+          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: white;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; background: #e0e7ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+              </div>
+              <div>
+                <h4 style="font-size: 16px; font-weight: 600; margin: 0;">Microsoft Teams</h4>
+                <span style="font-size: 12px; color: #6b7280;">Not Connected</span>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Send notifications to Microsoft Teams channels.</p>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="Toast.show('Teams integration coming soon!', 'info')">Connect Teams</button>
+          </div>
+          
+          <!-- Zoom -->
+          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: white;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; background: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                🎥
+              </div>
+              <div>
+                <h4 style="font-size: 16px; font-weight: 600; margin: 0;">Zoom</h4>
+                <span style="font-size: 12px; color: #6b7280;">Not Connected</span>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Schedule and manage virtual meetings directly.</p>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="Toast.show('Zoom integration coming soon!', 'info')">Connect Zoom</button>
+          </div>
+          
+          <!-- SMS Gateway -->
+          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: white;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; background: #fce7f3; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                📱
+              </div>
+              <div>
+                <h4 style="font-size: 16px; font-weight: 600; margin: 0;">SMS Gateway</h4>
+                <span style="font-size: 12px; color: #6b7280;">Not Connected</span>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Send SMS notifications via Twilio or similar services.</p>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="Toast.show('SMS integration coming soon!', 'info')">Connect SMS</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h3>API Access</h3>
+        <p class="form-hint" style="margin-bottom: 16px;">Generate API keys for custom integrations and third-party applications.</p>
+        
+        <div style="display: grid; gap: 16px;">
+          <div>
+            <label>API Key
+              <span class="tooltip-trigger" data-tooltip="Use this key to authenticate API requests">?</span>
+            </label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="apiKeyField" value="{% if primary_api_key %}{{ primary_api_key.key }}{% else %}No API key generated yet{% endif %}" readonly style="flex: 1; background: #f9fafb;">
+              <button type="button" class="btn btn-secondary" onclick="copyApiKey()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg> Copy</button>
+              <button type="button" class="btn btn-secondary" onclick="regenerateApiKey()">🔄 Regenerate</button>
+            </div>
+          </div>
+          
+          <form method="post" id="webhookForm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="webhook">
+            <div>
+              <label>Webhook URL
+                <span class="tooltip-trigger" data-tooltip="Receive real-time events at this URL">?</span>
+              </label>
+              <input type="url" name="webhook_url" placeholder="https://your-app.com/webhook" value="{% if primary_api_key %}{{ primary_api_key.webhook_url }}{% endif %}">
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+              <button type="button" class="btn btn-secondary">📖 View API Docs</button>
+              <button type="submit" class="btn">💾 Save Webhook</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payslip Designer Tab -->
+<div class="content-card tab-content" id="payslip-designer">
+  <div class="card-header" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 24px; border-radius: 8px 8px 0 0; margin: -20px -20px 0 -20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="card-title" style="color: white; font-size: 20px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"></rect>
+            <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"></line>
+          </svg>
+          Payslip Designer
+        </div>
+        <div class="card-subtitle" style="color: rgba(255,255,255,0.8); font-size: 13px;">Customize payslip template and preview changes in real-time</div>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button type="button" id="previewModeBtn" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Preview
+        </button>
+        <button type="button" id="exportPdfBtn" style="padding: 10px 20px; background: white; color: #1e293b; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-content" style="padding: 0;">
+    <div style="padding: 24px; background: #f8fafc;">
+      <div style="display: grid; grid-template-columns: minmax(420px, 520px) minmax(420px, 1fr); gap: 24px; align-items: start; overflow-x: auto;">
+        <!-- Left Panel: Template Designer -->
+        <div style="background: transparent;">
+
+          <div style="background: white; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08); border: 1px solid #e2e8f0; display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+          <div style="padding: 24px 28px; border-bottom: 1px solid #e5e7eb; background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);">
+            <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 4px;">Template Designer</h3>
+            <p style="font-size: 13px; color: #6b7280;">Customize your payslip template</p>
+          </div>
+
+          <!-- Designer Tabs -->
+          <div class="tab-nav" style="display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; background: #ffffff; padding: 16px 24px 12px;">
+            <button type="button" class="designer-tab tab-btn active" data-tab="company" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Company</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="employee" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Employee</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="period" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Period</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="earnings" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Earnings</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="deductions" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Deductions</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="stamp" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Stamp</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="styles" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Styles</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="footer" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Footer</button>
+          </div>
+
+          <!-- Designer Content -->
+          <div style="flex: 1; overflow-y: auto; padding: 24px 28px;">
+          <!-- Company Tab -->
+          <div class="designer-tab-content active" id="tab-company">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Company Information</h4>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Company Name</label>
+                <input type="text" id="previewCompanyName" value="{{ company.name }}" placeholder="Company Name" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Phone</label>
+                <input type="text" id="previewCompanyPhone" value="{{ company.phone }}" placeholder="Phone Number" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Email</label>
+                <input type="email" id="previewCompanyEmail" value="{{ company.email }}" placeholder="Email Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Address</label>
+                <textarea id="previewCompanyAddress" placeholder="Street Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 70px; resize: vertical;" oninput="updatePreview()">{{ company.address }}</textarea>
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Tax ID / NRC</label>
+                <input type="text" id="previewTaxId" value="{{ company.business_registration }}" placeholder="TAX-12345" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Currency</label>
+                <select id="previewCurrency" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
+                  <option value="ZMW" selected>ZMW - Zambian Kwacha</option>
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="GBP">GBP - British Pound</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Employee Tab -->
+          <div class="designer-tab-content" id="tab-employee">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Employee Information</h4>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Employee Name</label>
+                <input type="text" id="previewEmployeeName" value="EMMANUEL SIMWANZA" placeholder="Full Name" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Employee ID</label>
+                <input type="text" id="previewEmployeeId" value="EMP-2024-001" placeholder="Employee ID" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Designation</label>
+                <input type="text" id="previewDesignation" value="Software Engineer" placeholder="Job Title" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Department</label>
+                <input type="text" id="previewDepartment" value="Engineering" placeholder="Department" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Date of Joining</label>
+                <input type="date" id="previewDateOfJoining" value="2020-01-15" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Period Tab -->
+          <div class="designer-tab-content" id="tab-period">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Pay Period</h4>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Month</label>
+                <select id="previewMonth" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
+                  <option value="January">January</option>
+                  <option value="February">February</option>
+                  <option value="March">March</option>
+                  <option value="April">April</option>
+                  <option value="May">May</option>
+                  <option value="June">June</option>
+                  <option value="July">July</option>
+                  <option value="August">August</option>
+                  <option value="September">September</option>
+                  <option value="October">October</option>
+                  <option value="November">November</option>
+                  <option value="December" selected>December</option>
+                </select>
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Year</label>
+                <input type="number" id="previewYear" value="2024" placeholder="2024" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Pay Date</label>
+                <input type="date" id="previewPayDate" value="2024-12-31" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Working Days</label>
+                  <input type="number" id="previewWorkingDays" value="22" placeholder="22" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Present Days</label>
+                  <input type="number" id="previewPresentDays" value="22" placeholder="22" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Earnings Tab -->
+          <div class="designer-tab-content" id="tab-earnings">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0;">Earnings</h4>
+              <button type="button" onclick="addEarningItem()" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add
+              </button>
+            </div>
+            <div id="earningsList" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Earnings items will be added here by JavaScript -->
+            </div>
+            <div style="margin-top: 16px; padding: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: #166534; font-size: 13px;">Total Earnings</span>
+              <span id="totalEarnings" style="font-weight: 700; font-size: 16px; color: #15803d;">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Deductions Tab -->
+          <div class="designer-tab-content" id="tab-deductions">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0;">Deductions</h4>
+              <button type="button" onclick="addDeductionItem()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add
+              </button>
+            </div>
+            <div id="deductionsList" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Deductions items will be added here by JavaScript -->
+            </div>
+            <div style="margin-top: 16px; padding: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: #991b1b; font-size: 13px;">Total Deductions</span>
+              <span id="totalDeductions" style="font-weight: 700; font-size: 16px; color: #dc2626;">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Stamp Tab -->
+          <div class="designer-tab-content" id="tab-stamp">
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+              <div style="display: flex; flex-direction: column; gap: 18px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(30, 64, 175, 0.12); display: flex; align-items: center; justify-content: center; color: #1e3a8a;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 6a3 3 0 1 1 6 0c0 2.25-1.5 3-3 4-1.5-1-3-1.75-3-4z"></path>
+                      <path d="M12 10v3"></path>
+                      <path d="M7 18h10"></path>
+                      <path d="M8 14h8l1 4H7l1-4Z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 style="font-size: 16px; font-weight: 700; color: #111827; margin: 0;">Advanced Stamp Designer</h4>
+                    <p style="font-size: 13px; color: #6b7280; margin: 2px 0 0;">Create professional company stamps with advanced customization</p>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f9fafb;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 600; color: #1f2937;">Enable Stamp</div>
+                    <div style="font-size: 12px; color: #6b7280;">Toggle to include the stamp on the payslip footer</div>
+                  </div>
+                  <label style="position: relative; display: inline-block; width: 50px; height: 28px;">
+                    <input type="checkbox" id="stampEnabled" checked onchange="updateStampPreview()" style="opacity: 0; width: 0; height: 0;">
+                    <span class="stamp-toggle-bg" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3b82f6; transition: 0.3s; border-radius: 999px;"></span>
+                    <span class="stamp-toggle-knob" style="position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size: 13px; font-weight: 600; color: #1f2937; margin-bottom: 12px;">Quick Presets</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                  <button type="button" class="stamp-preset active" data-preset="classic" onclick="applyStampPreset('classic')" style="padding: 10px 18px; border: 1px solid #2563eb; border-radius: 999px; background: rgba(37, 99, 235, 0.08); color: #1d4ed8; font-size: 13px; font-weight: 600; cursor: pointer;">Classic</button>
+                  <button type="button" class="stamp-preset" data-preset="modern" onclick="applyStampPreset('modern')" style="padding: 10px 18px; border: 1px solid #d1d5db; border-radius: 999px; background: white; color: #1f2937; font-size: 13px; font-weight: 500; cursor: pointer;">Modern</button>
+                  <button type="button" class="stamp-preset" data-preset="elegant" onclick="applyStampPreset('elegant')" style="padding: 10px 18px; border: 1px solid #d1d5db; border-radius: 999px; background: white; color: #1f2937; font-size: 13px; font-weight: 500; cursor: pointer;">Elegant</button>
+                  <button type="button" class="stamp-preset" data-preset="bold" onclick="applyStampPreset('bold')" style="padding: 10px 18px; border: 1px solid #d1d5db; border-radius: 999px; background: white; color: #1f2937; font-size: 13px; font-weight: 500; cursor: pointer;">Bold</button>
+                </div>
+              </div>
+
+              <div>
+                <div style="display: inline-flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 999px;">
+                  <button type="button" class="stamp-tab-button active" data-stamp-tab="shape" onclick="switchStampTab('shape')" style="padding: 8px 16px; border-radius: 999px; border: none; background: white; font-size: 12px; font-weight: 600; color: #1e3a8a;">Shape</button>
+                  <button type="button" class="stamp-tab-button" data-stamp-tab="text" onclick="switchStampTab('text')" style="padding: 8px 16px; border-radius: 999px; border: none; background: transparent; font-size: 12px; font-weight: 500; color: #475569;">Text</button>
+                  <button type="button" class="stamp-tab-button" data-stamp-tab="style" onclick="switchStampTab('style')" style="padding: 8px 16px; border-radius: 999px; border: none; background: transparent; font-size: 12px; font-weight: 500; color: #475569;">Style</button>
+                  <button type="button" class="stamp-tab-button" data-stamp-tab="advanced" onclick="switchStampTab('advanced')" style="padding: 8px 16px; border-radius: 999px; border: none; background: transparent; font-size: 12px; font-weight: 500; color: #475569;">Advanced</button>
+                </div>
+
+                <div style="margin-top: 20px;">
+                  <div class="stamp-tab-panel" id="stamp-tab-shape" style="display: block;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px;">
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Shape</label>
+                        <select id="stampShape" onchange="updateStampPreview()" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px;">
+                          <option value="circle">Circle</option>
+                          <option value="square">Square</option>
+                          <option value="rectangle">Rectangle</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Size (px)</label>
+                        <input type="range" id="stampSize" min="100" max="260" value="150" oninput="updateStampPreview()" style="width: 100%;">
+                        <div style="font-size: 12px; color: #475569; margin-top: 4px;">Size: <span id="stampSizeValue">150px</span></div>
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Border Width</label>
+                        <input type="range" id="stampBorderWidth" min="0" max="12" value="3" oninput="updateStampPreview()" style="width: 100%;">
+                        <div style="font-size: 12px; color: #475569; margin-top: 4px;">Border: <span id="stampBorderWidthValue">3px</span></div>
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Border Style</label>
+                        <select id="stampBorderStyle" onchange="updateStampPreview()" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px;">
+                          <option value="solid">Solid</option>
+                          <option value="dashed">Dashed</option>
+                          <option value="dotted">Dotted</option>
+                          <option value="double">Double</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Position on Payslip</label>
+                        <select id="stampPosition" onchange="updateStampPreview()" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px;">
+                          <option value="bottom-right">Bottom Right</option>
+                          <option value="bottom-left">Bottom Left</option>
+                          <option value="bottom-center">Bottom Center</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="stamp-tab-panel" id="stamp-tab-text" style="display: none;">
+                    <div style="display: grid; gap: 16px;">
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Company Stamp Label</label>
+                        <input type="text" id="previewStampLabel" value="Company Stamp" oninput="updatePreview(); updateStampPreview();" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px;">
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Top Text</label>
+                        <input type="text" id="stampTopText" value="MFI DOCUMENT SOLUTIONS" oninput="updateStampPreview()" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px; text-transform: uppercase;">
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Middle Text</label>
+                        <input type="text" id="stampMiddleText" value="AUTHORIZED SIGNATURE" oninput="updateStampPreview()" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px; text-transform: uppercase;">
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Bottom Text</label>
+                        <input type="text" id="stampBottomText" value="2025" oninput="updateStampPreview()" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px; text-transform: uppercase;">
+                      </div>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+                        <div>
+                          <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Font Size</label>
+                          <input type="range" id="stampFontSize" min="10" max="22" value="14" oninput="updateStampPreview()" style="width: 100%;">
+                          <div style="font-size: 12px; color: #475569; margin-top: 4px;">Font Size: <span id="stampFontSizeValue">14px</span></div>
+                        </div>
+                        <div>
+                          <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Font Weight</label>
+                          <select id="stampFontWeight" onchange="updateStampPreview()" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px;">
+                            <option value="500">Medium</option>
+                            <option value="600" selected>Semibold</option>
+                            <option value="700">Bold</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="stamp-tab-panel" id="stamp-tab-style" style="display: none;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px;">
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Border Color</label>
+                        <input type="color" id="stampBorderColor" value="#1d4ed8" onchange="updateStampPreview()" style="width: 100%; height: 46px; border: 1px solid #d1d5db; border-radius: 10px;">
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Background</label>
+                        <input type="color" id="stampBackgroundColor" value="#f8fafc" onchange="updateStampPreview()" style="width: 100%; height: 46px; border: 1px solid #d1d5db; border-radius: 10px;">
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Text Color</label>
+                        <input type="color" id="stampTextColor" value="#1d4ed8" onchange="updateStampPreview()" style="width: 100%; height: 46px; border: 1px solid #d1d5db; border-radius: 10px;">
+                      </div>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px;">
+                      <button type="button" onclick="applyStampTheme('transparent')" style="padding: 10px 16px; border-radius: 10px; border: 1px solid #d1d5db; background: white; font-size: 12px; font-weight: 500; color: #334155;">Transparent BG</button>
+                      <button type="button" onclick="applyStampTheme('blue')" style="padding: 10px 16px; border-radius: 10px; border: 1px solid #2563eb; background: rgba(37, 99, 235, 0.08); font-size: 12px; font-weight: 600; color: #1e3a8a;">Blue Theme</button>
+                      <button type="button" onclick="applyStampTheme('red')" style="padding: 10px 16px; border-radius: 10px; border: 1px solid #dc2626; background: rgba(220, 38, 38, 0.08); font-size: 12px; font-weight: 600; color: #b91c1c;">Red Theme</button>
+                    </div>
+                  </div>
+
+                  <div class="stamp-tab-panel" id="stamp-tab-advanced" style="display: none;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;">
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Rotation (°)</label>
+                        <input type="range" id="stampRotation" min="-15" max="15" value="0" oninput="updateStampPreview()" style="width: 100%;">
+                        <div style="font-size: 12px; color: #475569; margin-top: 4px;">Rotation: <span id="stampRotationValue">0°</span></div>
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Opacity (%)</label>
+                        <input type="range" id="stampOpacity" min="40" max="100" value="90" oninput="updateStampPreview()" style="width: 100%;">
+                        <div style="font-size: 12px; color: #475569; margin-top: 4px;">Opacity: <span id="stampOpacityValue">90%</span></div>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="stampInnerBorder" onchange="updateStampPreview()" style="width: 18px; height: 18px;">
+                        <label for="stampInnerBorder" style="font-size: 13px; color: #374151;">Add Inner Border</label>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="stampCurvedText" onchange="updateStampPreview()" style="width: 18px; height: 18px;">
+                        <label for="stampCurvedText" style="font-size: 13px; color: #374151;">Enable Curved Text (circle)</label>
+                      </div>
+                      <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="font-size: 13px; font-weight: 500; color: #374151;">Upload Custom Stamp Image</label>
+                        <input type="file" id="stampCustomImage" accept="image/*" onchange="handleStampUpload(this); updateStampPreview();" style="padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 13px;">
+                        <span style="font-size: 11px; color: #6b7280;">Uploading an image overrides generated stamp graphics.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size: 13px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Live Preview</div>
+                <div style="border: 1px solid #e2e8f0; border-radius: 14px; background: #f8fafc; padding: 24px; display: flex; justify-content: center; align-items: center;">
+                  <div id="stampLivePreview" style="position: relative; width: 220px; height: 220px; display: flex; justify-content: center; align-items: center;">
+                    <div id="stampLivePreviewShape" style="position: absolute; inset: 0; margin: auto; width: 180px; height: 180px; border: 3px solid #1d4ed8; border-radius: 999px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #1d4ed8; font-size: 14px; font-weight: 600; text-align: center; text-transform: uppercase; line-height: 1.4; padding: 24px;">
+                      <span id="stampLivePreviewTop">MFI DOCUMENT SOLUTIONS</span><br>
+                      <span id="stampLivePreviewMiddle" style="font-size: 12px;">AUTHORIZED SIGNATURE</span><br>
+                      <span id="stampLivePreviewBottom" style="font-size: 12px;">2025</span>
+                    </div>
+                    <div id="stampLivePreviewInnerBorder" style="position: absolute; inset: 12px; border: 1px solid rgba(29, 78, 216, 0.4); border-radius: 999px; display: none;"></div>
+                    <img id="stampLivePreviewImage" src="" alt="" style="max-width: 100%; max-height: 100%; display: none; border-radius: 12px;">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Styles Tab -->
+          <div class="designer-tab-content" id="tab-styles">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Visual Styling</h4>
+            <div style="display: grid; gap: 16px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Earnings Header Color</label>
+                <input type="color" id="previewEarningsColor" value="#93c5fd" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Deductions Header Color</label>
+                <input type="color" id="previewDeductionsColor" value="#93c5fd" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Font Family</label>
+                <select id="previewFontFamily" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
+                  <option value="Arial, sans-serif" selected>Arial</option>
+                  <option value="'Times New Roman', serif">Times New Roman</option>
+                  <option value="Georgia, serif">Georgia</option>
+                  <option value="'Courier New', monospace">Courier New</option>
+                  <option value="Inter, sans-serif">Inter</option>
+                </select>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                <span style="font-size: 13px; font-weight: 500; color: #374151;">Show Company Logo</span>
+                <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                  <input type="checkbox" id="previewShowLogo" checked onchange="updatePreview()" style="opacity: 0; width: 0; height: 0;">
+                  <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3b82f6; transition: 0.3s; border-radius: 24px;"></span>
+                  <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
+                </label>
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Header Layout</label>
+                <div style="display: grid; gap: 8px;">
+                  <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
+                    <input type="radio" name="previewHeaderLayout" value="logo-left" checked onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <span style="font-size: 13px; color: #1f2937;">Logo left, company info right</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
+                    <input type="radio" name="previewHeaderLayout" value="logo-right" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <span style="font-size: 13px; color: #1f2937;">Company info left, logo right</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
+                    <input type="radio" name="previewHeaderLayout" value="stacked-logo-top" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <span style="font-size: 13px; color: #1f2937;">Logo top, company info below</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
+                    <input type="radio" name="previewHeaderLayout" value="stacked-info-top" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <span style="font-size: 13px; color: #1f2937;">Company info top, logo below</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Tab -->
+          <div class="designer-tab-content" id="tab-footer">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Footer</h4>
+            <div style="display: grid; gap: 16px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Footer Text</label>
+                <textarea id="previewFooterText" placeholder="Pay Slip Not Valid Unless Signed..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 90px; resize: vertical;" oninput="updatePreview()">Pay Slip Not Valid Unless Signed
+Please Treat Your Pay Slip as Confidential. Have a Nice Month</textarea>
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Receiver's Name Label</label>
+                <input type="text" id="previewReceiverLabel" value="Receiver's Name:" placeholder="Receiver's Name:" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <button type="submit" style="width: 100%; padding: 12px; background: #1e293b; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              </svg>
+              Save Design
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Live Preview -->
+      <div style="flex: 1 1 0; min-width: 420px; background: transparent; display: grid; grid-template-columns: 1fr;">
+        <div style="background: white; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; width: 100%; max-width: 760px;">
+        <div style="padding: 24px 28px; border-bottom: 1px solid #e5e7eb; background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);">
+          <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 4px;">Live Preview</h3>
+          <p style="font-size: 13px; color: #6b7280;">Changes appear instantly as you edit</p>
+        </div>
+        <div style="padding: 24px 28px;">
+          <div id="payslipPreview" style="background: white; border: 2px solid #000; width: 100%; max-width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.12); margin: 0; font-family: Arial, sans-serif;">
+          
+          <!-- Header -->
+          <div id="previewHeader" style="padding: 16px 20px; border-bottom: 3px solid #000; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div id="previewHeaderLogoWrapper" style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+              <div id="previewLogoContainer" style="width: 80px; height: 60px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                {% if company.logo %}
+                  <img src="{{ company.logo.url }}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                {% else %}
+                  <div style="width: 80px; height: 60px; background: #000; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;">LOGO</div>
+                {% endif %}
+              </div>
+            </div>
+            <div id="previewHeaderInfo" style="text-align: right; flex: 1; margin-left: 12px;">
+              <div id="previewHeaderCompanyName" style="font-size: 14px; font-weight: 700; color: #000; text-transform: uppercase;">{{ company.name }}</div>
+              <div id="previewHeaderAddress" style="font-size: 10px; color: #000; line-height: 1.4; margin-top: 2px;">{{ company.address }}</div>
+              <div id="previewHeaderPhone" style="font-size: 10px; color: #000;">{{ company.phone }}</div>
+              <div id="previewHeaderEmail" style="font-size: 10px; color: #000;">{{ company.email }}</div>
+            </div>
+          </div>
+
+          <!-- Employee Info -->
+          <div style="padding: 12px 20px; border-bottom: 1px solid #000;">
+            <table style="width: 100%; font-size: 11px;">
+              <tr>
+                <td style="padding: 3px 0; text-align: right; width: 35%; font-weight: 600;">Employee Name :</td>
+                <td id="previewInfoEmployeeName" style="padding: 3px 0 3px 10px; text-transform: uppercase;">EMMANUEL SIMWANZA</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Employee ID :</td>
+                <td id="previewInfoEmployeeId" style="padding: 3px 0 3px 10px;">MFI2001</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Designation :</td>
+                <td id="previewInfoDesignation" style="padding: 3px 0 3px 10px; text-transform: uppercase;">GENERAL MANAGER</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Department :</td>
+                <td id="previewInfoDepartment" style="padding: 3px 0 3px 10px; text-transform: uppercase;">ADMIN</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">NRC :</td>
+                <td id="previewHeaderTaxId" style="padding: 3px 0 3px 10px;">431448/9/1</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Month :</td>
+                <td id="previewPayPeriod" style="padding: 3px 0 3px 10px;">Sep-2025</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Earnings Section -->
+          <div style="padding: 0; border-bottom: 1px solid #000;">
+            <div id="previewEarningsHeader" style="background: #93c5fd; padding: 6px 20px; font-size: 12px; font-weight: 700; color: #000; text-align: center;">EARNINGS</div>
+            <div style="padding: 8px 20px;">
+              <table style="width: 100%; font-size: 11px;">
+                <tbody id="previewEarningsList">
+                  <!-- Will be populated by JavaScript -->
+                </tbody>
+                <tr style="border-top: 1px solid #000; font-weight: 700;">
+                  <td style="padding: 6px 0;">Gross Salary</td>
+                  <td id="previewTotalEarnings" style="padding: 6px 0; text-align: right;">ZMW 0.00</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Statutory Deductions -->
+          <div style="padding: 0; border-bottom: 1px solid #000;">
+            <div id="previewDeductionsHeader" style="background: #93c5fd; padding: 6px 20px; font-size: 12px; font-weight: 700; color: #000; text-align: center;">STATUTORY DEDUCTION</div>
+            <div style="padding: 8px 20px;">
+              <table style="width: 100%; font-size: 11px;">
+                <tbody id="previewDeductionsList">
+                  <!-- Will be populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div style="padding: 12px 20px; border-bottom: 1px solid #000;">
+            <table style="width: 100%; font-size: 11px;">
+              <tr>
+                <td style="padding: 3px 0;">Total Earnings (A)</td>
+                <td id="previewSummaryEarnings" style="padding: 3px 0; text-align: right; font-weight: 600;">ZMW 0.00</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0;">Total Deductions (B)</td>
+                <td id="previewSummaryDeductions" style="padding: 3px 0; text-align: right; font-weight: 600; color: #dc2626;">ZMW 0.00</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0;">GRATUITY + BONUS</td>
+                <td style="padding: 3px 0; text-align: right;">-</td>
+              </tr>
+              <tr style="border-top: 2px solid #000; font-weight: 700; font-size: 13px;">
+                <td style="padding: 6px 0;">Net Salary (A-B)</td>
+                <td id="previewNetPay" style="padding: 6px 0; text-align: right; text-decoration: underline;">ZMW 0.00</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0;">LOANS BALANCE</td>
+                <td style="padding: 3px 0; text-align: right;"></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Signature Section -->
+          <div style="padding: 16px 20px; border-bottom: 1px solid #000;">
+            <table style="width: 100%; font-size: 11px;">
+              <tr>
+                <td style="width: 50%; vertical-align: top;">
+                  <div id="displayReceiverLabel" style="font-weight: 600; margin-bottom: 40px;">Receiver's Name:</div>
+                  <div id="previewReceiverName" style="border-bottom: 1px solid #000; padding-bottom: 2px;"></div>
+                </td>
+                <td style="width: 50%; text-align: center; vertical-align: top;">
+                  <div id="displayStampLabel" style="font-weight: 600; margin-bottom: 8px;">Company Stamp</div>
+                  <div id="previewStampContainer" style="min-height: 100px; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 12px; background: #f8fafc;">
+                    <div id="previewStampGenerated" style="display: none; position: relative; width: 120px; height: 120px; justify-content: center; align-items: center;"></div>
+                    <img id="previewStampImage" src="" alt="" style="max-width: 100%; max-height: 100px; display: none; border-radius: 12px;">
+                    <span id="previewStampPlaceholder" style="font-size: 10px; color: #94a3b8;">Stamp Area</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Footer -->
+          <div style="padding: 12px 20px; text-align: center; border-bottom: 1px solid #000;">
+            <div id="displayFooterText" style="font-size: 10px; color: #000; line-height: 1.5; white-space: pre-line;">Pay Slip Not Valid Unless Signed
+Please Treat Your Pay Slip as Confidential. Have a Nice Month</div>
+          </div>
+
+          <!-- Company Footer -->
+          <div style="padding: 8px 20px; text-align: center; font-size: 9px; color: #000;">
+            <div style="font-weight: 700; margin-bottom: 4px;">{{ company.name|upper }}</div>
+            <div style="line-height: 1.4;">{{ company.address }}</div>
+    </div>
+  </div>
+</div>
+
+<style>
+.designer-tab-content {
+  display: none;
+}
+
+.designer-tab-content.active {
+  display: block;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#designerPreviewModal.active {
+  display: flex !important;
+}
+
+#designerPreviewModal .designer-preview-modal-panel::-webkit-scrollbar {
+  width: 10px;
+}
+
+#designerPreviewModal .designer-preview-modal-panel::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 999px;
+}
+
+#designerPreviewModal .designer-preview-modal-panel::-webkit-scrollbar-thumb {
+  background: #cbd5f5;
+  border-radius: 999px;
+}
+</style>
+
+<script>
+// Designer Tab Switching
+document.querySelectorAll('.designer-tab').forEach(tab => {
+  tab.addEventListener('click', function(e) {
+    e.preventDefault();
+    const tabName = this.dataset.tab;
+    
+    document.querySelectorAll('.designer-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.designer-tab-content').forEach(c => c.classList.remove('active'));
+    
+    this.classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+  });
+});
+
+// Earnings and Deductions Data
+let earningsData = [
+  { id: 1, label: 'Basic Salary', amount: 985.00, enabled: true },
+  { id: 2, label: 'House Rents Allowance (HRA @30%)', amount: 295.50, enabled: true },
+  { id: 3, label: 'Transport Allowance', amount: 180.00, enabled: true },
+  { id: 4, label: 'Lunch Allowance', amount: 200.00, enabled: true }
+];
+
+let deductionsData = [
+  { id: 1, label: 'NAPSA @5%', amount: 83.03, enabled: true },
+  { id: 2, label: 'NHIMA', amount: 11.62, enabled: true },
+  { id: 3, label: 'PAYE', amount: 0.00, enabled: true }
+];
+
+let earningsIdCounter = 5;
+let deductionsIdCounter = 4;
+
+// Stamp Designer State
+let activeStampTab = 'shape';
+let stampConfig = {
+  enabled: true,
+  preset: 'classic',
+  shape: 'circle',
+  size: 150,
+  borderWidth: 3,
+  borderStyle: 'solid',
+  position: 'bottom-right',
+  label: 'Company Stamp',
+  topText: 'MFI DOCUMENT SOLUTIONS',
+  middleText: 'AUTHORIZED SIGNATURE',
+  bottomText: '2025',
+  fontSize: 14,
+  fontWeight: '600',
+  borderColor: '#1d4ed8',
+  backgroundColor: '#f8fafc',
+  textColor: '#1d4ed8',
+  rotation: 0,
+  opacity: 90,
+  innerBorder: false,
+  curvedText: false,
+  customImage: null
+};
+
+// Render Earnings List
+function renderEarnings() {
+  console.log('Rendering earnings:', earningsData.length, 'items');
+  const container = document.getElementById('earningsList');
+  if (!container) {
+    console.error('Earnings container not found');
+    return;
+  }
+  
+  container.innerHTML = '';
+  earningsData.forEach(item => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;';
+    div.innerHTML = `
+      <input type="checkbox" ${item.enabled ? 'checked' : ''} onchange="toggleEarning(${item.id})" style="width: 16px; height: 16px; cursor: pointer;">
+      <input type="text" value="${item.label}" onchange="updateEarningLabel(${item.id}, this.value)" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+      <input type="number" value="${item.amount}" onchange="updateEarningAmount(${item.id}, this.value)" style="width: 90px; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+      <button type="button" onclick="removeEarning(${item.id})" style="padding: 4px 8px; background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">×</button>
+    `;
+    container.appendChild(div);
+  });
+  console.log('Earnings rendered, calling updateTotals');
+  updateTotals();
+}
+
+// Render Deductions List
+function renderDeductions() {
+  console.log('Rendering deductions:', deductionsData.length, 'items');
+  const container = document.getElementById('deductionsList');
+  if (!container) {
+    console.error('Deductions container not found');
+    return;
+  }
+  
+  container.innerHTML = '';
+  deductionsData.forEach(item => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;';
+    div.innerHTML = `
+      <input type="checkbox" ${item.enabled ? 'checked' : ''} onchange="toggleDeduction(${item.id})" style="width: 16px; height: 16px; cursor: pointer;">
+      <input type="text" value="${item.label}" onchange="updateDeductionLabel(${item.id}, this.value)" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+      <input type="number" value="${item.amount}" onchange="updateDeductionAmount(${item.id}, this.value)" style="width: 90px; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+      <button type="button" onclick="removeDeduction(${item.id})" style="padding: 4px 8px; background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">×</button>
+    `;
+    container.appendChild(div);
+  });
+  console.log('Deductions rendered, calling updateTotals');
+  updateTotals();
+}
+
+// Update Totals and Preview
+function updateTotals() {
+  console.log('updateTotals called');
+  const currency = document.getElementById('previewCurrency')?.value || 'ZMW';
+  const totalEarnings = earningsData.filter(e => e.enabled).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const totalDeductions = deductionsData.filter(d => d.enabled).reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
+  const netPay = totalEarnings - totalDeductions;
+  
+  console.log('Totals calculated:', { totalEarnings, totalDeductions, netPay, currency });
+  
+  // Update tab totals
+  const earningsEl = document.getElementById('totalEarnings');
+  const deductionsEl = document.getElementById('totalDeductions');
+  if (earningsEl) earningsEl.textContent = `${currency} ${totalEarnings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (deductionsEl) deductionsEl.textContent = `${currency} ${totalDeductions.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  
+  // Update preview earnings
+  const previewEarningsEl = document.getElementById('previewEarningsList');
+  console.log('Preview earnings element:', !!previewEarningsEl);
+  if (previewEarningsEl) {
+    previewEarningsEl.innerHTML = '';
+    const enabledEarnings = earningsData.filter(e => e.enabled);
+    console.log('Enabled earnings:', enabledEarnings.length);
+    enabledEarnings.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="padding: 3px 0;">${item.label}</td>
+        <td style="padding: 3px 0; text-align: right;">${currency} ${parseFloat(item.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+      `;
+      previewEarningsEl.appendChild(tr);
+    });
+  }
+  
+  // Update preview deductions
+  const previewDeductionsEl = document.getElementById('previewDeductionsList');
+  console.log('Preview deductions element:', !!previewDeductionsEl);
+  if (previewDeductionsEl) {
+    previewDeductionsEl.innerHTML = '';
+    const enabledDeductions = deductionsData.filter(d => d.enabled);
+    console.log('Enabled deductions:', enabledDeductions.length);
+    enabledDeductions.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="padding: 3px 0;">${item.label}</td>
+        <td style="padding: 3px 0; text-align: right;">${currency} ${parseFloat(item.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+      `;
+      previewDeductionsEl.appendChild(tr);
+    });
+  }
+  
+  // Update preview totals
+  const previewTotalEarningsEl = document.getElementById('previewTotalEarnings');
+  const previewSummaryEarningsEl = document.getElementById('previewSummaryEarnings');
+  const previewSummaryDeductionsEl = document.getElementById('previewSummaryDeductions');
+  const previewNetPayEl = document.getElementById('previewNetPay');
+  if (previewTotalEarningsEl) previewTotalEarningsEl.textContent = `${currency} ${totalEarnings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (previewSummaryEarningsEl) previewSummaryEarningsEl.textContent = `${currency} ${totalEarnings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (previewSummaryDeductionsEl) previewSummaryDeductionsEl.textContent = `${currency} ${totalDeductions.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (previewNetPayEl) previewNetPayEl.textContent = `${currency} ${netPay.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  
+  console.log('updateTotals completed');
+}
+
+// Earnings Functions
+window.addEarningItem = function() {
+  earningsData.push({ id: earningsIdCounter++, label: 'New Earning', amount: 0, enabled: true });
+  renderEarnings();
+};
+
+window.toggleEarning = function(id) {
+  const item = earningsData.find(e => e.id === id);
+  if (item) { item.enabled = !item.enabled; updateTotals(); }
+};
+
+window.updateEarningLabel = function(id, value) {
+  const item = earningsData.find(e => e.id === id);
+  if (item) { item.label = value; updateTotals(); }
+};
+
+window.updateEarningAmount = function(id, value) {
+  const item = earningsData.find(e => e.id === id);
+  if (item) { item.amount = parseFloat(value) || 0; updateTotals(); }
+};
+
+window.removeEarning = function(id) {
+  earningsData = earningsData.filter(e => e.id !== id);
+  renderEarnings();
+};
+
+// Deductions Functions
+window.addDeductionItem = function() {
+  deductionsData.push({ id: deductionsIdCounter++, label: 'New Deduction', amount: 0, enabled: true });
+  renderDeductions();
+};
+
+window.toggleDeduction = function(id) {
+  const item = deductionsData.find(d => d.id === id);
+  if (item) { item.enabled = !item.enabled; updateTotals(); }
+};
+
+window.updateDeductionLabel = function(id, value) {
+  const item = deductionsData.find(d => d.id === id);
+  if (item) { item.label = value; updateTotals(); }
+};
+
+window.updateDeductionAmount = function(id, value) {
+  const item = deductionsData.find(d => d.id === id);
+  if (item) { item.amount = parseFloat(value) || 0; updateTotals(); }
+};
+
+window.removeDeduction = function(id) {
+  deductionsData = deductionsData.filter(d => d.id !== id);
+  renderDeductions();
+};
+
+// Stamp Designer Helpers
+function updateStampPresetButtons() {
+  const buttons = document.querySelectorAll('.stamp-preset');
+  buttons.forEach(button => {
+    const isActive = button.dataset.preset === stampConfig.preset;
+    button.classList.toggle('active', isActive);
+    button.style.borderColor = isActive ? '#2563eb' : '#d1d5db';
+    button.style.background = isActive ? 'rgba(37, 99, 235, 0.08)' : '#ffffff';
+    button.style.color = isActive ? '#1d4ed8' : '#1f2937';
+    button.style.fontWeight = isActive ? '600' : '500';
+  });
+}
+
+function updateStampTabButtons() {
+  const buttons = document.querySelectorAll('.stamp-tab-button');
+  buttons.forEach(button => {
+    const isActive = button.dataset.stampTab === activeStampTab;
+    button.classList.toggle('active', isActive);
+    button.style.background = isActive ? '#ffffff' : 'transparent';
+    button.style.color = isActive ? '#1e3a8a' : '#475569';
+    button.style.fontWeight = isActive ? '600' : '500';
+  });
+  document.querySelectorAll('.stamp-tab-panel').forEach(panel => {
+    panel.style.display = panel.id === `stamp-tab-${activeStampTab}` ? 'block' : 'none';
+  });
+}
+
+function syncStampControls() {
+  const shapeEl = document.getElementById('stampShape');
+  if (shapeEl) shapeEl.value = stampConfig.shape;
+
+  const sizeEl = document.getElementById('stampSize');
+  if (sizeEl) sizeEl.value = stampConfig.size;
+
+  const borderWidthEl = document.getElementById('stampBorderWidth');
+  if (borderWidthEl) borderWidthEl.value = stampConfig.borderWidth;
+
+  const borderStyleEl = document.getElementById('stampBorderStyle');
+  if (borderStyleEl) borderStyleEl.value = stampConfig.borderStyle;
+
+  const positionEl = document.getElementById('stampPosition');
+  if (positionEl) positionEl.value = stampConfig.position;
+
+  const labelEl = document.getElementById('previewStampLabel');
+  if (labelEl) labelEl.value = stampConfig.label;
+
+  const topTextEl = document.getElementById('stampTopText');
+  if (topTextEl) topTextEl.value = stampConfig.topText;
+
+  const middleTextEl = document.getElementById('stampMiddleText');
+  if (middleTextEl) middleTextEl.value = stampConfig.middleText;
+
+  const bottomTextEl = document.getElementById('stampBottomText');
+  if (bottomTextEl) bottomTextEl.value = stampConfig.bottomText;
+
+  const fontSizeEl = document.getElementById('stampFontSize');
+  if (fontSizeEl) fontSizeEl.value = stampConfig.fontSize;
+
+  const fontWeightEl = document.getElementById('stampFontWeight');
+  if (fontWeightEl) fontWeightEl.value = stampConfig.fontWeight;
+
+  const borderColorEl = document.getElementById('stampBorderColor');
+  if (borderColorEl) borderColorEl.value = stampConfig.borderColor;
+
+  const backgroundColorEl = document.getElementById('stampBackgroundColor');
+  if (backgroundColorEl) backgroundColorEl.value = stampConfig.backgroundColor;
+
+  const textColorEl = document.getElementById('stampTextColor');
+  if (textColorEl) textColorEl.value = stampConfig.textColor;
+
+  const rotationEl = document.getElementById('stampRotation');
+  if (rotationEl) rotationEl.value = stampConfig.rotation;
+
+  const opacityEl = document.getElementById('stampOpacity');
+  if (opacityEl) opacityEl.value = stampConfig.opacity;
+
+  const innerBorderEl = document.getElementById('stampInnerBorder');
+  if (innerBorderEl) innerBorderEl.checked = stampConfig.innerBorder;
+
+  const curvedTextEl = document.getElementById('stampCurvedText');
+  if (curvedTextEl) curvedTextEl.checked = stampConfig.curvedText;
+
+  const enabledEl = document.getElementById('stampEnabled');
+  if (enabledEl) enabledEl.checked = stampConfig.enabled;
+
+  const customImageInput = document.getElementById('stampCustomImage');
+  if (customImageInput && !stampConfig.customImage) {
+    customImageInput.value = '';
+  }
+}
+
+function computeStampDimensions() {
+  const size = stampConfig.size;
+  if (stampConfig.shape === 'rectangle') {
+    return {
+      width: Math.round(size * 1.4),
+      height: Math.round(size * 0.75),
+      borderRadius: '24px'
+    };
+  }
+  if (stampConfig.shape === 'square') {
+    return {
+      width: size,
+      height: size,
+      borderRadius: '16px'
+    };
+  }
+  return {
+    width: size,
+    height: size,
+    borderRadius: `${size}px`
+  };
+}
+
+function updateStampLivePreviewText() {
+  const topEl = document.getElementById('stampLivePreviewTop');
+  const middleEl = document.getElementById('stampLivePreviewMiddle');
+  const bottomEl = document.getElementById('stampLivePreviewBottom');
+  if (topEl) {
+    topEl.textContent = stampConfig.topText;
+    topEl.style.letterSpacing = stampConfig.curvedText ? '1.2px' : 'normal';
+  }
+  if (middleEl) {
+    middleEl.textContent = stampConfig.middleText;
+    middleEl.style.letterSpacing = 'normal';
+  }
+  if (bottomEl) {
+    bottomEl.textContent = stampConfig.bottomText;
+    bottomEl.style.letterSpacing = stampConfig.curvedText ? '1.2px' : 'normal';
+  }
+  if (topEl && middleEl && bottomEl) {
+    topEl.style.fontSize = `${stampConfig.fontSize}px`;
+    middleEl.style.fontSize = `${Math.max(stampConfig.fontSize - 2, 10)}px`;
+    bottomEl.style.fontSize = `${Math.max(stampConfig.fontSize - 2, 10)}px`;
+    topEl.style.fontWeight = stampConfig.fontWeight;
+    middleEl.style.fontWeight = stampConfig.fontWeight;
+    bottomEl.style.fontWeight = stampConfig.fontWeight;
+    const textColor = stampConfig.textColor;
+    topEl.style.color = textColor;
+    middleEl.style.color = textColor;
+    bottomEl.style.color = textColor;
+  }
+}
+
+function renderStampGenerated(targetElement, dims, isPayslip) {
+  if (!targetElement) return;
+  const innerBorderStyle = stampConfig.innerBorder ?
+    `<div style="position:absolute; inset:12px; border:1px solid ${stampConfig.borderColor}33; border-radius:${dims.borderRadius}; pointer-events:none;"></div>` : '';
+
+  targetElement.innerHTML = `
+    <div style="position:relative; width:${dims.width}px; height:${dims.height}px; border:${stampConfig.borderWidth}px ${stampConfig.borderStyle} ${stampConfig.borderColor}; border-radius:${dims.borderRadius}; background:${stampConfig.backgroundColor}; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; text-align:center; text-transform:uppercase; color:${stampConfig.textColor}; font-weight:${stampConfig.fontWeight}; line-height:1.2; gap:4px; transform: rotate(${stampConfig.rotation}deg); opacity:${stampConfig.opacity / 100}; ${isPayslip ? 'box-shadow:0 0 0 1px rgba(148,163,184,0.15);' : ''}">
+      <span style="font-size:${stampConfig.fontSize}px; letter-spacing:${stampConfig.curvedText ? '1.2px' : 'normal'};">${stampConfig.topText}</span>
+      <span style="font-size:${Math.max(stampConfig.fontSize - 2, 10)}px; letter-spacing:normal;">${stampConfig.middleText}</span>
+      <span style="font-size:${Math.max(stampConfig.fontSize - 2, 10)}px; letter-spacing:${stampConfig.curvedText ? '1.2px' : 'normal'};">${stampConfig.bottomText}</span>
+      ${innerBorderStyle}
+    </div>
+  `;
+}
+
+function updateStampPositionAlignment(container) {
+  if (!container) return;
+  switch (stampConfig.position) {
+    case 'bottom-left':
+      container.style.justifyContent = 'flex-start';
+      break;
+    case 'bottom-center':
+      container.style.justifyContent = 'center';
+      break;
+    default:
+      container.style.justifyContent = 'flex-end';
+      break;
+  }
+}
+
+function updateStampToggleUI() {
+  const toggleBg = document.querySelector('.stamp-toggle-bg');
+  const toggleKnob = document.querySelector('.stamp-toggle-knob');
+  if (toggleBg && toggleKnob) {
+    if (stampConfig.enabled) {
+      toggleBg.style.backgroundColor = '#2563eb';
+      toggleKnob.style.transform = 'translateX(22px)';
+    } else {
+      toggleBg.style.backgroundColor = '#cbd5e1';
+      toggleKnob.style.transform = 'translateX(0)';
+    }
+  }
+}
+
+function refreshStampValueLabels() {
+  const sizeValue = document.getElementById('stampSizeValue');
+  if (sizeValue) sizeValue.textContent = `${stampConfig.size}px`;
+
+  const borderWidthValue = document.getElementById('stampBorderWidthValue');
+  if (borderWidthValue) borderWidthValue.textContent = `${stampConfig.borderWidth}px`;
+
+  const fontSizeValue = document.getElementById('stampFontSizeValue');
+  if (fontSizeValue) fontSizeValue.textContent = `${stampConfig.fontSize}px`;
+
+  const rotationValue = document.getElementById('stampRotationValue');
+  if (rotationValue) rotationValue.textContent = `${stampConfig.rotation}°`;
+
+  const opacityValue = document.getElementById('stampOpacityValue');
+  if (opacityValue) opacityValue.textContent = `${stampConfig.opacity}%`;
+}
+
+function updateStampLivePreview(dims) {
+  const shapeEl = document.getElementById('stampLivePreviewShape');
+  const innerBorderEl = document.getElementById('stampLivePreviewInnerBorder');
+  const imageEl = document.getElementById('stampLivePreviewImage');
+  if (!shapeEl || !innerBorderEl || !imageEl) return;
+
+  if (!stampConfig.enabled) {
+    shapeEl.style.display = 'none';
+    innerBorderEl.style.display = 'none';
+    imageEl.style.display = 'none';
+    return;
+  }
+
+  if (stampConfig.customImage) {
+    imageEl.src = stampConfig.customImage;
+    imageEl.style.display = 'block';
+    shapeEl.style.display = 'none';
+    innerBorderEl.style.display = 'none';
+  } else {
+    imageEl.style.display = 'none';
+    shapeEl.style.display = 'flex';
+    shapeEl.style.width = `${dims.width}px`;
+    shapeEl.style.height = `${dims.height}px`;
+    shapeEl.style.border = `${stampConfig.borderWidth}px ${stampConfig.borderStyle} ${stampConfig.borderColor}`;
+    shapeEl.style.borderRadius = dims.borderRadius;
+    shapeEl.style.background = stampConfig.backgroundColor;
+    shapeEl.style.color = stampConfig.textColor;
+    shapeEl.style.transform = `rotate(${stampConfig.rotation}deg)`;
+    shapeEl.style.opacity = (stampConfig.opacity / 100).toString();
+    shapeEl.style.fontWeight = stampConfig.fontWeight;
+    shapeEl.style.textTransform = 'uppercase';
+    updateStampLivePreviewText();
+    innerBorderEl.style.display = stampConfig.innerBorder ? 'block' : 'none';
+    innerBorderEl.style.borderRadius = dims.borderRadius;
+  }
+}
+
+function updateStampPreview() {
+  const enabledCheckbox = document.getElementById('stampEnabled');
+  if (enabledCheckbox) {
+    stampConfig.enabled = enabledCheckbox.checked;
+  }
+
+  const shapeEl = document.getElementById('stampShape');
+  if (shapeEl) stampConfig.shape = shapeEl.value;
+
+  const sizeEl = document.getElementById('stampSize');
+  if (sizeEl) stampConfig.size = parseInt(sizeEl.value, 10) || stampConfig.size;
+
+  const borderWidthEl = document.getElementById('stampBorderWidth');
+  if (borderWidthEl) stampConfig.borderWidth = parseInt(borderWidthEl.value, 10) || stampConfig.borderWidth;
+
+  const borderStyleEl = document.getElementById('stampBorderStyle');
+  if (borderStyleEl) stampConfig.borderStyle = borderStyleEl.value;
+
+  const positionEl = document.getElementById('stampPosition');
+  if (positionEl) stampConfig.position = positionEl.value;
+
+  const labelEl = document.getElementById('previewStampLabel');
+  if (labelEl) stampConfig.label = labelEl.value || 'Company Stamp';
+
+  const topTextEl = document.getElementById('stampTopText');
+  if (topTextEl) stampConfig.topText = topTextEl.value || '';
+
+  const middleTextEl = document.getElementById('stampMiddleText');
+  if (middleTextEl) stampConfig.middleText = middleTextEl.value || '';
+
+  const bottomTextEl = document.getElementById('stampBottomText');
+  if (bottomTextEl) stampConfig.bottomText = bottomTextEl.value || '';
+
+  const fontSizeEl = document.getElementById('stampFontSize');
+  if (fontSizeEl) stampConfig.fontSize = parseInt(fontSizeEl.value, 10) || stampConfig.fontSize;
+
+  const fontWeightEl = document.getElementById('stampFontWeight');
+  if (fontWeightEl) stampConfig.fontWeight = fontWeightEl.value;
+
+  const borderColorEl = document.getElementById('stampBorderColor');
+  if (borderColorEl) stampConfig.borderColor = borderColorEl.value;
+
+  const backgroundColorEl = document.getElementById('stampBackgroundColor');
+  if (backgroundColorEl) stampConfig.backgroundColor = backgroundColorEl.value;
+
+  const textColorEl = document.getElementById('stampTextColor');
+  if (textColorEl) stampConfig.textColor = textColorEl.value;
+
+  const rotationEl = document.getElementById('stampRotation');
+  if (rotationEl) stampConfig.rotation = parseInt(rotationEl.value, 10) || stampConfig.rotation;
+
+  const opacityEl = document.getElementById('stampOpacity');
+  if (opacityEl) stampConfig.opacity = parseInt(opacityEl.value, 10) || stampConfig.opacity;
+
+  const innerBorderEl = document.getElementById('stampInnerBorder');
+  if (innerBorderEl) stampConfig.innerBorder = innerBorderEl.checked;
+
+  const curvedTextEl = document.getElementById('stampCurvedText');
+  if (curvedTextEl) stampConfig.curvedText = curvedTextEl.checked;
+
+  if (!updateStampPreview._applyingPreset) {
+    stampConfig.preset = 'custom';
+  }
+
+  refreshStampValueLabels();
+  updateStampPresetButtons();
+  updateStampToggleUI();
+
+  const dims = computeStampDimensions();
+  updateStampLivePreview(dims);
+
+  const previewContainer = document.getElementById('previewStampContainer');
+  const previewGenerated = document.getElementById('previewStampGenerated');
+  const previewImage = document.getElementById('previewStampImage');
+  const previewPlaceholder = document.getElementById('previewStampPlaceholder');
+
+  updateStampPositionAlignment(previewContainer);
+
+  if (!stampConfig.enabled) {
+    if (previewGenerated) previewGenerated.style.display = 'none';
+    if (previewImage) previewImage.style.display = 'none';
+    if (previewPlaceholder) {
+      previewPlaceholder.style.display = 'block';
+      previewPlaceholder.textContent = 'Stamp disabled';
+    }
+    return;
+  }
+
+  if (previewPlaceholder) {
+    previewPlaceholder.style.display = 'none';
+    previewPlaceholder.textContent = 'Stamp Area';
+  }
+
+  if (stampConfig.customImage) {
+    if (previewGenerated) previewGenerated.style.display = 'none';
+    if (previewImage) {
+      previewImage.src = stampConfig.customImage;
+      previewImage.style.display = 'block';
+      previewImage.style.opacity = (stampConfig.opacity / 100).toString();
+    }
+  } else {
+    if (previewImage) previewImage.style.display = 'none';
+    if (previewGenerated) {
+      previewGenerated.style.display = 'flex';
+      previewGenerated.style.justifyContent = 'center';
+      previewGenerated.style.alignItems = 'center';
+      renderStampGenerated(previewGenerated, dims, true);
+    }
+  }
+}
+
+updateStampPreview._applyingPreset = false;
+
+window.switchStampTab = function(tab) {
+  activeStampTab = tab;
+  updateStampTabButtons();
+};
+
+window.applyStampPreset = function(preset) {
+  const presets = {
+    classic: {
+      shape: 'circle',
+      size: 150,
+      borderWidth: 3,
+      borderStyle: 'double',
+      borderColor: '#1d4ed8',
+      backgroundColor: '#f8fafc',
+      textColor: '#1d4ed8',
+      fontSize: 14,
+      fontWeight: '600',
+      topText: 'MFI DOCUMENT SOLUTIONS',
+      middleText: 'AUTHORIZED SIGNATURE',
+      bottomText: '2025'
+    },
+    modern: {
+      shape: 'square',
+      size: 140,
+      borderWidth: 2,
+      borderStyle: 'solid',
+      borderColor: '#0f172a',
+      backgroundColor: '#ffffff',
+      textColor: '#0f172a',
+      fontSize: 14,
+      fontWeight: '600',
+      topText: 'MFI DOCUMENT SOLUTIONS',
+      middleText: 'APPROVED',
+      bottomText: '2025'
+    },
+    elegant: {
+      shape: 'rectangle',
+      size: 160,
+      borderWidth: 3,
+      borderStyle: 'solid',
+      borderColor: '#0ea5e9',
+      backgroundColor: '#ecfeff',
+      textColor: '#0c4a6e',
+      fontSize: 15,
+      fontWeight: '700',
+      topText: 'MFI DOCUMENT SOLUTIONS',
+      middleText: 'AUTHORIZED SIGNATURE',
+      bottomText: 'TRUSTED PARTNER'
+    },
+    bold: {
+      shape: 'circle',
+      size: 170,
+      borderWidth: 4,
+      borderStyle: 'solid',
+      borderColor: '#b91c1c',
+      backgroundColor: '#fee2e2',
+      textColor: '#991b1b',
+      fontSize: 16,
+      fontWeight: '700',
+      topText: 'MFI DOCUMENT SOLUTIONS',
+      middleText: 'CONFIDENTIAL',
+      bottomText: 'APPROVED'
+    }
+  };
+
+  if (!presets[preset]) return;
+
+  const presetConfig = presets[preset];
+  Object.assign(stampConfig, presetConfig, { preset, customImage: null });
+  updateStampPreview._applyingPreset = true;
+  syncStampControls();
+  refreshStampValueLabels();
+  updateStampPresetButtons();
+  updateStampPreview();
+  updateStampPreview._applyingPreset = false;
+};
+
+window.applyStampTheme = function(theme) {
+  if (theme === 'transparent') {
+    stampConfig.backgroundColor = '#ffffff00';
+    stampConfig.borderColor = '#1e293b';
+    stampConfig.textColor = '#1e293b';
+  } else if (theme === 'blue') {
+    stampConfig.backgroundColor = '#f0f7ff';
+    stampConfig.borderColor = '#1d4ed8';
+    stampConfig.textColor = '#1e3a8a';
+  } else if (theme === 'red') {
+    stampConfig.backgroundColor = '#fef2f2';
+    stampConfig.borderColor = '#dc2626';
+    stampConfig.textColor = '#b91c1c';
+  }
+  stampConfig.customImage = null;
+  refreshStampValueLabels();
+  updateStampPreview();
+};
+
+// Live Preview Updates
+function updatePreview() {
+  // Header
+  document.getElementById('previewHeaderCompanyName').textContent = (document.getElementById('previewCompanyName')?.value || 'Company Name').toUpperCase();
+  document.getElementById('previewHeaderPhone').textContent = document.getElementById('previewCompanyPhone')?.value || '+1 (555) 123-4567';
+  document.getElementById('previewHeaderEmail').textContent = document.getElementById('previewCompanyEmail')?.value || 'hr@company.com';
+  document.getElementById('previewHeaderAddress').textContent = document.getElementById('previewCompanyAddress')?.value || 'Address';
+  document.getElementById('previewHeaderTaxId').textContent = document.getElementById('previewTaxId')?.value || '913365/10/2';
+  
+  // Pay Period
+  const month = document.getElementById('previewMonth')?.value || 'December';
+  const year = document.getElementById('previewYear')?.value || '2024';
+  const monthShort = month.substring(0, 3);
+  document.getElementById('previewPayPeriod').textContent = `${monthShort}-${year}`;
+  
+  // Employee Info
+  document.getElementById('previewInfoEmployeeName').textContent = (document.getElementById('previewEmployeeName')?.value || 'BIJESH VANNERI KATIL').toUpperCase();
+  document.getElementById('previewInfoDepartment').textContent = (document.getElementById('previewDepartment')?.value || 'ADMIN').toUpperCase();
+  document.getElementById('previewInfoEmployeeId').textContent = document.getElementById('previewEmployeeId')?.value || 'MFI2001';
+  document.getElementById('previewInfoDesignation').textContent = (document.getElementById('previewDesignation')?.value || 'GENERAL MANAGER').toUpperCase();
+  
+  // Receiver Name
+  const receiverLabelInput = document.getElementById('previewReceiverLabel');
+  const displayReceiverLabel = document.getElementById('displayReceiverLabel');
+  if (receiverLabelInput && displayReceiverLabel) {
+    displayReceiverLabel.textContent = receiverLabelInput.value || "Receiver's Name:";
+  }
+  
+  const receiverName = document.getElementById('previewReceiverName');
+  if (receiverName) {
+    receiverName.textContent = document.getElementById('previewEmployeeName')?.value || '';
+  }
+  
+  // Stamp Label
+  const stampLabelInput = document.getElementById('previewStampLabel');
+  const displayStampLabel = document.getElementById('displayStampLabel');
+  if (stampLabelInput && displayStampLabel) {
+    displayStampLabel.textContent = stampLabelInput.value || 'Company Stamp';
+  }
+  
+  // Footer Text
+  const footerTextInput = document.getElementById('previewFooterText');
+  const displayFooterText = document.getElementById('displayFooterText');
+  if (footerTextInput && displayFooterText) {
+    displayFooterText.textContent = footerTextInput.value || 'Pay Slip Not Valid Unless Signed\nPlease Treat Your Pay Slip as Confidential. Have a Nice Month';
+  }
+  
+  // Styles
+  const earningsColor = document.getElementById('previewEarningsColor')?.value || '#93c5fd';
+  const deductionsColor = document.getElementById('previewDeductionsColor')?.value || '#93c5fd';
+  const fontFamily = document.getElementById('previewFontFamily')?.value || 'Arial, sans-serif';
+  const showLogo = document.getElementById('previewShowLogo')?.checked !== false;
+  const headerLayout = document.querySelector('input[name="previewHeaderLayout"]:checked')?.value || 'logo-left';
+  
+  const payslipPreview = document.getElementById('payslipPreview');
+  if (payslipPreview) {
+    payslipPreview.style.fontFamily = fontFamily;
+  }
+  
+  const earningsHeader = document.getElementById('previewEarningsHeader');
+  if (earningsHeader) {
+    earningsHeader.style.backgroundColor = earningsColor;
+  }
+  
+  const deductionsHeader = document.getElementById('previewDeductionsHeader');
+  if (deductionsHeader) {
+    deductionsHeader.style.backgroundColor = deductionsColor;
+  }
+  
+  const headerContainer = document.getElementById('previewHeader');
+  const headerLogoWrapper = document.getElementById('previewHeaderLogoWrapper');
+  const headerInfo = document.getElementById('previewHeaderInfo');
+
+  if (headerContainer && headerLogoWrapper && headerInfo) {
+    headerContainer.style.display = 'flex';
+    headerContainer.style.gap = '12px';
+    headerContainer.style.justifyContent = 'space-between';
+    headerLogoWrapper.style.marginLeft = '0';
+    headerLogoWrapper.style.marginRight = '0';
+
+    headerInfo.style.display = 'flex';
+    headerInfo.style.flexDirection = 'column';
+    headerInfo.style.marginLeft = '12px';
+    headerInfo.style.marginRight = '0';
+
+    switch (headerLayout) {
+      case 'logo-right':
+        headerContainer.style.flexDirection = 'row';
+        headerLogoWrapper.style.order = '2';
+        headerInfo.style.order = '1';
+        headerInfo.style.textAlign = 'left';
+        headerInfo.style.alignItems = 'flex-start';
+        headerInfo.style.marginLeft = '0';
+        headerInfo.style.marginRight = '12px';
+        headerContainer.style.alignItems = 'center';
+        break;
+      case 'stacked-logo-top':
+        headerContainer.style.flexDirection = 'column';
+        headerLogoWrapper.style.order = '1';
+        headerInfo.style.order = '2';
+        headerInfo.style.textAlign = 'center';
+        headerInfo.style.alignItems = 'center';
+        headerInfo.style.marginLeft = '0';
+        headerContainer.style.alignItems = 'center';
+        break;
+      case 'stacked-info-top':
+        headerContainer.style.flexDirection = 'column';
+        headerLogoWrapper.style.order = '2';
+        headerInfo.style.order = '1';
+        headerInfo.style.textAlign = 'center';
+        headerInfo.style.alignItems = 'center';
+        headerInfo.style.marginLeft = '0';
+        headerContainer.style.alignItems = 'center';
+        break;
+      default:
+        headerContainer.style.flexDirection = 'row';
+        headerLogoWrapper.style.order = '1';
+        headerInfo.style.order = '2';
+        headerInfo.style.textAlign = 'right';
+        headerInfo.style.marginLeft = '12px';
+        headerInfo.style.marginRight = '0';
+        headerContainer.style.alignItems = 'flex-start';
+        break;
+    }
+  }
+
+  const logoContainer = document.getElementById('previewLogoContainer');
+  if (logoContainer) {
+    logoContainer.style.display = showLogo ? 'flex' : 'none';
+  }
+  
+  updateStampPreview();
+  // Update totals with new currency
+  updateTotals();
+}
+
+// Handle Stamp Upload
+window.handleStampUpload = function(input) {
+  console.log('Stamp upload triggered', input.files);
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      console.log('Image loaded successfully');
+      stampConfig.customImage = e.target.result;
+      updateStampPreview();
+    };
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    console.log('No file selected');
+    stampConfig.customImage = null;
+    updateStampPreview();
+  }
+};
+
+// Initialize Preview
+document.addEventListener('DOMContentLoaded', function() {
+  renderEarnings();
+  renderDeductions();
+  updatePreview();
+});
+
+// Preview and Export buttons
+const designerPreviewModal = document.getElementById('designerPreviewModal');
+const designerPreviewModalClose = document.getElementById('designerPreviewModalClose');
+const designerPreviewModalContent = document.getElementById('designerPreviewModalContent');
+const previewModeBtn = document.getElementById('previewModeBtn');
+const exportPdfBtn = document.getElementById('exportPdfBtn');
+
+function clonePayslipPreview() {
+  const preview = document.getElementById('payslipPreview');
+  if (!preview) return null;
+  const clone = preview.cloneNode(true);
+  clone.style.width = '680px';
+  clone.style.maxWidth = '100%';
+  clone.style.transform = 'scale(1)';
+  clone.style.transformOrigin = 'top left';
+  return clone;
+}
+
+function openDesignerPreviewModal() {
+  const clone = clonePayslipPreview();
+  if (!clone || !designerPreviewModal || !designerPreviewModalContent) return;
+  designerPreviewModalContent.innerHTML = '';
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'width: 100%; display: flex; justify-content: center;';
+  wrapper.appendChild(clone);
+  designerPreviewModalContent.appendChild(wrapper);
+  designerPreviewModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDesignerPreviewModal() {
+  if (!designerPreviewModal || !designerPreviewModalContent) return;
+  designerPreviewModalContent.innerHTML = '';
+  designerPreviewModal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+previewModeBtn?.addEventListener('click', () => {
+  openDesignerPreviewModal();
+});
+
+designerPreviewModalClose?.addEventListener('click', closeDesignerPreviewModal);
+
+designerPreviewModal?.addEventListener('click', event => {
+  if (event.target === designerPreviewModal) {
+    closeDesignerPreviewModal();
+  }
+});
+
+async function exportPayslipToPdf() {
+  const preview = document.getElementById('payslipPreview');
+  if (!preview) {
+    console.error('Payslip preview element not found');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf || {};
+  if (!window.html2canvas || !jsPDF) {
+    alert('PDF export requires html2canvas and jsPDF. Please ensure these libraries are loaded.');
+    return;
+  }
+
+  const clone = clonePayslipPreview();
+  if (!clone) return;
+  clone.style.width = '794px';
+  clone.style.maxWidth = '794px';
+
+  document.body.appendChild(clone);
+  clone.style.position = 'fixed';
+  clone.style.left = '-9999px';
+  clone.style.top = '0';
+
+  try {
+    const canvas = await window.html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+    const pdfWidth = canvas.width * ratio;
+    const pdfHeight = canvas.height * ratio;
+    const marginX = (pageWidth - pdfWidth) / 2;
+    const marginY = (pageHeight - pdfHeight) / 2;
+
+    pdf.addImage(imgData, 'PNG', marginX, marginY, pdfWidth, pdfHeight, undefined, 'FAST');
+    pdf.save(`payslip-preview-${Date.now()}.pdf`);
+  } catch (error) {
+    console.error('Failed to export PDF', error);
+    alert('Something went wrong while exporting the PDF. Please try again.');
+  } finally {
+    document.body.removeChild(clone);
+  }
+}
+
+exportPdfBtn?.addEventListener('click', exportPayslipToPdf);
+
+// Main Settings Tab System
+class TabSystem {
+  constructor(navSelector, buttonSelector, contentSelector) {
+    this.nav = document.querySelector(navSelector);
+    this.buttons = this.nav?.querySelectorAll(buttonSelector) || [];
+    this.contentSelector = contentSelector;
+    
+    if (!this.nav || this.buttons.length === 0) {
+      console.error('TabSystem: Navigation or buttons not found', {
+        nav: !!this.nav,
+        buttonsCount: this.buttons.length
+      });
+      return;
+    }
+
+    this.init();
+  }
+
+  init() {
+    this.buttons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabName = button.getAttribute('data-tab');
+        console.log('✓ Main tab clicked:', tabName);
+        this.switchTab(tabName);
+      });
+    });
+
+    console.log('✓ Main TabSystem initialized with', this.buttons.length, 'tabs');
+  }
+
+  switchTab(tabName) {
+    if (!tabName) {
+      console.warn('✗ No tab name provided');
+      return;
+    }
+
+    // Remove active from all buttons
+    this.buttons.forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    // Add active to clicked button
+    const activeButton = this.nav.querySelector(`[data-tab="${tabName}"]`);
+    if (activeButton) {
+      activeButton.classList.add('active');
+      console.log('✓ Button marked active:', tabName);
+    }
+
+    // Hide all content
+    const allContent = document.querySelectorAll(this.contentSelector);
+    allContent.forEach(content => {
+      content.classList.remove('active');
+    });
+
+    // Show selected content
+    const activeContent = document.getElementById(tabName);
+    if (activeContent) {
+      activeContent.classList.add('active');
+      console.log('✓ Content shown:', tabName);
+    } else {
+      console.error('✗ Content NOT found for:', tabName);
+      console.log('Available IDs:', Array.from(allContent).map(c => c.id));
+    }
+  }
+}
+
+  // Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('=== INITIALIZING TAB SYSTEMS ===');
+  
+  // Initialize Main Settings Tabs
+  console.log('Starting main tab system...');
+  new TabSystem('#settings-tabs', '.tab-btn', '.tab-content');
+  
+  // Initialize Payslip Designer Tabs
+  console.log('Starting designer tab system...');
+  const designerTabs = document.querySelectorAll('.designer-tab');
+  const designerTabContents = document.querySelectorAll('.designer-tab-content');
+
+  console.log('Found', designerTabs.length, 'designer tabs');
+
+  designerTabs.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      const tabName = this.dataset.tab;
+      console.log('Designer tab clicked:', tabName);
+
+      // Remove active from all tabs
+      designerTabs.forEach(t => t.classList.remove('active'));
+      designerTabContents.forEach(tc => tc.classList.remove('active'));
+
+      // Add active to clicked tab
+      this.classList.add('active');
+      const content = document.getElementById(`tab-${tabName}`);
+      if (content) {
+        content.classList.add('active');
+        console.log('Designer tab active:', tabName);
+      }
+    });
+  });
+
+  console.log('=== ALL TAB SYSTEMS INITIALIZED ===');
+});
+  </script>
+
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}SuperAdmin Dashboard - EMS{% endblock %}
+{% block nav_dashboard %} active{% endblock %}
+{% block page_title %}Employee Management System{% endblock %}
+
+{% block content %}
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+        <button class="tab-btn" onclick="showTab('create-employer')">Create Employer</button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="overview" class="tab-content active">
+        <div class="content-grid">
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Companies</div>
+                    <div class="card-subtitle">Manage all company requests and approved companies</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">Review pending requests, approve new companies, and manage existing ones.</p>
+                    <a href="/companies/" class="btn">View Companies →</a>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Manage Employers</div>
+                    <div class="card-subtitle">Create and manage employer accounts</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">Create employer accounts with specific permissions</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">System Overview</div>
+                    <div class="card-subtitle">View system-wide statistics</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">Total companies, employers, and employees</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Employer Tab -->
+    <div id="create-employer" class="tab-content">
+        <div class="content-card" style="max-width: 600px;">
+            <div class="card-header">
+                <div class="card-title">Create New Employer</div>
+                <div class="card-subtitle">Add a new employer to the system</div>
+            </div>
+            <div class="card-content">
+                <p class="card-text">Create a new employer account with specific permissions and company assignments.</p>
+            </div>
+        </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab content
+        document.getElementById(tabName).style.display = 'block';
+
+        // Add active class to clicked tab button
+        event.target.classList.add('active');
+    }
+
+    // Initialize the first tab as active on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show the first tab by default
+        const firstTab = document.querySelector('.tab-btn');
+        if (firstTab) {
+            firstTab.click();
+        }
+    });
+</script>
+{% endblock %}
