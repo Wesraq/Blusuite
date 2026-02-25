@@ -1,0 +1,415 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}My Attendance - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2>My Attendance</h2>
+        <p>{{ today|date:"l, F j, Y" }}</p>
+    </div>
+</div>
+
+<!-- Clock In/Out Card -->
+<div style="background: linear-gradient(135deg, #1d4ed8 0%, #006666 100%); border-radius: 12px; padding: 24px; margin-bottom: 24px; color: white;">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
+        <div>
+            <div style="font-size: 14px; opacity: 0.85; margin-bottom: 4px;">Today's Status</div>
+            {% if today_attendance %}
+                {% if today_attendance.check_in and today_attendance.check_out %}
+                    <div style="font-size: 24px; font-weight: 700;">Shift Complete</div>
+                    <div style="font-size: 14px; opacity: 0.85; margin-top: 4px;">
+                        {{ today_attendance.check_in|date:"H:i" }} - {{ today_attendance.check_out|date:"H:i" }} ({{ today_attendance.working_hours }} hrs)
+                    </div>
+                {% elif today_attendance.check_in %}
+                    <div style="font-size: 24px; font-weight: 700;">Clocked In</div>
+                    <div style="font-size: 14px; opacity: 0.85; margin-top: 4px;">
+                        Since {{ today_attendance.check_in|date:"H:i" }}
+                    </div>
+                {% else %}
+                    <div style="font-size: 24px; font-weight: 700;">Not Clocked In</div>
+                {% endif %}
+            {% else %}
+                <div style="font-size: 24px; font-weight: 700;">Not Clocked In</div>
+                <div style="font-size: 14px; opacity: 0.85; margin-top: 4px;">Click the button to start your day</div>
+            {% endif %}
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <div style="text-align: center; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 12px 20px;">
+                <div id="live-clock" style="font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums;"></div>
+                <div style="font-size: 11px; opacity: 0.8;">Current Time</div>
+            </div>
+            <form method="post" id="attendance-form" style="display: flex; gap: 8px;">
+                {% csrf_token %}
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+                <input type="hidden" name="location" id="location">
+                {% if not today_attendance or not today_attendance.check_in %}
+                    <button type="submit" name="action" value="clock_in" id="clock-in-btn" style="padding: 14px 28px; background: #ffffff; color: #1d4ed8; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        Clock In
+                    </button>
+                {% elif today_attendance.check_in and not today_attendance.check_out %}
+                    <button type="submit" name="action" value="clock_out" id="clock-out-btn" style="padding: 14px 28px; background: #dc2626; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                        Clock Out
+                    </button>
+                {% else %}
+                    <div style="padding: 14px 28px; background: rgba(255,255,255,0.2); border-radius: 10px; font-weight: 600; font-size: 14px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        Done for Today
+                    </div>
+                {% endif %}
+            </form>
+            <div id="gps-status" style="display: none; padding: 8px 12px; background: rgba(255,255,255,0.2); border-radius: 8px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"></circle><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"></path></svg>
+                <span id="gps-text">GPS Active</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #d1fae5; color: #059669;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ attendance_rate }}%</h3>
+            <p>Attendance Rate</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ present_count }}</h3>
+            <p>Days Present</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ late_count }}</h3>
+            <p>Late Arrivals</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ absent_count }}</h3>
+            <p>Absent</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #f3e8ff; color: #7c3aed;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ total_hours }}</h3>
+            <p>Total Hours</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ avg_hours }}</h3>
+            <p>Avg Hours/Day</p>
+        </div>
+    </div>
+</div>
+
+<!-- Weekly Trend -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 20px; margin-bottom: 20px;">
+    <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #0f172a;">Last 7 Days</h3>
+    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
+        {% for day in weekly_trend %}
+        <div style="text-align: center; padding: 12px 4px; border-radius: 8px; background: {% if day.status == 'PRESENT' %}#d1fae5{% elif day.status == 'LATE' %}#fef3c7{% elif day.status == 'ABSENT' %}#fee2e2{% elif day.status == 'ON_LEAVE' %}#e0e7ff{% elif day.status == 'HALF_DAY' %}#fef9c3{% else %}#f8fafc{% endif %};">
+            <div style="font-size: 12px; font-weight: 600; color: #64748b;">{{ day.day }}</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ day.date|date:"M d" }}</div>
+            <div style="margin-top: 8px;">
+                {% if day.status == 'PRESENT' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                {% elif day.status == 'LATE' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                {% elif day.status == 'ABSENT' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                {% elif day.status == 'ON_LEAVE' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                {% elif day.status == 'HALF_DAY' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20z"></path></svg>
+                {% else %}
+                    <div style="width: 20px; height: 20px; border-radius: 50%; background: #e2e8f0; margin: 0 auto;"></div>
+                {% endif %}
+            </div>
+            {% if day.hours > 0 %}
+            <div style="font-size: 11px; color: #475569; margin-top: 4px; font-weight: 600;">{{ day.hours }}h</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Filter + Records Table -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #0f172a;">Attendance Records</h3>
+            <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">{{ start_date|date:"F Y" }}</p>
+        </div>
+        <form method="get" style="display: flex; gap: 8px; align-items: center;">
+            <input type="month" name="month" value="{{ start_date|date:'Y-m' }}" style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; color: #374151; background: white;">
+            <button type="submit" class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;">View</button>
+        </form>
+    </div>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead>
+                <tr style="background: #f8fafc;">
+                    <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Date</th>
+                    <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Check In</th>
+                    <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Check Out</th>
+                    <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+                    <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Hours</th>
+                    <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if attendance_records %}
+                    {% for record in attendance_records %}
+                    <tr style="border-top: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                        <td style="padding: 12px 16px;">
+                            <div style="font-weight: 600; color: #0f172a;">{{ record.date|date:"M d, Y" }}</div>
+                            <div style="font-size: 12px; color: #94a3b8;">{{ record.date|date:"l" }}</div>
+                        </td>
+                        <td style="padding: 12px 16px; color: #059669; font-weight: 500;">{{ record.check_in|date:"H:i"|default:"—" }}</td>
+                        <td style="padding: 12px 16px; color: #dc2626; font-weight: 500;">{{ record.check_out|date:"H:i"|default:"—" }}</td>
+                        <td style="padding: 12px 16px;">
+                            <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
+                                {% if record.status == 'PRESENT' %}background: #d1fae5; color: #065f46;
+                                {% elif record.status == 'LATE' %}background: #fef3c7; color: #92400e;
+                                {% elif record.status == 'ABSENT' %}background: #fee2e2; color: #991b1b;
+                                {% elif record.status == 'ON_LEAVE' %}background: #e0e7ff; color: #3730a3;
+                                {% elif record.status == 'HALF_DAY' %}background: #fef9c3; color: #854d0e;
+                                {% endif %}">
+                                {{ record.get_status_display }}
+                            </span>
+                        </td>
+                        <td style="padding: 12px 16px; font-weight: 600; color: #0f172a;">
+                            {% if record.working_hours > 0 %}{{ record.working_hours }}h{% else %}—{% endif %}
+                        </td>
+                        <td style="padding: 12px 16px; color: #64748b; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ record.notes|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 48px 24px;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px; display: block;">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <div style="font-size: 15px; font-weight: 600; color: #64748b;">No records found</div>
+                            <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">No attendance records for {{ start_date|date:"F Y" }}</div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function updateClock() {
+    const el = document.getElementById('live-clock');
+    if (el) {
+        const now = new Date();
+        el.textContent = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
+    }
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// GPS Tracking for Attendance
+let gpsEnabled = false;
+let currentPosition = null;
+const geofencingEnabled = {{ geofencing_enabled|lower }};
+const geofenceRadius = {{ geofence_radius }};
+{% if office_location %}
+const officeLocation = {
+    latitude: {{ office_location.latitude }},
+    longitude: {{ office_location.longitude }}
+};
+{% else %}
+const officeLocation = null;
+{% endif %}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    // Haversine formula to calculate distance in meters
+    const R = 6371000; // Earth's radius in meters
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+function updateGPSStatus(status, text, distance = null) {
+    const statusEl = document.getElementById('gps-status');
+    const textEl = document.getElementById('gps-text');
+    if (statusEl && textEl) {
+        statusEl.style.display = 'flex';
+        
+        // Show distance if geofencing is enabled and we have office location
+        if (geofencingEnabled && officeLocation && distance !== null) {
+            const distanceText = distance < 1000 ? `${Math.round(distance)}m` : `${(distance/1000).toFixed(1)}km`;
+            const withinGeofence = distance <= geofenceRadius;
+            
+            if (withinGeofence) {
+                textEl.textContent = `✓ Within range (${distanceText})`;
+                statusEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                statusEl.style.color = '#10b981';
+            } else {
+                textEl.textContent = `✗ Outside range (${distanceText} away)`;
+                statusEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                statusEl.style.color = '#ef4444';
+            }
+        } else {
+            textEl.textContent = text;
+            if (status === 'success') {
+                statusEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                statusEl.style.color = '#10b981';
+            } else if (status === 'error') {
+                statusEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                statusEl.style.color = '#ef4444';
+            } else {
+                statusEl.style.background = 'rgba(251, 191, 36, 0.2)';
+                statusEl.style.color = '#fbbf24';
+            }
+        }
+    }
+}
+
+function captureGPSLocation() {
+    if (!navigator.geolocation) {
+        updateGPSStatus('error', 'GPS Not Supported');
+        return;
+    }
+
+    updateGPSStatus('loading', 'Getting GPS...');
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            currentPosition = position;
+            const lat = position.coords.latitude.toFixed(6);
+            const lon = position.coords.longitude.toFixed(6);
+            
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lon;
+            document.getElementById('location').value = `${lat}, ${lon}`;
+            
+            gpsEnabled = true;
+            
+            // Calculate distance from office if geofencing is enabled
+            if (geofencingEnabled && officeLocation) {
+                const distance = calculateDistance(
+                    position.coords.latitude,
+                    position.coords.longitude,
+                    officeLocation.latitude,
+                    officeLocation.longitude
+                );
+                updateGPSStatus('success', `GPS: ${lat}, ${lon}`, distance);
+            } else {
+                updateGPSStatus('success', `GPS: ${lat}, ${lon}`);
+            }
+        },
+        function(error) {
+            let errorMsg = 'GPS Error';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMsg = 'GPS Permission Denied';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMsg = 'GPS Unavailable';
+                    break;
+                case error.TIMEOUT:
+                    errorMsg = 'GPS Timeout';
+                    break;
+            }
+            updateGPSStatus('error', errorMsg);
+            gpsEnabled = false;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+// Capture GPS on page load
+document.addEventListener('DOMContentLoaded', function() {
+    captureGPSLocation();
+    
+    // Prevent form submission until GPS is captured
+    const form = document.getElementById('attendance-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Always ensure GPS fields have values before submitting
+            const latField = document.getElementById('latitude');
+            const lonField = document.getElementById('longitude');
+            const locField = document.getElementById('location');
+            
+            if (!latField.value || !lonField.value || !locField.value) {
+                e.preventDefault();
+                updateGPSStatus('loading', 'Capturing GPS before submission...');
+                
+                // Capture GPS and submit after
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude.toFixed(6);
+                        const lon = position.coords.longitude.toFixed(6);
+                        
+                        latField.value = lat;
+                        lonField.value = lon;
+                        locField.value = `${lat}, ${lon}`;
+                        
+                        updateGPSStatus('success', 'GPS captured, submitting...');
+                        
+                        // Submit form after GPS is captured
+                        setTimeout(function() {
+                            form.submit();
+                        }, 500);
+                    },
+                    function(error) {
+                        updateGPSStatus('error', 'GPS capture failed - submitting without GPS');
+                        // Submit anyway after 1 second
+                        setTimeout(function() {
+                            form.submit();
+                        }, 1000);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

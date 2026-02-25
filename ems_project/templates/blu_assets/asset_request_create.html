@@ -1,0 +1,154 @@
+{% extends 'blu_assets/base_assets.html' %}
+{% load static %}
+
+{% block title %}Request New Asset{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .rc-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; }
+    .rc-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; }
+    .rc-card-title { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+    .rc-card-body { padding: 20px; }
+    .rc-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 14px; border-radius: 4px; font-size: 12px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .rc-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .rc-btn-primary:hover { background: #be123c; border-color: #be123c; }
+    .rc-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .rc-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .rc-label { display: block; font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
+    .rc-required { color: #e11d48; }
+    .rc-input {
+        width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px;
+        font-size: 13px; font-family: inherit; transition: border-color 0.15s;
+    }
+    .rc-input:focus { outline: none; border-color: #e11d48; box-shadow: 0 0 0 2px rgba(225,29,72,0.08); }
+    .rc-hint { font-size: 11px; color: #64748b; margin-top: 3px; }
+    select.rc-input {
+        cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 10px center; background-repeat: no-repeat; background-size: 14px; padding-right: 32px;
+    }
+    textarea.rc-input { resize: vertical; min-height: 100px; }
+</style>
+{% endblock page_content %}
+
+{% block page_content %}
+<!-- Back Link -->
+<div style="margin-bottom: 12px;">
+    <a href="{% url 'assets:asset_request_list' %}" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 500;" onmouseover="this.style.color='#e11d48'" onmouseout="this.style.color='#64748b'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Requests
+    </a>
+</div>
+
+<!-- Page Header -->
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px;">
+    <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">Request New Asset</h1>
+    <p style="margin: 0; font-size: 13px; color: #64748b;">Submit a request for new departmental assets</p>
+</div>
+
+<!-- Guidelines -->
+<div style="background: #eff6ff; border: 1px solid #bfdbfe; border-left: 3px solid #3b82f6; border-radius: 4px; padding: 14px 16px; margin-bottom: 16px;">
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span style="font-size: 13px; font-weight: 600; color: #1e40af;">Request Guidelines</span>
+    </div>
+    <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #1e40af; line-height: 1.8;">
+        <li>Provide detailed justification for the asset request</li>
+        <li>Include accurate quantity and cost estimates</li>
+        <li>Set appropriate priority based on business needs</li>
+        <li>Requests are subject to admin approval</li>
+    </ul>
+</div>
+
+<div class="rc-card">
+    <div class="rc-card-body">
+        <form method="post" style="max-width: 900px;">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Left: Asset Details -->
+                <div>
+                    <h3 style="font-size: 13px; font-weight: 600; color: #0f172a; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">Asset Details</h3>
+
+                    {% if not user_dept %}
+                    <div style="margin-bottom: 14px;">
+                        <label class="rc-label">Department <span class="rc-required">*</span></label>
+                        <select name="department" required class="rc-input">
+                            <option value="">Select Department</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <div style="margin-bottom: 14px;">
+                        <label class="rc-label">Asset Type <span class="rc-required">*</span></label>
+                        <select name="asset_type" required class="rc-input">
+                            <option value="">Select Type</option>
+                            {% for value, label in asset_types %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label class="rc-label">Asset Name <span class="rc-required">*</span></label>
+                        <input type="text" name="asset_name" required placeholder="e.g., Dell Latitude 5420 Laptop" class="rc-input">
+                        <div class="rc-hint">Be specific about the model/brand</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                        <div>
+                            <label class="rc-label">Quantity <span class="rc-required">*</span></label>
+                            <input type="number" name="quantity" required min="1" value="1" class="rc-input">
+                        </div>
+                        <div>
+                            <label class="rc-label">Estimated Cost (K)</label>
+                            <input type="number" name="estimated_cost" step="0.01" placeholder="0.00" class="rc-input">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label class="rc-label">Priority <span class="rc-required">*</span></label>
+                        <select name="priority" required class="rc-input">
+                            {% for value, label in priorities %}
+                            <option value="{{ value }}" {% if value == 'MEDIUM' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Right: Justification -->
+                <div>
+                    <h3 style="font-size: 13px; font-weight: 600; color: #0f172a; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">Justification</h3>
+
+                    <div style="margin-bottom: 14px;">
+                        <label class="rc-label">Description & Justification <span class="rc-required">*</span></label>
+                        <textarea name="description" required rows="6" placeholder="Explain why this asset is needed, how it will be used, and the expected benefits..." class="rc-input"></textarea>
+                        <div class="rc-hint">Provide detailed justification for this request</div>
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label class="rc-label">Urgency Reason</label>
+                        <textarea name="urgency_reason" rows="4" placeholder="If urgent or high priority, explain why..." class="rc-input"></textarea>
+                        <div class="rc-hint">Required for urgent/high priority requests</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div style="display: flex; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #e2e8f0;">
+                <button type="submit" class="rc-btn rc-btn-primary">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Submit Request
+                </button>
+                <a href="{% url 'assets:asset_request_list' %}" class="rc-btn rc-btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock page_content %}

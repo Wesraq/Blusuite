@@ -1,0 +1,170 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Project - BLU Projects{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    {% if is_edit %}
+    <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #1d4ed8; text-decoration: none;">{{ project.name }}</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <span style="color: #0f172a;">Edit</span>
+    {% else %}
+    <span style="color: #0f172a;">New Project</span>
+    {% endif %}
+</div>
+
+<!-- Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">{% if is_edit %}Edit Project{% else %}Create New Project{% endif %}</h2>
+        <p style="margin: 0; font-size: 13px; color: #64748b;">{% if is_edit %}Update project details and team{% else %}Set up a new project with team and timeline{% endif %}</p>
+    </div>
+    <a href="{% if is_edit %}{% url 'blu_projects:project_detail' project.id %}{% else %}{% url 'blu_projects:projects_list' %}{% endif %}" style="padding: 7px 14px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Cancel
+    </a>
+</div>
+
+<form method="POST">
+    {% csrf_token %}
+    <!-- Section: Project Details -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Project Details</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="grid-column: span 2;">
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Project Name <span style="color: #dc2626;">*</span></label>
+                    <input type="text" name="name" value="{% if is_edit %}{{ project.name }}{% endif %}" required placeholder="Enter project name" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Project Code <span style="color: #dc2626;">*</span></label>
+                    <input type="text" name="code" value="{% if is_edit %}{{ project.code }}{% endif %}" required {% if is_edit %}readonly style="background: #f8fafc; cursor: not-allowed;"{% endif %} placeholder="e.g., PROJ-001" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Status</label>
+                    <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; cursor: pointer;">
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if is_edit and project.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Priority</label>
+                    <select name="priority" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; cursor: pointer;">
+                        {% for value, label in priority_choices %}
+                        <option value="{{ value }}" {% if is_edit and project.priority == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Project Manager</label>
+                    <select name="project_manager" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; cursor: pointer;">
+                        <option value="">Select Manager</option>
+                        {% for member in team_members %}
+                        <option value="{{ member.id }}" {% if is_edit and project.project_manager_id == member.id %}selected{% endif %}>{{ member.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="grid-column: span 2;">
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Description</label>
+                    <textarea name="description" rows="3" placeholder="Brief project description..." style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical;">{% if is_edit %}{{ project.description }}{% endif %}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Timeline & Budget -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Timeline & Budget</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Start Date <span style="color: #dc2626;">*</span></label>
+                    <input type="date" name="start_date" value="{% if is_edit %}{{ project.start_date|date:'Y-m-d' }}{% endif %}" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">End Date <span style="color: #dc2626;">*</span></label>
+                    <input type="date" name="end_date" value="{% if is_edit %}{{ project.end_date|date:'Y-m-d' }}{% endif %}" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Budget</label>
+                    <input type="number" name="budget" value="{% if is_edit %}{{ project.budget }}{% endif %}" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Client Information -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Client Information</h3>
+            <span style="font-size: 11px; color: #94a3b8; margin-left: 4px;">(optional)</span>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Client Name</label>
+                    <input type="text" name="client_name" value="{% if is_edit %}{{ project.client_name }}{% endif %}" placeholder="Company or individual" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Client Contact</label>
+                    <input type="text" name="client_contact" value="{% if is_edit %}{{ project.client_contact }}{% endif %}" placeholder="Contact person" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Client Email</label>
+                    <input type="email" name="client_email" value="{% if is_edit %}{{ project.client_email }}{% endif %}" placeholder="client@example.com" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                {% if not is_edit %}
+                <div style="grid-column: span 2;">
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        Invite Client Users
+                    </label>
+                    <input type="text" name="client_emails" placeholder="client1@example.com, client2@example.com" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Comma-separated emails. Invitations will be sent for client portal access.</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Team Members -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Team Members</h3>
+        </div>
+        <div style="padding: 16px 20px; max-height: 240px; overflow-y: auto;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
+                {% for member in team_members %}
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; border-radius: 4px; font-size: 13px; color: #0f172a; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <input type="checkbox" name="team_members" value="{{ member.id }}" {% if is_edit and member in project.team_members.all %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: #1d4ed8;">
+                    {{ member.get_full_name }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 8px; padding-top: 8px;">
+        <button type="submit" style="padding: 8px 20px; background: #1d4ed8; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: inherit;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            {% if is_edit %}Update Project{% else %}Create Project{% endif %}
+        </button>
+        <a href="{% if is_edit %}{% url 'blu_projects:project_detail' project.id %}{% else %}{% url 'blu_projects:projects_list' %}{% endif %}" style="padding: 8px 20px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center;">
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

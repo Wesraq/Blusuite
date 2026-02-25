@@ -1,0 +1,238 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Performance Review{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="padding: 24px;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Performance Review</h1>
+            <p style="color: #64748b; margin: 0;">{{ review.title }}</p>
+        </div>
+        <a href="{% url 'performance_reviews_list' %}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Reviews
+        </a>
+    </div>
+
+    <!-- Review Status Banner -->
+    <div class="content-card" style="padding: 20px; margin-bottom: 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="font-size: 48px;">✅</div>
+            <div style="flex: 1;">
+                <div style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">Review Completed</div>
+                <div style="font-size: 14px; opacity: 0.9;">
+                    Completed on {{ review.reviewer_completed_at|date:"F d, Y" }} by {{ review.reviewer.get_full_name }}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">Overall Rating</div>
+                <div style="font-size: 24px; font-weight: 700;">{{ review.get_overall_rating_display }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Details -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="content-card" style="padding: 16px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Employee</div>
+            <div style="font-size: 16px; font-weight: 600; color: #0f172a;">{{ review.employee.get_full_name }}</div>
+        </div>
+        <div class="content-card" style="padding: 16px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Reviewer</div>
+            <div style="font-size: 16px; font-weight: 600; color: #0f172a;">{{ review.reviewer.get_full_name }}</div>
+        </div>
+        <div class="content-card" style="padding: 16px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Review Period</div>
+            <div style="font-size: 16px; font-weight: 600; color: #0f172a;">{{ review.review_period_start|date:"M d" }} - {{ review.review_period_end|date:"M d, Y" }}</div>
+        </div>
+        <div class="content-card" style="padding: 16px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Review Type</div>
+            <div style="font-size: 16px; font-weight: 600; color: #0f172a;">{{ review.get_review_type_display }}</div>
+        </div>
+    </div>
+
+    <!-- Employee Self-Assessment -->
+    <div class="content-card" style="padding: 24px; margin-bottom: 24px;">
+        <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Employee Self-Assessment
+        </h2>
+
+        <div style="display: grid; gap: 20px;">
+            {% if review.self_rating %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Self-Rating</div>
+                <div style="padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #667eea;">
+                    {{ review.get_self_rating_display }}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if review.achievements %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Key Achievements</div>
+                <div style="padding: 12px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap;">{{ review.achievements }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.challenges_faced %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Challenges Faced</div>
+                <div style="padding: 12px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap;">{{ review.challenges_faced }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.employee_comments %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Employee Comments</div>
+                <div style="padding: 12px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap;">{{ review.employee_comments }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.goals_next_period %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Goals for Next Period</div>
+                <div style="padding: 12px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap;">{{ review.goals_next_period }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.training_needs %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Training & Development Needs</div>
+                <div style="padding: 12px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap;">{{ review.training_needs }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Reviewer Feedback -->
+    <div class="content-card" style="padding: 24px; margin-bottom: 24px;">
+        <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Reviewer Feedback
+        </h2>
+
+        <div style="display: grid; gap: 20px;">
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Overall Rating</div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 8px; font-size: 18px; font-weight: 700;">
+                    {{ review.get_overall_rating_display }}
+                </div>
+            </div>
+
+            {% if review.strengths %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Strengths</div>
+                <div style="padding: 12px; background: #dcfce7; border-radius: 8px; border-left: 4px solid #10b981; white-space: pre-wrap;">{{ review.strengths }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.areas_for_improvement %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Areas for Improvement</div>
+                <div style="padding: 12px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b; white-space: pre-wrap;">{{ review.areas_for_improvement }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.development_plan %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Development Plan</div>
+                <div style="padding: 12px; background: #dbeafe; border-radius: 8px; border-left: 4px solid #2563eb; white-space: pre-wrap;">{{ review.development_plan }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.recommended_actions %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Recommended Actions</div>
+                <div style="padding: 12px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap;">{{ review.recommended_actions }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.reviewer_comments %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Reviewer Comments</div>
+                <div style="padding: 12px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap;">{{ review.reviewer_comments }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Competency Ratings -->
+    {% if competencies %}
+    <div class="content-card" style="padding: 24px; margin-bottom: 24px;">
+        <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            Competency Ratings
+        </h2>
+        
+        <div style="display: grid; gap: 16px;">
+            {% for comp in competencies %}
+            <div style="padding: 16px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #667eea;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <div>
+                        <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">{{ comp.name }}</div>
+                        <div style="font-size: 14px; color: #64748b;">{{ comp.description }}</div>
+                    </div>
+                    {% if comp.existing_rating %}
+                    <div style="padding: 6px 12px; background: white; border-radius: 6px; font-weight: 600; color: #667eea; border: 2px solid #667eea;">
+                        {{ comp.existing_rating.get_rating_display }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% if comp.existing_rating and comp.existing_rating.comments %}
+                <div style="margin-top: 12px; padding: 12px; background: white; border-radius: 6px; font-size: 14px; color: #64748b;">
+                    {{ comp.existing_rating.comments }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background: white;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+}
+
+.content-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

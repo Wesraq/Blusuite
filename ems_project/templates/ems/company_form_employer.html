@@ -1,0 +1,1791 @@
+{% extends 'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}{% if action == 'Create' %}Create Company{% else %}Edit Company{% endif %} - EMS{% endblock %}
+
+{% block page_title %}{% if action == 'Create' %}Create Company{% else %}Edit Company{% endif %}{% endblock %}
+
+{% block styles %}
+<style>
+  .tab-nav {
+    display: flex;
+    gap: 8px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .tab-btn {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .tab-btn:hover {
+    background: rgba(255,255,255,0.7);
+    color: #334155;
+    transform: translateY(-2px);
+  }
+  .tab-btn.active {
+    background: #fff;
+    color: #1d4ed8;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+  }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: #1d4ed8;
+    border-radius: 2px;
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Enhanced Form Inputs */
+  input[type="text"], input[type="email"], input[type="tel"], input[type="url"], select, textarea {
+    transition: all 0.3s ease;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="url"]:focus, select:focus, textarea:focus {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 3px rgba(0,128,128,0.1);
+    outline: none;
+  }
+  .color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .color-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    border: 3px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .color-preview:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  .color-preset-swatches {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .color-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .color-swatch:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-color: #1d4ed8;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-card">
+  <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-bottom: 2px solid #e2e8f0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+      <div>
+        <div class="card-title" style="font-size: 28px; color: #0f172a; margin-bottom: 8px;">{% if action == 'Create' %}Create New Company{% else %}Edit Company Profile{% endif %}</div>
+        <div class="card-subtitle" style="font-size: 15px; color: #64748b;">{% if action == 'Create' %}Set up your company profile and branding{% else %}Customize your company profile, branding, documents, and theme{% endif %}</div>
+      </div>
+      {% if company.company_id %}
+      <div style="text-align: right;">
+        <div style="font-size: 12px; color: #64748b; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Company ID</div>
+        <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; color: #1d4ed8; background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); padding: 10px 20px; border-radius: 8px; border: 2px solid #99f6e4; box-shadow: 0 2px 4px rgba(0,128,128,0.1);">{{ company.company_id }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card-content">
+    
+    <!-- Tab Navigation -->
+    <div class="tab-nav" id="company-tabs">
+      <button class="tab-btn active" data-tab="basic-info">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        </svg>
+        Basic Info
+      </button>
+      <button class="tab-btn" data-tab="branding">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <path d="M21 15l-5-5L5 21"></path>
+        </svg>
+        Branding
+      </button>
+      <button class="tab-btn" data-tab="documents">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        Documents & Stamps
+      </button>
+      <button class="tab-btn" data-tab="colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="13.5" cy="6.5" r=".5"></circle>
+          <circle cx="17.5" cy="10.5" r=".5"></circle>
+          <circle cx="8.5" cy="7.5" r=".5"></circle>
+          <circle cx="6.5" cy="12.5" r=".5"></circle>
+          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
+        </svg>
+        Colors & Theme
+      </button>
+    </div>
+
+    <!-- Tab 1: Basic Information -->
+    <div class="tab-content active" id="basic-info">
+      <form method="POST" enctype="multipart/form-data" id="basicInfoForm">
+        {% csrf_token %}
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e293b; display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          </svg>
+          Company Details
+        </h3>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Update your company's basic information and contact details</p>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
+          <!-- Column 1: Company Info -->
+          <div>
+            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Company Information</h4>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Company Name <span style="color:#ef4444;">*</span></label>
+              <input type="text" name="name" value="{% if company %}{{ company.name }}{% endif %}" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="Enter company name">
+              <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Official registered name</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Tax ID / Registration Number</label>
+              <input type="text" name="tax_id" value="{% if company %}{{ company.tax_id }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., 200002565235">
+              <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Business registration number</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Industry/Sector</label>
+              <select name="industry" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                <option value="">Select Industry</option>
+                <option value="technology">Technology</option>
+                <option value="finance">Finance & Banking</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="education">Education</option>
+                <option value="retail">Retail</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="construction">Construction</option>
+                <option value="hospitality">Hospitality</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Company Size</label>
+              <select name="company_size" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;">
+                <option value="">Select Size</option>
+                <option value="1-10">1-10 employees</option>
+                <option value="11-50">11-50 employees</option>
+                <option value="51-200">51-200 employees</option>
+                <option value="201-500">201-500 employees</option>
+                <option value="500+">500+ employees</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Column 2: Contact Details -->
+          <div>
+            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Contact Details</h4>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Email Address</label>
+              <input type="email" name="email" value="{% if company %}{{ company.email }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="company@example.com">
+              <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Primary contact email</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Phone Number</label>
+              <input type="tel" name="phone" value="{% if company %}{{ company.phone }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="+260 XXX XXX XXX">
+              <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Main office phone</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Alternative Phone</label>
+              <input type="tel" name="alt_phone" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="+260 XXX XXX XXX">
+              <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Secondary contact number</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Website</label>
+              <input type="url" name="website" value="{% if company %}{{ company.website }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="https://www.company.com">
+              <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Company website URL</p>
+            </div>
+          </div>
+          
+          <!-- Column 3: Location -->
+          <div>
+            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Location & Address</h4>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Street Address <span style="color:#ef4444;">*</span></label>
+              <textarea name="address" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; resize:vertical; min-height:80px; box-sizing:border-box;" placeholder="Enter full street address">{% if company %}{{ company.address }}{% endif %}</textarea>
+              <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Physical office location</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">City</label>
+              <input type="text" name="city" value="{% if company %}{{ company.city }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Lusaka">
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Province/State</label>
+              <input type="text" name="province" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Lusaka Province">
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Country</label>
+              <input type="text" name="country" value="{% if company %}{{ company.country }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Zambia">
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Postal/Zip Code</label>
+              <input type="text" name="postal_code" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., 10101">
+            </div>
+          </div>
+        </div>
+        
+        <div style="background:#f0f9ff; padding:16px; border-radius:8px; border-left:4px solid #3b82f6; margin-top:20px;">
+          <p style="font-size:13px; color:#1e40af; margin:0; display:flex; align-items:center; gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <strong>Tip:</strong> Keep your company information up-to-date for accurate documentation and communication.
+          </p>
+        </div>
+        
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #e2e8f0;">
+          <button type="submit" class="btn" style="padding:10px 24px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:6px;">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save Basic Info
+          </button>
+          <button type="button" onclick="resetForm('basicInfoForm')" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:6px;">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab 2: Branding (Logo) -->
+    <div class="tab-content" id="branding">
+      <form method="POST" enctype="multipart/form-data" id="brandingForm">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="company_profile">
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e293b; display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <path d="M21 15l-5-5L5 21"></path>
+          </svg>
+          Company Logo & Branding Assets
+        </h3>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Upload and manage your company's visual identity</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+          <!-- Logo Upload -->
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+              <div style="width:40px; height:40px; background:#3b82f6; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                </svg>
+              </div>
+              <div>
+                <h4 style="font-size:14px; font-weight:600; margin:0; color:#1e293b;">Company Logo</h4>
+                <p style="font-size:12px; color:#64748b; margin:0;">Primary brand identity</p>
+              </div>
+            </div>
+            
+            {% if company.logo %}
+            <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #e2e8f0; border-radius:8px; text-align:center;">
+              <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Current Logo:</p>
+              <img src="{{ company.logo.url }}" alt="Logo" style="max-height:120px; max-width:100%; object-fit:contain;">
+              <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
+                <button type="button" onclick="downloadImage('{{ company.logo.url }}', 'company-logo')" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Download
+                </button>
+                <button type="button" onclick="removeImage('logo')" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            </div>
+            {% else %}
+            <div style="margin-bottom:16px; padding:40px 20px; background:white; border:2px dashed #d1d5db; border-radius:8px; text-align:center;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin-bottom:8px;">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <p style="font-size:13px; color:#64748b; margin:0;">No logo uploaded yet</p>
+            </div>
+            {% endif %}
+            
+            <input type="file" name="company_logo" id="logoInput" accept="image/*" onchange="previewImage(this, 'logoPreview')" style="width:100%; padding:12px; border:2px dashed #d1d5db; border-radius:8px; font-size:14px; background:white; cursor:pointer;">
+            
+            <div style="margin-top:12px; padding:12px; background:#fef3c7; border-radius:6px;">
+              <p style="font-size:11px; color:#92400e; margin:0; display:flex; align-items:center; gap:6px;"><strong>Best Practices:</strong></p>
+              <ul style="font-size:11px; color:#92400e; margin:8px 0 0 16px; padding:0;">
+                <li>PNG or SVG format recommended</li>
+                <li>Transparent background preferred</li>
+                <li>Minimum 200x200px resolution</li>
+                <li>Maximum file size: 2MB</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Logo Preview & Usage -->
+          <div>
+            <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:16px;">
+              <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e293b;">Logo Preview</h4>
+              <div id="logoPreview" style="padding:20px; background:white; border:1px solid #e2e8f0; border-radius:8px; text-align:center; min-height:150px; display:flex; align-items:center; justify-content:center;">
+                {% if company.logo %}
+                <img src="{{ company.logo.url }}" style="max-height:120px; max-width:100%; object-fit:contain;">
+                {% else %}
+                <p style="color:#94a3b8; font-size:13px;">Upload a logo to see preview</p>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+              <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e293b;">Where Your Logo Appears</h4>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span style="font-size:13px; color:#374151;">Payslips & Salary Documents</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span style="font-size:13px; color:#374151;">Employee Contracts</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span style="font-size:13px; color:#374151;">Official Letters & Documents</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span style="font-size:13px; color:#374151;">Email Communications</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span style="font-size:13px; color:#374151;">System Dashboard</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #e2e8f0;">
+          <button type="submit" class="btn" style="padding:10px 24px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:6px;">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save Logo
+          </button>
+          <button type="button" onclick="document.getElementById('logoInput').value=''" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:6px;">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Clear Selection
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab 3: Documents & Stamps -->
+    <div class="tab-content" id="documents">
+      <form method="POST" enctype="multipart/form-data" id="documentsForm" action="{% url 'company_edit' company.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="documents">
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e293b; display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          Company Documents, Stamps & Signature
+        </h3>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Upload official documents, design stamps, and manage signatures</p>
+        
+        <!-- Company Documents Section -->
+        <div style="margin-bottom:32px;">
+          <h4 style="font-size:15px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Official Company Documents</h4>
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+            
+            <!-- Tax Certificate -->
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:36px; height:36px; background:#10b981; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">Tax Certificate</h5>
+                  <p style="font-size:11px; color:#64748b; margin:0;">TPIN Certificate</p>
+                </div>
+              </div>
+              <input type="file" name="tax_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
+            </div>
+            
+            <!-- Business Registration -->
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:36px; height:36px; background:#3b82f6; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">Business Registration</h5>
+                  <p style="font-size:11px; color:#64748b; margin:0;">PACRA Certificate</p>
+                </div>
+              </div>
+              <input type="file" name="business_registration" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
+            </div>
+            
+            <!-- Trade License -->
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:36px; height:36px; background:#f59e0b; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">Trade License</h5>
+                  <p style="font-size:11px; color:#64748b; margin:0;">Trading License</p>
+                </div>
+              </div>
+              <input type="file" name="trade_license" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
+            </div>
+            
+            <!-- NAPSA Certificate -->
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:36px; height:36px; background:#8b5cf6; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">NAPSA Certificate</h5>
+                  <p style="font-size:11px; color:#64748b; margin:0;">Social Security</p>
+                </div>
+              </div>
+              <input type="file" name="napsa_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
+            </div>
+            
+            <!-- NHIMA Certificate -->
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:36px; height:36px; background:#ec4899; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">NHIMA Certificate</h5>
+                  <p style="font-size:11px; color:#64748b; margin:0;">Health Insurance</p>
+                </div>
+              </div>
+              <input type="file" name="nhima_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
+            </div>
+            
+            <!-- Workers Compensation -->
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:36px; height:36px; background:#06b6d4; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">Workers Compensation</h5>
+                  <p style="font-size:11px; color:#64748b; margin:0;">WCF Certificate</p>
+                </div>
+              </div>
+              <input type="file" name="workers_compensation" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
+            </div>
+            
+          </div>
+        </div>
+        
+        <!-- Stamps & Signatures Section -->
+        <h4 style="font-size:15px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Stamps & Signatures</h4>
+        <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap:24px;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#1e293b; font-size:15px;">Company Stamp</label>
+            <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Design your stamp or upload an image</p>
+            
+            {% if company.company_stamp %}
+            <div style="margin-bottom:16px; padding:16px; background:white; border:1px solid #e2e8f0; border-radius:8px; text-align:center;">
+              <p style="font-size:12px; color:#10b981; font-weight:600; margin-bottom:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Current Stamp</p>
+              <img src="{{ company.company_stamp.url }}" alt="Company Stamp" style="max-height:120px; max-width:100%; object-fit:contain;">
+            </div>
+            {% endif %}
+            
+            <!-- Stamp Designer -->
+            <div style="margin-bottom:16px;">
+              <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <button type="button" onclick="showStampDesigner()" class="btn btn-secondary" style="flex:1; padding:8px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                    <path d="M2 2l7.586 7.586"></path>
+                    <circle cx="11" cy="11" r="2"></circle>
+                  </svg>
+                  Design Stamp
+                </button>
+                <button type="button" onclick="showStampUpload()" class="btn btn-secondary" style="flex:1; padding:8px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  Upload Image
+                </button>
+              </div>
+              
+              <!-- Stamp Designer Tool -->
+              <div id="stampDesigner" style="display:none; background:white; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+                <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="13.5" cy="6.5" r=".5"></circle>
+                    <circle cx="17.5" cy="10.5" r=".5"></circle>
+                    <circle cx="8.5" cy="7.5" r=".5"></circle>
+                    <circle cx="6.5" cy="12.5" r=".5"></circle>
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
+                  </svg>
+                  Advanced Stamp Designer
+                </h4>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                  <!-- Left Column - Design Options -->
+                  <div>
+                    <div style="margin-bottom:12px;">
+                      <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Top Text (Curved)</label>
+                      <input type="text" id="stampTopText" placeholder="e.g., COMPANY NAME" value="{{ company.name|upper }}" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                      <p style="font-size:11px; color:#64748b; margin-top:4px;">Text that curves along the top</p>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                      <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Middle Text</label>
+                      <textarea id="stampMiddleText" placeholder="e.g., Tel: 0211 123456, Fax: 0211 654321&#10;zambia@eicsomtech.com" rows="3" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
+                      <p style="font-size:11px; color:#64748b; margin-top:4px;">Center text (contact info, email, etc.) - Press Enter for new line</p>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                      <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Bottom Text (Curved)</label>
+                      <input type="text" id="stampBottomText" placeholder="e.g., P.O.Box 56789 Lusaka Zambia" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                      <p style="font-size:11px; color:#64748b; margin-top:4px;">Text that curves along the bottom</p>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                      <div>
+                        <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Shape</label>
+                        <select id="stampShape" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                          <option value="oval" selected>Oval (Recommended)</option>
+                          <option value="circle">Circle</option>
+                          <option value="square">Square</option>
+                          <option value="rectangle">Rectangle</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Size</label>
+                        <select id="stampSize" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                          <option value="small">Small</option>
+                          <option value="medium" selected>Medium</option>
+                          <option value="large">Large</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                      <div>
+                        <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Border Style</label>
+                        <select id="stampBorder" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                          <option value="solid">Solid</option>
+                          <option value="double">Double</option>
+                          <option value="dashed">Dashed</option>
+                          <option value="dotted">Dotted</option>
+                          <option value="thick">Thick</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Border Width</label>
+                        <input type="range" id="stampBorderWidth" min="2" max="8" value="4" style="width:100%;">
+                        <span id="borderWidthValue" style="font-size:12px; color:#64748b;">4px</span>
+                      </div>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;" id="textPlacementContainer" style="display:none;">
+                      <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Text Placement (Double Border)</label>
+                      <select id="stampTextPlacement" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                        <option value="between">Between Borders</option>
+                        <option value="inside">Inside Inner Border</option>
+                      </select>
+                      <p style="font-size:11px; color:#64748b; margin-top:4px;">Choose where text appears with double border</p>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                      <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Font Style</label>
+                      <select id="stampFontStyle" onchange="updateStampPreview()" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Impact">Impact</option>
+                      </select>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                      <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Font Size</label>
+                      <div style="display:flex; align-items:center; gap:12px;">
+                        <input type="range" id="stampFontSize" min="8" max="16" value="10" step="1" style="flex:1;">
+                        <span id="fontSizeValue" style="font-size:13px; font-weight:600; color:#1e293b; min-width:40px;">10px</span>
+                      </div>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                      <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Stamp Color</label>
+                      <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <button type="button" onclick="setStampColor('#dc2626')" style="width:30px; height:30px; background:#dc2626; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#0369a1')" style="width:30px; height:30px; background:#0369a1; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#059669')" style="width:30px; height:30px; background:#059669; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#7c3aed')" style="width:30px; height:30px; background:#7c3aed; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#000000')" style="width:30px; height:30px; background:#000000; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                      </div>
+                      <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="color" id="stampColor" value="#dc2626" style="width:50px; height:40px; border:none; border-radius:4px; cursor:pointer;">
+                        <input type="text" id="stampColorText" value="#dc2626" style="flex:1; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-family:monospace;">
+                      </div>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                      <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">
+                        <input type="checkbox" id="stampAddDate" style="margin-right:6px;">
+                        Add Date Stamp
+                      </label>
+                      <div id="dateStampOptions" style="display:none; margin-top:8px; padding:12px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0;">
+                        <div style="margin-bottom:8px;">
+                          <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Format</label>
+                          <select id="stampDateFormat" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;">
+                            <option value="DD MMM YYYY">14 JAN 2026</option>
+                            <option value="DD/MM/YYYY">14/01/2026</option>
+                            <option value="MM/DD/YYYY">01/14/2026</option>
+                            <option value="YYYY-MM-DD">2026-01-14</option>
+                          </select>
+                        </div>
+                        <div style="margin-bottom:8px;">
+                          <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Size</label>
+                          <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="range" id="stampDateSize" min="8" max="14" value="11" step="1" style="flex:1;">
+                            <span id="dateSizeValue" style="font-size:12px; font-weight:600; color:#1e293b; min-width:35px;">11px</span>
+                          </div>
+                        </div>
+                        <div style="margin-bottom:8px;">
+                          <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Color</label>
+                          <div style="display:flex; gap:6px;">
+                            <button type="button" onclick="setDateColor('#dc2626')" style="width:24px; height:24px; background:#dc2626; border:2px solid #e2e8f0; border-radius:3px; cursor:pointer;"></button>
+                            <button type="button" onclick="setDateColor('#0369a1')" style="width:24px; height:24px; background:#0369a1; border:2px solid #e2e8f0; border-radius:3px; cursor:pointer;"></button>
+                            <button type="button" onclick="setDateColor('#059669')" style="width:24px; height:24px; background:#059669; border:2px solid #e2e8f0; border-radius:3px; cursor:pointer;"></button>
+                            <input type="color" id="stampDateColor" value="#dc2626" style="width:30px; height:24px; border:1px solid #d1d5db; border-radius:3px; cursor:pointer;">
+                          </div>
+                        </div>
+                        <div>
+                          <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">
+                            <input type="checkbox" id="stampDateBorder" checked style="margin-right:4px;">
+                            Show Border Around Date
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Right Column - Preview -->
+                  <div>
+                    <div style="margin-bottom:16px; padding:20px; background:#f8fafc; border-radius:8px; text-align:center; min-height:350px; display:flex; flex-direction:column; justify-content:center;">
+                      <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Live Preview:</p>
+                      <canvas id="stampCanvas" width="400" height="300" style="max-width:100%; border:1px solid #e2e8f0; background:white; margin:0 auto;"></canvas>
+                    </div>
+                    
+                    <div style="background:#fef3c7; padding:12px; border-radius:6px; margin-bottom:12px;">
+                      <p style="font-size:12px; color:#92400e; margin:0; display:flex; align-items:center; gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <strong>Tip:</strong> Adjust settings and watch the preview update in real-time!
+              </p>
+                    </div>
+                    
+                    <button type="button" onclick="generateStamp()" class="btn" style="width:100%; padding:12px; font-size:15px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:6px;">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  Generate & Save Stamp
+                </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Upload Option -->
+              <div id="stampUpload">
+                {% if company.company_stamp %}
+                <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #e2e8f0; border-radius:8px; text-align:center;">
+                  <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Current Stamp:</p>
+                  <img src="{{ company.company_stamp.url }}" alt="Stamp" style="max-height:100px; max-width:100%; object-fit:contain;">
+                </div>
+                {% endif %}
+                <input type="file" name="company_stamp" accept="image/*" style="width:100%; padding:12px; border:2px dashed #d1d5db; border-radius:8px; font-size:14px; background:white;">
+                <p style="font-size:12px; color:#64748b; margin-top:8px;">PNG with transparency recommended</p>
+              </div>
+            </div>
+          </div>
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#1e293b; font-size:15px;">Authorized Signatures</label>
+            <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Assign digital signatures to authorized users</p>
+            
+            <!-- Company Default Signature -->
+            <div style="margin-bottom:20px; padding:16px; background:white; border-radius:8px; border:1px solid #e2e8f0;">
+              <h4 style="font-size:14px; font-weight:600; color:#1e293b; margin-bottom:12px;">Company Default Signature</h4>
+              {% if company.signature %}
+              <div style="margin-bottom:12px; padding:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; text-align:center;">
+                <img src="{{ company.signature.url }}" alt="Company Signature" style="max-height:60px; max-width:100%; object-fit:contain;">
+              </div>
+              {% endif %}
+              <input type="file" name="signature" accept="image/*" style="width:100%; padding:10px; border:1px solid #d1d5db; border-radius:6px; font-size:13px;">
+            </div>
+            
+            <!-- User-Specific Signatures -->
+            <div style="margin-bottom:16px;">
+              <h4 style="font-size:14px; font-weight:600; color:#1e293b; margin-bottom:12px;">User-Specific Signatures</h4>
+              {% for user in company.user_set.all %}
+              {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+              <div style="margin-bottom:12px; padding:12px; background:white; border-radius:8px; border:1px solid #e2e8f0;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <div>
+                    <span style="font-weight:600; color:#1e293b; font-size:13px;">{{ user.get_full_name|default:user.username }}</span>
+                    <span style="color:#64748b; font-size:12px; margin-left:8px;">({{ user.get_role_display }})</span>
+                  </div>
+                  {% if user.signature %}
+                  <span style="color:#10b981; font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Has signature</span>
+                  {% endif %}
+                </div>
+                <input type="file" name="authorized_signature_{{ user.id }}" accept="image/*" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:6px; font-size:12px;">
+              </div>
+              {% endif %}
+              {% empty %}
+              <p style="font-size:13px; color:#94a3b8;">No authorized users found</p>
+              {% endfor %}
+            </div>
+            
+            <p style="font-size:12px; color:#64748b; margin-top:8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              PNG format with transparent background recommended
+            </p>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #e2e8f0;">
+          <button type="submit" class="btn">Save Documents</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab 4: Colors & Theme -->
+    <div class="tab-content" id="colors">
+      <form method="POST" id="colorsForm">
+        {% csrf_token %}
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:16px; color:#1e293b;">Corporate Colors & Theme</h3>
+        <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap:24px;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Primary Brand Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" name="primary_color" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#3b82f6{% endif %}" id="primary_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <div>
+                <input type="text" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#3b82f6{% endif %}" id="primary_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <p style="font-size:12px; color:#64748b; margin-top:4px;">Main brand color</p>
+              </div>
+            </div>
+          </div>
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Secondary Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" name="secondary_color" value="{% if company.secondary_color %}{{ company.secondary_color }}{% else %}#10b981{% endif %}" id="secondary_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <div>
+                <input type="text" value="{% if company.secondary_color %}{{ company.secondary_color }}{% else %}#10b981{% endif %}" id="secondary_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <p style="font-size:12px; color:#64748b; margin-top:4px;">Accent color</p>
+              </div>
+            </div>
+          </div>
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Text Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" name="text_color" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e293b{% endif %}" id="text_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <div>
+                <input type="text" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e293b{% endif %}" id="text_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <p style="font-size:12px; color:#64748b; margin-top:4px;">Primary text</p>
+              </div>
+            </div>
+          </div>
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Background Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" name="background_color" value="{% if company.background_color %}{{ company.background_color }}{% else %}#ffffff{% endif %}" id="bg_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <div>
+                <input type="text" value="{% if company.background_color %}{{ company.background_color }}{% else %}#ffffff{% endif %}" id="bg_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <p style="font-size:12px; color:#64748b; margin-top:4px;">Page background</p>
+              </div>
+            </div>
+          </div>
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Card Header Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" name="card_header_color" value="{% if company.card_header_color %}{{ company.card_header_color }}{% else %}#10b981{% endif %}" id="card_header_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <div>
+                <input type="text" value="{% if company.card_header_color %}{{ company.card_header_color }}{% else %}#10b981{% endif %}" id="card_header_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <p style="font-size:12px; color:#64748b; margin-top:4px;">Content card headers</p>
+              </div>
+            </div>
+          </div>
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Button Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" name="button_color" value="{% if company.button_color %}{{ company.button_color }}{% else %}#3b82f6{% endif %}" id="button_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <div>
+                <input type="text" value="{% if company.button_color %}{{ company.button_color }}{% else %}#3b82f6{% endif %}" id="button_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <p style="font-size:12px; color:#64748b; margin-top:4px;">Primary buttons</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:24px; padding:20px; background:white; border:1px solid #e2e8f0; border-radius:8px;">
+          <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e293b;">Live Preview</h4>
+          <div id="colorPreview" style="padding:24px; border-radius:8px; background:{% if company.primary_color %}{{ company.primary_color }}{% else %}#3b82f6{% endif %}; color:white; text-align:center; transition:all 0.3s ease;">
+            <p style="font-size:20px; font-weight:600; margin-bottom:8px;">{{ company.name|default:"Your Company" }}</p>
+            <p style="font-size:14px; opacity:0.9;">This is how your brand colors will appear</p>
+            <div style="margin-top:16px; display:inline-flex; gap:12px;">
+              <div style="padding:8px 16px; background:rgba(255,255,255,0.2); border-radius:6px; font-size:13px;">Button Example</div>
+              <div style="padding:8px 16px; background:{% if company.secondary_color %}{{ company.secondary_color }}{% else %}#10b981{% endif %}; border-radius:6px; font-size:13px;">Secondary</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#e0f2fe; padding:12px; border-radius:6px; margin-top:16px; border-left:4px solid #0284c7;">
+          <p style="font-size:12px; color:#075985; margin:0; display:flex; align-items:center; gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <strong>Note:</strong> After saving, the page will reload to apply your new color scheme to the entire system.
+          </p>
+        </div>
+        <div style="display:flex; gap:12px; justify-content:space-between; margin-top:24px; padding-top:24px; border-top:1px solid #e2e8f0;">
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-secondary" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; margin-right:6px;">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+              Light/Dark
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="resetToDefaultColors()" title="Reset to default dark theme">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; margin-right:6px;">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                <path d="M3 21v-5h5"></path>
+              </svg>
+              Reset
+            </button>
+          </div>
+          <button type="submit" class="btn" onclick="return confirmColorSave()">Save Colors & Reload</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Cancel Button (Always Visible) -->
+    <div style="margin-top:24px; text-align:center;">
+      <a href="{% url 'employer_dashboard' %}" class="btn btn-secondary">← Back to Dashboard</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Tab switching functionality
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.dataset.tab;
+      
+      // Update active button
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Update active content
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(targetTab).classList.add('active');
+    });
+  });
+
+  // Color picker sync with live preview
+  const primaryColorInput = document.getElementById('primary_color');
+  const primaryColorText = document.getElementById('primary_color_text');
+  const secondaryColorInput = document.getElementById('secondary_color');
+  const secondaryColorText = document.getElementById('secondary_color_text');
+  const textColorInput = document.getElementById('text_color');
+  const textColorText = document.getElementById('text_color_text');
+  const bgColorInput = document.getElementById('bg_color');
+  const bgColorText = document.getElementById('bg_color_text');
+  const colorPreview = document.getElementById('colorPreview');
+  
+  // Primary color sync
+  if (primaryColorInput && primaryColorText) {
+    primaryColorInput.addEventListener('input', () => {
+      primaryColorText.value = primaryColorInput.value;
+      if (colorPreview) colorPreview.style.background = primaryColorInput.value;
+    });
+    primaryColorInput.addEventListener('change', () => {
+      primaryColorText.value = primaryColorInput.value;
+      if (colorPreview) colorPreview.style.background = primaryColorInput.value;
+    });
+    primaryColorText.addEventListener('input', () => {
+      if (/^#[0-9A-F]{6}$/i.test(primaryColorText.value)) {
+        primaryColorInput.value = primaryColorText.value;
+        if (colorPreview) colorPreview.style.background = primaryColorText.value;
+      }
+    });
+  }
+  
+  // Secondary color sync
+  if (secondaryColorInput && secondaryColorText) {
+    secondaryColorInput.addEventListener('input', () => {
+      secondaryColorText.value = secondaryColorInput.value;
+    });
+    secondaryColorInput.addEventListener('change', () => {
+      secondaryColorText.value = secondaryColorInput.value;
+    });
+    secondaryColorText.addEventListener('input', () => {
+      if (/^#[0-9A-F]{6}$/i.test(secondaryColorText.value)) {
+        secondaryColorInput.value = secondaryColorText.value;
+      }
+    });
+  }
+  
+  // Text color sync
+  if (textColorInput && textColorText) {
+    textColorInput.addEventListener('input', () => {
+      textColorText.value = textColorInput.value;
+    });
+    textColorInput.addEventListener('change', () => {
+      textColorText.value = textColorInput.value;
+    });
+    textColorText.addEventListener('input', () => {
+      if (/^#[0-9A-F]{6}$/i.test(textColorText.value)) {
+        textColorInput.value = textColorText.value;
+      }
+    });
+  }
+  
+  // Background color sync
+  if (bgColorInput && bgColorText) {
+    bgColorInput.addEventListener('input', () => {
+      bgColorText.value = bgColorInput.value;
+    });
+    bgColorInput.addEventListener('change', () => {
+      bgColorText.value = bgColorInput.value;
+    });
+    bgColorText.addEventListener('input', () => {
+      if (/^#[0-9A-F]{6}$/i.test(bgColorText.value)) {
+        bgColorInput.value = bgColorText.value;
+      }
+    });
+  }
+  
+  // Card header color sync
+  const cardHeaderColorInput = document.getElementById('card_header_color');
+  const cardHeaderColorText = document.getElementById('card_header_color_text');
+  if (cardHeaderColorInput && cardHeaderColorText) {
+    cardHeaderColorInput.addEventListener('input', () => {
+      cardHeaderColorText.value = cardHeaderColorInput.value;
+    });
+    cardHeaderColorInput.addEventListener('change', () => {
+      cardHeaderColorText.value = cardHeaderColorInput.value;
+    });
+    cardHeaderColorText.addEventListener('input', () => {
+      if (/^#[0-9A-F]{6}$/i.test(cardHeaderColorText.value)) {
+        cardHeaderColorInput.value = cardHeaderColorText.value;
+      }
+    });
+  }
+  
+  // Button color sync
+  const buttonColorInput = document.getElementById('button_color');
+  const buttonColorText = document.getElementById('button_color_text');
+  if (buttonColorInput && buttonColorText) {
+    buttonColorInput.addEventListener('input', () => {
+      buttonColorText.value = buttonColorInput.value;
+    });
+    buttonColorInput.addEventListener('change', () => {
+      buttonColorText.value = buttonColorInput.value;
+    });
+    buttonColorText.addEventListener('input', () => {
+      if (/^#[0-9A-F]{6}$/i.test(buttonColorText.value)) {
+        buttonColorInput.value = buttonColorText.value;
+      }
+    });
+  }
+
+  // ===== STAMP DESIGNER FUNCTIONS =====
+  function showStampDesigner() {
+    document.getElementById('stampDesigner').style.display = 'block';
+    document.getElementById('stampUpload').style.display = 'none';
+    // Trigger initial preview render
+    setTimeout(updateStampPreview, 100);
+  }
+
+  function showStampUpload() {
+    document.getElementById('stampDesigner').style.display = 'none';
+    document.getElementById('stampUpload').style.display = 'block';
+  }
+
+  function updateStampPreview() {
+    const canvas = document.getElementById('stampCanvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const topText = document.getElementById('stampTopText').value || 'EISCOMTECH LIMITED';
+    const middleText = document.getElementById('stampMiddleText').value || 'Tel: 0211 123456, Fax: 0211 654321\nzambia@eiscomtech.com';
+    const bottomText = document.getElementById('stampBottomText').value || 'P.O.Box 56879 Lusaka Zambia';
+    const shape = document.getElementById('stampShape').value;
+    const size = document.getElementById('stampSize').value;
+    const borderStyle = document.getElementById('stampBorder').value;
+    const borderWidth = parseInt(document.getElementById('stampBorderWidth').value) || 3;
+    const color = document.getElementById('stampColor').value || '#0066CC';
+    const addDate = document.getElementById('stampAddDate').checked;
+    const dateFormat = document.getElementById('stampDateFormat') ? document.getElementById('stampDateFormat').value : 'DD MMM YYYY';
+    const dateColor = document.getElementById('stampDateColor') ? document.getElementById('stampDateColor').value : '#dc2626';
+    const dateBorder = document.getElementById('stampDateBorder') ? document.getElementById('stampDateBorder').checked : true;
+    const textPlacement = document.getElementById('stampTextPlacement') ? document.getElementById('stampTextPlacement').value : 'between';
+    const fontStyle = document.getElementById('stampFontStyle') ? document.getElementById('stampFontStyle').value : 'Arial';
+    const fontSize = document.getElementById('stampFontSize') ? parseInt(document.getElementById('stampFontSize').value) : 10;
+    const dateSize = document.getElementById('stampDateSize') ? parseInt(document.getElementById('stampDateSize').value) : 11;
+    
+    // Update font size display
+    const fontSizeDisplay = document.getElementById('fontSizeValue');
+    if (fontSizeDisplay) {
+      fontSizeDisplay.textContent = fontSize + 'px';
+    }
+    
+    // Update date size display
+    const dateSizeDisplay = document.getElementById('dateSizeValue');
+    if (dateSizeDisplay) {
+      dateSizeDisplay.textContent = dateSize + 'px';
+    }
+    
+    // Update border width display
+    const borderWidthDisplay = document.getElementById('borderWidthValue');
+    if (borderWidthDisplay) {
+      borderWidthDisplay.textContent = borderWidth + 'px';
+    }
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Set styles
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = borderWidth;
+    
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const sizeMultiplier = size === 'small' ? 0.8 : size === 'large' ? 1.2 : 1;
+    const radiusX = 160 * sizeMultiplier;
+    const radiusY = 100 * sizeMultiplier;
+    
+    // Different inner border sizes for different shapes
+    let innerRadiusX, innerRadiusY;
+    if (shape === 'oval' || shape === 'circle') {
+      innerRadiusX = radiusX - 27;
+      innerRadiusY = radiusY - 27;
+    } else {
+      // Rectangle and square need smaller inner border for text spacing
+      innerRadiusX = radiusX - 25;
+      innerRadiusY = radiusY - 25;
+    }
+    
+    // Draw shape with proper border style support
+    ctx.beginPath();
+    if (shape === 'oval') {
+      // Outer border
+      ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+      
+      if (borderStyle === 'dashed') {
+        ctx.setLineDash([8, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else if (borderStyle === 'dotted') {
+        ctx.setLineDash([2, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else {
+        ctx.stroke();
+      }
+      
+      // Inner border for double style
+      if (borderStyle === 'double') {
+        ctx.beginPath();
+        ctx.ellipse(centerX, centerY, innerRadiusX, innerRadiusY, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    } else if (shape === 'circle') {
+      ctx.arc(centerX, centerY, radiusY, 0, Math.PI * 2);
+      
+      if (borderStyle === 'dashed') {
+        ctx.setLineDash([8, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else if (borderStyle === 'dotted') {
+        ctx.setLineDash([2, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else {
+        ctx.stroke();
+      }
+      
+      if (borderStyle === 'double') {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, innerRadiusY, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    } else if (shape === 'square') {
+      ctx.rect(centerX - radiusY, centerY - radiusY, radiusY * 2, radiusY * 2);
+      
+      if (borderStyle === 'dashed') {
+        ctx.setLineDash([8, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else if (borderStyle === 'dotted') {
+        ctx.setLineDash([2, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else {
+        ctx.stroke();
+      }
+      
+      if (borderStyle === 'double') {
+        ctx.beginPath();
+        ctx.rect(centerX - innerRadiusY, centerY - innerRadiusY, innerRadiusY * 2, innerRadiusY * 2);
+        ctx.stroke();
+      }
+    } else if (shape === 'rectangle') {
+      ctx.rect(centerX - radiusX, centerY - radiusY, radiusX * 2, radiusY * 2);
+      
+      if (borderStyle === 'dashed') {
+        ctx.setLineDash([8, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else if (borderStyle === 'dotted') {
+        ctx.setLineDash([2, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else {
+        ctx.stroke();
+      }
+      
+      if (borderStyle === 'double') {
+        ctx.beginPath();
+        ctx.rect(centerX - innerRadiusX, centerY - innerRadiusY, innerRadiusX * 2, innerRadiusY * 2);
+        ctx.stroke();
+      }
+    }
+    
+    // Draw text
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Calculate text radius - ALWAYS between borders for double border style
+    let textRadiusY, textRadiusX;
+    if (borderStyle === 'double') {
+      // For double border, ALWAYS position text exactly between the two borders
+      textRadiusY = (radiusY + innerRadiusY) / 2;
+      textRadiusX = (radiusX + innerRadiusX) / 2;
+    } else {
+      // For single border, position text inside with spacing
+      textRadiusY = radiusY - 18;
+      textRadiusX = radiusX - 18;
+    }
+    
+    // Top text - curved for oval/circle
+    if (topText) {
+      if (shape === 'oval') {
+        ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+        const text = topText.toUpperCase();
+        const chars = text.split('');
+        // Constant spacing that maintains letter separation at all font sizes
+        const charSpacing = 0.09; // Fixed spacing for consistent letter separation
+        const totalAngle = chars.length * charSpacing;
+        const startAngle = -Math.PI/2 - totalAngle/2;
+        
+        for (let i = 0; i < chars.length; i++) {
+          const angle = startAngle + i * charSpacing;
+          const x = centerX + Math.cos(angle) * textRadiusX;
+          const y = centerY + Math.sin(angle) * textRadiusY;
+          
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle + Math.PI/2);
+          ctx.fillText(chars[i], 0, 0);
+          ctx.restore();
+        }
+      } else if (shape === 'circle') {
+        ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+        const text = topText.toUpperCase();
+        const chars = text.split('');
+        const charSpacing = 0.09; // Increased even more for better spacing
+        const totalAngle = chars.length * charSpacing;
+        const startAngle = -Math.PI/2 - totalAngle/2;
+        
+        for (let i = 0; i < chars.length; i++) {
+          const angle = startAngle + i * charSpacing;
+          const x = centerX + Math.cos(angle) * textRadiusY;
+          const y = centerY + Math.sin(angle) * textRadiusY;
+          
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle + Math.PI/2);
+          ctx.fillText(chars[i], 0, 0);
+          ctx.restore();
+        }
+      } else if (shape === 'square' || shape === 'rectangle') {
+        ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+        const textY = borderStyle === 'double' ? centerY - radiusY + 18 : centerY - radiusY + 15;
+        ctx.fillText(topText.toUpperCase(), centerX, textY);
+      }
+    }
+    
+    // Middle text - centered (with smart date positioning)
+    if (middleText && !addDate) {
+      // Normal layout without date
+      ctx.save();
+      ctx.font = `${(fontSize * 0.7) * sizeMultiplier}px ${fontStyle}`;
+      ctx.textAlign = 'center';
+      // Preserve all line breaks including empty lines for proper spacing
+      const lines = middleText.split(/\n/);
+      const lineHeight = 11 * sizeMultiplier;
+      const startY = centerY - 5 - ((lines.length - 1) * lineHeight) / 2;
+      lines.forEach((line, i) => {
+        ctx.fillText(line, centerX, startY + i * lineHeight);
+      });
+      ctx.restore();
+    }
+    
+    // Bottom text - curved for oval/circle (left to right, right-side-up)
+    if (bottomText) {
+      if (shape === 'oval') {
+        ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+        const text = bottomText.toUpperCase();
+        const chars = text.split('');
+        // Constant spacing that maintains letter separation at all font sizes
+        const charSpacing = 0.09; // Fixed spacing for consistent letter separation
+        const totalAngle = chars.length * charSpacing;
+        const startAngle = Math.PI/2 + totalAngle/2; // Start from right side
+        
+        for (let i = 0; i < chars.length; i++) {
+          const angle = startAngle - i * charSpacing; // Subtract to go left to right
+          const x = centerX + Math.cos(angle) * textRadiusX;
+          const y = centerY + Math.sin(angle) * textRadiusY;
+          
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle - Math.PI/2); // Subtract PI/2 to keep text right-side-up
+          ctx.fillText(chars[i], 0, 0);
+          ctx.restore();
+        }
+      } else if (shape === 'circle') {
+        ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+        const text = bottomText.toUpperCase();
+        const chars = text.split('');
+        const charSpacing = 0.09; // Increased even more for better spacing
+        const totalAngle = chars.length * charSpacing;
+        const startAngle = Math.PI/2 + totalAngle/2; // Start from right side
+        
+        for (let i = 0; i < chars.length; i++) {
+          const angle = startAngle - i * charSpacing; // Subtract to go left to right
+          const x = centerX + Math.cos(angle) * textRadiusY;
+          const y = centerY + Math.sin(angle) * textRadiusY;
+          
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle - Math.PI/2); // Subtract PI/2 to keep text right-side-up
+          ctx.fillText(chars[i], 0, 0);
+          ctx.restore();
+        }
+      } else if (shape === 'square' || shape === 'rectangle') {
+        ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+        const textY = borderStyle === 'double' ? centerY + radiusY - 18 : centerY + radiusY - 15;
+        ctx.fillText(bottomText.toUpperCase(), centerX, textY);
+      }
+    }
+    
+    // Date stamp with smart middle text layout
+    if (addDate) {
+      const today = new Date();
+      let dateText = '';
+      if (dateFormat === 'DD MMM YYYY') {
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        dateText = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+      } else if (dateFormat === 'DD/MM/YYYY') {
+        dateText = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+      } else if (dateFormat === 'MM/DD/YYYY') {
+        dateText = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+      } else if (dateFormat === 'YYYY-MM-DD') {
+        dateText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      }
+      
+      // Render middle text split around date if multiple lines
+      if (middleText) {
+        ctx.save();
+        ctx.font = `${(fontSize * 0.8) * sizeMultiplier}px ${fontStyle}`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = color;
+        // Preserve all line breaks including empty lines
+        const lines = middleText.split(/\n/);
+        const lineHeight = 11 * sizeMultiplier;
+        
+        if (lines.length >= 2) {
+          // Smart layout: first line above date, remaining lines below date
+          const boxHeight = 25* sizeMultiplier;
+          const spacing = 9 * sizeMultiplier;
+          
+          // First line above date
+          ctx.fillText(lines[0], centerX, centerY - boxHeight/2- spacing);
+          
+          // Remaining lines below date
+          const remainingLines = lines.slice(1);
+          const remainingStartY = centerY + boxHeight/2 + spacing + 5;
+          remainingLines.forEach((line, i) => {
+            ctx.fillText(line, centerX, remainingStartY + i * lineHeight);
+          });
+        } else {
+          // Single line - center above date
+          ctx.fillText(lines[0], centerX, centerY - 20 * sizeMultiplier);
+        }
+        ctx.restore();
+      }
+      
+      // Draw date box
+      ctx.save();
+      
+      // White background for date box
+      ctx.fillStyle = 'white';
+      const boxWidth = 110 * sizeMultiplier;
+      const boxHeight = 28 * sizeMultiplier;
+      const boxX = centerX - boxWidth / 2;
+      const boxY = centerY - boxHeight / 2;
+      ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+      
+      // Border
+      ctx.strokeStyle = dateColor || '#dc2626';
+      ctx.lineWidth = 2;
+      if (dateBorder) {
+        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+      }
+      
+      // Date text
+      ctx.fillStyle = dateColor || '#dc2626';
+      ctx.font = `bold ${dateSize * sizeMultiplier}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(dateText, centerX, centerY);
+      
+      ctx.restore();
+    }
+  }
+  
+  function setStampColor(color) {
+    document.getElementById('stampColor').value = color;
+    document.getElementById('stampColorText').value = color;
+    updateStampPreview();
+  }
+
+  function generateStamp() {
+    const canvas = document.getElementById('stampCanvas');
+    if (!canvas) {
+      alert('Please configure your stamp first');
+      return;
+    }
+    
+    canvas.toBlob(function(blob) {
+      const formData = new FormData();
+      formData.append('company_stamp', blob, 'company_stamp.png');
+      formData.append('form_type', 'documents');
+      formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+      
+      fetch(window.location.href, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.ok || response.redirected) {
+          alert('Stamp generated and saved successfully!');
+          location.reload();
+        } else {
+          alert('Failed to save stamp. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while saving the stamp');
+      });
+    });
+  }
+
+  // Stamp designer live preview
+  const stampInputs = ['stampTopText', 'stampMiddleText', 'stampBottomText', 'stampShape', 'stampSize', 
+                       'stampBorder', 'stampBorderWidth', 'stampFontStyle', 'stampFontSize', 'stampColor', 'stampTextPlacement',
+                       'stampDateFormat', 'stampDateColor', 'stampDateSize'];
+  stampInputs.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.addEventListener('input', updateStampPreview);
+      element.addEventListener('change', updateStampPreview);
+    }
+  });
+  
+  // Border style change - show/hide text placement option
+  const stampBorderSelect = document.getElementById('stampBorder');
+  const textPlacementContainer = document.getElementById('textPlacementContainer');
+  if (stampBorderSelect && textPlacementContainer) {
+    stampBorderSelect.addEventListener('change', function() {
+      textPlacementContainer.style.display = this.value === 'double' ? 'block' : 'none';
+    });
+  }
+  
+  // Date stamp checkbox toggle
+  const stampAddDateCheckbox = document.getElementById('stampAddDate');
+  const dateStampOptions = document.getElementById('dateStampOptions');
+  if (stampAddDateCheckbox && dateStampOptions) {
+    stampAddDateCheckbox.addEventListener('change', function() {
+      dateStampOptions.style.display = this.checked ? 'block' : 'none';
+      updateStampPreview();
+    });
+  }
+  
+  // Date border checkbox
+  const stampDateBorderCheckbox = document.getElementById('stampDateBorder');
+  if (stampDateBorderCheckbox) {
+    stampDateBorderCheckbox.addEventListener('change', updateStampPreview);
+  }
+
+  // Stamp color sync
+  const stampColorInput = document.getElementById('stampColor');
+  const stampColorText = document.getElementById('stampColorText');
+  if (stampColorInput && stampColorText) {
+    stampColorInput.addEventListener('input', () => {
+      stampColorText.value = stampColorInput.value;
+      updateStampPreview();
+    });
+    stampColorText.addEventListener('input', () => {
+      stampColorInput.value = stampColorText.value;
+      updateStampPreview();
+    });
+  }
+  
+  // Helper function for date color
+  function setDateColor(color) {
+    const dateColorInput = document.getElementById('stampDateColor');
+    if (dateColorInput) {
+      dateColorInput.value = color;
+      updateStampPreview();
+    }
+  }
+
+  // ===== HELPER FUNCTIONS =====
+  function resetForm(formId) {
+    if (confirm('Are you sure you want to reset all changes?')) {
+      document.getElementById(formId).reset();
+    }
+  }
+
+  function previewImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.innerHTML = '<img src="' + e.target.result + '" style="max-height:120px; max-width:100%; object-fit:contain;">';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function downloadImage(url, filename) {
+    fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+      });
+  }
+
+  function removeImage(fieldName) {
+    if (confirm('Are you sure you want to remove this image?')) {
+      alert('Image will be removed when you save the form');
+      // You can add logic to mark for deletion
+    }
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Copied to clipboard: ' + text);
+    });
+  }
+
+  function confirmColorSave() {
+    // Store flag to reload after save
+    sessionStorage.setItem('reloadAfterColorSave', 'true');
+    return true; // Allow form submission
+  }
+
+  function resetToDefaultColors() {
+    if (confirm('Reset all colors to default dark theme? This will save immediately.')) {
+      // Default color scheme: Professional Dark Grey Theme
+      const defaults = {
+        primary_color: '#2d3748',      // Dark Grey (Top bar & sidebar)
+        secondary_color: '#718096',    // Medium Grey (Accents)
+        text_color: '#000000',         // Black (Main text)
+        background_color: '#ffffff',   // White (Page background)
+        card_header_color: '#4a5568',  // Grey (Card headers)
+        button_color: '#4a5568'        // Grey (Buttons)
+      };
+      
+      // Update all color pickers and text inputs
+      document.getElementById('primary_color').value = defaults.primary_color;
+      document.getElementById('primary_color_text').value = defaults.primary_color;
+      
+      document.getElementById('secondary_color').value = defaults.secondary_color;
+      document.getElementById('secondary_color_text').value = defaults.secondary_color;
+      
+      document.getElementById('text_color').value = defaults.text_color;
+      document.getElementById('text_color_text').value = defaults.text_color;
+      
+      document.getElementById('bg_color').value = defaults.background_color;
+      document.getElementById('bg_color_text').value = defaults.background_color;
+      
+      document.getElementById('card_header_color').value = defaults.card_header_color;
+      document.getElementById('card_header_color_text').value = defaults.card_header_color;
+      
+      document.getElementById('button_color').value = defaults.button_color;
+      document.getElementById('button_color_text').value = defaults.button_color;
+      
+      // Update preview
+      if (document.getElementById('colorPreview')) {
+        document.getElementById('colorPreview').style.background = defaults.primary_color;
+      }
+      
+      // Auto-submit the form to save
+      document.getElementById('colorsForm').dispatchEvent(new Event('submit'));
+    }
+  }
+
+  function toggleTheme() {
+    const currentTheme = localStorage.getItem('colorTheme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    const themes = {
+      dark: {
+        primary_color: '#2d3748',      // Dark Grey
+        secondary_color: '#718096',    // Medium Grey
+        text_color: '#000000',         // Black
+        background_color: '#ffffff',   // White
+        card_header_color: '#4a5568',  // Grey
+        button_color: '#4a5568'        // Grey
+      },
+      light: {
+        primary_color: '#ffffff',      // White
+        secondary_color: '#f3f4f6',    // Light Grey
+        text_color: '#000000',         // Black
+        background_color: '#ffffff',   // White
+        card_header_color: '#f9fafb',  // Very Light Grey
+        button_color: '#000000'        // Black
+      }
+    };
+    
+    const colors = themes[newTheme];
+    
+    // Update all color pickers
+    document.getElementById('primary_color').value = colors.primary_color;
+    document.getElementById('primary_color_text').value = colors.primary_color;
+    document.getElementById('secondary_color').value = colors.secondary_color;
+    document.getElementById('secondary_color_text').value = colors.secondary_color;
+    document.getElementById('text_color').value = colors.text_color;
+    document.getElementById('text_color_text').value = colors.text_color;
+    document.getElementById('bg_color').value = colors.background_color;
+    document.getElementById('bg_color_text').value = colors.background_color;
+    document.getElementById('card_header_color').value = colors.card_header_color;
+    document.getElementById('card_header_color_text').value = colors.card_header_color;
+    document.getElementById('button_color').value = colors.button_color;
+    document.getElementById('button_color_text').value = colors.button_color;
+    
+    // Update preview
+    if (document.getElementById('colorPreview')) {
+      document.getElementById('colorPreview').style.background = colors.primary_color;
+      document.getElementById('colorPreview').style.color = newTheme === 'light' ? '#000000' : '#ffffff';
+    }
+    
+    // Store preference
+    localStorage.setItem('colorTheme', newTheme);
+    
+    // Auto-submit to save
+    document.getElementById('colorsForm').dispatchEvent(new Event('submit'));
+  }
+
+  // Check if we need to reload after color save
+  window.addEventListener('load', function() {
+    if (sessionStorage.getItem('reloadAfterColorSave') === 'true') {
+      sessionStorage.removeItem('reloadAfterColorSave');
+      // Show success message
+      setTimeout(function() {
+        alert('Colors saved successfully! The new color scheme has been applied to the entire system.');
+      }, 100);
+    }
+  });
+
+  // Handle color form submission with AJAX to stay on page
+  const colorsForm = document.getElementById('colorsForm');
+  if (colorsForm) {
+    colorsForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Manually ensure all color values are synced
+      const primaryColor = document.getElementById('primary_color');
+      const secondaryColor = document.getElementById('secondary_color');
+      const textColor = document.getElementById('text_color');
+      const bgColor = document.getElementById('bg_color');
+      const cardHeaderColor = document.getElementById('card_header_color');
+      const buttonColor = document.getElementById('button_color');
+      
+      // Create FormData and explicitly set color values
+      const formData = new FormData(this);
+      
+      // Double-check and set color values
+      if (primaryColor) {
+        formData.set('primary_color', primaryColor.value);
+        console.log('Primary Color:', primaryColor.value);
+      }
+      if (secondaryColor) {
+        formData.set('secondary_color', secondaryColor.value);
+        console.log('Secondary Color:', secondaryColor.value);
+      }
+      if (textColor) {
+        formData.set('text_color', textColor.value);
+        console.log('Text Color:', textColor.value);
+      }
+      if (bgColor) {
+        formData.set('background_color', bgColor.value);
+        console.log('Background Color:', bgColor.value);
+      }
+      if (cardHeaderColor) {
+        formData.set('card_header_color', cardHeaderColor.value);
+        console.log('Card Header Color:', cardHeaderColor.value);
+      }
+      if (buttonColor) {
+        formData.set('button_color', buttonColor.value);
+        console.log('Button Color:', buttonColor.value);
+      }
+      
+      fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          alert('Colors saved successfully! Reloading to apply changes...');
+          // Reload the page to apply new colors
+          window.location.reload();
+        } else {
+          alert('Failed to save colors. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while saving colors.');
+      });
+    });
+  }
+</script>
+{% endblock %}

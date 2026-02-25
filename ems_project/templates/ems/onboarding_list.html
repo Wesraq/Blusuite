@@ -1,0 +1,621 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Onboarding & Offboarding - EMS{% endblock %}
+{% block page_title %}Onboarding & Offboarding{% endblock %}
+
+{% block content %}
+<!-- Process Type Toggle -->
+<div style="border-bottom: 2px solid hsl(var(--border)); margin-bottom: 24px;">
+    <div style="display: flex; gap: 8px;">
+        <a href="?process_type=onboarding" class="tab-btn {% if process_type == 'onboarding' %}active{% endif %}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Onboarding
+        </a>
+        <a href="?process_type=offboarding" class="tab-btn {% if process_type == 'offboarding' %}active{% endif %}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Offboarding
+        </a>
+    </div>
+</div>
+
+{% if process_type == 'offboarding' %}
+<!-- OFFBOARDING VIEW -->
+
+<!-- Statistics Dashboard -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+        </div>
+        <div class="stat-details">
+            <div class="stat-value">{{ total_offboardings }}</div>
+            <div class="stat-label">Total Offboardings</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e0e7ff; color: #6366f1;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ not_started_count }}</div>
+            <div class="stat-label">Not Started</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <div class="stat-details">
+            <div class="stat-value">{{ in_progress_count }}</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #d1fae5; color: #047857;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ completed_count }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ exit_interviews_completed }}</div>
+            <div class="stat-label">Exit Interviews</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="content-card" style="margin-top: 24px; padding: 20px;">
+    <form method="get" id="offboarding-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+        <input type="hidden" name="process_type" value="offboarding">
+        <div class="filter-group">
+            <label for="search" class="control-label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg> Search</label>
+            <input type="text" id="search" name="search" class="control-input" placeholder="Employee name, email..." value="{{ search_query }}">
+        </div>
+        <div class="filter-group">
+            <label for="status" class="control-label">Status</label>
+            <select id="status" name="status" class="control-input">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="date_from" class="control-label">From Date</label>
+            <input type="date" id="date_from" name="date_from" class="control-input" value="{{ date_from }}">
+        </div>
+        <div class="filter-group">
+            <label for="date_to" class="control-label">To Date</label>
+            <input type="date" id="date_to" name="date_to" class="control-input" value="{{ date_to }}">
+        </div>
+        <div style="display: flex; gap: 8px; align-items: end;">
+            <button class="btn" type="submit">Apply Filters</button>
+            <a class="btn btn-secondary" href="?process_type=offboarding">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Action Buttons -->
+<div style="display: flex; justify-content: flex-start; margin-top: 24px; gap: 12px; flex-wrap: wrap;">
+    {% if can_manage_onboarding %}
+    <button id="open-offboarding-modal" class="btn">Initiate Offboarding</button>
+    {% endif %}
+    <button class="btn btn-secondary" onclick="exportCSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export CSV</button>
+</div>
+
+<!-- Offboarding Table -->
+<div class="content-card" style="margin-top: 24px;">
+    <div class="table-responsive">
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Position</th>
+                    <th>Last Working Date</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Exit Interview</th>
+                    <th>Checklist</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if offboardings %}
+                    {% for offboarding in offboardings %}
+                        <tr>
+                            <td>
+                                <strong>{{ offboarding.employee.get_full_name }}</strong><br>
+                                <small style="color: #6b7280;">{{ offboarding.employee.email }}</small>
+                            </td>
+                            <td>
+                                {% if offboarding.employee.employer_profile %}
+                                    {{ offboarding.employee.employer_profile.job_title|default:'—' }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{{ offboarding.last_working_date|date:'M d, Y' }}</td>
+                            <td>
+                                <span class="badge badge-secondary">{{ offboarding.get_reason_display }}</span>
+                            </td>
+                            <td>
+                                {% if offboarding.status == 'COMPLETED' %}
+                                    <span class="badge badge-success">{{ offboarding.get_status_display }}</span>
+                                {% elif offboarding.status == 'IN_PROGRESS' %}
+                                    <span class="badge badge-warning">{{ offboarding.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge badge-info">{{ offboarding.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if offboarding.exit_interview_completed %}
+                                    <span class="badge badge-success"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Completed</span>
+                                {% else %}
+                                    <span class="badge badge-secondary" style="display: inline-flex; align-items: center; gap: 4px;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ offboarding.checklist.name|default:'—' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #9ca3af;">
+                            No offboarding records found.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<!-- ONBOARDING VIEW (DEFAULT) -->
+
+<!-- Statistics Dashboard -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+        </div>
+        <div class="stat-details">
+            <div class="stat-value">{{ total_onboardings }}</div>
+            <div class="stat-label">Total Onboardings</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e0e7ff; color: #6366f1;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ not_started_count }}</div>
+            <div class="stat-label">Not Started</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <div class="stat-details">
+            <div class="stat-value">{{ in_progress_count }}</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #d1fae5; color: #047857;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ completed_count }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fecaca; color: #b91c1c;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ on_hold_count }}</div>
+            <div class="stat-label">On Hold</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="content-card" style="margin-top: 24px; padding: 20px;">
+    <form method="get" id="onboarding-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+        <input type="hidden" name="process_type" value="onboarding">
+        <div class="filter-group">
+            <label for="search" class="control-label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg> Search</label>
+            <input type="text" id="search" name="search" class="control-input" placeholder="Employee name, email..." value="{{ search_query }}">
+        </div>
+        <div class="filter-group">
+            <label for="status" class="control-label">Status</label>
+            <select id="status" name="status" class="control-input">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="date_from" class="control-label">From Date</label>
+            <input type="date" id="date_from" name="date_from" class="control-input" value="{{ date_from }}">
+        </div>
+        <div class="filter-group">
+            <label for="date_to" class="control-label">To Date</label>
+            <input type="date" id="date_to" name="date_to" class="control-input" value="{{ date_to }}">
+        </div>
+        <div style="display: flex; gap: 8px; align-items: end;">
+            <button class="btn" type="submit">Apply Filters</button>
+            <a class="btn btn-secondary" href="?process_type=onboarding">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Action Buttons -->
+<div style="display: flex; justify-content: flex-start; margin-top: 24px;">
+    <button class="btn btn-secondary" onclick="exportCSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export CSV</button>
+</div>
+
+<!-- Onboarding Table -->
+<div class="content-card" style="margin-top: 24px;">
+    <div class="table-responsive">
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Position</th>
+                    <th>Start Date</th>
+                    <th>Expected Completion</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Buddy</th>
+                    <th>Checklist</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if onboardings_with_tasks %}
+                    {% for item in onboardings_with_tasks %}
+                        {% with onboarding=item.onboarding %}
+                        <tr>
+                            <td>
+                                <strong>{{ onboarding.employee.get_full_name }}</strong><br>
+                                <small style="color: #6b7280;">{{ onboarding.employee.email }}</small>
+                            </td>
+                            <td>
+                                {% if onboarding.employee.employer_profile %}
+                                    {{ onboarding.employee.employer_profile.job_title|default:'—' }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{{ onboarding.start_date|date:'M d, Y' }}</td>
+                            <td>{{ onboarding.expected_completion_date|date:'M d, Y' }}</td>
+                            <td>
+                                {% if onboarding.status == 'COMPLETED' %}
+                                    <span class="badge badge-success">{{ onboarding.get_status_display }}</span>
+                                {% elif onboarding.status == 'IN_PROGRESS' %}
+                                    <span class="badge badge-warning">{{ onboarding.get_status_display }}</span>
+                                {% elif onboarding.status == 'ON_HOLD' %}
+                                    <span class="badge badge-danger">{{ onboarding.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge badge-info">{{ onboarding.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="progress-wrapper">
+                                    <div class="progress-track">
+                                        <div class="progress-fill" data-progress="{{ item.progress }}"></div>
+                                    </div>
+                                    <span style="font-size: 0.875rem; color: #6b7280; min-width: 50px;">{{ item.progress|floatformat:0 }}%</span>
+                                </div>
+                                <small style="color: #9ca3af;">{{ item.completed_tasks }}/{{ item.total_tasks }} tasks</small>
+                            </td>
+                            <td>{{ onboarding.buddy.get_full_name|default:'—' }}</td>
+                            <td>{{ onboarding.checklist.name|default:'—' }}</td>
+                        </tr>
+                        {% endwith %}
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #9ca3af;">
+                            No onboarding records found.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endif %}
+
+{% if can_manage_onboarding %}
+<!-- Onboarding Modal -->
+<div id="onboarding-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Start Employee Onboarding</h3>
+            <button type="button" class="modal-close" data-close="onboarding-modal">×</button>
+        </div>
+        <form id="onboarding-form">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            {{ onboarding_form.non_field_errors }}
+            {{ onboarding_form.as_p }}
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" data-close="onboarding-modal">Cancel</button>
+                <button type="submit" class="btn">Start Onboarding</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Offboarding Modal -->
+<div id="offboarding-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Initiate Employee Offboarding</h3>
+            <button type="button" class="modal-close" data-close="offboarding-modal">×</button>
+        </div>
+        <form id="offboarding-form">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            {{ offboarding_form.non_field_errors }}
+            {{ offboarding_form.as_p }}
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" data-close="offboarding-modal">Cancel</button>
+                <button type="submit" class="btn">Initiate Offboarding</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function exportCSV() {
+    var urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('export', 'true');
+    window.location.href = '?' + urlParams.toString();
+}
+
+var canManageOnboarding = '{{ can_manage_onboarding|yesno:"true,false" }}' === 'true';
+
+document.addEventListener('DOMContentLoaded', function () {
+    var progressBars = document.querySelectorAll('.progress-fill[data-progress]');
+    Array.prototype.forEach.call(progressBars, function (bar) {
+        var value = parseFloat(bar.getAttribute('data-progress'));
+        if (isNaN(value)) {
+            value = 0;
+        }
+        if (value < 0) {
+            value = 0;
+        }
+        if (value > 100) {
+            value = 100;
+        }
+        bar.style.width = value + '%';
+    });
+
+    if (!canManageOnboarding) {
+        return;
+    }
+
+    var onboardingModal = document.getElementById('onboarding-modal');
+    var offboardingModal = document.getElementById('offboarding-modal');
+
+    function openModal(modal) {
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    function closeModal(modal) {
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    var closeButtons = document.querySelectorAll('[data-close]');
+    Array.prototype.forEach.call(closeButtons, function (button) {
+        button.addEventListener('click', function () {
+            var modalId = button.getAttribute('data-close');
+            if (modalId) {
+                closeModal(document.getElementById(modalId));
+            }
+        });
+    });
+
+    var onboardingTrigger = document.getElementById('open-onboarding-modal');
+    if (onboardingTrigger) {
+        onboardingTrigger.addEventListener('click', function () {
+            openModal(onboardingModal);
+        });
+    }
+
+    var offboardingTrigger = document.getElementById('open-offboarding-modal');
+    if (offboardingTrigger) {
+        offboardingTrigger.addEventListener('click', function () {
+            openModal(offboardingModal);
+        });
+    }
+
+    function submitForm(formElement, endpoint) {
+        var formData = new FormData(formElement);
+        fetch(endpoint, {
+            method: 'POST',
+            body: formData
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.json().then(function (data) {
+                    var message = data && (data.error || JSON.stringify(data.errors));
+                    throw new Error(message || 'Request failed');
+                }).catch(function () {
+                    throw new Error('Request failed');
+                });
+            }
+            return response.json();
+        }).then(function () {
+            window.location.reload();
+        }).catch(function (error) {
+            alert(error.message || 'Failed to process request.');
+        });
+    }
+
+    var onboardingForm = document.getElementById('onboarding-form');
+    if (onboardingForm) {
+        onboardingForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            submitForm(onboardingForm, '{% url "onboarding_create" %}');
+        });
+    }
+
+    var offboardingForm = document.getElementById('offboarding-form');
+    if (offboardingForm) {
+        offboardingForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            submitForm(offboardingForm, '{% url "offboarding_create" %}');
+        });
+    }
+
+    var modalList = [onboardingModal, offboardingModal];
+    Array.prototype.forEach.call(modalList, function (modal) {
+        if (!modal) {
+            return;
+        }
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeModal(modal);
+            }
+        });
+    });
+});
+</script>
+
+<style>
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 24px;
+    }
+
+    .modal-content {
+        background: #ffffff;
+        border-radius: 4px;
+        width: min(640px, 95vw);
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+        padding: 24px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        line-height: 1;
+        color: #475569;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .progress-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .progress-track {
+        flex: 1;
+        background: #e5e7eb;
+        border-radius: 8px;
+        height: 8px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        background: #3b82f6;
+        height: 100%;
+        width: 0;
+    }
+</style>
+{% endblock %}

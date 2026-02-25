@@ -1,0 +1,783 @@
+{% extends 'ems/blusuite_base.html' %}
+{% load static %}
+
+{% block title %}Projects Suite (PMS) - BluSuite{% endblock %}
+
+{% block headline %}
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h1 style="font-size: 28px; margin: 0 0 8px; color: var(--dark); font-weight: 700;">Projects Suite (PMS)</h1>
+        <p style="margin: 0; color: var(--medium-gray); font-size: 14px;">Orchestrate initiatives, delivery timelines and stakeholder alignment</p>
+    </div>
+    <a href="{% url 'blu_projects:projects_home' %}" style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 4px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.1s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary)'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        Launch PMS
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="pms-layout">
+    <!-- Quick Stats Dashboard -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3h7v7H3z"></path>
+                    <path d="M14 3h7v7h-7z"></path>
+                    <path d="M14 14h7v7h-7z"></path>
+                    <path d="M3 14h7v7H3z"></path>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Total Projects</span>
+                <strong class="stat-value">{{ stats.total_projects|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Active Projects</span>
+                <strong class="stat-value">{{ stats.active_projects|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Completion Rate</span>
+                <strong class="stat-value">{{ stats.completion_rate|default:0 }}%</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Team Members</span>
+                <strong class="stat-value">{{ stats.team_members|default:0 }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Left Column - Active Projects & Features -->
+        <div class="main-column">
+            <!-- Active Projects Overview -->
+            <div class="feature-section">
+                <div class="section-header">
+                    <h2 class="section-title">Active Projects</h2>
+                    <a href="{% url 'blu_projects:project_create' %}" class="btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        New Project
+                    </a>
+                </div>
+
+                {% if active_projects %}
+                <div class="projects-grid">
+                    {% for project in active_projects %}
+                    <a href="{% url 'blu_projects:project_detail' project.id %}" class="project-card">
+                        <div class="project-header">
+                            <div class="project-info">
+                                <span class="project-code">{{ project.code }}</span>
+                                <span class="project-status status-{{ project.status|lower }}">{{ project.get_status_display }}</span>
+                            </div>
+                            <div class="project-priority priority-{{ project.priority|lower }}">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="project-name">{{ project.name }}</h3>
+                        <p class="project-description">{{ project.description|truncatewords:15 }}</p>
+                        
+                        <div class="project-progress">
+                            <div class="progress-header">
+                                <span class="progress-label">Progress</span>
+                                <span class="progress-value">{{ project.progress_percentage }}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ project.progress_percentage }}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="project-meta">
+                            <div class="meta-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span>{{ project.end_date|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                <span>{{ project.team_members.count }} members</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3h7v7H3z"></path>
+                        <path d="M14 3h7v7h-7z"></path>
+                        <path d="M14 14h7v7h-7z"></path>
+                        <path d="M3 14h7v7H3z"></path>
+                    </svg>
+                    <h3>No Active Projects</h3>
+                    <p>Create your first project to start managing deliverables and timelines</p>
+                    <a href="{% url 'blu_projects:project_create' %}" class="btn-primary">Create Project</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Core Features Grid -->
+            <div class="feature-section" style="margin-top: 24px;">
+                <h2 class="section-title">Project Management Tools</h2>
+                <div class="feature-grid">
+                    <a href="{% url 'blu_projects:projects_list' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3h7v7H3z"></path>
+                                <path d="M14 3h7v7h-7z"></path>
+                                <path d="M14 14h7v7h-7z"></path>
+                                <path d="M3 14h7v7H3z"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>All Projects</h3>
+                            <p>View and manage all projects across your organization</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'blu_projects:timeline' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Timeline View</h3>
+                            <p>Visualize project schedules and dependencies</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'blu_projects:calendar' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Calendar View</h3>
+                            <p>Track milestones and deadlines in calendar format</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'blu_projects:team' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Team Management</h3>
+                            <p>Manage project teams and resource allocation</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'blu_projects:reports' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 20V10"></path>
+                                <path d="M12 20V4"></path>
+                                <path d="M6 20v-6"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Reports & Analytics</h3>
+                            <p>Generate insights on project performance and KPIs</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'blu_projects:reports' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Documents</h3>
+                            <p>Centralized document repository for all projects</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Quick Actions & Insights -->
+        <div class="side-column">
+            <!-- Quick Actions -->
+            <div class="info-card">
+                <h3 class="card-title">Quick Actions</h3>
+                <div class="action-list">
+                    <a href="{% url 'blu_projects:project_create' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Create New Project</span>
+                    </a>
+                    <a href="{% url 'blu_projects:projects_list' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3h7v7H3z"></path>
+                            <path d="M14 3h7v7h-7z"></path>
+                            <path d="M14 14h7v7h-7z"></path>
+                            <path d="M3 14h7v7H3z"></path>
+                        </svg>
+                        <span>View All Projects</span>
+                    </a>
+                    <a href="{% url 'blu_projects:timeline' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                        <span>Open Timeline</span>
+                    </a>
+                    <a href="{% url 'blu_projects:reports' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10"></path>
+                            <path d="M12 20V4"></path>
+                            <path d="M6 20v-6"></path>
+                        </svg>
+                        <span>Generate Report</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project Status Breakdown -->
+            <div class="info-card">
+                <h3 class="card-title">Project Status</h3>
+                <div class="status-breakdown">
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-indicator status-planning"></div>
+                            <span class="status-name">Planning</span>
+                        </div>
+                        <span class="status-count">{{ stats.planning_count|default:0 }}</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-indicator status-active"></div>
+                            <span class="status-name">Active</span>
+                        </div>
+                        <span class="status-count">{{ stats.active_count|default:0 }}</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-indicator status-on_hold"></div>
+                            <span class="status-name">On Hold</span>
+                        </div>
+                        <span class="status-count">{{ stats.on_hold_count|default:0 }}</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-indicator status-completed"></div>
+                            <span class="status-name">Completed</span>
+                        </div>
+                        <span class="status-count">{{ stats.completed_count|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="info-card">
+                <h3 class="card-title">Recent Activity</h3>
+                <div class="activity-list">
+                    {% for activity in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-dot"></div>
+                        <div class="activity-content">
+                            <p class="activity-text">{{ activity.description }}</p>
+                            <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="empty-state-small">No recent activity</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pms-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+    .stat-box {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: border-color 0.1s ease;
+    }
+    .stat-box:hover {
+        border-color: var(--primary);
+    }
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .stat-label {
+        font-size: 13px;
+        color: var(--medium-gray);
+        font-weight: 500;
+    }
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+    .feature-section {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 24px;
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--primary);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.1s ease;
+    }
+    .btn-primary:hover {
+        background: var(--primary-dark);
+    }
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+    .project-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        transition: all 0.1s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .project-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .project-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .project-code {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--medium-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .project-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .status-planning { background: #FEF3C7; color: #92400E; }
+    .status-active { background: #DBEAFE; color: #1E40AF; }
+    .status-on_hold { background: #FEE2E2; color: #991B1B; }
+    .status-completed { background: #D1FAE5; color: #065F46; }
+    .status-cancelled { background: #F3F4F6; color: #374151; }
+    .project-priority {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .priority-low { background: #F3F4F6; color: #6B7280; }
+    .priority-medium { background: #DBEAFE; color: #1E40AF; }
+    .priority-high { background: #FEF3C7; color: #92400E; }
+    .priority-critical { background: #FEE2E2; color: #991B1B; }
+    .project-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+        line-height: 1.3;
+    }
+    .project-description {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 0;
+        line-height: 1.5;
+    }
+    .project-progress {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .progress-label {
+        font-size: 12px;
+        color: var(--medium-gray);
+        font-weight: 500;
+    }
+    .progress-value {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    .progress-bar {
+        height: 6px;
+        background: var(--light-gray);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%;
+        background: var(--primary);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+    .project-meta {
+        display: flex;
+        gap: 16px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border-color);
+    }
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--medium-gray);
+    }
+    .meta-item svg {
+        color: var(--medium-gray);
+    }
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+    }
+    .feature-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        transition: all 0.1s ease;
+    }
+    .feature-card:hover {
+        border-color: var(--primary);
+        background: rgba(220, 20, 60, 0.02);
+    }
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .feature-content {
+        flex: 1;
+    }
+    .feature-content h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0 0 4px;
+    }
+    .feature-content p {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 0;
+        line-height: 1.4;
+    }
+    .feature-arrow {
+        color: var(--medium-gray);
+        opacity: 0;
+        transition: opacity 0.1s ease;
+    }
+    .feature-card:hover .feature-arrow {
+        opacity: 1;
+    }
+    .info-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 16px;
+    }
+    .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .action-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        font-size: 14px;
+        transition: background 0.1s ease;
+    }
+    .action-item:hover {
+        background: var(--light-gray);
+    }
+    .action-item svg {
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .status-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .status-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+    .status-name {
+        font-size: 13px;
+        color: var(--dark-gray);
+    }
+    .status-count {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .activity-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    .activity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .activity-content {
+        flex: 1;
+    }
+    .activity-text {
+        font-size: 13px;
+        color: var(--dark-gray);
+        margin: 0 0 4px;
+        line-height: 1.4;
+    }
+    .activity-time {
+        font-size: 12px;
+        color: var(--medium-gray);
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--medium-gray);
+    }
+    .empty-state svg {
+        color: var(--border-color);
+        margin-bottom: 16px;
+    }
+    .empty-state h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 8px;
+    }
+    .empty-state p {
+        font-size: 14px;
+        margin: 0 0 20px;
+    }
+    .empty-state-small {
+        text-align: center;
+        color: var(--medium-gray);
+        font-size: 13px;
+        padding: 20px;
+    }
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+        .projects-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,410 @@
+{% extends 'ems/blusuite_base.html' %}
+
+{% block title %}Staff Suite · BluSuite{% endblock %}
+
+{% block headline %}
+<h1 style="font-size: 32px; margin: 0 0 6px; color: #0f172a;">Staff Experience Hub</h1>
+<p style="margin: 0; color: #475569; font-size: 15px;">Coordinate people operations, employee workflows and HR analytics in one workspace.</p>
+{% endblock %}
+
+{% block content %}
+<div class="staff-layout">
+    <section class="staff-hero">
+        <div>
+            <span class="chip">Staff suite</span>
+            <h2>{{ overview.tenant_name|default:"Your organisation" }}</h2>
+            <p>HR visibility for {{ overview.total_employees }} employees • {{ overview.attendance.rate }}% attendance today.</p>
+        </div>
+        <div class="hero-stats">
+            <article class="stat-card">
+                <span class="stat-label">Active employees</span>
+                <strong>{{ overview.active_employees|default:0 }}</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Present today</span>
+                <strong>{{ overview.attendance.present|default:0 }}</strong>
+                <span class="stat-foot">Late: {{ overview.attendance.late|default:0 }} · Absent: {{ overview.attendance.absent|default:0 }}</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Pending leaves</span>
+                <strong>{{ overview.pending.leaves|default:0 }}</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Pending requests</span>
+                <strong>{{ overview.pending.requests|default:0 }}</strong>
+            </article>
+        </div>
+    </section>
+
+    <div class="staff-main">
+        <section class="staff-actions">
+            <header class="section-head">
+                <h2>Key workflows</h2>
+                <p>Jump straight into core workflows tailored to your role.</p>
+            </header>
+            <div class="action-grid">
+                {% for action in actions %}
+                <a href="{{ action.url }}" class="action-tile">
+                    <span class="icon"><i class="{{ action.icon }}"></i></span>
+                    <div>
+                        <h3>{{ action.label }}</h3>
+                        <p>{{ action.description }}</p>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="action-empty">No quick actions available for your role.</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="staff-insights">
+            <div class="insight-column">
+                <section class="insight-block">
+                    <header>
+                        <h3>Pending requests</h3>
+                        <span class="muted">What needs attention now</span>
+                    </header>
+                    <ul class="insight-list">
+                        {% for request in overview.pending_requests %}
+                        <li>
+                            <span class="primary">{{ request.title }}</span>
+                            <span class="secondary">{{ request.employee }} · {{ request.type }} · {{ request.submitted|date:"M j" }}</span>
+                            <span class="meta">{{ request.number }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="empty">All employee requests are up to date.</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+
+                <section class="insight-block">
+                    <header>
+                        <h3>Upcoming leave</h3>
+                        <span class="muted">Approved absences</span>
+                    </header>
+                    <ul class="insight-list">
+                        {% for leave in overview.upcoming.leaves %}
+                        <li>
+                            <span class="primary">{{ leave.employee }}</span>
+                            <span class="secondary">{{ leave.start_date }} → {{ leave.end_date }}</span>
+                            <span class="meta">{{ leave.status }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="empty">No upcoming leave yet.</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+
+                <section class="insight-block">
+                    <header>
+                        <h3>Expiring contracts</h3>
+                        <span class="muted">Next 90 days</span>
+                    </header>
+                    <ul class="insight-list">
+                        {% for contract in overview.upcoming.expiring_contracts %}
+                        <li>
+                            <span class="primary">{{ contract.employee }}</span>
+                            <span class="secondary">{{ contract.type }} · {{ contract.end_date }}</span>
+                            <span class="meta">{{ contract.days_remaining }} days left</span>
+                        </li>
+                        {% empty %}
+                        <li class="empty">No upcoming contract expiries.</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            </div>
+
+            <div class="insight-column">
+                <section class="insight-block">
+                    <header>
+                        <h3>Recent documents</h3>
+                        <span class="muted">Latest uploads requiring review</span>
+                    </header>
+                    <ul class="insight-list">
+                        {% for doc in overview.recent_documents %}
+                        <li>
+                            <span class="primary">{{ doc.title }}</span>
+                            <span class="secondary">{{ doc.employee }} · {{ doc.category }}</span>
+                            <span class="meta">{{ doc.uploaded_at|date:"M j" }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="empty">No new documents submitted.</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+
+                <section class="insight-block">
+                    <header>
+                        <h3>Work anniversaries</h3>
+                        <span class="muted">Celebrate this month</span>
+                    </header>
+                    <ul class="insight-list">
+                        {% for anniversary in overview.upcoming.anniversaries %}
+                        <li>
+                            <span class="primary">{{ anniversary.employee }}</span>
+                            <span class="secondary">{{ anniversary.date|date:"M j" }}</span>
+                            <span class="meta">{{ anniversary.years }} years</span>
+                        </li>
+                        {% empty %}
+                        <li class="empty">No anniversaries this month.</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+
+                <section class="insight-block">
+                    <header>
+                        <h3>Activity timeline</h3>
+                        <span class="muted">Highlights across teams</span>
+                    </header>
+                    <ul class="activity-list">
+                        {% for item in overview.team_activity %}
+                        <li>
+                            <span class="dot"></span>
+                            <div>
+                                <strong>{{ item.label }}</strong>
+                                <p>{{ item.primary }} · {{ item.secondary }}</p>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="empty">No activity logged yet.</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .staff-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+    }
+    .staff-hero {
+        background: white;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        display: flex;
+        justify-content: space-between;
+        gap: 32px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .staff-hero h2 {
+        margin: 6px 0 8px;
+        font-size: 1.9rem;
+        color: #0f172a;
+    }
+    .staff-hero p {
+        margin: 0;
+        color: #475569;
+    }
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(56, 189, 248, 0.16);
+        color: #0ea5e9;
+    }
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        min-width: 320px;
+    }
+    .stat-card {
+        background: rgba(15, 23, 42, 0.92);
+        color: white;
+        border-radius: 16px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 140px;
+    }
+    .stat-card strong {
+        font-size: 24px;
+        font-weight: 700;
+    }
+    .stat-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.7;
+    }
+    .stat-foot {
+        font-size: 12px;
+        color: rgba(226, 232, 240, 0.8);
+    }
+    .staff-main {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+    }
+    .section-head h2 {
+        margin: 0 0 4px;
+        font-size: 1.5rem;
+        color: #0f172a;
+    }
+    .section-head p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.95rem;
+    }
+    .staff-actions {
+        background: white;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+    }
+    .action-tile {
+        display: flex;
+        gap: 16px;
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(148, 163, 184, 0.12);
+        text-decoration: none;
+        color: #0f172a;
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .action-tile:hover {
+        transform: translateY(-4px);
+        background: rgba(14, 165, 233, 0.14);
+    }
+    .action-tile .icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: rgba(14, 165, 233, 0.16);
+        color: #0ea5e9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .action-tile h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    .action-tile p {
+        margin: 4px 0 0;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+    .staff-insights {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+    }
+    .insight-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .insight-block {
+        background: white;
+        border-radius: 20px;
+        padding: 22px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .insight-block header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #0f172a;
+    }
+    .insight-block header .muted {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+    .insight-list,
+    .activity-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .insight-list li,
+    .activity-list li {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(148, 163, 184, 0.12);
+        color: #0f172a;
+    }
+    .insight-list li .primary {
+        font-weight: 600;
+    }
+    .insight-list li .secondary {
+        font-size: 0.9rem;
+        color: #475569;
+    }
+    .insight-list li .meta {
+        font-size: 0.78rem;
+        color: #64748b;
+    }
+    .insight-list li.empty,
+    .activity-list li.empty {
+        background: transparent;
+        border: 1px dashed rgba(148, 163, 184, 0.4);
+        color: #64748b;
+        text-align: center;
+    }
+    .activity-list li {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .activity-list li .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #0ea5e9;
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .activity-list li strong {
+        font-size: 0.95rem;
+        color: #0f172a;
+    }
+    .activity-list li p {
+        margin: 2px 0 0;
+        color: #475569;
+        font-size: 0.88rem;
+    }
+    @media (max-width: 1100px) {
+        .staff-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .hero-stats {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

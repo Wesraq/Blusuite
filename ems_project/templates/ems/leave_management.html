@@ -1,0 +1,501 @@
+﻿{% extends 'ems/base_employee.html' %}
+
+{% block title %}Leave Management - EMS{% endblock %}
+{% block page_title %}Leave Request Management{% endblock %}
+
+{% block content %}
+<a href="{% url 'hr_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 14px; margin-bottom: 16px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Back to Dashboard
+</a>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg></div>
+        <h3 id="totalRequests">0</h3>
+        <p>Total Leave Requests</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dcfce7; color: #16a34a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></div>
+        <h3 id="approvedRequests">0</h3>
+        <p>Approved</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <h3 id="pendingRequests">0</h3>
+        <p>Pending Approval</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fecaca; color: #dc2626;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg></div>
+        <h3 id="rejectedRequests">0</h3>
+        <p>Rejected</p>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<div style="border-bottom: 2px solid hsl(var(--border)); margin-bottom: 24px;">
+    <div style="display: flex; gap: 8px;">
+        <button class="tab-btn active" onclick="showTab('all')">All Requests</button>
+        <button class="tab-btn" onclick="showTab('pending')">Pending Approval</button>
+        <button class="tab-btn" onclick="showTab('approved')">Approved</button>
+        <button class="tab-btn" onclick="showTab('rejected')">Rejected</button>
+        <button class="tab-btn" onclick="showTab('my-requests')">My Requests</button>
+    </div>
+</div>
+
+<!-- All Requests Tab -->
+<div id="all" class="tab-content active">
+    <div class="content-card" style="max-width: 100%;">
+        <div class="card-header">
+            <div class="card-title">All Leave Requests</div>
+            <div class="card-subtitle">Manage all leave requests across your organization</div>
+        </div>
+        <div class="card-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div></div>
+                <button class="btn" onclick="showNewRequestModal()">+ New Request</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allRequestsTable">
+                        <!-- Leave requests will be loaded here -->
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">
+                                Loading leave requests...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Requests Tab -->
+<div id="pending" class="tab-content">
+    <div class="content-card" style="max-width: 100%;">
+        <div class="card-header">
+            <div class="card-title">Pending Approval</div>
+            <div class="card-subtitle">Leave requests awaiting your approval</div>
+        </div>
+        <div class="card-content">
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Reason</th>
+                            <th>Applied Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingRequestsTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
+                                Loading pending requests...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approved Requests Tab -->
+<div id="approved" class="tab-content">
+    <div class="content-card" style="max-width: 100%;">
+        <div class="card-header">
+            <div class="card-title">Approved Requests</div>
+            <div class="card-subtitle">Approved leave requests</div>
+        </div>
+        <div class="card-content">
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Reason</th>
+                            <th>Approved Date</th>
+                            <th>Approved By</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvedRequestsTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
+                                Loading approved requests...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rejected Requests Tab -->
+<div id="rejected" class="tab-content">
+    <div class="content-card" style="max-width: 100%;">
+        <div class="card-header">
+            <div class="card-title">Rejected Requests</div>
+            <div class="card-subtitle">Rejected leave requests</div>
+        </div>
+        <div class="card-content">
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Reason</th>
+                            <th>Rejection Reason</th>
+                            <th>Rejected Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rejectedRequestsTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
+                                Loading rejected requests...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Requests Tab -->
+<div id="my-requests" class="tab-content">
+    <div class="content-card" style="max-width: 100%;">
+        <div class="card-header">
+            <div class="card-title">My Leave Requests</div>
+            <div class="card-subtitle">Your own leave requests</div>
+        </div>
+        <div class="card-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div></div>
+                <button class="btn" onclick="showNewRequestModal()">+ New Request</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myRequestsTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
+                                Loading your requests...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Tab navigation
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Show selected tab content
+    document.getElementById(tabName).style.display = 'block';
+
+    // Add active class to clicked tab button
+    event.target.classList.add('active');
+
+    // Load data for the selected tab
+    loadLeaveRequests(tabName);
+}
+
+// Modal functions
+function showNewRequestModal() {
+    document.getElementById('newRequestModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeNewRequestModal() {
+    document.getElementById('newRequestModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    document.getElementById('newLeaveRequestForm').reset();
+}
+
+// Load leave requests data
+async function loadLeaveRequests(tabType) {
+    try {
+        const response = await fetch('/api/v1/attendance/leave-requests/');
+        const data = await response.json();
+
+        // Filter data based on tab type
+        let filteredData = data;
+        if (tabType === 'pending') {
+            filteredData = data.filter(request => request.status === 'PENDING');
+        } else if (tabType === 'approved') {
+            filteredData = data.filter(request => request.status === 'APPROVED');
+        } else if (tabType === 'rejected') {
+            filteredData = data.filter(request => request.status === 'REJECTED');
+        } else if (tabType === 'my-requests') {
+            // For demo purposes, show first 5 requests as "my requests"
+            filteredData = data.slice(0, 5);
+        }
+
+        // Update statistics
+        updateStatistics(data);
+
+        // Render table
+        renderLeaveRequestsTable(filteredData, tabType);
+
+    } catch (error) {
+        console.error('Error loading leave requests:', error);
+    }
+}
+
+function updateStatistics(data) {
+    const totalRequests = data.length;
+    const approvedRequests = data.filter(r => r.status === 'APPROVED').length;
+    const pendingRequests = data.filter(r => r.status === 'PENDING').length;
+    const rejectedRequests = data.filter(r => r.status === 'REJECTED').length;
+
+    document.getElementById('totalRequests').textContent = totalRequests;
+    document.getElementById('approvedRequests').textContent = approvedRequests;
+    document.getElementById('pendingRequests').textContent = pendingRequests;
+    document.getElementById('rejectedRequests').textContent = rejectedRequests;
+}
+
+function renderLeaveRequestsTable(requests, tabType) {
+    let tableBody;
+
+    if (tabType === 'all') {
+        tableBody = document.getElementById('allRequestsTable');
+    } else if (tabType === 'pending') {
+        tableBody = document.getElementById('pendingRequestsTable');
+    } else if (tabType === 'approved') {
+        tableBody = document.getElementById('approvedRequestsTable');
+    } else if (tabType === 'rejected') {
+        tableBody = document.getElementById('rejectedRequestsTable');
+    } else if (tabType === 'my-requests') {
+        tableBody = document.getElementById('myRequestsTable');
+    }
+
+    if (!tableBody) return;
+
+    if (requests.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">
+                    No leave requests found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    let html = '';
+    requests.forEach(request => {
+        const startDate = new Date(request.start_date).toLocaleDateString();
+        const endDate = new Date(request.end_date).toLocaleDateString();
+        const appliedDate = new Date(request.created_at).toLocaleDateString();
+        const approvedDate = request.approved_at ? new Date(request.approved_at).toLocaleDateString() : '-';
+
+        if (tabType === 'my-requests') {
+            html += `
+                <tr>
+                    <td>${request.leave_type}</td>
+                    <td>${request.duration} days</td>
+                    <td>${request.reason.substring(0, 50)}...</td>
+                    <td>
+                        <span class="status ${request.status.toLowerCase()}">${request.status}</span>
+                    </td>
+                    <td>${appliedDate}</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="editRequest(${request.id})">Edit</button>
+                    </td>
+                </tr>
+            `;
+        } else {
+            html += `
+                <tr>
+                    <td>${request.employee_name || 'Unknown Employee'}</td>
+                    <td>${request.leave_type}</td>
+                    <td>${startDate} to ${endDate}</td>
+                    <td>${request.reason.substring(0, 50)}...</td>
+                    <td>
+                        <span class="status ${request.status.toLowerCase()}">${request.status}</span>
+                    </td>
+                    <td>${appliedDate}</td>
+                    <td>
+                        ${request.status === 'PENDING' ?
+                            `<button class="btn btn-success" onclick="approveRequest(${request.id})">Approve</button>
+                             <button class="btn btn-warning" onclick="rejectRequest(${request.id})">Reject</button>` :
+                            `<button class="btn btn-secondary" onclick="viewRequest(${request.id})">View</button>`
+                        }
+                    </td>
+                </tr>
+            `;
+        }
+    });
+
+    tableBody.innerHTML = html;
+}
+
+// Form submission
+document.getElementById('newLeaveRequestForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = {
+        leave_type: formData.get('leave_type'),
+        start_date: formData.get('start_date'),
+        end_date: formData.get('end_date'),
+        reason: formData.get('reason')
+    };
+
+    try {
+        const response = await fetch('/api/v1/attendance/leave-requests/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            alert('Leave request submitted successfully!');
+            closeNewRequestModal();
+            loadLeaveRequests('all'); // Refresh the data
+        } else {
+            const error = await response.json();
+            alert('Error submitting leave request: ' + JSON.stringify(error));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error submitting leave request');
+    }
+});
+
+// Action functions
+async function approveRequest(requestId) {
+    if (!confirm('Are you sure you want to approve this leave request?')) return;
+
+    try {
+        const response = await fetch(`/api/v1/attendance/leave-requests/${requestId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value
+            },
+            body: JSON.stringify({ status: 'APPROVED' })
+        });
+
+        if (response.ok) {
+            alert('Leave request approved successfully!');
+            loadLeaveRequests('all');
+            loadLeaveRequests('pending');
+        } else {
+            alert('Error approving leave request');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error approving leave request');
+    }
+}
+
+async function rejectRequest(requestId) {
+    const reason = prompt('Please provide a reason for rejection:');
+    if (!reason) return;
+
+    try {
+        const response = await fetch(`/api/v1/attendance/leave-requests/${requestId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value
+            },
+            body: JSON.stringify({
+                status: 'REJECTED',
+                rejection_reason: reason
+            })
+        });
+
+        if (response.ok) {
+            alert('Leave request rejected successfully!');
+            loadLeaveRequests('all');
+            loadLeaveRequests('pending');
+        } else {
+            alert('Error rejecting leave request');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error rejecting leave request');
+    }
+}
+
+function viewRequest(requestId) {
+    alert(`View leave request functionality for request ${requestId} would be implemented here`);
+}
+
+function editRequest(requestId) {
+    alert(`Edit leave request functionality for request ${requestId} would be implemented here`);
+}
+
+// Load initial data when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadLeaveRequests('all');
+});
+</script>
+{% endblock %}

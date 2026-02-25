@@ -1,0 +1,225 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Support Tickets - BLU Suite Admin{% endblock %}
+{% block nav_support %} active{% endblock %}
+{% block page_title %}Support Tickets Management{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Filter Tickets</div>
+    </div>
+    <div class="card-content">
+        <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Search</label>
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search tickets..." style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 4px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Status</label>
+                <select name="status" style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                    <option value="">All Status</option>
+                    {% for status, label in status_choices %}
+                    <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Priority</label>
+                <select name="priority" style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                    <option value="">All Priority</option>
+                    {% for priority, label in priority_choices %}
+                    <option value="{{ priority }}" {% if priority_filter == priority %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Category</label>
+                <select name="category" style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Company</label>
+                <select name="company" style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                    <option value="">All Companies</option>
+                    {% for company in companies %}
+                    <option value="{{ company.id }}" {% if company_filter == company.id|stringformat:"s" %}selected{% endif %}>{{ company.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: flex; align-items: end; gap: 8px;">
+                <button type="submit" class="btn" style="background: #E11D48; color: white; padding: 8px 16px; border: none; border-radius: 4px;">Filter</button>
+                <a href="{% url 'support:superadmin_tickets' %}" class="btn" style="background: #f3f4f6; color: #374151; padding: 8px 16px; border: 1px solid #e5e7eb; border-radius: 4px; text-decoration: none;">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tickets List -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Support Tickets</div>
+        <div class="card-subtitle">{{ tickets|length }} tickets found</div>
+    </div>
+    <div class="card-content">
+        {% if tickets %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Subject</th>
+                        <th>Company</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Category</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'support:superadmin_ticket_detail' ticket.id %}" style="color: #E11D48; text-decoration: none;">
+                                {{ ticket.reference }}
+                            </a>
+                        </td>
+                        <td>{{ ticket.subject|truncatechars:50 }}</td>
+                        <td>{{ ticket.company.name|default:"N/A" }}</td>
+                        <td>
+                            <span class="priority-badge priority-{{ ticket.priority|lower }}">
+                                {{ ticket.get_priority_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ ticket.status|lower }}">
+                                {{ ticket.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ ticket.category|default:"Uncategorized" }}</td>
+                        <td>{{ ticket.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <a href="{% url 'support:superadmin_ticket_detail' ticket.id %}" class="btn" style="padding: 4px 8px; font-size: 12px;">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 16px; color: #64748b;">
+                <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
+                <path d="M6 12h4m4 0h4"></path>
+                <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01"></path>
+            </svg>
+            <div style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">No tickets found</div>
+            <div style="font-size: 14px; color: #64748b;">Try adjusting your filters</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.priority-urgent {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.priority-high {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.priority-normal {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.priority-low {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-open {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-in_progress {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-resolved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-closed {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: #f8fafc;
+    padding: 12px;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+.data-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+</style>
+{% endblock %}

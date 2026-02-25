@@ -1,0 +1,484 @@
+{% extends 'ems/blusuite_base.html' %}
+
+{% block title %}Settings: {{ template.title }} - BLU Suite{% endblock %}
+
+{% block extra_head %}
+<style>
+    .es-header{background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:16px 20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+    .es-header h1{margin:0 0 2px;font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
+    .es-header p{margin:0;font-size:12px;color:#64748b}
+    .es-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:4px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid;cursor:pointer;transition:all .15s;font-family:inherit;line-height:1}
+    .es-btn-primary{background:#E11D48;color:#fff;border-color:#E11D48}.es-btn-primary:hover{background:#BE123C}
+    .es-btn-secondary{background:#fff;color:#0f172a;border-color:#e2e8f0}.es-btn-secondary:hover{background:#f8fafc;border-color:#cbd5e1}
+    .es-btn-danger{background:#fff;color:#DC2626;border-color:#FCA5A5}.es-btn-danger:hover{background:#FEF2F2;border-color:#DC2626}
+    .es-card{background:#fff;border:1px solid #e2e8f0;border-radius:4px;overflow:hidden}
+    .es-card-hd{padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#0f172a}
+    .es-card-bd{padding:16px}
+    .es-label{font-size:12px;font-weight:600;color:#0f172a;margin-bottom:3px;display:block}
+    .es-hint{font-size:11px;color:#94a3b8;margin-top:2px}
+    .es-input{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:4px;font-size:13px;font-family:inherit;transition:border-color .15s;box-sizing:border-box}
+    .es-input:focus{outline:none;border-color:#E11D48;box-shadow:0 0 0 2px rgba(225,29,72,.08)}
+    select.es-input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");background-position:right 8px center;background-repeat:no-repeat;background-size:14px;padding-right:28px}
+    .es-badge{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+    .es-toggle{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:4px;cursor:pointer;transition:all .15s}
+    .es-toggle:hover{border-color:#cbd5e1;background:#f8fafc}
+    .es-toggle.active{border-color:#E11D48;background:#FFF1F2}
+    .es-toggle input[type="checkbox"]{width:16px;height:16px;margin-top:2px;cursor:pointer;accent-color:#E11D48;flex-shrink:0}
+    .es-toggle-icon{width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .es-meta-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
+    .es-meta-row:last-child{border-bottom:none}
+    .es-stat{text-align:center;padding:12px 8px}
+    .es-stat-val{font-size:20px;font-weight:700;color:#0f172a}
+    .es-stat-lbl{font-size:11px;color:#64748b;margin-top:2px}
+    .es-section{margin-bottom:12px}
+    .es-section:last-child{margin-bottom:0}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="es-header">
+    <div>
+        <h1>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Form Settings
+        </h1>
+        <p>Configure {{ template.title }} - template properties, workflow, and access</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+        {% if template.status == 'DRAFT' %}
+        <span class="es-badge" style="background:#FEF3C7;color:#92400E">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Draft
+        </span>
+        {% elif template.status == 'ACTIVE' %}
+        <span class="es-badge" style="background:#DCFCE7;color:#166534">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Active
+        </span>
+        {% else %}
+        <span class="es-badge" style="background:#F1F5F9;color:#64748b">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+            Archived
+        </span>
+        {% endif %}
+        <a href="{% url 'form_builder' template.id %}" class="es-btn es-btn-primary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            Open Builder
+        </a>
+        <a href="{% url 'form_templates_list' %}" class="es-btn es-btn-secondary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+        </a>
+    </div>
+</div>
+
+<form method="POST" id="edit-form">
+{% csrf_token %}
+
+<div style="display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start">
+    <!-- ═══════ LEFT COLUMN ═══════ -->
+    <div>
+        <!-- Template Details -->
+        <div class="es-card es-section">
+            <div class="es-card-hd">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Template Details
+            </div>
+            <div class="es-card-bd">
+                <div style="display:grid;gap:14px">
+                    <div>
+                        <label class="es-label">Template Title <span style="color:#EF4444">*</span></label>
+                        <input type="text" name="title" value="{{ template.title }}" required class="es-input" placeholder="e.g. Leave Request Form">
+                        <div class="es-hint">A clear name that employees will see when filling out this form</div>
+                    </div>
+                    <div>
+                        <label class="es-label">Description</label>
+                        <textarea name="description" rows="3" class="es-input" style="resize:vertical" placeholder="Describe the purpose of this form...">{{ template.description }}</textarea>
+                        <div class="es-hint">Optional description shown to employees before they fill out the form</div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <div>
+                            <label class="es-label">Category <span style="color:#EF4444">*</span></label>
+                            <select name="category" required class="es-input">
+                                {% for value, label in categories %}
+                                <option value="{{ value }}" {% if template.category == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="es-label">Status <span style="color:#EF4444">*</span></label>
+                            <select name="status" required class="es-input" id="status-select">
+                                <option value="DRAFT" {% if template.status == 'DRAFT' %}selected{% endif %}>Draft</option>
+                                <option value="ACTIVE" {% if template.status == 'ACTIVE' %}selected{% endif %}>Active</option>
+                                <option value="ARCHIVED" {% if template.status == 'ARCHIVED' %}selected{% endif %}>Archived</option>
+                            </select>
+                            <div class="es-hint">Only Active forms are visible to employees</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Settings -->
+        <div class="es-card es-section">
+            <div class="es-card-hd">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Workflow Settings
+            </div>
+            <div class="es-card-bd" style="display:grid;gap:10px">
+                <label class="es-toggle {% if template.requires_signature %}active{% endif %}" id="sig-toggle">
+                    <input type="checkbox" name="requires_signature" {% if template.requires_signature %}checked{% endif %} onchange="this.closest('.es-toggle').classList.toggle('active',this.checked)">
+                    <div class="es-toggle-icon" style="background:{% if template.requires_signature %}#FFF1F2{% else %}#F1F5F9{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{% if template.requires_signature %}#E11D48{% else %}#94a3b8{% endif %}" stroke-width="2"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </div>
+                    <div style="flex:1">
+                        <div style="font-weight:600;color:#0f172a;font-size:13px">Electronic Signature</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:2px;line-height:1.4">Require submitters to provide a legally binding electronic signature after filling out the form. Supports drawn and typed signatures.</div>
+                    </div>
+                </label>
+
+                <label class="es-toggle {% if template.requires_approval %}active{% endif %}" id="approval-toggle">
+                    <input type="checkbox" name="requires_approval" id="requires_approval" {% if template.requires_approval %}checked{% endif %} onchange="toggleApproval(this)">
+                    <div class="es-toggle-icon" style="background:{% if template.requires_approval %}#F0FDF4{% else %}#F1F5F9{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{% if template.requires_approval %}#16A34A{% else %}#94a3b8{% endif %}" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div style="flex:1">
+                        <div style="font-weight:600;color:#0f172a;font-size:13px">Approval Workflow</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:2px;line-height:1.4">Submitted forms will be routed to a designated approver for review. Forms remain pending until approved or rejected.</div>
+                    </div>
+                </label>
+
+                <div id="approver-config" style="{% if not template.requires_approval %}display:none;{% endif %}padding:12px;background:#F8FAFC;border:1px solid #e2e8f0;border-radius:4px">
+                    <label class="es-label">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Approver Role
+                    </label>
+                    <select name="approver_role" class="es-input" style="margin-top:4px">
+                        <option value="" {% if not template.approver_role %}selected{% endif %}>Any HR or Admin</option>
+                        <option value="HR" {% if template.approver_role == 'HR' %}selected{% endif %}>HR Only</option>
+                        <option value="SUPERVISOR" {% if template.approver_role == 'SUPERVISOR' %}selected{% endif %}>Direct Supervisor</option>
+                        <option value="ACCOUNTANT" {% if template.approver_role == 'ACCOUNTANT' %}selected{% endif %}>Accountant Only</option>
+                    </select>
+                    <div class="es-hint" style="margin-top:4px">Choose who can approve submissions of this form</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Header Layout -->
+        <div class="es-card es-section">
+            <div class="es-card-hd">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M4 4h16v4H4z"/><path d="M4 12h16"/><path d="M4 16h10"/></svg>
+                Document Header Layout
+            </div>
+            <div class="es-card-bd">
+                <label class="es-label">Letterhead Style</label>
+                <div class="es-hint" style="margin-bottom:10px">Choose how the company logo and details appear on this form and its PDF export</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                    <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:2px solid {% if template.header_style == 'logo_left' or not template.header_style %}#E11D48{% else %}#e2e8f0{% endif %};border-radius:4px;cursor:pointer;background:{% if template.header_style == 'logo_left' or not template.header_style %}#FFF1F2{% else %}#fff{% endif %};transition:all .15s" onclick="selectHeaderStyle(this,'logo_left')">
+                        <input type="radio" name="header_style" value="logo_left" {% if template.header_style == 'logo_left' or not template.header_style %}checked{% endif %} style="display:none">
+                        <div style="width:36px;height:28px;border:1px solid #cbd5e1;border-radius:3px;display:flex;align-items:center;padding:3px;gap:3px;flex-shrink:0">
+                            <div style="width:10px;height:10px;background:#E11D48;border-radius:2px"></div>
+                            <div style="flex:1"><div style="height:3px;background:#cbd5e1;border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:#e2e8f0;border-radius:1px;width:80%"></div></div>
+                        </div>
+                        <div style="font-size:11px;font-weight:600;color:#0f172a">Logo Left</div>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:2px solid {% if template.header_style == 'logo_right' %}#E11D48{% else %}#e2e8f0{% endif %};border-radius:4px;cursor:pointer;background:{% if template.header_style == 'logo_right' %}#FFF1F2{% else %}#fff{% endif %};transition:all .15s" onclick="selectHeaderStyle(this,'logo_right')">
+                        <input type="radio" name="header_style" value="logo_right" {% if template.header_style == 'logo_right' %}checked{% endif %} style="display:none">
+                        <div style="width:36px;height:28px;border:1px solid #cbd5e1;border-radius:3px;display:flex;align-items:center;padding:3px;gap:3px;flex-shrink:0">
+                            <div style="flex:1"><div style="height:3px;background:#cbd5e1;border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:#e2e8f0;border-radius:1px;width:80%"></div></div>
+                            <div style="width:10px;height:10px;background:#E11D48;border-radius:2px"></div>
+                        </div>
+                        <div style="font-size:11px;font-weight:600;color:#0f172a">Logo Right</div>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:2px solid {% if template.header_style == 'logo_center' %}#E11D48{% else %}#e2e8f0{% endif %};border-radius:4px;cursor:pointer;background:{% if template.header_style == 'logo_center' %}#FFF1F2{% else %}#fff{% endif %};transition:all .15s" onclick="selectHeaderStyle(this,'logo_center')">
+                        <input type="radio" name="header_style" value="logo_center" {% if template.header_style == 'logo_center' %}checked{% endif %} style="display:none">
+                        <div style="width:36px;height:28px;border:1px solid #cbd5e1;border-radius:3px;display:flex;align-items:center;justify-content:center;padding:3px;flex-shrink:0;flex-direction:column">
+                            <div style="width:10px;height:8px;background:#E11D48;border-radius:2px;margin-bottom:2px"></div>
+                            <div style="height:2px;background:#cbd5e1;border-radius:1px;width:80%"></div>
+                        </div>
+                        <div style="font-size:11px;font-weight:600;color:#0f172a">Centered</div>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:2px solid {% if template.header_style == 'full_width' %}#E11D48{% else %}#e2e8f0{% endif %};border-radius:4px;cursor:pointer;background:{% if template.header_style == 'full_width' %}#FFF1F2{% else %}#fff{% endif %};transition:all .15s" onclick="selectHeaderStyle(this,'full_width')">
+                        <input type="radio" name="header_style" value="full_width" {% if template.header_style == 'full_width' %}checked{% endif %} style="display:none">
+                        <div style="width:36px;height:28px;border:1px solid #cbd5e1;border-radius:3px;display:flex;align-items:center;justify-content:center;padding:3px;flex-shrink:0">
+                            <div style="flex:1"><div style="height:3px;background:#E11D48;border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:#e2e8f0;border-radius:1px"></div><div style="height:2px;background:#e2e8f0;border-radius:1px;margin-top:1px;width:60%"></div></div>
+                        </div>
+                        <div style="font-size:11px;font-weight:600;color:#0f172a">Full Width</div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Structure Info -->
+        <div class="es-card es-section">
+            <div class="es-card-hd">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                Form Structure
+            </div>
+            <div class="es-card-bd">
+                {% with fields_data=template.form_fields %}
+                {% if fields_data.fields %}
+                <div style="display:flex;gap:12px;margin-bottom:12px">
+                    <div class="es-stat" style="flex:1;background:#F8FAFC;border:1px solid #e2e8f0;border-radius:4px">
+                        <div class="es-stat-val">{{ fields_data.fields|length }}</div>
+                        <div class="es-stat-lbl">Total Fields</div>
+                    </div>
+                    <div class="es-stat" style="flex:1;background:#F8FAFC;border:1px solid #e2e8f0;border-radius:4px">
+                        <div class="es-stat-val" id="required-count">0</div>
+                        <div class="es-stat-lbl">Required</div>
+                    </div>
+                    <div class="es-stat" style="flex:1;background:#F8FAFC;border:1px solid #e2e8f0;border-radius:4px">
+                        <div class="es-stat-val" id="section-count">0</div>
+                        <div class="es-stat-lbl">Sections</div>
+                    </div>
+                </div>
+                <div style="max-height:200px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:4px">
+                    <table style="width:100%;border-collapse:collapse;font-size:12px">
+                        <thead>
+                            <tr style="background:#F8FAFC">
+                                <th style="padding:6px 10px;text-align:left;font-weight:600;color:#64748b;border-bottom:1px solid #e2e8f0">#</th>
+                                <th style="padding:6px 10px;text-align:left;font-weight:600;color:#64748b;border-bottom:1px solid #e2e8f0">Label</th>
+                                <th style="padding:6px 10px;text-align:left;font-weight:600;color:#64748b;border-bottom:1px solid #e2e8f0">Type</th>
+                                <th style="padding:6px 10px;text-align:center;font-weight:600;color:#64748b;border-bottom:1px solid #e2e8f0">Req</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fields-table-body"></tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align:center;padding:24px 16px">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin:0 auto 8px;display:block"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    <div style="font-size:13px;font-weight:600;color:#64748b">No fields defined yet</div>
+                    <div style="font-size:12px;color:#94a3b8;margin-top:2px">Open the Form Builder to add fields</div>
+                    <a href="{% url 'form_builder' template.id %}" class="es-btn es-btn-primary" style="margin-top:10px">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        Open Builder
+                    </a>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <!-- Save Actions -->
+        <div style="display:flex;gap:8px;padding-top:4px">
+            <button type="submit" class="es-btn es-btn-primary">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Changes
+            </button>
+            <a href="{% url 'form_templates_list' %}" class="es-btn es-btn-secondary">Cancel</a>
+        </div>
+    </div>
+
+    <!-- ═══════ RIGHT SIDEBAR ═══════ -->
+    <div style="position:sticky;top:12px">
+        <!-- Quick Actions -->
+        <div class="es-card es-section">
+            <div class="es-card-hd">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Quick Actions
+            </div>
+            <div class="es-card-bd" style="display:grid;gap:6px">
+                <a href="{% url 'form_builder' template.id %}" class="es-btn es-btn-primary" style="width:100%;justify-content:center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    Edit Form Fields
+                </a>
+                {% if template.status == 'ACTIVE' %}
+                <a href="{% url 'form_fill' template.id %}" class="es-btn es-btn-secondary" style="width:100%;justify-content:center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Preview as Employee
+                </a>
+                {% endif %}
+                <a href="{% url 'form_submissions_list' %}" class="es-btn es-btn-secondary" style="width:100%;justify-content:center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    View Submissions
+                </a>
+            </div>
+        </div>
+
+        <!-- Template Info -->
+        <div class="es-card es-section">
+            <div class="es-card-hd">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Template Info
+            </div>
+            <div class="es-card-bd" style="padding:12px 16px">
+                <div class="es-meta-row">
+                    <span style="color:#64748b">Created</span>
+                    <span style="font-weight:600;color:#0f172a">{{ template.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="es-meta-row">
+                    <span style="color:#64748b">Updated</span>
+                    <span style="font-weight:600;color:#0f172a">{{ template.updated_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="es-meta-row">
+                    <span style="color:#64748b">Created by</span>
+                    <span style="font-weight:600;color:#0f172a">{{ template.created_by.get_full_name|default:"System" }}</span>
+                </div>
+                <div class="es-meta-row">
+                    <span style="color:#64748b">Category</span>
+                    <span class="es-badge" style="background:#F1F5F9;color:#475569">{{ template.get_category_display }}</span>
+                </div>
+                <div class="es-meta-row">
+                    <span style="color:#64748b">Submissions</span>
+                    <span style="font-weight:600;color:#0f172a">{{ template.submissions.count|default:"0" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Summary -->
+        <div class="es-card es-section">
+            <div class="es-card-hd">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Workflow Summary
+            </div>
+            <div class="es-card-bd" style="padding:12px 16px">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+                        <div style="width:8px;height:8px;border-radius:50%;background:{% if template.requires_signature %}#E11D48{% else %}#cbd5e1{% endif %};flex-shrink:0"></div>
+                        <span style="color:#475569">E-Signature</span>
+                        <span style="margin-left:auto;font-weight:600;color:{% if template.requires_signature %}#E11D48{% else %}#94a3b8{% endif %}">{% if template.requires_signature %}Enabled{% else %}Disabled{% endif %}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+                        <div style="width:8px;height:8px;border-radius:50%;background:{% if template.requires_approval %}#16A34A{% else %}#cbd5e1{% endif %};flex-shrink:0"></div>
+                        <span style="color:#475569">Approval</span>
+                        <span style="margin-left:auto;font-weight:600;color:{% if template.requires_approval %}#16A34A{% else %}#94a3b8{% endif %}">{% if template.requires_approval %}Enabled{% else %}Disabled{% endif %}</span>
+                    </div>
+                    {% if template.requires_approval and template.approver_role %}
+                    <div style="display:flex;align-items:center;gap:8px;font-size:12px;padding-left:16px">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        <span style="color:#64748b">Approver: <strong>{{ template.approver_role }}</strong></span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Submission Flow -->
+        <div style="padding:12px;background:#F8FAFC;border:1px solid #e2e8f0;border-radius:4px">
+            <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Submission Flow</div>
+            <div style="display:flex;flex-direction:column;gap:0">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#475569;padding:4px 0">
+                    <div style="width:18px;height:18px;border-radius:50%;background:#E11D48;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">1</div>
+                    Employee fills form
+                </div>
+                <div style="width:1px;height:8px;background:#e2e8f0;margin-left:9px"></div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#475569;padding:4px 0">
+                    <div style="width:18px;height:18px;border-radius:50%;background:{% if template.requires_signature %}#E11D48{% else %}#e2e8f0{% endif %};color:{% if template.requires_signature %}#fff{% else %}#94a3b8{% endif %};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">2</div>
+                    {% if template.requires_signature %}Signs electronically{% else %}<span style="color:#94a3b8;text-decoration:line-through">Signature (skipped)</span>{% endif %}
+                </div>
+                <div style="width:1px;height:8px;background:#e2e8f0;margin-left:9px"></div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#475569;padding:4px 0">
+                    <div style="width:18px;height:18px;border-radius:50%;background:{% if template.requires_approval %}#16A34A{% else %}#e2e8f0{% endif %};color:{% if template.requires_approval %}#fff{% else %}#94a3b8{% endif %};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">3</div>
+                    {% if template.requires_approval %}Sent for approval{% else %}<span style="color:#94a3b8;text-decoration:line-through">Approval (skipped)</span>{% endif %}
+                </div>
+                <div style="width:1px;height:8px;background:#e2e8f0;margin-left:9px"></div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#475569;padding:4px 0">
+                    <div style="width:18px;height:18px;border-radius:50%;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    Submission complete
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div style="margin-top:12px;border:1px solid #FCA5A5;border-radius:4px;overflow:hidden">
+            <div style="padding:10px 14px;background:#FEF2F2;border-bottom:1px solid #FCA5A5;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#DC2626">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Danger Zone
+            </div>
+            <div style="padding:12px 14px;background:#fff">
+                <div style="font-size:12px;color:#64748b;margin-bottom:8px;line-height:1.4">Permanently delete this form template and all its associated data. This action cannot be undone.</div>
+                <button type="button" onclick="showDeleteModal()" class="es-btn es-btn-danger" style="width:100%;justify-content:center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    Delete Template
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:4px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+        <div style="padding:20px 20px 0;text-align:center">
+            <div style="width:48px;height:48px;border-radius:50%;background:#FEF2F2;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </div>
+            <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px">Delete Form Template</div>
+            <div style="font-size:13px;color:#64748b;line-height:1.5">Are you sure you want to delete <strong>{{ template.title }}</strong>? This will permanently remove the template and all associated submissions, signatures, and approvals.</div>
+        </div>
+        <div style="padding:16px 20px;display:flex;gap:8px;justify-content:center">
+            <button type="button" onclick="hideDeleteModal()" class="es-btn es-btn-secondary">Cancel</button>
+            <form method="POST" action="{% url 'form_template_delete' template.id %}" style="margin:0">
+                {% csrf_token %}
+                <button type="submit" class="es-btn es-btn-danger" style="background:#DC2626;color:#fff;border-color:#DC2626">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Delete Permanently
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleApproval(cb) {
+    const toggle = cb.closest('.es-toggle');
+    toggle.classList.toggle('active', cb.checked);
+    document.getElementById('approver-config').style.display = cb.checked ? 'block' : 'none';
+}
+
+function selectHeaderStyle(el, value) {
+    // Deselect all
+    el.closest('div').querySelectorAll('label').forEach(l => {
+        l.style.borderColor = '#e2e8f0';
+        l.style.background = '#fff';
+    });
+    // Select this one
+    el.style.borderColor = '#E11D48';
+    el.style.background = '#FFF1F2';
+    el.querySelector('input[type="radio"]').checked = true;
+}
+
+function showDeleteModal() {
+    const m = document.getElementById('delete-modal');
+    m.style.display = 'flex';
+}
+function hideDeleteModal() {
+    document.getElementById('delete-modal').style.display = 'none';
+}
+document.getElementById('delete-modal').addEventListener('click', function(e) {
+    if (e.target === this) hideDeleteModal();
+});
+
+// Populate fields table from JSON
+try {
+    const data = JSON.parse('{{ form_fields_json|escapejs }}');
+    if (data && data.fields && data.fields.length) {
+        const tbody = document.getElementById('fields-table-body');
+        let reqCount = 0, secCount = 0;
+        if (tbody) {
+            data.fields.forEach((f, i) => {
+                if (f.required) reqCount++;
+                if (f.type === 'HEADER') secCount++;
+                const typeLabels = {HEADER:'Header',PARAGRAPH:'Text',DIVIDER:'Divider',TEXT:'Text',TEXTAREA:'Textarea',NUMBER:'Number',EMAIL:'Email',PHONE:'Phone',DATE:'Date',TIME:'Time',SELECT:'Dropdown',RADIO:'Radio',CHECKBOX:'Checkbox',FILE:'File',SIGNATURE:'Signature'};
+                const isLayout = ['HEADER','PARAGRAPH','DIVIDER'].includes(f.type);
+                tbody.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9">
+                    <td style="padding:5px 10px;color:#94a3b8">${i+1}</td>
+                    <td style="padding:5px 10px;color:#0f172a;font-weight:${isLayout?'600':'400'}">${f.label||'—'}</td>
+                    <td style="padding:5px 10px"><span style="font-size:10px;padding:2px 6px;background:#F1F5F9;border-radius:3px;color:#64748b">${typeLabels[f.type]||f.type}</span></td>
+                    <td style="padding:5px 10px;text-align:center">${f.required?'<span style="color:#E11D48;font-weight:700">*</span>':'—'}</td>
+                </tr>`;
+            });
+        }
+        const rc = document.getElementById('required-count');
+        const sc = document.getElementById('section-count');
+        if (rc) rc.textContent = reqCount;
+        if (sc) sc.textContent = secCount;
+    }
+} catch(e) {}
+</script>
+{% endblock %}

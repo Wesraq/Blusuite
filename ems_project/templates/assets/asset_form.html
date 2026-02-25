@@ -1,0 +1,235 @@
+{% extends 'assets/base_ams.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Asset{% else %}Create Asset{% endif %}{% endblock %}
+{% block page_title %}{% if is_edit %}Edit Asset{% else %}Create Asset{% endif %}{% endblock %}
+
+{% block ams_page_css %}
+<style>
+    .af-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .af-card-h { padding: 12px 18px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px; }
+    .af-card-t { margin: 0; font-size: 13px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+    .af-card-t svg { width: 15px; height: 15px; stroke: #64748b; }
+    .af-card-b { padding: 18px; }
+    .af-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 16px; border-radius: 4px; font-size: 12px; font-weight: 500; text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .af-btn-primary { background: #E11D48; color: #fff; border-color: #E11D48; }
+    .af-btn-primary:hover { background: #BE123C; border-color: #BE123C; }
+    .af-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .af-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .af-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+    .af-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px 20px; }
+    .af-group { position: relative; }
+    .af-group label { display: block; font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .af-group input, .af-group select, .af-group textarea {
+        width: 100%; border: 1px solid #e2e8f0; border-radius: 4px;
+        padding: 8px 12px; font-size: 13px; color: #0f172a; font-family: inherit;
+        background: #fff; transition: border-color 0.15s;
+    }
+    .af-group input:focus, .af-group select:focus, .af-group textarea:focus {
+        outline: none; border-color: #E11D48; box-shadow: 0 0 0 2px rgba(225,29,72,0.08);
+    }
+    .af-group textarea { min-height: 80px; resize: vertical; }
+    .af-group select { cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e"); background-position: right 8px center; background-repeat: no-repeat; background-size: 14px; padding-right: 28px; }
+    .af-group .af-err { border-color: #dc2626; }
+    .af-group .af-err:focus { box-shadow: 0 0 0 2px rgba(220,38,38,0.08); }
+    .af-err-msg { font-size: 11px; color: #dc2626; margin-top: 3px; }
+    .af-span-full { grid-column: 1 / -1; }
+    .af-errors { background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 10px 14px; margin-bottom: 14px; color: #991b1b; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .af-section-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9; }
+    .af-hint { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+    @media (max-width: 768px) { .af-grid, .af-grid-3 { grid-template-columns: 1fr; } .af-span-full { grid-column: span 1; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2>{% if is_edit %}Edit Asset{% else %}Register New Asset{% endif %}</h2>
+        <p>{% if is_edit %}Update asset information{% else %}Add a new asset to the registry{% endif %}</p>
+    </div>
+    <a href="{% url 'assets:asset_list' %}" class="af-btn af-btn-secondary">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Registry
+    </a>
+</div>
+
+<form method="post" style="max-width: 1100px;">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="af-errors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
+
+    <!-- Section 1: Basic Information -->
+    <div class="af-card">
+        <div class="af-card-h">
+            <h3 class="af-card-t">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                Basic Information
+            </h3>
+        </div>
+        <div class="af-card-b">
+            <div class="af-grid">
+                <div class="af-group">
+                    {{ form.asset_tag.label_tag }}
+                    {{ form.asset_tag }}
+                    {% if form.asset_tag.errors %}<div class="af-err-msg">{{ form.asset_tag.errors.0 }}</div>{% endif %}
+                    {% if not is_edit %}<div class="af-hint">Unique identifier (e.g., AST-001). Leave blank for auto-generation.</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.name.label_tag }}
+                    {{ form.name }}
+                    {% if form.name.errors %}<div class="af-err-msg">{{ form.name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.asset_type.label_tag }}
+                    {{ form.asset_type }}
+                    {% if form.asset_type.errors %}<div class="af-err-msg">{{ form.asset_type.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.condition.label_tag }}
+                    {{ form.condition }}
+                    {% if form.condition.errors %}<div class="af-err-msg">{{ form.condition.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group af-span-full">
+                    {{ form.description.label_tag }}
+                    {{ form.description }}
+                    {% if form.description.errors %}<div class="af-err-msg">{{ form.description.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Classification & Details -->
+    <div class="af-card">
+        <div class="af-card-h">
+            <h3 class="af-card-t">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                Classification &amp; Details
+            </h3>
+        </div>
+        <div class="af-card-b">
+            <div class="af-grid-3">
+                <div class="af-group">
+                    {{ form.category.label_tag }}
+                    {{ form.category }}
+                    {% if form.category.errors %}<div class="af-err-msg">{{ form.category.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.brand.label_tag }}
+                    {{ form.brand }}
+                    {% if form.brand.errors %}<div class="af-err-msg">{{ form.brand.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.model.label_tag }}
+                    {{ form.model }}
+                    {% if form.model.errors %}<div class="af-err-msg">{{ form.model.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.serial_number.label_tag }}
+                    {{ form.serial_number }}
+                    {% if form.serial_number.errors %}<div class="af-err-msg">{{ form.serial_number.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.location.label_tag }}
+                    {{ form.location }}
+                    {% if form.location.errors %}<div class="af-err-msg">{{ form.location.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.department.label_tag }}
+                    {{ form.department }}
+                    {% if form.department.errors %}<div class="af-err-msg">{{ form.department.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Purchase & Warranty -->
+    <div class="af-card">
+        <div class="af-card-h">
+            <h3 class="af-card-t">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Purchase &amp; Warranty
+            </h3>
+        </div>
+        <div class="af-card-b">
+            <div class="af-grid-3">
+                <div class="af-group">
+                    {{ form.purchase_date.label_tag }}
+                    {{ form.purchase_date }}
+                    {% if form.purchase_date.errors %}<div class="af-err-msg">{{ form.purchase_date.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.purchase_price.label_tag }}
+                    {{ form.purchase_price }}
+                    {% if form.purchase_price.errors %}<div class="af-err-msg">{{ form.purchase_price.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="af-group">
+                    {{ form.warranty_expiry.label_tag }}
+                    {{ form.warranty_expiry }}
+                    {% if form.warranty_expiry.errors %}<div class="af-err-msg">{{ form.warranty_expiry.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Assignment -->
+    <div class="af-card">
+        <div class="af-card-h">
+            <h3 class="af-card-t">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+                Assignment
+            </h3>
+        </div>
+        <div class="af-card-b">
+            <div class="af-grid">
+                <div class="af-group">
+                    {{ form.employee.label_tag }}
+                    {{ form.employee }}
+                    {% if form.employee.errors %}<div class="af-err-msg">{{ form.employee.errors.0 }}</div>{% endif %}
+                    <div class="af-hint">Leave blank if not assigning immediately</div>
+                </div>
+                <div class="af-group">
+                    {{ form.custodian.label_tag }}
+                    {{ form.custodian }}
+                    {% if form.custodian.errors %}<div class="af-err-msg">{{ form.custodian.errors.0 }}</div>{% endif %}
+                    <div class="af-hint">Person responsible for the asset</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Notes -->
+    <div class="af-card">
+        <div class="af-card-h">
+            <h3 class="af-card-t">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Notes
+            </h3>
+        </div>
+        <div class="af-card-b">
+            <div class="af-group">
+                {{ form.notes.label_tag }}
+                {{ form.notes }}
+                {% if form.notes.errors %}<div class="af-err-msg">{{ form.notes.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; justify-content: flex-end; gap: 8px; padding: 4px 0;">
+        <a href="{% url 'assets:asset_list' %}" class="af-btn af-btn-secondary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Cancel
+        </a>
+        <button type="submit" class="af-btn af-btn-primary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            {% if is_edit %}Update Asset{% else %}Create Asset{% endif %}
+        </button>
+    </div>
+</form>
+{% endblock %}

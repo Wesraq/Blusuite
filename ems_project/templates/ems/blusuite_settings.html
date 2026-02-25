@@ -1,0 +1,2056 @@
+{% extends 'ems/blusuite_base.html' %}
+{% load static %}
+
+{% block title %}Company Settings - BluSuite{% endblock %}
+
+{% block extra_head %}
+<style>
+    .settings-layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 24px;
+        min-height: 600px;
+    }
+    .settings-nav {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 16px;
+        height: fit-content;
+        position: sticky;
+        top: 24px;
+    }
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 4px;
+        transition: all 0.1s ease;
+    }
+    .nav-item:hover {
+        background: var(--light-gray);
+    }
+    .nav-item.active {
+        background: rgba(220, 20, 60, 0.1);
+        color: var(--primary);
+    }
+    .nav-item svg {
+        flex-shrink: 0;
+    }
+    .settings-content {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 32px;
+    }
+    .settings-section {
+        display: none;
+    }
+    .settings-section.active {
+        display: block;
+    }
+    .section-header {
+        margin-bottom: 32px;
+    }
+    .section-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 8px;
+    }
+    .section-header p {
+        font-size: 14px;
+        color: var(--medium-gray);
+        margin: 0;
+    }
+    .settings-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 20px;
+    }
+    .card-header-with-action {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    .form-group label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    .form-input {
+        padding: 10px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 14px;
+        color: var(--dark);
+        transition: border-color 0.1s ease;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+    .card-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-color);
+    }
+    .btn-primary {
+        padding: 10px 20px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.1s ease;
+    }
+    .btn-primary:hover {
+        background: var(--primary-dark);
+    }
+    .btn-secondary {
+        padding: 10px 20px;
+        background: var(--light-gray);
+        color: var(--dark);
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.1s ease;
+    }
+    .btn-secondary:hover {
+        background: var(--border-color);
+    }
+    .logo-upload {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+    }
+    .logo-preview {
+        width: 120px;
+        height: 120px;
+        border: 2px dashed var(--border-color);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--medium-gray);
+    }
+    .logo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .logo-actions {
+        flex: 1;
+    }
+    .help-text {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 8px 0 0;
+    }
+    .modules-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .module-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+    }
+    .module-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .module-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+    .module-info h4 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0 0 4px;
+    }
+    .module-info p {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 0;
+    }
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 24px;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.2s;
+        border-radius: 24px;
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.2s;
+        border-radius: 50%;
+    }
+    input:checked + .toggle-slider {
+        background-color: var(--primary);
+    }
+    input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+    .users-table {
+        overflow-x: auto;
+    }
+    .users-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .users-table th {
+        text-align: left;
+        padding: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--medium-gray);
+        border-bottom: 1px solid var(--border-color);
+    }
+    .users-table td {
+        padding: 16px 12px;
+        font-size: 14px;
+        color: var(--dark-gray);
+        border-bottom: 1px solid var(--border-color);
+    }
+    .role-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-badge.active {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    .btn-icon {
+        padding: 6px;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: var(--medium-gray);
+        transition: all 0.1s ease;
+    }
+    .btn-icon:hover {
+        background: var(--light-gray);
+        color: var(--primary);
+    }
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--medium-gray);
+    }
+    .profile-grid-3col {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+    }
+    .profile-col {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .col-heading {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 4px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .docs-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+    .doc-upload-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .doc-upload-item label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    .doc-current {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #065F46;
+        background: #D1FAE5;
+        padding: 4px 10px;
+        border-radius: 4px;
+        width: fit-content;
+        margin: 0;
+    }
+    .color-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+    .color-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .color-item label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    .color-picker-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 6px;
+    }
+    .color-swatch {
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 2px;
+        cursor: pointer;
+        background: none;
+    }
+    .color-hex {
+        width: 90px !important;
+        font-family: monospace;
+        font-size: 13px !important;
+        text-align: center;
+    }
+    @media (max-width: 1200px) {
+        .profile-grid-3col { grid-template-columns: repeat(2, 1fr); }
+        .docs-grid { grid-template-columns: repeat(2, 1fr); }
+        .color-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+        .profile-grid-3col { grid-template-columns: 1fr; }
+        .docs-grid { grid-template-columns: 1fr; }
+        .color-grid { grid-template-columns: 1fr; }
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="url"],
+    .form-group input[type="tel"],
+    .form-group input[type="number"],
+    .form-group input[type="password"],
+    .form-group select,
+    .form-group textarea {
+        padding: 10px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 14px;
+        color: var(--dark);
+        transition: border-color 0.1s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+    .settings-toast {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        padding: 14px 24px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: opacity 0.3s ease;
+    }
+    .settings-toast.success { background: #D1FAE5; color: #065F46; }
+    .settings-toast.error { background: #FEE2E2; color: #991B1B; }
+    .settings-toast.info { background: #DBEAFE; color: #1E40AF; }
+    @media (max-width: 1024px) {
+        .settings-layout {
+            grid-template-columns: 1fr;
+        }
+        .settings-nav {
+            position: static;
+        }
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block headline %}
+<h1 style="font-size: 28px; margin: 0 0 8px; color: var(--dark); font-weight: 700;">Company Settings</h1>
+<p style="margin: 0; color: var(--medium-gray); font-size: 14px;">Configure company profile, modules, and system preferences</p>
+{% endblock %}
+
+{% block content %}
+<div class="settings-layout">
+    <!-- Settings Navigation -->
+    <div class="settings-nav">
+        <a href="#general" class="nav-item active">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Company Profile</span>
+        </a>
+        <a href="#documents" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Documents & Stamps</span>
+        </a>
+        <a href="#stamp-designer" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 21h14"></path>
+                <path d="M7 21V11a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v10"></path>
+                <path d="M9 10V6a3 3 0 0 1 6 0v4"></path>
+            </svg>
+            <span>Stamp Designer</span>
+        </a>
+        <a href="#branding" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="13.5" cy="6.5" r="2.5"></circle>
+                <path d="M17.5 10.5 20 8l-1.5-1.5"></path>
+                <circle cx="8.5" cy="8.5" r="2.5"></circle>
+                <path d="M5 11l-1.5 1.5L5 14"></path>
+                <circle cx="6.5" cy="14.5" r="2.5"></circle>
+                <path d="M12 18l1.5 1.5L15 18"></path>
+            </svg>
+            <span>Branding & Theme</span>
+        </a>
+        <a href="#email-smtp" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <path d="m22 7-10 6L2 7"></path>
+            </svg>
+            <span>Email / SMTP</span>
+        </a>
+        <a href="#biometric" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Biometric</span>
+        </a>
+        <a href="#gps-attendance" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="10" r="3"></circle>
+                <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"></path>
+            </svg>
+            <span>GPS & Attendance</span>
+        </a>
+        <a href="#modules" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3h7v7H3z"></path>
+                <path d="M14 3h7v7h-7z"></path>
+                <path d="M14 14h7v7h-7z"></path>
+                <path d="M3 14h7v7H3z"></path>
+            </svg>
+            <span>Modules</span>
+        </a>
+        <a href="#users" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Users & Roles</span>
+        </a>
+        <a href="#security" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Security</span>
+        </a>
+        <a href="#integrations" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            <span>Integrations</span>
+        </a>
+        <a href="#billing" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            <span>Billing</span>
+        </a>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="settings-content">
+
+        <!-- Company Profile (General) -->
+        <div id="general" class="settings-section active">
+            <div class="section-header">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <h2>Company Profile</h2>
+                        <p>Update your company's basic information and contact details</p>
+                    </div>
+                    {% if company.company_id %}
+                    <div style="padding:6px 14px;border:2px solid var(--primary);border-radius:4px;font-size:13px;font-weight:600;color:var(--primary);letter-spacing:0.5px;">
+                        COMPANY ID &nbsp; {{ company.company_id }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="company_profile">
+
+                <div class="settings-card">
+                    <h3 class="card-title">Company Details</h3>
+                    <div class="profile-grid-3col">
+                        <!-- Column 1: Company Information -->
+                        <div class="profile-col">
+                            <h4 class="col-heading">Company Information</h4>
+                            <div class="form-group">
+                                <label>Company Name *</label>
+                                <input type="text" class="form-input" name="name" value="{{ company.name }}" required>
+                                <p class="help-text">Official registered name</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Tax ID / Registration Number</label>
+                                <input type="text" class="form-input" name="tax_id" value="{{ company.tax_id }}" placeholder="e.g. 2000002565255">
+                                <p class="help-text">Business registration number</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Industry / Sector</label>
+                                <input type="text" class="form-input" name="industry" value="{{ company.industry }}" placeholder="e.g. Technology, Healthcare">
+                            </div>
+                            <div class="form-group">
+                                <label>Company Size</label>
+                                <select class="form-input" name="company_size">
+                                    <option value="">Select Size</option>
+                                    <option value="1-10" {% if company.company_size == '1-10' %}selected{% endif %}>1-10 employees</option>
+                                    <option value="11-50" {% if company.company_size == '11-50' %}selected{% endif %}>11-50 employees</option>
+                                    <option value="51-200" {% if company.company_size == '51-200' %}selected{% endif %}>51-200 employees</option>
+                                    <option value="201-500" {% if company.company_size == '201-500' %}selected{% endif %}>201-500 employees</option>
+                                    <option value="500+" {% if company.company_size == '500+' %}selected{% endif %}>500+ employees</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Contact Details -->
+                        <div class="profile-col">
+                            <h4 class="col-heading">Contact Details</h4>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" class="form-input" name="email" value="{{ company.email }}" placeholder="info@company.com">
+                                <p class="help-text">Primary contact email</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" class="form-input" name="phone" value="{{ company.phone }}" placeholder="+260 XXX XXX XXXX">
+                                <p class="help-text">Main office phone</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Alternative Phone</label>
+                                <input type="tel" class="form-input" name="alternative_phone" value="{{ company.alternative_phone }}" placeholder="+260 XXX XXX XXX">
+                                <p class="help-text">Secondary contact number</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Website</label>
+                                <input type="url" class="form-input" name="website" value="{{ company.website }}" placeholder="https://example.com">
+                                <p class="help-text">Company website URL</p>
+                            </div>
+                        </div>
+
+                        <!-- Column 3: Location & Address -->
+                        <div class="profile-col">
+                            <h4 class="col-heading">Location & Address</h4>
+                            <div class="form-group">
+                                <label>Street Address *</label>
+                                <textarea class="form-input" name="address" rows="3" placeholder="Street address, building, floor...">{{ company.address }}</textarea>
+                                <p class="help-text">Physical office location</p>
+                            </div>
+                            <div class="form-group">
+                                <label>City</label>
+                                <input type="text" class="form-input" name="city" value="{{ company.city }}" placeholder="e.g. Lusaka">
+                            </div>
+                            <div class="form-group">
+                                <label>Province / State</label>
+                                <input type="text" class="form-input" name="province" value="{{ company.province }}" placeholder="e.g. Lusaka Province">
+                            </div>
+                            <div class="form-group">
+                                <label>Country</label>
+                                <input type="text" class="form-input" name="country" value="{{ company.country }}" placeholder="e.g. Zambia">
+                            </div>
+                            <div class="form-group">
+                                <label>Postal / Zip Code</label>
+                                <input type="text" class="form-input" name="postal_code" value="{{ company.postal_code }}" placeholder="e.g. 10101">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Company Profile</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Documents & Stamps -->
+        <div id="documents" class="settings-section">
+            <div class="section-header">
+                <h2>Documents & Stamps</h2>
+                <p>Upload company logo, official stamp, signatory signature, and compliance certificates</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="company_profile">
+
+                <div class="settings-card">
+                    <h3 class="card-title">Company Logo, Stamp & Signature</h3>
+                    <div class="docs-grid">
+                        <div class="doc-upload-item">
+                            <label>Company Logo</label>
+                            <div class="logo-preview">
+                                {% if company.logo %}
+                                <img src="{{ company.logo.url }}" alt="Company Logo">
+                                {% else %}
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--medium-gray);">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                                {% endif %}
+                            </div>
+                            <input type="file" name="logo" accept="image/*" class="form-input" style="padding:8px;">
+                            <p class="help-text">PNG/JPG, max 2MB. Used in payslips and documents.</p>
+                        </div>
+                        <div class="doc-upload-item">
+                            <label>Company Stamp</label>
+                            <div class="logo-preview">
+                                {% if company.company_stamp %}
+                                <img src="{{ company.company_stamp.url }}" alt="Company Stamp">
+                                {% else %}
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--medium-gray);">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M8 12h8"></path>
+                                    <path d="M12 8v8"></path>
+                                </svg>
+                                {% endif %}
+                            </div>
+                            <input type="file" name="company_stamp" accept="image/*" class="form-input" style="padding:8px;">
+                            <p class="help-text">PNG with transparency, max 2MB. Official stamp for payslips.</p>
+                        </div>
+                        <div class="doc-upload-item">
+                            <label>Authorized Signature</label>
+                            <div class="logo-preview">
+                                {% if company.signature %}
+                                <img src="{{ company.signature.url }}" alt="Signature">
+                                {% else %}
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--medium-gray);">
+                                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                                </svg>
+                                {% endif %}
+                            </div>
+                            <input type="file" name="signature" accept="image/*" class="form-input" style="padding:8px;">
+                            <p class="help-text">Signatory signature for official documents.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Compliance Certificates</h3>
+                    <p class="help-text" style="margin:-12px 0 20px;">Upload your company's statutory and compliance documents</p>
+                    <div class="docs-grid">
+                        <div class="doc-upload-item">
+                            <label>TPIN Certificate</label>
+                            {% if company.tax_certificate %}
+                            <p class="doc-current">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#065F46" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>
+                                Uploaded
+                            </p>
+                            {% endif %}
+                            <input type="file" name="tax_certificate" accept=".pdf,.jpg,.jpeg,.png" class="form-input" style="padding:8px;">
+                        </div>
+                        <div class="doc-upload-item">
+                            <label>PACRA Certificate</label>
+                            {% if company.business_registration %}
+                            <p class="doc-current">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#065F46" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>
+                                Uploaded
+                            </p>
+                            {% endif %}
+                            <input type="file" name="business_registration" accept=".pdf,.jpg,.jpeg,.png" class="form-input" style="padding:8px;">
+                        </div>
+                        <div class="doc-upload-item">
+                            <label>Trading License</label>
+                            {% if company.trade_license %}
+                            <p class="doc-current">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#065F46" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>
+                                Uploaded
+                            </p>
+                            {% endif %}
+                            <input type="file" name="trade_license" accept=".pdf,.jpg,.jpeg,.png" class="form-input" style="padding:8px;">
+                        </div>
+                        <div class="doc-upload-item">
+                            <label>NAPSA Certificate</label>
+                            {% if company.napsa_certificate %}
+                            <p class="doc-current">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#065F46" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>
+                                Uploaded
+                            </p>
+                            {% endif %}
+                            <input type="file" name="napsa_certificate" accept=".pdf,.jpg,.jpeg,.png" class="form-input" style="padding:8px;">
+                        </div>
+                        <div class="doc-upload-item">
+                            <label>NHIMA Certificate</label>
+                            {% if company.nhima_certificate %}
+                            <p class="doc-current">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#065F46" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>
+                                Uploaded
+                            </p>
+                            {% endif %}
+                            <input type="file" name="nhima_certificate" accept=".pdf,.jpg,.jpeg,.png" class="form-input" style="padding:8px;">
+                        </div>
+                        <div class="doc-upload-item">
+                            <label>Workers Compensation</label>
+                            {% if company.workers_compensation %}
+                            <p class="doc-current">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#065F46" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>
+                                Uploaded
+                            </p>
+                            {% endif %}
+                            <input type="file" name="workers_compensation" accept=".pdf,.jpg,.jpeg,.png" class="form-input" style="padding:8px;">
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Documents</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Stamp Designer -->
+        <div id="stamp-designer" class="settings-section">
+            <div class="section-header">
+                <h2>Stamp Designer</h2>
+                <p>Design and customize the company stamp that appears on payslips and official documents</p>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="stamp_upload">
+                <div class="settings-card">
+                    {% include 'ems/includes/stamp_designer.html' %}
+                </div>
+            </form>
+        </div>
+
+        <!-- Branding & Theme -->
+        <div id="branding" class="settings-section">
+            <div class="section-header">
+                <h2>Branding & Theme</h2>
+                <p>Customize your company's visual identity across the platform</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="company_profile">
+
+                <div class="settings-card">
+                    <h3 class="card-title">Corporate Colors</h3>
+                    <p class="help-text" style="margin:-12px 0 20px;">These colors are applied to the EMS interface for your company's users</p>
+                    <div class="color-grid">
+                        <div class="color-item">
+                            <label>Primary Color</label>
+                            <p class="help-text">Top bar & sidebar</p>
+                            <div class="color-picker-row">
+                                <input type="color" name="primary_color" value="{{ company.primary_color }}" class="color-swatch">
+                                <input type="text" class="form-input color-hex" value="{{ company.primary_color }}" readonly>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <label>Secondary Color</label>
+                            <p class="help-text">Accent elements</p>
+                            <div class="color-picker-row">
+                                <input type="color" name="secondary_color" value="{{ company.secondary_color }}" class="color-swatch">
+                                <input type="text" class="form-input color-hex" value="{{ company.secondary_color }}" readonly>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <label>Text Color</label>
+                            <p class="help-text">Primary text</p>
+                            <div class="color-picker-row">
+                                <input type="color" name="text_color" value="{{ company.text_color }}" class="color-swatch">
+                                <input type="text" class="form-input color-hex" value="{{ company.text_color }}" readonly>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <label>Background Color</label>
+                            <p class="help-text">Page background</p>
+                            <div class="color-picker-row">
+                                <input type="color" name="background_color" value="{{ company.background_color }}" class="color-swatch">
+                                <input type="text" class="form-input color-hex" value="{{ company.background_color }}" readonly>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <label>Card Header Color</label>
+                            <p class="help-text">Content card headers</p>
+                            <div class="color-picker-row">
+                                <input type="color" name="card_header_color" value="{{ company.card_header_color }}" class="color-swatch">
+                                <input type="text" class="form-input color-hex" value="{{ company.card_header_color }}" readonly>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <label>Button Color</label>
+                            <p class="help-text">Primary buttons</p>
+                            <div class="color-picker-row">
+                                <input type="color" name="button_color" value="{{ company.button_color }}" class="color-swatch">
+                                <input type="text" class="form-input color-hex" value="{{ company.button_color }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Branding</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Email / SMTP -->
+        <div id="email-smtp" class="settings-section">
+            <div class="section-header">
+                <h2>Email & SMTP Settings</h2>
+                <p>Configure outgoing mail server for notifications, password resets, and payslip delivery</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="email_smtp">
+                <div class="settings-card">
+                    <h3 class="card-title">SMTP Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>SMTP Host</label>
+                            {{ settings.forms.email.form.smtp_host }}
+                            <p class="help-text">e.g. smtp.gmail.com, smtp.office365.com</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Port</label>
+                            {{ settings.forms.email.form.smtp_port }}
+                            <p class="help-text">587 (TLS) or 465 (SSL)</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            {{ settings.forms.email.form.smtp_username }}
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            {{ settings.forms.email.form.smtp_password }}
+                            <p class="help-text">Use an app-specific password for Gmail</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Sender Name</label>
+                            {{ settings.forms.email.form.smtp_sender_name }}
+                            <p class="help-text">Display name in outgoing emails</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Use TLS</label>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0;">
+                                {{ settings.forms.email.form.smtp_use_tls }}
+                                <span style="font-size: 13px; color: var(--medium-gray);">Enable TLS encryption (recommended)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="button" class="btn-secondary" onclick="testSMTPConnection(this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M18.36 5.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                            Test Connection
+                        </button>
+                        <button type="submit" class="btn-primary">Save SMTP Settings</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Biometric Attendance -->
+        <div id="biometric" class="settings-section">
+            <div class="section-header">
+                <h2>Biometric Attendance</h2>
+                <p>Integrate biometric devices for accurate attendance tracking</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="biometric">
+                <div class="settings-card">
+                    <h3 class="card-title">Device Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Device Provider</label>
+                            {{ settings.forms.biometric.form.provider }}
+                            <p class="help-text">e.g. ZKTeco, Suprema, HikVision</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Device Name</label>
+                            {{ settings.forms.biometric.form.device_name }}
+                        </div>
+                        <div class="form-group">
+                            <label>Device Serial</label>
+                            {{ settings.forms.biometric.form.device_serial }}
+                        </div>
+                        <div class="form-group">
+                            <label>Device IP</label>
+                            {{ settings.forms.biometric.form.device_ip }}
+                            <p class="help-text">e.g. 192.168.1.100</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-card">
+                    <h3 class="card-title">Connection & Sync</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>API Endpoint</label>
+                            {{ settings.forms.biometric.form.endpoint }}
+                            <p class="help-text">Full URL to the device API</p>
+                        </div>
+                        <div class="form-group">
+                            <label>API Key</label>
+                            {{ settings.forms.biometric.form.api_key }}
+                        </div>
+                        <div class="form-group">
+                            <label>API Secret</label>
+                            {{ settings.forms.biometric.form.api_secret }}
+                        </div>
+                        <div class="form-group">
+                            <label>Webhook URL</label>
+                            {{ settings.forms.biometric.form.webhook_url }}
+                            <p class="help-text">Receive real-time attendance events</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            {{ settings.forms.biometric.form.location }}
+                            <p class="help-text">Physical location of the device</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Device Timezone</label>
+                            {{ settings.forms.biometric.form.timezone }}
+                        </div>
+                        <div class="form-group">
+                            <label>Sync Frequency (minutes)</label>
+                            {{ settings.forms.biometric.form.sync_interval }}
+                            <p class="help-text">How often to pull data from the device</p>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="button" class="btn-secondary" onclick="testBiometricConnection(this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M18.36 5.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                            Test Device
+                        </button>
+                        <button type="submit" class="btn-primary">Save Biometric Settings</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- GPS & Attendance Settings -->
+        <div id="gps-attendance" class="settings-section">
+            <div class="section-header">
+                <h2>GPS & Attendance Tracking</h2>
+                <p>Configure GPS-based attendance verification and geofencing for your locations</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="gps_settings">
+                
+                <!-- Head Office Location -->
+                <div class="settings-card">
+                    <h3 class="card-title">Head Office Location</h3>
+                    <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">Set your main office GPS coordinates for attendance verification</p>
+                    
+                    <!-- Location Search -->
+                    <div class="form-group full-width" style="margin-bottom: 20px;">
+                        <label>Search Location</label>
+                        <div style="position: relative;">
+                            <input type="text" id="office-location-search" class="form-input" placeholder="Search for your office address (e.g., Cairo Road, Lusaka)" autocomplete="off" value="{{ company.office_location_name|default:'' }}">
+                            <div id="office-search-results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 4px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
+                        </div>
+                        <small style="color: #64748b;">Type your office address to automatically fill GPS coordinates below</small>
+                        <input type="hidden" id="office-location-name" name="office_location_name" value="{{ company.office_location_name|default:'' }}">
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Office Latitude</label>
+                            <input type="number" step="0.000001" class="form-input" id="office-latitude" name="office_latitude" value="{{ company.office_latitude|default:'' }}" placeholder="-15.416667">
+                            <small style="color: #64748b;">Auto-filled from search or enter manually</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Office Longitude</label>
+                            <input type="number" step="0.000001" class="form-input" id="office-longitude" name="office_longitude" value="{{ company.office_longitude|default:'' }}" placeholder="28.283333">
+                            <small style="color: #64748b;">Auto-filled from search or enter manually</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Geofence Radius (meters)</label>
+                            <input type="number" class="form-input" name="geofence_radius_meters" value="{{ company.geofence_radius_meters|default:100 }}" min="10" max="5000">
+                            <small style="color: #64748b;">Allowed distance from office (default: 100m)</small>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" name="enforce_geofencing" {% if company.enforce_geofencing %}checked{% endif %} style="width: auto;">
+                                <span>Enforce Geofencing</span>
+                            </label>
+                            <small style="color: #64748b;">Require employees to be within radius to clock in/out</small>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" name="allow_remote_attendance" {% if company.allow_remote_attendance %}checked{% endif %} style="width: auto;">
+                                <span>Allow Remote Attendance</span>
+                            </label>
+                            <small style="color: #64748b;">Allow employees to clock in from anywhere (overrides geofencing)</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Contract Management Settings -->
+                    <h4 style="margin: 24px 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600; border-top: 1px solid #e2e8f0; padding-top: 24px;">Contract Management</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" name="require_renewal_approval" {% if company.require_renewal_approval %}checked{% endif %} style="width: auto;">
+                                <span>Require Approval for Contract Renewals</span>
+                            </label>
+                            <small style="color: #64748b;">When enabled, contract renewals require admin approval. Disable for direct renewal (recommended for SMEs)</small>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 12px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                        <p style="margin: 0; font-size: 13px; color: #1e40af;">
+                            <strong>💡 Tip:</strong> Use Google Maps to find exact coordinates. Right-click on your office location and select "What's here?" to see latitude and longitude.
+                        </p>
+                    </div>
+                    
+                    <div style="margin-top: 24px;">
+                        <button type="submit" class="btn-primary">Save Settings</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Branch Locations -->
+            <div class="settings-card">
+                <div class="card-header-with-action">
+                    <h3 class="card-title" style="margin: 0;">Branch Locations</h3>
+                    <button type="button" class="btn-secondary" onclick="showAddBranchModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Branch
+                    </button>
+                </div>
+                <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">Manage GPS coordinates for branch offices. Employees assigned to a branch will be validated against that branch's location.</p>
+                
+                {% if settings.branches %}
+                <div class="table-responsive">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Branch Name</th>
+                                <th>Location</th>
+                                <th>GPS Coordinates</th>
+                                <th>Geofence Radius</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for branch in settings.branches %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 500;">{{ branch.name }}</div>
+                                    <div style="font-size: 12px; color: #64748b;">{{ branch.code }}</div>
+                                </td>
+                                <td>{{ branch.city }}, {{ branch.country }}</td>
+                                <td>
+                                    {% if branch.latitude and branch.longitude %}
+                                        <a href="https://www.google.com/maps?q={{ branch.latitude }},{{ branch.longitude }}" target="_blank" style="color: #2563eb; text-decoration: none; font-size: 12px;">
+                                            {{ branch.latitude|floatformat:4 }}, {{ branch.longitude|floatformat:4 }}
+                                        </a>
+                                    {% else %}
+                                        <span style="color: #94a3b8;">Not set</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ branch.geofence_radius_meters }}m</td>
+                                <td>
+                                    {% if branch.is_active %}
+                                        <span class="status present">Active</span>
+                                    {% else %}
+                                        <span class="status absent">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="editBranch({{ branch.id }})" style="padding: 4px 8px; font-size: 12px;">Edit GPS</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: #64748b;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px; opacity: 0.3;">
+                        <circle cx="12" cy="10" r="3"></circle>
+                        <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"></path>
+                    </svg>
+                    <p>No branch locations configured yet</p>
+                    <button type="button" class="btn-primary" onclick="showAddBranchModal()" style="margin-top: 12px;">Add Your First Branch</button>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Branch GPS Edit Modal -->
+            <div id="branch-gps-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+                <div style="background: white; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+                    <div style="padding: 24px; border-bottom: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; font-size: 20px; font-weight: 600;">Edit Branch GPS Location</h3>
+                            <button type="button" onclick="closeBranchModal()" style="background: none; border: none; cursor: pointer; padding: 4px;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <form method="post" id="branch-gps-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_branch_gps">
+                        <input type="hidden" name="branch_id" id="modal-branch-id">
+                        
+                        <div style="padding: 24px;">
+                            <div style="margin-bottom: 16px; padding: 12px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                                <p style="margin: 0; font-size: 13px; color: #1e40af;">
+                                    <strong id="modal-branch-name"></strong>
+                                </p>
+                            </div>
+                            
+                            <!-- Location Search for Branch -->
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px;">Search Location</label>
+                                <div style="position: relative;">
+                                    <input type="text" id="branch-location-search" class="form-input" placeholder="Search for branch address" autocomplete="off">
+                                    <div id="branch-search-results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 4px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
+                                </div>
+                                <small style="color: #64748b;">Type the branch address to auto-fill coordinates</small>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                <div>
+                                    <label style="display: block; font-weight: 500; margin-bottom: 8px;">Latitude</label>
+                                    <input type="number" step="0.000001" class="form-input" id="modal-branch-latitude" name="branch_latitude" placeholder="-15.416667">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 500; margin-bottom: 8px;">Longitude</label>
+                                    <input type="number" step="0.000001" class="form-input" id="modal-branch-longitude" name="branch_longitude" placeholder="28.283333">
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px;">Geofence Radius (meters)</label>
+                                <input type="number" class="form-input" id="modal-branch-radius" name="branch_radius" min="10" max="5000" value="100">
+                                <small style="color: #64748b;">Distance employees can be from this branch (10-5000m)</small>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 16px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px;">
+                            <button type="button" onclick="closeBranchModal()" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary">Save GPS Location</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module Settings -->
+        <div id="modules" class="settings-section">
+            <div class="section-header">
+                <h2>Module Configuration</h2>
+                <p>Enable or disable BluSuite modules for your organization</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="module_toggles">
+                <div class="settings-card">
+                    <h3 class="card-title">Active Modules</h3>
+                    <div class="modules-list">
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                                <div><h4>Attendance</h4><p>Clock-in/out and attendance tracking</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_attendance" {% if settings.module_toggles.enable_attendance %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                                <div><h4>Leave Management</h4><p>Leave requests, approvals, and balances</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_leave" {% if settings.module_toggles.enable_leave %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+                                <div><h4>Payroll</h4><p>Salary processing and payslip generation</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_payroll" {% if settings.module_toggles.enable_payroll %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+                                <div><h4>Performance Reviews</h4><p>Employee evaluations and goal tracking</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_performance" {% if settings.module_toggles.enable_performance %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
+                                <div><h4>Training</h4><p>Training programs and development tracking</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_training" {% if settings.module_toggles.enable_training %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg></div>
+                                <div><h4>Onboarding</h4><p>New employee onboarding workflows</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_onboarding" {% if settings.module_toggles.enable_onboarding %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div>
+                                <div><h4>Assets</h4><p>Asset tracking and lifecycle management</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_assets" {% if settings.module_toggles.enable_assets %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
+                                <div><h4>E-Forms</h4><p>Digital forms and approval workflows</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_eforms" {% if settings.module_toggles.enable_eforms %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></div>
+                                <div><h4>Benefits</h4><p>Employee benefits and enrollments</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_benefits" {% if settings.module_toggles.enable_benefits %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg></div>
+                                <div><h4>Documents</h4><p>Document management and storage</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_documents" {% if settings.module_toggles.enable_documents %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
+                                <div><h4>Employee Requests</h4><p>Request submissions and approvals</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_requests" {% if settings.module_toggles.enable_requests %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+                                <div><h4>Communication</h4><p>Internal messaging and announcements</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_communication" {% if settings.module_toggles.enable_communication %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg></div>
+                                <div><h4>Reports</h4><p>Business intelligence and reporting</p></div>
+                            </div>
+                            <label class="toggle-switch"><input type="checkbox" name="enable_reports" {% if settings.module_toggles.enable_reports %}checked{% endif %}><span class="toggle-slider"></span></label>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Module Configuration</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Users & Roles -->
+        <div id="users" class="settings-section">
+            <div class="section-header">
+                <h2>Users & Roles</h2>
+                <p>Manage user access and permissions</p>
+            </div>
+
+            <!-- Invite User Card -->
+            <div class="settings-card" style="margin-bottom:24px;">
+                <h3 class="card-title">Invite New User</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="invite_user">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" name="invite_first_name" class="form-input" placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" name="invite_last_name" class="form-input" placeholder="Last name">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="invite_email" class="form-input" placeholder="user@company.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select name="invite_role" class="form-input">
+                                <option value="EMPLOYEE">Employee</option>
+                                <option value="EMPLOYER_ADMIN">Employer Admin</option>
+                                <option value="ADMINISTRATOR">Administrator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                            Invite User
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Team Members Table -->
+            <div class="settings-card">
+                <h3 class="card-title">Team Members ({{ settings.statistics.total_users }})</h3>
+                <div class="users-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in settings.company_users_list %}
+                            <tr>
+                                <td style="font-weight:500;">{{ member.full_name }}</td>
+                                <td>{{ member.email }}</td>
+                                <td><span class="role-badge">{{ member.role_display }}</span></td>
+                                <td style="font-size:13px; color:var(--medium-gray);">{{ member.date_joined|date:"M d, Y" }}</td>
+                                <td style="display:flex; gap:4px;">
+                                    <!-- Change Role -->
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="change_user_role">
+                                        <input type="hidden" name="user_id" value="{{ member.id }}">
+                                        <select name="new_role" onchange="this.form.submit()" style="padding:4px 8px; border:1px solid var(--border-color); border-radius:4px; font-size:12px; cursor:pointer;">
+                                            <option value="" disabled selected>Change role</option>
+                                            <option value="EMPLOYEE">Employee</option>
+                                            <option value="EMPLOYER_ADMIN">Employer Admin</option>
+                                            <option value="ADMINISTRATOR">Administrator</option>
+                                        </select>
+                                    </form>
+                                    <!-- Deactivate -->
+                                    <form method="post" style="display:inline;" onsubmit="return confirm('Deactivate this user?');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="deactivate_user">
+                                        <input type="hidden" name="user_id" value="{{ member.id }}">
+                                        <button type="submit" class="btn-icon" title="Deactivate user">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty-state">No team members found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Role Summary -->
+            <div class="settings-card" style="margin-top:24px;">
+                <h3 class="card-title">Role Summary</h3>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">
+                    {% for entry in settings.statistics.role_breakdown %}
+                    <div style="padding:16px; border:1px solid var(--border-color); border-radius:4px; text-align:center;">
+                        <div style="font-size:28px; font-weight:700; color:var(--primary);">{{ entry.count }}</div>
+                        <div style="font-size:13px; color:var(--medium-gray); margin-top:4px;">{{ entry.label }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Security -->
+        <div id="security" class="settings-section">
+            <div class="section-header">
+                <h2>Security</h2>
+                <p>Password policies, access controls, and authentication settings</p>
+            </div>
+
+            <!-- Password Policy -->
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="security_password_policy">
+                <div class="settings-card">
+                    <h3 style="font-size:16px; font-weight:600; margin:0 0 4px; color:var(--dark);">Password Policy</h3>
+                    <p style="font-size:13px; color:var(--medium-gray); margin:0 0 20px;">Define minimum requirements for user passwords across the organization</p>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                        <div>
+                            <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Minimum Password Length</label>
+                            <select name="min_password_length" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                <option value="6">6 characters</option>
+                                <option value="8" selected>8 characters (Recommended)</option>
+                                <option value="10">10 characters</option>
+                                <option value="12">12 characters</option>
+                                <option value="16">16 characters</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Password Expiry</label>
+                            <select name="password_expiry_days" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                <option value="0">Never expires</option>
+                                <option value="30">Every 30 days</option>
+                                <option value="60">Every 60 days</option>
+                                <option value="90" selected>Every 90 days (Recommended)</option>
+                                <option value="180">Every 180 days</option>
+                                <option value="365">Every 365 days</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="require_uppercase" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            Require at least one uppercase letter (A-Z)
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="require_lowercase" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            Require at least one lowercase letter (a-z)
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="require_number" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            Require at least one number (0-9)
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="require_special" style="width:18px; height:18px; accent-color:var(--primary);">
+                            Require at least one special character (!@#$%^&*)
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="prevent_reuse" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            Prevent reuse of last 5 passwords
+                        </label>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button type="submit" class="btn-primary" style="padding:10px 24px; border:none; border-radius:4px; font-size:14px; font-weight:600; cursor:pointer;">Save Password Policy</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Session Management -->
+            <form method="post" style="margin-top:16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="security_session">
+                <div class="settings-card">
+                    <h3 style="font-size:16px; font-weight:600; margin:0 0 4px; color:var(--dark);">Session Management</h3>
+                    <p style="font-size:13px; color:var(--medium-gray); margin:0 0 20px;">Control how long user sessions remain active</p>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                        <div>
+                            <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Session Timeout (Idle)</label>
+                            <select name="session_timeout_minutes" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                <option value="15">15 minutes</option>
+                                <option value="30" selected>30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="120">2 hours</option>
+                                <option value="480">8 hours</option>
+                                <option value="0">Never (not recommended)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Maximum Session Duration</label>
+                            <select name="max_session_hours" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                <option value="8">8 hours</option>
+                                <option value="12" selected>12 hours</option>
+                                <option value="24">24 hours</option>
+                                <option value="72">3 days</option>
+                                <option value="168">7 days</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="single_session" style="width:18px; height:18px; accent-color:var(--primary);">
+                            Allow only one active session per user (new login terminates previous session)
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="logout_on_close" style="width:18px; height:18px; accent-color:var(--primary);">
+                            Automatically log out when browser is closed
+                        </label>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button type="submit" class="btn-primary" style="padding:10px 24px; border:none; border-radius:4px; font-size:14px; font-weight:600; cursor:pointer;">Save Session Settings</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Two-Factor Authentication -->
+            <form method="post" style="margin-top:16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="security_2fa">
+                <div class="settings-card">
+                    <h3 style="font-size:16px; font-weight:600; margin:0 0 4px; color:var(--dark);">Two-Factor Authentication (2FA)</h3>
+                    <p style="font-size:13px; color:var(--medium-gray); margin:0 0 20px;">Add an extra layer of security for user accounts</p>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                        <div>
+                            <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">2FA Enforcement</label>
+                            <select name="twofa_enforcement" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                <option value="disabled" selected>Disabled</option>
+                                <option value="optional">Optional (users can enable)</option>
+                                <option value="admins_only">Required for admins only</option>
+                                <option value="required">Required for all users</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">2FA Method</label>
+                            <select name="twofa_method" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                <option value="email" selected>Email OTP</option>
+                                <option value="sms">SMS OTP</option>
+                                <option value="authenticator">Authenticator App (TOTP)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:4px; padding:14px; margin-bottom:20px;">
+                        <p style="font-size:13px; color:#166534; margin:0; display:flex; align-items:center; gap:8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                            Two-factor authentication significantly reduces the risk of unauthorized access. We recommend enabling it for all administrator accounts at minimum.
+                        </p>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button type="submit" class="btn-primary" style="padding:10px 24px; border:none; border-radius:4px; font-size:14px; font-weight:600; cursor:pointer;">Save 2FA Settings</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Login Restrictions -->
+            <form method="post" style="margin-top:16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="security_login_restrictions">
+                <div class="settings-card">
+                    <h3 style="font-size:16px; font-weight:600; margin:0 0 4px; color:var(--dark);">Login Restrictions</h3>
+                    <p style="font-size:13px; color:var(--medium-gray); margin:0 0 20px;">Control failed login attempts and account lockout behavior</p>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                        <div>
+                            <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Max Failed Login Attempts</label>
+                            <select name="max_failed_attempts" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                <option value="3">3 attempts</option>
+                                <option value="5" selected>5 attempts</option>
+                                <option value="10">10 attempts</option>
+                                <option value="0">Unlimited (not recommended)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Account Lockout Duration</label>
+                            <select name="lockout_duration_minutes" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                <option value="5">5 minutes</option>
+                                <option value="15" selected>15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="0">Until admin unlocks</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="notify_admin_lockout" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            Notify administrators when an account is locked out
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
+                            <input type="checkbox" name="log_failed_attempts" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            Log all failed login attempts for audit purposes
+                        </label>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button type="submit" class="btn-primary" style="padding:10px 24px; border:none; border-radius:4px; font-size:14px; font-weight:600; cursor:pointer;">Save Login Restrictions</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Audit Log -->
+            <div class="settings-card" style="margin-top:16px;">
+                <h3 style="font-size:16px; font-weight:600; margin:0 0 4px; color:var(--dark);">Recent Security Events</h3>
+                <p style="font-size:13px; color:var(--medium-gray); margin:0 0 20px;">Latest authentication and security-related activity</p>
+
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; color:var(--medium-gray); border-bottom:1px solid var(--border-color); text-transform:uppercase; letter-spacing:0.5px;">Event</th>
+                                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; color:var(--medium-gray); border-bottom:1px solid var(--border-color); text-transform:uppercase; letter-spacing:0.5px;">User</th>
+                                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; color:var(--medium-gray); border-bottom:1px solid var(--border-color); text-transform:uppercase; letter-spacing:0.5px;">IP Address</th>
+                                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; color:var(--medium-gray); border-bottom:1px solid var(--border-color); text-transform:uppercase; letter-spacing:0.5px;">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" style="text-align:center; padding:32px; color:var(--medium-gray); font-size:13px;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block; margin:0 auto 8px; color:var(--medium-gray);">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    </svg>
+                                    No security events recorded yet. Events will appear here once users start logging in.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pre-populate security forms from saved settings -->
+            <script>
+            (function() {
+                var sec = {{ company.security_settings|safe|default:"{}" }};
+                if (!sec || typeof sec !== 'object') sec = {};
+
+                // Password Policy
+                var pp = sec.password_policy || {};
+                if (pp.min_length) {
+                    var el = document.querySelector('[name="min_password_length"]');
+                    if (el) el.value = pp.min_length;
+                }
+                if (pp.expiry_days !== undefined) {
+                    var el = document.querySelector('[name="password_expiry_days"]');
+                    if (el) el.value = pp.expiry_days;
+                }
+                ['require_uppercase','require_lowercase','require_number','require_special','prevent_reuse'].forEach(function(f) {
+                    var cb = document.querySelector('[name="'+f+'"]');
+                    if (cb && pp[f] !== undefined) cb.checked = pp[f];
+                });
+
+                // Session
+                var ss = sec.session || {};
+                if (ss.timeout_minutes !== undefined) {
+                    var el = document.querySelector('[name="session_timeout_minutes"]');
+                    if (el) el.value = ss.timeout_minutes;
+                }
+                if (ss.max_hours !== undefined) {
+                    var el = document.querySelector('[name="max_session_hours"]');
+                    if (el) el.value = ss.max_hours;
+                }
+                ['single_session','logout_on_close'].forEach(function(f) {
+                    var cb = document.querySelector('[name="'+f+'"]');
+                    if (cb && ss[f] !== undefined) cb.checked = ss[f];
+                });
+
+                // 2FA
+                var tfa = sec.twofa || {};
+                if (tfa.enforcement) {
+                    var el = document.querySelector('[name="twofa_enforcement"]');
+                    if (el) el.value = tfa.enforcement;
+                }
+                if (tfa.method) {
+                    var el = document.querySelector('[name="twofa_method"]');
+                    if (el) el.value = tfa.method;
+                }
+
+                // Login Restrictions
+                var lr = sec.login_restrictions || {};
+                if (lr.max_failed_attempts !== undefined) {
+                    var el = document.querySelector('[name="max_failed_attempts"]');
+                    if (el) el.value = lr.max_failed_attempts;
+                }
+                if (lr.lockout_duration_minutes !== undefined) {
+                    var el = document.querySelector('[name="lockout_duration_minutes"]');
+                    if (el) el.value = lr.lockout_duration_minutes;
+                }
+                ['notify_admin_lockout','log_failed_attempts'].forEach(function(f) {
+                    var cb = document.querySelector('[name="'+f+'"]');
+                    if (cb && lr[f] !== undefined) cb.checked = lr[f];
+                });
+            })();
+            </script>
+        </div>
+
+        <!-- Integrations -->
+        <div id="integrations" class="settings-section">
+            <div class="section-header">
+                <h2>Integrations</h2>
+                <p>Connect with third-party tools and manage API access</p>
+            </div>
+            <a href="{% url 'blu_integrations_home' %}" class="settings-card" style="display:flex; align-items:center; gap:20px; text-decoration:none; color:inherit; cursor:pointer; transition:border-color 0.15s;">
+                <div style="width:56px; height:56px; border-radius:4px; background:rgba(220,20,60,0.08); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                </div>
+                <div style="flex:1;">
+                    <h3 style="font-size:16px; font-weight:600; margin:0 0 4px; color:var(--dark);">Integrations Hub</h3>
+                    <p style="font-size:13px; color:var(--medium-gray); margin:0;">Browse the integration marketplace, connect third-party services, manage API keys, and configure webhooks.</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--medium-gray)" stroke-width="2" style="flex-shrink:0;">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Billing -->
+        <div id="billing" class="settings-section">
+            <div class="section-header">
+                <h2>Billing</h2>
+                <p>Subscription and payment management</p>
+            </div>
+            <a href="{% url 'blu_billing_home' %}" class="settings-card" style="display:flex; align-items:center; gap:20px; text-decoration:none; color:inherit; cursor:pointer; transition:border-color 0.15s;">
+                <div style="width:56px; height:56px; border-radius:4px; background:rgba(220,20,60,0.08); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                </div>
+                <div style="flex:1;">
+                    <h3 style="font-size:16px; font-weight:600; margin:0 0 4px; color:var(--dark);">Billing & Subscription</h3>
+                    <p style="font-size:13px; color:var(--medium-gray); margin:0;">View your subscription plan, manage payment methods, download invoices, and review billing history.</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--medium-gray)" stroke-width="2" style="flex-shrink:0;">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function switchToSection(target) {
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        document.querySelectorAll('.settings-section').forEach(section => section.classList.remove('active'));
+        const navLink = document.querySelector('.nav-item[href="#' + target + '"]');
+        const section = document.getElementById(target);
+        if (navLink) navLink.classList.add('active');
+        if (section) section.classList.add('active');
+    }
+
+    // Tab navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = item.getAttribute('href').substring(1);
+            switchToSection(target);
+            history.replaceState(null, '', '#' + target);
+        });
+    });
+
+    // Deep-link from hash on load
+    (function() {
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            const mapping = {
+                'company-profile': 'general',
+                'email': 'email-smtp',
+                'smtp': 'email-smtp',
+            };
+            switchToSection(mapping[hash] || hash);
+        }
+    })();
+
+    // Toast helper
+    function showSettingsToast(message, type) {
+        type = type || 'info';
+        const toast = document.createElement('div');
+        toast.className = 'settings-toast ' + type;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.style.opacity = '0'; }, 3000);
+        setTimeout(function() { toast.remove(); }, 3400);
+    }
+
+    // CSRF token helper
+    function getCSRFToken() {
+        const el = document.querySelector('[name=csrfmiddlewaretoken]');
+        return el ? el.value : '';
+    }
+
+    // Test SMTP Connection
+    function testSMTPConnection(btn) {
+        const origText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:6px;animation:spin 1s linear infinite;"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>Testing...';
+
+        fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=test_smtp',
+        })
+        .then(r => r.json())
+        .then(data => {
+            showSettingsToast(data.message || (data.success ? 'SMTP connection successful' : 'SMTP connection failed'), data.success ? 'success' : 'error');
+        })
+        .catch(() => {
+            showSettingsToast('Could not reach server', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        });
+    }
+
+    // Test Biometric Connection
+    function testBiometricConnection(btn) {
+        const origText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:6px;animation:spin 1s linear infinite;"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>Testing...';
+
+        fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=test_biometric',
+        })
+        .then(r => r.json())
+        .then(data => {
+            showSettingsToast(data.message || (data.success ? 'Device reachable' : 'Device unreachable'), data.success ? 'success' : 'error');
+        })
+        .catch(() => {
+            showSettingsToast('Could not reach server', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        });
+    }
+
+    // Sync color pickers with hex text inputs
+    document.querySelectorAll('.color-swatch').forEach(function(swatch) {
+        swatch.addEventListener('input', function() {
+            const hexInput = swatch.parentElement.querySelector('.color-hex');
+            if (hexInput) hexInput.value = swatch.value;
+        });
+    });
+
+    // Location Search using Nominatim (OpenStreetMap)
+    let searchTimeout;
+    function setupLocationSearch(searchInputId, resultsId, latInputId, lonInputId) {
+        const searchInput = document.getElementById(searchInputId);
+        const resultsDiv = document.getElementById(resultsId);
+        const latInput = document.getElementById(latInputId);
+        const lonInput = document.getElementById(lonInputId);
+        
+        if (!searchInput) return;
+        
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 3) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.length === 0) {
+                            resultsDiv.innerHTML = '<div style="padding: 12px; color: #64748b;">No locations found</div>';
+                            resultsDiv.style.display = 'block';
+                            return;
+                        }
+                        
+                        resultsDiv.innerHTML = data.map(place => `
+                            <div style="padding: 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" 
+                                 onmouseover="this.style.background='#f8fafc'" 
+                                 onmouseout="this.style.background='white'"
+                                 onclick="selectLocation('${latInputId}', '${lonInputId}', '${resultsId}', ${place.lat}, ${place.lon}, '${place.display_name.replace(/'/g, "\\'")}')">
+                                <div style="font-weight: 500; color: #0f172a; margin-bottom: 2px;">${place.display_name.split(',')[0]}</div>
+                                <div style="font-size: 12px; color: #64748b;">${place.display_name}</div>
+                            </div>
+                        `).join('');
+                        resultsDiv.style.display = 'block';
+                    })
+                    .catch(err => {
+                        console.error('Location search error:', err);
+                        resultsDiv.innerHTML = '<div style="padding: 12px; color: #ef4444;">Search failed. Please try again.</div>';
+                        resultsDiv.style.display = 'block';
+                    });
+            }, 500);
+        });
+        
+        // Close results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+                resultsDiv.style.display = 'none';
+            }
+        });
+    }
+    
+    function selectLocation(latInputId, lonInputId, resultsId, lat, lon, displayName) {
+        document.getElementById(latInputId).value = parseFloat(lat).toFixed(6);
+        document.getElementById(lonInputId).value = parseFloat(lon).toFixed(6);
+        document.getElementById(resultsId).style.display = 'none';
+        
+        // Save location name to hidden field and search input
+        if (latInputId === 'office-latitude') {
+            document.getElementById('office-location-name').value = displayName;
+            document.getElementById('office-location-search').value = displayName;
+        }
+        
+        showSettingsToast('Location selected: ' + displayName.split(',')[0], 'success');
+    }
+    
+    // Branch GPS Modal Functions
+    const branchData = {};
+    {% for branch in settings.branches %}
+    branchData[{{ branch.id }}] = {
+        name: "{{ branch.name|escapejs }}",
+        latitude: {{ branch.latitude|default:"null" }},
+        longitude: {{ branch.longitude|default:"null" }},
+        radius: {{ branch.geofence_radius_meters|default:100 }}
+    };
+    {% endfor %}
+    
+    function editBranch(branchId) {
+        const branch = branchData[branchId];
+        if (!branch) return;
+        
+        document.getElementById('modal-branch-id').value = branchId;
+        document.getElementById('modal-branch-name').textContent = branch.name;
+        document.getElementById('modal-branch-latitude').value = branch.latitude || '';
+        document.getElementById('modal-branch-longitude').value = branch.longitude || '';
+        document.getElementById('modal-branch-radius').value = branch.radius || 100;
+        
+        const modal = document.getElementById('branch-gps-modal');
+        modal.style.display = 'flex';
+    }
+    
+    function closeBranchModal() {
+        document.getElementById('branch-gps-modal').style.display = 'none';
+    }
+    
+    function showAddBranchModal() {
+        alert('Please add branches in the Branch Management section first, then return here to set their GPS coordinates.');
+    }
+    
+    // Initialize location search for office
+    setupLocationSearch('office-location-search', 'office-search-results', 'office-latitude', 'office-longitude');
+    
+    // Initialize location search for branch modal
+    setupLocationSearch('branch-location-search', 'branch-search-results', 'modal-branch-latitude', 'modal-branch-longitude');
+    
+    // Close modal on background click
+    document.getElementById('branch-gps-modal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeBranchModal();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends 'ems/blusuite_base.html' %}
+
+{% block title %}{{ submission.template.title }} - Submission - BLU Suite{% endblock %}
+
+{% block extra_head %}
+<style>
+    .sd-header { background:#fff; border:1px solid #e2e8f0; border-radius:4px; padding:20px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+    .sd-header h1 { margin:0 0 4px; font-size:20px; font-weight:700; color:#0f172a; }
+    .sd-header p { margin:0; font-size:13px; color:#64748b; }
+    .sd-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:1px solid; cursor:pointer; transition:all .15s; font-family:inherit; }
+    .sd-btn-primary { background:#E11D48; color:#fff; border-color:#E11D48; }
+    .sd-btn-primary:hover { background:#BE123C; }
+    .sd-btn-secondary { background:#fff; color:#0f172a; border-color:#e2e8f0; }
+    .sd-btn-secondary:hover { background:#f8fafc; border-color:#cbd5e1; }
+    .sd-btn-blue { background:#3B82F6; color:#fff; border-color:#3B82F6; }
+    .sd-btn-blue:hover { background:#2563EB; }
+    .sd-btn-sm { padding:5px 12px; font-size:12px; }
+    .sd-card { background:#fff; border:1px solid #e2e8f0; border-radius:4px; overflow:hidden; margin-bottom:16px; }
+    .sd-card-head { padding:14px 20px; border-bottom:1px solid #f1f5f9; font-size:14px; font-weight:600; color:#0f172a; display:flex; align-items:center; gap:8px; }
+    .sd-card-body { padding:20px; }
+    .sd-badge { padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600; display:inline-block; }
+    .sd-field { padding:12px 16px; background:#f8fafc; border-radius:4px; margin-bottom:8px; }
+    .sd-field:last-child { margin-bottom:0; }
+    .sd-field-label { font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+    .sd-field-value { font-size:14px; color:#0f172a; }
+    .sd-meta-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f1f5f9; }
+    .sd-meta-row:last-child { border-bottom:none; }
+    .sd-meta-label { font-size:12px; color:#64748b; }
+    .sd-meta-value { font-size:13px; font-weight:600; color:#0f172a; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sd-header">
+    <div>
+        <h1>{{ submission.template.title }}</h1>
+        <p>Submission by {{ submission.submitted_by.get_full_name|default:"Unknown" }}</p>
+    </div>
+    <div style="display:flex; gap:8px;">
+        {% if submission.template.requires_signature and submission.status == 'SUBMITTED' %}
+        {% if not submission.signatures.exists %}
+        <a href="{% url 'form_sign' submission.id %}" class="sd-btn sd-btn-blue">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Sign Form
+        </a>
+        {% endif %}
+        {% endif %}
+        <a href="{% url 'submission_export_pdf' submission.id %}" target="_blank" class="sd-btn sd-btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            View PDF
+        </a>
+        <a href="{% url 'submission_export_pdf' submission.id %}?download=1" class="sd-btn sd-btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+        </a>
+        <a href="{% url 'form_submissions_list' %}" class="sd-btn sd-btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+        </a>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 300px; gap:16px;">
+    <!-- Main Content -->
+    <div>
+        <!-- Form Data -->
+        <div class="sd-card">
+            <div class="sd-card-head">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Form Responses
+            </div>
+            <div class="sd-card-body">
+                {% if submission.form_data %}
+                {% for field_id, value in submission.form_data.items %}
+                {% if field_id != 'csrfmiddlewaretoken' and field_id != 'action' and field_id != 'submission_id' %}
+                <div class="sd-field">
+                    <div class="sd-field-label">{{ field_id|cut:"field_"|title }}</div>
+                    <div class="sd-field-value">{{ value|default:"(Not provided)" }}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% else %}
+                <div style="text-align:center; padding:32px; color:#94a3b8;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin:0 auto 8px; display:block;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div style="font-size:13px;">No form data submitted yet</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Signatures -->
+        {% if submission.signatures.exists %}
+        <div class="sd-card">
+            <div class="sd-card-head">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Electronic Signatures
+            </div>
+            <div class="sd-card-body">
+                {% for signature in submission.signatures.all %}
+                <div style="padding:14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; {% if not forloop.last %}margin-bottom:10px;{% endif %}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div>
+                            <div style="font-weight:600; color:#0f172a; font-size:13px;">{{ signature.signer.get_full_name }}</div>
+                            <div style="font-size:12px; color:#64748b;">{{ signature.signed_at|date:"M d, Y H:i" }} &middot; {{ signature.get_signature_type_display }}</div>
+                        </div>
+                        <a href="{% url 'signature_audit_trail' signature.id %}" class="sd-btn sd-btn-secondary sd-btn-sm">Audit Trail</a>
+                    </div>
+                    {% if signature.signature_type == 'DRAWN' %}
+                    <div style="padding:12px; background:#fff; border:1px solid #e2e8f0; border-radius:4px;">
+                        <img src="{{ signature.signature_data }}" alt="Signature" style="max-width:280px; height:auto;">
+                    </div>
+                    {% elif signature.signature_type == 'TYPED' %}
+                    <div style="padding:16px; background:#fff; border:1px solid #e2e8f0; border-radius:4px; text-align:center; font-family:'Brush Script MT',cursive; font-size:28px; color:#0f172a;">
+                        {{ signature.signature_data }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% elif submission.template.requires_signature and submission.status == 'SUBMITTED' %}
+        <div class="sd-card">
+            <div class="sd-card-head">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Signature Required
+            </div>
+            <div class="sd-card-body" style="text-align:center; padding:32px;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="1.5" style="margin:0 auto 12px; display:block;"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/><path d="M2 2l7.586 7.586"/></svg>
+                <div style="font-size:14px; color:#64748b; margin-bottom:12px;">This form requires your electronic signature</div>
+                <a href="{% url 'form_sign' submission.id %}" class="sd-btn sd-btn-blue">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Add Signature Now
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Approval History -->
+        {% if submission.approvals.exists %}
+        <div class="sd-card">
+            <div class="sd-card-head">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                Approval History
+            </div>
+            <div class="sd-card-body">
+                {% for approval in submission.approvals.all %}
+                <div style="padding:12px; border-left:3px solid {% if approval.status == 'APPROVED' %}#22C55E{% elif approval.status == 'REJECTED' %}#EF4444{% else %}#F59E0B{% endif %}; background:#f8fafc; border-radius:0 4px 4px 0; {% if not forloop.last %}margin-bottom:8px;{% endif %}">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:600; color:#0f172a; font-size:13px;">{{ approval.approver.get_full_name }}</div>
+                            <div style="font-size:12px; color:#64748b;">
+                                {% if approval.status == 'PENDING' %}Assigned {{ approval.assigned_at|date:"M d, Y" }}{% else %}{{ approval.get_status_display }} {{ approval.reviewed_at|date:"M d, Y H:i" }}{% endif %}
+                            </div>
+                        </div>
+                        {% if approval.status == 'APPROVED' %}
+                        <span class="sd-badge" style="background:#D1FAE5; color:#065F46;">Approved</span>
+                        {% elif approval.status == 'REJECTED' %}
+                        <span class="sd-badge" style="background:#FEE2E2; color:#991B1B;">Rejected</span>
+                        {% else %}
+                        <span class="sd-badge" style="background:#FEF3C7; color:#92400E;">Pending</span>
+                        {% endif %}
+                    </div>
+                    {% if approval.comments %}
+                    <div style="margin-top:8px; padding:8px 12px; background:#fff; border-radius:4px; font-size:13px; color:#475569;">{{ approval.comments }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar: Status & Meta -->
+    <div>
+        <div class="sd-card">
+            <div class="sd-card-head">Status</div>
+            <div class="sd-card-body">
+                <div style="text-align:center; margin-bottom:16px;">
+                    {% if submission.status == 'DRAFT' %}
+                    <span class="sd-badge" style="background:#F1F5F9; color:#475569; font-size:13px; padding:6px 14px;">Draft</span>
+                    {% elif submission.status == 'SUBMITTED' %}
+                    <span class="sd-badge" style="background:#DBEAFE; color:#1E40AF; font-size:13px; padding:6px 14px;">Submitted</span>
+                    {% elif submission.status == 'PENDING_APPROVAL' %}
+                    <span class="sd-badge" style="background:#FEF3C7; color:#92400E; font-size:13px; padding:6px 14px;">Pending Approval</span>
+                    {% elif submission.status == 'APPROVED' %}
+                    <span class="sd-badge" style="background:#D1FAE5; color:#065F46; font-size:13px; padding:6px 14px;">Approved</span>
+                    {% elif submission.status == 'REJECTED' %}
+                    <span class="sd-badge" style="background:#FEE2E2; color:#991B1B; font-size:13px; padding:6px 14px;">Rejected</span>
+                    {% endif %}
+                </div>
+                <div class="sd-meta-row">
+                    <span class="sd-meta-label">Category</span>
+                    <span class="sd-meta-value">{{ submission.template.get_category_display }}</span>
+                </div>
+                <div class="sd-meta-row">
+                    <span class="sd-meta-label">Created</span>
+                    <span class="sd-meta-value">{{ submission.created_at|date:"M d, Y" }}</span>
+                </div>
+                {% if submission.submitted_at %}
+                <div class="sd-meta-row">
+                    <span class="sd-meta-label">Submitted</span>
+                    <span class="sd-meta-value">{{ submission.submitted_at|date:"M d, Y" }}</span>
+                </div>
+                {% endif %}
+                <div class="sd-meta-row">
+                    <span class="sd-meta-label">Signature</span>
+                    <span class="sd-meta-value">{% if submission.template.requires_signature %}Required{% else %}Not required{% endif %}</span>
+                </div>
+                <div class="sd-meta-row">
+                    <span class="sd-meta-label">Approval</span>
+                    <span class="sd-meta-value">{% if submission.template.requires_approval %}Required{% else %}Not required{% endif %}</span>
+                </div>
+            </div>
+        </div>
+
+        {% if submission.status == 'REJECTED' and submission.rejection_reason %}
+        <div class="sd-card" style="border-color:#FECACA;">
+            <div class="sd-card-head" style="background:#FEF2F2; color:#991B1B;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#991B1B" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Rejection Reason
+            </div>
+            <div class="sd-card-body">
+                <div style="font-size:13px; color:#7F1D1D; line-height:1.5;">{{ submission.rejection_reason }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if submission.status == 'APPROVED' and submission.approved_by %}
+        <div class="sd-card" style="border-color:#86EFAC;">
+            <div class="sd-card-head" style="background:#ECFDF5; color:#065F46;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#065F46" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Approved
+            </div>
+            <div class="sd-card-body">
+                <div style="font-size:13px; font-weight:600; color:#065F46;">{{ submission.approved_by.get_full_name }}</div>
+                <div style="font-size:12px; color:#166534;">{{ submission.approved_at|date:"M d, Y H:i" }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

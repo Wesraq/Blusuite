@@ -1,0 +1,702 @@
+{% extends 'ems/blusuite_base.html' %}
+{% load static %}
+
+{% block title %}Assets Suite (AMS) - BluSuite{% endblock %}
+
+{% block headline %}
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h1 style="font-size: 28px; margin: 0 0 8px; color: var(--dark); font-weight: 700;">Assets Suite (AMS)</h1>
+        <p style="margin: 0; color: var(--medium-gray); font-size: 14px;">Control asset registers, lifecycle tracking and assignments</p>
+    </div>
+    <a href="{% url 'assets:ams_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 4px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.1s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary)'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        Launch AMS
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="ams-layout">
+    <!-- Quick Stats Dashboard -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Total Assets</span>
+                <strong class="stat-value">{{ stats.total_assets|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Assigned Assets</span>
+                <strong class="stat-value">{{ stats.assigned|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Available</span>
+                <strong class="stat-value">{{ stats.available|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Under Maintenance</span>
+                <strong class="stat-value">{{ stats.in_repair|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Pending Requests</span>
+                <strong class="stat-value">{{ stats.pending_requests|default:0 }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Left Column - Asset Categories & Features -->
+        <div class="main-column">
+            <!-- Asset Categories -->
+            <div class="feature-section">
+                <div class="section-header">
+                    <h2 class="section-title">Asset Categories</h2>
+                    <a href="{% url 'assets:asset_create' %}" class="btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Asset
+                    </a>
+                </div>
+
+                <div class="categories-grid">
+                    {% for category in asset_categories %}
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                {% if category.name == 'Laptop' or category.name == 'Desktop' %}
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                                {% elif category.name == 'Phone' or category.name == 'Mobile' %}
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                {% elif category.name == 'Vehicle' %}
+                                <path d="M18 18h-2c0-1.1-.9-2-2-2H10c-1.1 0-2 .9-2 2H6"></path>
+                                <path d="M5 18h14v-6H5z"></path>
+                                <path d="M5 12l2-6h10l2 6"></path>
+                                {% else %}
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                {% endif %}
+                            </svg>
+                        </div>
+                        <div class="category-info">
+                            <h3>{{ category.name }}</h3>
+                            <p>{{ category.count }} asset{{ category.count|pluralize }}</p>
+                        </div>
+                        <div class="category-stats">
+                            <span class="stat-badge assigned">{{ category.assigned }} assigned</span>
+                            <span class="stat-badge available">{{ category.available }} available</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state-small">
+                        <p>No asset categories configured</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Core Features Grid -->
+            <div class="feature-section" style="margin-top: 24px;">
+                <h2 class="section-title">Asset Management Tools</h2>
+                <div class="feature-grid">
+                    <a href="{% url 'assets:asset_list' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Asset Registry</h3>
+                            <p>Complete inventory of all organizational assets</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'assets:asset_list' %}?status=AVAILABLE" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="8.5" cy="7" r="4"></circle>
+                                <line x1="20" y1="8" x2="20" y2="14"></line>
+                                <line x1="23" y1="11" x2="17" y2="11"></line>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Asset Assignment</h3>
+                            <p>Assign and track asset allocations to employees</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'assets:asset_list' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Maintenance Tracking</h3>
+                            <p>Schedule and log asset maintenance activities</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'assets:asset_list' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Lifecycle Management</h3>
+                            <p>Track asset lifecycle from procurement to disposal</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'assets:asset_list' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Depreciation Tracking</h3>
+                            <p>Monitor asset value depreciation over time</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'assets:asset_list' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 20V10"></path>
+                                <path d="M12 20V4"></path>
+                                <path d="M6 20v-6"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Reports & Analytics</h3>
+                            <p>Generate insights on asset utilization and costs</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Quick Actions & Insights -->
+        <div class="side-column">
+            <!-- Quick Actions -->
+            <div class="info-card">
+                <h3 class="card-title">Quick Actions</h3>
+                <div class="action-list">
+                    <a href="{% url 'assets:asset_create' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Add New Asset</span>
+                    </a>
+                    <a href="{% url 'assets:asset_request_create' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <line x1="20" y1="8" x2="20" y2="14"></line>
+                        </svg>
+                        <span>Request Asset</span>
+                    </a>
+                    <a href="{% url 'assets:asset_list' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        </svg>
+                        <span>View All Assets</span>
+                    </a>
+                    <a href="{% url 'assets:asset_list' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6M12 17v6"></path>
+                        </svg>
+                        <span>Schedule Maintenance</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Asset Status Breakdown -->
+            <div class="info-card">
+                <h3 class="card-title">Asset Status</h3>
+                <div class="status-breakdown">
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-indicator status-assigned"></div>
+                            <span class="status-name">Assigned</span>
+                        </div>
+                        <span class="status-count">{{ stats.assigned|default:0 }}</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-indicator status-available"></div>
+                            <span class="status-name">Available</span>
+                        </div>
+                        <span class="status-count">{{ stats.available|default:0 }}</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-indicator status-maintenance"></div>
+                            <span class="status-name">Maintenance</span>
+                        </div>
+                        <span class="status-count">{{ stats.in_repair|default:0 }}</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-indicator status-retired"></div>
+                            <span class="status-name">Pending Requests</span>
+                        </div>
+                        <span class="status-count">{{ stats.pending_requests|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="info-card">
+                <h3 class="card-title">Recent Activity</h3>
+                <div class="activity-list">
+                    {% for activity in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-dot"></div>
+                        <div class="activity-content">
+                            <p class="activity-text">{{ activity.description }}</p>
+                            <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="empty-state-small">No recent activity</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Asset Value Summary -->
+            <div class="info-card">
+                <h3 class="card-title">Asset Value</h3>
+                <div class="value-summary">
+                    <div class="value-item">
+                        <span class="value-label">Total Value</span>
+                        <strong class="value-amount">R {{ stats.total_value|default:0|floatformat:0 }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .ams-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+    .stat-box {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: border-color 0.1s ease;
+    }
+    .stat-box:hover {
+        border-color: var(--primary);
+    }
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .stat-label {
+        font-size: 13px;
+        color: var(--medium-gray);
+        font-weight: 500;
+    }
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+    .feature-section {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 24px;
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--primary);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.1s ease;
+    }
+    .btn-primary:hover {
+        background: var(--primary-dark);
+    }
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+    .category-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: all 0.1s ease;
+    }
+    .category-card:hover {
+        border-color: var(--primary);
+    }
+    .category-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+    .category-info h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 4px;
+    }
+    .category-info p {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 0;
+    }
+    .category-stats {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .stat-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .stat-badge.assigned {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+    .stat-badge.available {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+    }
+    .feature-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        transition: all 0.1s ease;
+    }
+    .feature-card:hover {
+        border-color: var(--primary);
+        background: rgba(220, 20, 60, 0.02);
+    }
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .feature-content {
+        flex: 1;
+    }
+    .feature-content h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0 0 4px;
+    }
+    .feature-content p {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 0;
+        line-height: 1.4;
+    }
+    .feature-arrow {
+        color: var(--medium-gray);
+        opacity: 0;
+        transition: opacity 0.1s ease;
+    }
+    .feature-card:hover .feature-arrow {
+        opacity: 1;
+    }
+    .info-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 16px;
+    }
+    .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .action-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        font-size: 14px;
+        transition: background 0.1s ease;
+    }
+    .action-item:hover {
+        background: var(--light-gray);
+    }
+    .action-item svg {
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .status-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .status-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+    .status-assigned { background: #DBEAFE; }
+    .status-available { background: #D1FAE5; }
+    .status-maintenance { background: #FEF3C7; }
+    .status-retired { background: #F3F4F6; }
+    .status-name {
+        font-size: 13px;
+        color: var(--dark-gray);
+    }
+    .status-count {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .activity-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    .activity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .activity-content {
+        flex: 1;
+    }
+    .activity-text {
+        font-size: 13px;
+        color: var(--dark-gray);
+        margin: 0 0 4px;
+        line-height: 1.4;
+    }
+    .activity-time {
+        font-size: 12px;
+        color: var(--medium-gray);
+    }
+    .value-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .value-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .value-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .value-label {
+        font-size: 13px;
+        color: var(--medium-gray);
+    }
+    .value-amount {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    .value-amount.depreciation {
+        color: #DC2626;
+    }
+    .empty-state-small {
+        text-align: center;
+        color: var(--medium-gray);
+        font-size: 13px;
+        padding: 20px;
+    }
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+        .categories-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

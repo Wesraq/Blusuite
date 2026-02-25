@@ -1,0 +1,220 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}Projects Dashboard · BLU Suite{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h2 style="margin: 0 0 4px; font-size: 22px; font-weight: 700; color: #0f172a;">Welcome back, {{ user.first_name }}</h2>
+        <p style="margin: 0; color: #64748b; font-size: 14px;">
+            {% if is_admin %}{{ company_name }} &mdash; {{ stats.company_total }} total projects, {{ stats.company_active }} active{% else %}You have {{ stats.my_projects }} project{{ stats.my_projects|pluralize }} and {{ stats.my_tasks_pending }} pending task{{ stats.my_tasks_pending|pluralize }}{% endif %}
+        </p>
+    </div>
+    <div style="display: flex; gap: 8px;">
+        <a href="{% url 'blu_projects:my_tasks' %}" style="padding: 8px 16px; background: #f1f5f9; color: #334155; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            My Tasks
+        </a>
+        {% if is_admin %}
+        <a href="{% url 'blu_projects:project_create' %}" style="padding: 8px 16px; background: #1d4ed8; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Project
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <div style="width: 32px; height: 32px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ stats.my_projects|default:0 }}</div>
+        </div>
+        <div style="font-size: 12px; color: #64748b;">My Projects</div>
+        <div style="font-size: 11px; color: #1d4ed8; font-weight: 600; margin-top: 2px;">{{ stats.my_projects_active|default:0 }} active</div>
+    </div>
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <div style="width: 32px; height: 32px; border-radius: 4px; background: #fef3c7; display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </div>
+            <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ stats.my_tasks_pending|default:0 }}</div>
+        </div>
+        <div style="font-size: 12px; color: #64748b;">Pending Tasks</div>
+        <div style="font-size: 11px; color: #d97706; font-weight: 600; margin-top: 2px;">{{ stats.my_tasks_total|default:0 }} total</div>
+    </div>
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <div style="width: 32px; height: 32px; border-radius: 4px; background: {% if stats.my_tasks_overdue > 0 %}#fef2f2{% else %}#f0fdf4{% endif %}; display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{% if stats.my_tasks_overdue > 0 %}#dc2626{% else %}#16a34a{% endif %}" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div style="font-size: 22px; font-weight: 700; color: {% if stats.my_tasks_overdue > 0 %}#dc2626{% else %}#0f172a{% endif %};">{{ stats.my_tasks_overdue|default:0 }}</div>
+        </div>
+        <div style="font-size: 12px; color: #64748b;">Overdue</div>
+        <div style="font-size: 11px; color: {% if stats.my_tasks_overdue > 0 %}#dc2626{% else %}#16a34a{% endif %}; font-weight: 600; margin-top: 2px;">{% if stats.my_tasks_overdue > 0 %}Needs attention{% else %}All on track{% endif %}</div>
+    </div>
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <div style="width: 32px; height: 32px; border-radius: 4px; background: #f0fdf4; display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ stats.my_tasks_completed|default:0 }}</div>
+        </div>
+        <div style="font-size: 12px; color: #64748b;">Completed</div>
+        <div style="font-size: 11px; color: #16a34a; font-weight: 600; margin-top: 2px;">Tasks done</div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px;">
+    <!-- Left Column -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+        <!-- My Active Projects -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">My Active Projects</h3>
+                <a href="{% url 'blu_projects:projects_list' %}" style="font-size: 12px; color: #1d4ed8; text-decoration: none; font-weight: 600;">View All</a>
+            </div>
+            <div style="padding: 12px;">
+                {% for project in active_projects %}
+                <a href="{% url 'blu_projects:project_detail' project.id %}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 4px; text-decoration: none; color: #0f172a; transition: background 0.15s; margin-bottom: 4px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ project.name }}</div>
+                        <div style="font-size: 12px; color: #64748b;">{{ project.code }} &middot; {{ project.get_priority_display }}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                        <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 3px;">
+                            <div style="width: {{ project.progress_percentage }}%; height: 100%; background: {% if project.progress_percentage >= 75 %}#16a34a{% elif project.progress_percentage >= 40 %}#3b82f6{% else %}#f59e0b{% endif %}; border-radius: 3px;"></div>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b; min-width: 28px; text-align: right;">{{ project.progress_percentage }}%</span>
+                    </div>
+                </a>
+                {% empty %}
+                <div style="text-align: center; padding: 32px; color: #94a3b8; font-size: 13px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 8px; display: block; opacity: 0.5;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    No active projects assigned to you
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- In Progress Tasks -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    In Progress
+                </h3>
+                <a href="{% url 'blu_projects:my_tasks' %}?status=IN_PROGRESS" style="font-size: 12px; color: #1d4ed8; text-decoration: none; font-weight: 600;">View All</a>
+            </div>
+            <div style="padding: 12px;">
+                {% for task in in_progress_tasks %}
+                <a href="{% url 'blu_projects:task_detail' task.id %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 4px; text-decoration: none; color: #0f172a; margin-bottom: 4px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #d97706; flex-shrink: 0;"></span>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ task.title }}</div>
+                        <div style="font-size: 11px; color: #64748b;">{{ task.project.name }}{% if task.due_date %} &middot; Due {{ task.due_date|date:"M j" }}{% endif %}</div>
+                    </div>
+                    <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #fef3c7; color: #d97706; font-weight: 600;">In Progress</span>
+                </a>
+                {% empty %}
+                <div style="text-align: center; padding: 24px; color: #94a3b8; font-size: 13px;">No tasks in progress</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+        <!-- Overdue Tasks -->
+        {% if overdue_tasks %}
+        <div style="background: white; border: 1px solid #fecaca; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 14px 16px; background: #fef2f2; border-bottom: 1px solid #fecaca; display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #dc2626;">Overdue Tasks ({{ stats.my_tasks_overdue }})</h3>
+            </div>
+            <div style="padding: 8px;">
+                {% for task in overdue_tasks %}
+                <a href="{% url 'blu_projects:task_detail' task.id %}" style="display: block; padding: 10px 12px; border-radius: 4px; text-decoration: none; color: #0f172a; margin-bottom: 2px;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                    <div style="font-size: 13px; font-weight: 600;">{{ task.title }}</div>
+                    <div style="font-size: 11px; color: #dc2626; margin-top: 2px;">{{ task.project.code }} &middot; Due {{ task.due_date|date:"M j" }}</div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Upcoming Tasks (7 days) -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9;">
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Due This Week
+                </h3>
+            </div>
+            <div style="padding: 8px;">
+                {% for task in upcoming_tasks %}
+                <a href="{% url 'blu_projects:task_detail' task.id %}" style="display: block; padding: 10px 12px; border-radius: 4px; text-decoration: none; color: #0f172a; margin-bottom: 2px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <div style="font-size: 13px; font-weight: 600;">{{ task.title }}</div>
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">{{ task.project.code }} &middot; Due {{ task.due_date|date:"M j" }}</div>
+                </a>
+                {% empty %}
+                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">No tasks due this week</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Upcoming Milestones -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9;">
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                    Milestones
+                </h3>
+            </div>
+            <div style="padding: 8px;">
+                {% for milestone in upcoming_milestones %}
+                <div style="padding: 10px 12px; border-radius: 4px; margin-bottom: 2px;">
+                    <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ milestone.name }}</div>
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">{{ milestone.project.name }} &middot; {{ milestone.due_date|date:"M j, Y" }}</div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">No upcoming milestones</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9;">
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Recent Activity
+                </h3>
+            </div>
+            <div style="padding: 8px;">
+                {% for activity in recent_activities %}
+                <div style="display: flex; gap: 10px; padding: 8px 12px; margin-bottom: 2px;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; margin-top: 6px;"></span>
+                    <div style="flex: 1;">
+                        <div style="font-size: 12px; color: #0f172a;">{{ activity.description }}</div>
+                        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">{{ activity.project.name }} &middot; {{ activity.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">No recent activity</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

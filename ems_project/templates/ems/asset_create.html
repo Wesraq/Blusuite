@@ -1,0 +1,178 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Add New Asset - EMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ac-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; transition: border-color .15s, box-shadow .15s; }
+    .ac-card:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.10); }
+    .ac-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; font-size: 14px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .ac-card-body { padding: 20px; }
+    .ac-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 16px; }
+    .ac-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 16px; }
+    .ac-group { display: flex; flex-direction: column; gap: 4px; }
+    .ac-group.full { grid-column: 1 / -1; }
+    .ac-label { font-size: 13px; font-weight: 600; color: #0f172a; }
+    .ac-input {
+        padding: 9px 12px; border: 1px solid #e2e8f0; border-radius: 4px;
+        font-size: 13px; font-family: inherit; transition: border-color 0.15s;
+    }
+    .ac-input:focus { outline: none; border-color: #e11d48; box-shadow: 0 0 0 2px rgba(225,29,72,0.08); }
+    .ac-input:hover:not(:focus) { border-color: #cbd5e1; }
+    select.ac-input {
+        cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 10px center; background-repeat: no-repeat; background-size: 14px; padding-right: 32px;
+    }
+    .ac-section { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+    .ac-section svg { color: #64748b; }
+    .ac-btn {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 9px 18px; border-radius: 4px; font-size: 13px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .ac-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .ac-btn-primary:hover { background: #be123c; border-color: #be123c; }
+    .ac-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .ac-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    @media (max-width: 600px) { .ac-grid, .ac-grid-3 { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">Add New Asset</h1>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">Add a new asset to your company inventory</p>
+        </div>
+        <a href="{% url 'assets:asset_list' %}" class="ac-btn ac-btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to Assets
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+<div style="margin-bottom: 16px;">
+    {% for message in messages %}
+    <div style="padding: 12px 16px; border-radius: 4px; margin-bottom: 8px; border: 1px solid; {% if message.tags == 'success' %}background: #d1fae5; color: #065f46; border-color: #10b981;{% else %}background: #fee2e2; color: #991b1b; border-color: #ef4444;{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="ac-card">
+    <div class="ac-card-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Asset Information
+    </div>
+    <div class="ac-card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Basic Information -->
+            <h3 class="ac-section">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                Basic Information
+            </h3>
+            <div class="ac-grid">
+                <div class="ac-group">
+                    <label class="ac-label">Asset Tag <span style="color: #ef4444;">*</span></label>
+                    <input type="text" name="asset_tag" required class="ac-input" placeholder="e.g., LAP-001">
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Asset Name <span style="color: #ef4444;">*</span></label>
+                    <input type="text" name="name" required class="ac-input" placeholder="e.g., Dell Laptop">
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Asset Type <span style="color: #ef4444;">*</span></label>
+                    <select name="asset_type" required class="ac-input">
+                        <option value="">Select Type</option>
+                        {% for value, label in asset_types %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Status <span style="color: #ef4444;">*</span></label>
+                    <select name="status" required class="ac-input">
+                        {% for value, label in asset_statuses %}
+                        <option value="{{ value }}" {% if value == 'AVAILABLE' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Department</label>
+                    <select name="department" class="ac-input">
+                        <option value="">None (Company-wide)</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Category</label>
+                    <select name="category" class="ac-input">
+                        <option value="">None</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Asset Details -->
+            <h3 class="ac-section" style="margin-top: 24px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Asset Details
+            </h3>
+            <div class="ac-grid-3">
+                <div class="ac-group">
+                    <label class="ac-label">Serial Number</label>
+                    <input type="text" name="serial_number" class="ac-input" placeholder="Optional">
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Brand</label>
+                    <input type="text" name="brand" class="ac-input" placeholder="e.g., Dell">
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Model</label>
+                    <input type="text" name="model" class="ac-input" placeholder="e.g., Latitude 5420">
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Purchase Date</label>
+                    <input type="date" name="purchase_date" class="ac-input">
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Purchase Cost (K)</label>
+                    <input type="number" name="purchase_cost" step="0.01" class="ac-input" placeholder="0.00">
+                </div>
+                <div class="ac-group">
+                    <label class="ac-label">Condition</label>
+                    <select name="condition" class="ac-input">
+                        {% for value, label in asset_conditions %}
+                        <option value="{{ value }}" {% if value == 'NEW' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="ac-group" style="margin-bottom: 20px;">
+                <label class="ac-label">Notes</label>
+                <textarea name="notes" rows="3" class="ac-input" style="resize: vertical;" placeholder="Any additional notes about this asset..."></textarea>
+            </div>
+
+            <!-- Form Actions -->
+            <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                <a href="{% url 'assets:asset_list' %}" class="ac-btn ac-btn-secondary">Cancel</a>
+                <button type="submit" class="ac-btn ac-btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Create Asset
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

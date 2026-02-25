@@ -1,0 +1,256 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}{{ task.title }} - BLU Projects{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb + Header -->
+<div style="margin-bottom: 20px;">
+    <div style="font-size: 12px; color: #64748b; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+        <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #1d4ed8; text-decoration: none;">{{ project.name }}</a>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <span style="color: #0f172a;">Task</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+        <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <h2 style="margin: 0; font-size: 22px; font-weight: 700; color: #0f172a;">{{ task.title }}</h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600;
+                    {% if task.status == 'COMPLETED' %}background: #f0fdf4; color: #16a34a;
+                    {% elif task.status == 'IN_PROGRESS' %}background: #fef3c7; color: #d97706;
+                    {% elif task.status == 'IN_REVIEW' %}background: #f5f3ff; color: #7c3aed;
+                    {% elif task.status == 'BLOCKED' %}background: #fef2f2; color: #dc2626;
+                    {% else %}background: #f8fafc; color: #64748b;{% endif %}">
+                    {{ task.get_status_display }}
+                </span>
+                <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600;
+                    {% if task.priority == 'CRITICAL' %}background: #fef2f2; color: #dc2626;
+                    {% elif task.priority == 'HIGH' %}background: #fff7ed; color: #ea580c;
+                    {% elif task.priority == 'MEDIUM' %}background: #eff6ff; color: #2563eb;
+                    {% else %}background: #f8fafc; color: #64748b;{% endif %}">
+                    {{ task.get_priority_display }}
+                </span>
+                {% if task.is_overdue %}
+                <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; background: #fef2f2; color: #dc2626;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 2px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    Overdue
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div style="display: flex; gap: 6px; flex-shrink: 0;">
+            <a href="{% url 'blu_projects:time_entry_create' task.id %}" style="padding: 7px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Log Time
+            </a>
+            <a href="{% url 'blu_projects:task_edit' task.id %}" style="padding: 7px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                Edit
+            </a>
+            {% if is_admin %}
+            <a href="{% url 'blu_projects:task_delete' task.id %}" style="padding: 7px 12px; background: white; border: 1px solid #fecaca; border-radius: 4px; color: #dc2626; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Delete
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Main Layout -->
+<div style="display: grid; grid-template-columns: 1fr 280px; gap: 16px;">
+    <!-- Left Column -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+
+        <!-- Task Details -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid #f1f5f9;">
+                <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">Details</h3>
+            </div>
+            <div style="padding: 16px 20px;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">STATUS</div>
+                        <form method="post" action="{% url 'blu_projects:task_update_status' task.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <select name="status" onchange="this.form.submit()" style="padding: 5px 8px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">
+                                <option value="TODO" {% if task.status == 'TODO' %}selected{% endif %}>To Do</option>
+                                <option value="IN_PROGRESS" {% if task.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                                <option value="IN_REVIEW" {% if task.status == 'IN_REVIEW' %}selected{% endif %}>In Review</option>
+                                <option value="COMPLETED" {% if task.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                <option value="BLOCKED" {% if task.status == 'BLOCKED' %}selected{% endif %}>Blocked</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">ASSIGNED TO</div>
+                        <div style="font-size: 13px; color: #0f172a; font-weight: 600;">{{ task.assigned_to.get_full_name|default:"Unassigned" }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">DUE DATE</div>
+                        <div style="font-size: 13px; font-weight: 600; {% if task.is_overdue %}color: #dc2626;{% else %}color: #0f172a;{% endif %}">
+                            {{ task.due_date|date:"M j, Y"|default:"Not set" }}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">ESTIMATED</div>
+                        <div style="font-size: 13px; color: #0f172a;">{{ task.estimated_hours|default:"--" }}h</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">ACTUAL</div>
+                        <div style="font-size: 13px; color: #0f172a;">{{ task.actual_hours }}h</div>
+                    </div>
+                    {% if task.start_date %}
+                    <div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">START DATE</div>
+                        <div style="font-size: 13px; color: #0f172a;">{{ task.start_date|date:"M j, Y" }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if task.description %}
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+                    <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 6px;">DESCRIPTION</div>
+                    <div style="font-size: 13px; color: #475569; line-height: 1.6;">{{ task.description|linebreaks }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Time Entries -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    Time Entries ({{ time_entries.count }})
+                </h3>
+                <a href="{% url 'blu_projects:time_entry_create' task.id %}" style="font-size: 12px; color: #1d4ed8; text-decoration: none; font-weight: 600;">+ Log Time</a>
+            </div>
+            {% if time_entries %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 1px solid #f1f5f9;">
+                            <th style="padding: 8px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b;">Date</th>
+                            <th style="padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b;">User</th>
+                            <th style="padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b;">Hours</th>
+                            <th style="padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b;">Note</th>
+                            <th style="padding: 8px 12px; text-align: center; font-size: 11px; font-weight: 600; color: #64748b;">Billable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in time_entries %}
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 8px 16px; font-size: 12px; color: #475569;">{{ entry.date|date:"M j" }}</td>
+                            <td style="padding: 8px 12px; font-size: 12px; color: #0f172a;">{{ entry.user.get_full_name }}</td>
+                            <td style="padding: 8px 12px; font-size: 12px; font-weight: 700; color: #0f172a;">{{ entry.hours }}h</td>
+                            <td style="padding: 8px 12px; font-size: 12px; color: #64748b;">{{ entry.description|default:"-" }}</td>
+                            <td style="padding: 8px 12px; text-align: center;">
+                                {% if entry.is_billable %}
+                                <span style="font-size: 10px; padding: 2px 6px; border-radius: 999px; background: #f0fdf4; color: #16a34a; font-weight: 600;">Yes</span>
+                                {% else %}
+                                <span style="font-size: 10px; padding: 2px 6px; border-radius: 999px; background: #f8fafc; color: #94a3b8; font-weight: 600;">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 24px; color: #94a3b8; font-size: 12px;">No time entries yet</div>
+            {% endif %}
+        </div>
+
+        <!-- Comments -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid #f1f5f9;">
+                <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    Comments ({{ comments.count }})
+                </h3>
+            </div>
+            <div style="padding: 12px;">
+                {% for comment in comments %}
+                <div style="padding: 12px; background: #f8fafc; border-radius: 4px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ comment.user.get_full_name }}</span>
+                        <span style="font-size: 11px; color: #94a3b8;">{{ comment.created_at|timesince }} ago</span>
+                    </div>
+                    <div style="font-size: 13px; color: #475569; line-height: 1.5;">{{ comment.comment|linebreaks }}</div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">No comments yet</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Quick Info -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9;">
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Info</h3>
+            </div>
+            <div style="padding: 12px 16px;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                        <div>
+                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">PROJECT</div>
+                            <a href="{% url 'blu_projects:project_detail' project.id %}" style="font-size: 13px; color: #1d4ed8; text-decoration: none; font-weight: 600;">{{ project.name }}</a>
+                        </div>
+                    </div>
+                    {% if task.milestone %}
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                        <div>
+                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">MILESTONE</div>
+                            <div style="font-size: 13px; color: #0f172a;">{{ task.milestone.name }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <div>
+                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">CREATED BY</div>
+                            <div style="font-size: 13px; color: #0f172a;">{{ task.created_by.get_full_name }}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <div>
+                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">CREATED</div>
+                            <div style="font-size: 13px; color: #0f172a;">{{ task.created_at|date:"M j, Y" }}</div>
+                        </div>
+                    </div>
+                    {% if task.completed_date %}
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <div>
+                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">COMPLETED</div>
+                            <div style="font-size: 13px; color: #16a34a; font-weight: 600;">{{ task.completed_date|date:"M j, Y" }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if task.updated_at %}
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        <div>
+                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">LAST UPDATED</div>
+                            <div style="font-size: 13px; color: #0f172a;">{{ task.updated_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

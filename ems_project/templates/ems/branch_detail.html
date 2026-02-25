@@ -1,0 +1,393 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}{{ branch.name }} - Branch Details{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            {{ branch.name }}
+            {% if branch.is_head_office %}
+            <span style="background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-left: 12px;">
+                HEAD OFFICE
+            </span>
+            {% endif %}
+        </h1>
+        <p class="page-subtitle">Branch Code: {{ branch.code }} • {{ branch.city }}, {{ branch.country }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'branch_edit' branch.id %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit Branch
+        </a>
+        <a href="{% url 'branch_management' %}" class="btn btn-secondary">
+            ← Back
+        </a>
+    </div>
+</div>
+
+<!-- Branch Summary Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    <div style="background: linear-gradient(135deg, #1d4ed8 0%, #006666 100%); border-radius: 12px; padding: 20px; color: white;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <div style="font-size: 14px; opacity: 0.9;">Employees</div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+        </div>
+        <div style="font-size: 36px; font-weight: 700; margin-bottom: 4px;">{{ employee_count }}</div>
+        <div style="font-size: 12px; opacity: 0.8;">Active staff members</div>
+    </div>
+    
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <div style="font-size: 14px; color: #64748b;">Departments</div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        </div>
+        <div style="font-size: 36px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">{{ department_count }}</div>
+        <div style="font-size: 12px; color: #64748b;">Organizational units</div>
+    </div>
+    
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <div style="font-size: 14px; color: #64748b;">Status</div>
+            {% if branch.is_active %}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            {% else %}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            {% endif %}
+        </div>
+        <div style="font-size: 36px; font-weight: 700; color: {% if branch.is_active %}#10b981{% else %}#ef4444{% endif %}; margin-bottom: 4px;">
+            {% if branch.is_active %}Active{% else %}Inactive{% endif %}
+        </div>
+        <div style="font-size: 12px; color: #64748b;">Branch operational status</div>
+    </div>
+    
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <div style="font-size: 14px; color: #64748b;">Manager</div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </div>
+        <div style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">
+            {% if branch.manager %}{{ branch.manager.get_full_name|truncatewords:2 }}{% else %}Not assigned{% endif %}
+        </div>
+        <div style="font-size: 12px; color: #64748b;">Branch manager</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+    <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 16px; font-weight: 600;">Quick Actions</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+        <button onclick="openAddDepartmentModal()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Add Department
+        </button>
+        <button onclick="openAssignEmployeeModal()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Assign Employee
+        </button>
+        <button onclick="openChangeBranchManagerModal()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Change Manager
+        </button>
+        <a href="{% url 'branch_edit' branch.id %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; justify-content: center; text-decoration: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit Branch Info
+        </a>
+    </div>
+</div>
+
+<!-- Branch Information -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <h2 style="color: #1e293b; margin: 0 0 20px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+        Branch Information
+    </h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+        <div>
+            <h3 style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 0 0 8px 0;">Location</h3>
+            <p style="margin: 0; color: #1e293b; line-height: 1.6;">
+                {{ branch.address }}<br>
+                {{ branch.city }}{% if branch.state_province %}, {{ branch.state_province }}{% endif %}<br>
+                {{ branch.country }}{% if branch.postal_code %} {{ branch.postal_code }}{% endif %}
+            </p>
+        </div>
+        
+        <div>
+            <h3 style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 0 0 8px 0;">Contact</h3>
+            <p style="margin: 0; color: #1e293b; line-height: 1.6;">
+                {% if branch.phone %}
+                <span style="display: inline-flex; align-items: center; gap: 6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    {{ branch.phone }}
+                </span><br>
+                {% endif %}
+                {% if branch.email %}
+                <span style="display: inline-flex; align-items: center; gap: 6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                    {{ branch.email }}
+                </span>
+                {% endif %}
+                {% if not branch.phone and not branch.email %}
+                <span style="color: #94a3b8; font-style: italic;">No contact information</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <div>
+            <h3 style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 0 0 8px 0;">Branch Manager</h3>
+            <p style="margin: 0; color: #1e293b;">
+                {% if branch.manager %}
+                <strong>{{ branch.manager.get_full_name }}</strong><br>
+                <span style="color: #64748b; font-size: 14px;">{{ branch.manager.email }}</span>
+                {% else %}
+                <span style="color: #94a3b8; font-style: italic;">No manager assigned</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Departments -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Departments ({{ department_count }})
+        </h2>
+        <button onclick="openAddDepartmentModal()" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Department
+        </button>
+    </div>
+    
+    {% if departments %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+        {% for dept in departments %}
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; transition: all 0.2s;" onmouseover="this.style.borderColor='#1d4ed8'; this.style.boxShadow='0 4px 12px rgba(0,128,128,0.1)';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                <div>
+                    <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px; font-size: 15px;">{{ dept.name }}</div>
+                    <div style="font-size: 11px; color: #64748b; font-family: monospace; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; display: inline-block;">
+                        {{ dept.code }}
+                    </div>
+                </div>
+                <button onclick="editDepartment({{ dept.id }})" style="padding: 4px 8px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;" title="Edit Department">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                {% if dept.head %}
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span style="font-size: 13px; color: #475569;">{{ dept.head.get_full_name }}</span>
+                </div>
+                {% else %}
+                <div style="font-size: 12px; color: #94a3b8; font-style: italic;">No department head assigned</div>
+                {% endif %}
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span style="font-size: 13px; color: #475569;">{{ dept.employee_count|default:0 }} employee{{ dept.employee_count|pluralize }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: #f8fafc; border-radius: 8px; border: 2px dashed #e2e8f0;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <h3 style="margin: 0 0 8px 0; color: #64748b; font-size: 16px;">No departments yet</h3>
+        <p style="margin: 0 0 20px 0; color: #94a3b8; font-size: 14px;">Create departments to organize employees in this branch</p>
+        <button onclick="openAddDepartmentModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add First Department
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Employees -->
+<div class="content-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Employees ({{ employee_count }})
+        </h2>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="openAssignEmployeeModal()" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                Assign Employee
+            </button>
+            <button onclick="exportEmployeeList()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export
+            </button>
+        </div>
+    </div>
+    
+    {% if employees %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #475569; font-size: 13px;">Employee</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #475569; font-size: 13px;">Email</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #475569; font-size: 13px;">Job Title</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #475569; font-size: 13px;">Department</th>
+                    <th style="padding: 12px; text-align: center; font-weight: 600; color: #475569; font-size: 13px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in employees %}
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 12px;">
+                        <strong style="color: #1e293b;">{{ emp.get_full_name }}</strong>
+                        {% if emp.employee_profile %}
+                        <br><span style="font-size: 12px; color: #64748b;">ID: {{ emp.employee_profile.employee_id }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 12px; color: #64748b;">{{ emp.email }}</td>
+                    <td style="padding: 12px; color: #64748b;">
+                        {% if emp.employee_profile %}{{ emp.employee_profile.job_title }}{% else %}-{% endif %}
+                    </td>
+                    <td style="padding: 12px; color: #64748b;">
+                        {% if emp.employee_profile %}{{ emp.employee_profile.department }}{% else %}-{% endif %}
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <a href="{% url 'employer_edit_employee' emp.id %}" style="padding: 6px 12px; background: #f1f5f9; color: #475569; border-radius: 4px; text-decoration: none; font-size: 12px;">
+                            View Profile
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: #f8fafc; border-radius: 8px; border: 2px dashed #e2e8f0;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <h3 style="margin: 0 0 8px 0; color: #64748b; font-size: 16px;">No employees yet</h3>
+        <p style="margin: 0 0 20px 0; color: #94a3b8; font-size: 14px;">Assign employees to this branch to get started</p>
+        <button onclick="openAssignEmployeeModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Assign First Employee
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function openAddDepartmentModal() {
+    alert('Add Department functionality - Backend integration needed');
+    // TODO: Implement modal for adding department
+}
+
+function openAssignEmployeeModal() {
+    alert('Assign Employee functionality - Backend integration needed');
+    // TODO: Implement modal for assigning employee to branch
+}
+
+function openChangeBranchManagerModal() {
+    alert('Change Manager functionality - Backend integration needed');
+    // TODO: Implement modal for changing branch manager
+}
+
+function editDepartment(deptId) {
+    alert('Edit Department ' + deptId + ' - Backend integration needed');
+    // TODO: Implement edit department modal
+}
+
+function exportEmployeeList() {
+    alert('Export Employee List - Backend integration needed');
+    // TODO: Implement CSV export for branch employees
+}
+</script>
+</div>
+{% endblock %}

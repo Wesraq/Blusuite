@@ -1,0 +1,331 @@
+{% extends 'assets/base_ams.html' %}
+{% load static %}
+
+{% block title %}Asset Request #{{ asset_request.id }}{% endblock %}
+{% block page_title %}Asset Request Details{% endblock %}
+
+{% block ams_page_css %}
+<style>
+    .ard-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .ard-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+    .ard-card-title { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+    .ard-card-body { padding: 20px; }
+    .ard-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 14px; border-radius: 4px; font-size: 12px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .ard-btn-primary { background: #E11D48; color: #fff; border-color: #E11D48; }
+    .ard-btn-primary:hover { background: #BE123C; border-color: #BE123C; }
+    .ard-btn-success { background: #10b981; color: #fff; border-color: #10b981; }
+    .ard-btn-success:hover { background: #059669; border-color: #059669; }
+    .ard-btn-danger { background: #ef4444; color: #fff; border-color: #ef4444; }
+    .ard-btn-danger:hover { background: #dc2626; border-color: #dc2626; }
+    .ard-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .ard-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .ard-badge {
+        display: inline-block; padding: 3px 10px; border-radius: 10px;
+        font-size: 11px; font-weight: 600;
+    }
+    .ard-badge-pending { background: #fef3c7; color: #92400e; }
+    .ard-badge-approved { background: #d1fae5; color: #065f46; }
+    .ard-badge-rejected { background: #fee2e2; color: #991b1b; }
+    .ard-badge-fulfilled { background: #dbeafe; color: #1e40af; }
+    .ard-badge-low { background: #f1f5f9; color: #475569; }
+    .ard-badge-medium { background: #fef3c7; color: #92400e; }
+    .ard-badge-high { background: #fed7aa; color: #9a3412; }
+    .ard-badge-urgent { background: #fee2e2; color: #991b1b; }
+    .ard-field { margin-bottom: 16px; }
+    .ard-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+    .ard-value { font-size: 14px; color: #0f172a; }
+    
+    /* Approval Timeline Styles */
+    .timeline { position: relative; padding: 20px 0; }
+    .timeline-item { position: relative; padding-left: 50px; padding-bottom: 30px; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 30px;
+        bottom: -10px;
+        width: 2px;
+        background: #e2e8f0;
+    }
+    .timeline-item:last-child::before { display: none; }
+    .timeline-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid;
+        background: #fff;
+    }
+    .timeline-icon.approved {
+        border-color: #10b981;
+        background: #d1fae5;
+        color: #059669;
+    }
+    .timeline-icon.pending {
+        border-color: #f59e0b;
+        background: #fef3c7;
+        color: #d97706;
+        animation: pulse 2s infinite;
+    }
+    .timeline-icon.waiting {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+        color: #94a3b8;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+    .timeline-content {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 12px 14px;
+    }
+    .timeline-content.approved { background: #f0fdf4; border-color: #bbf7d0; }
+    .timeline-content.pending { background: #fffbeb; border-color: #fde68a; }
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+    .timeline-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .timeline-meta {
+        font-size: 11px;
+        color: #64748b;
+    }
+    .timeline-approver {
+        font-size: 12px;
+        color: #0369a1;
+        margin-top: 4px;
+    }
+    .approval-form {
+        background: #fffbeb;
+        border: 2px solid #fbbf24;
+        border-radius: 4px;
+        padding: 16px;
+        margin-top: 20px;
+    }
+    .approval-form textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        font-size: 13px;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+    }
+    .approval-form textarea:focus {
+        outline: none;
+        border-color: #E11D48;
+        box-shadow: 0 0 0 2px rgba(225,29,72,0.08);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+            <h2 style="margin: 0;">Request #{{ asset_request.id }}</h2>
+            <span class="ard-badge ard-badge-{{ asset_request.status|lower }}">{{ asset_request.get_status_display }}</span>
+            <span class="ard-badge ard-badge-{{ asset_request.priority|lower }}">{{ asset_request.get_priority_display }}</span>
+        </div>
+        <p style="margin: 0;">{{ asset_request.asset_name }} &middot; Requested by {{ asset_request.requested_by.get_full_name }} on {{ asset_request.created_at|date:"M d, Y" }}</p>
+    </div>
+    <a href="{% url 'assets:asset_request_list' %}" class="ard-btn ard-btn-secondary">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Requests
+    </a>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <!-- Left Column: Request Details -->
+    <div>
+        <!-- Asset Details -->
+        <div class="ard-card">
+            <div class="ard-card-header">
+                <h3 class="ard-card-title">Asset Details</h3>
+            </div>
+            <div class="ard-card-body">
+                <div class="ard-field">
+                    <span class="ard-label">Asset Type</span>
+                    <div class="ard-value">{{ asset_request.get_asset_type_display }}</div>
+                </div>
+                <div class="ard-field">
+                    <span class="ard-label">Asset Name</span>
+                    <div class="ard-value">{{ asset_request.asset_name }}</div>
+                </div>
+                <div class="ard-field">
+                    <span class="ard-label">Quantity</span>
+                    <div class="ard-value">{{ asset_request.quantity }}</div>
+                </div>
+                {% if asset_request.estimated_cost %}
+                <div class="ard-field">
+                    <span class="ard-label">Estimated Cost</span>
+                    <div class="ard-value">{{ currency_symbol }}{{ asset_request.estimated_cost|floatformat:2 }}</div>
+                </div>
+                {% endif %}
+                <div class="ard-field" style="margin-bottom: 0;">
+                    <span class="ard-label">Department</span>
+                    <div class="ard-value">{{ asset_request.department.name }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Justification -->
+        <div class="ard-card">
+            <div class="ard-card-header">
+                <h3 class="ard-card-title">Justification</h3>
+            </div>
+            <div class="ard-card-body">
+                <p style="margin: 0; font-size: 13px; color: #475569; line-height: 1.6; white-space: pre-wrap;">{{ asset_request.description }}</p>
+                {% if asset_request.urgency_reason %}
+                <div style="margin-top: 12px; padding: 10px; background: #fef3c7; border-left: 3px solid #f59e0b; border-radius: 2px;">
+                    <div style="font-size: 11px; font-weight: 600; color: #92400e; margin-bottom: 4px;">URGENCY REASON</div>
+                    <div style="font-size: 12px; color: #78350f;">{{ asset_request.urgency_reason }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if asset_request.rejection_reason %}
+        <!-- Rejection Reason -->
+        <div class="ard-card" style="border-color: #fecaca;">
+            <div class="ard-card-header" style="background: #fee2e2; border-color: #fecaca;">
+                <h3 class="ard-card-title" style="color: #991b1b;">Rejection Reason</h3>
+            </div>
+            <div class="ard-card-body">
+                <p style="margin: 0; font-size: 13px; color: #991b1b; white-space: pre-wrap;">{{ asset_request.rejection_reason }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if asset_request.admin_notes %}
+        <!-- Admin Notes -->
+        <div class="ard-card">
+            <div class="ard-card-header">
+                <h3 class="ard-card-title">Notes & Comments</h3>
+            </div>
+            <div class="ard-card-body">
+                <p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.6; white-space: pre-wrap;">{{ asset_request.admin_notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Column: Approval Timeline -->
+    <div>
+        <div class="ard-card">
+            <div class="ard-card-header">
+                <h3 class="ard-card-title">Approval Workflow</h3>
+                <span style="font-size: 11px; color: #64748b;">{{ asset_request.department.name }} Department</span>
+            </div>
+            <div class="ard-card-body">
+                <div class="timeline">
+                    {% for step in timeline %}
+                    <div class="timeline-item">
+                        <div class="timeline-icon {% if step.approved %}approved{% elif step.is_pending %}pending{% else %}waiting{% endif %}">
+                            {% if step.approved %}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            {% elif step.is_pending %}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            {% else %}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                            {% endif %}
+                        </div>
+                        <div class="timeline-content {% if step.approved %}approved{% elif step.is_pending %}pending{% endif %}">
+                            <div class="timeline-header">
+                                <div class="timeline-title">{{ step.label }}</div>
+                                {% if step.is_pending %}
+                                <span style="font-size: 10px; font-weight: 600; color: #d97706; text-transform: uppercase;">Pending</span>
+                                {% elif step.approved %}
+                                <span style="font-size: 10px; font-weight: 600; color: #059669; text-transform: uppercase;">Approved</span>
+                                {% else %}
+                                <span style="font-size: 10px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Waiting</span>
+                                {% endif %}
+                            </div>
+                            {% if step.approver %}
+                            <div class="timeline-approver">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                {{ step.approver.get_full_name }}
+                            </div>
+                            <div class="timeline-meta">{{ step.date|date:"M d, Y - h:i A" }}</div>
+                            {% elif step.is_pending %}
+                            <div class="timeline-meta">Awaiting approval...</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if can_approve and asset_request.status == 'PENDING' %}
+                <!-- Approval Actions -->
+                <div class="approval-form">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        <span style="font-size: 13px; font-weight: 600; color: #92400e;">Action Required</span>
+                    </div>
+                    <form method="post" action="{% url 'assets:asset_request_approve' asset_request.id %}">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">Notes (optional)</label>
+                            <textarea name="notes" placeholder="Add any comments or notes..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="submit" name="action" value="approve" class="ard-btn ard-btn-success">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Approve
+                            </button>
+                            <button type="button" class="ard-btn ard-btn-danger" onclick="document.getElementById('reject-modal').showModal();">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                Reject
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<dialog id="reject-modal" style="border: none; border-radius: 6px; padding: 0; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+    <form method="post" action="{% url 'assets:asset_request_approve' asset_request.id %}">
+        {% csrf_token %}
+        <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #0f172a;">Reject Asset Request</h3>
+        </div>
+        <div style="padding: 20px;">
+            <p style="margin: 0 0 12px; font-size: 13px; color: #64748b;">Please provide a reason for rejecting this request:</p>
+            <textarea name="rejection_reason" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 100px;" placeholder="Explain why this request is being rejected..."></textarea>
+            <div style="margin-top: 12px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">Additional Notes (optional)</label>
+                <textarea name="notes" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 60px;" placeholder="Any additional comments..."></textarea>
+            </div>
+        </div>
+        <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; justify-content: flex-end;">
+            <button type="button" class="ard-btn ard-btn-secondary" onclick="document.getElementById('reject-modal').close();">Cancel</button>
+            <button type="submit" name="action" value="reject" class="ard-btn ard-btn-danger">Reject Request</button>
+        </div>
+    </form>
+</dialog>
+{% endblock %}

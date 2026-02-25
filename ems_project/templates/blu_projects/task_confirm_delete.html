@@ -1,0 +1,51 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}Delete Task - BLU Projects{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
+    <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #64748b; text-decoration: none;">{{ project.name }}</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <a href="{% url 'blu_projects:task_detail' task.id %}" style="color: #1d4ed8; text-decoration: none;">{{ task.title|truncatechars:30 }}</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <span style="color: #dc2626;">Delete</span>
+</div>
+
+<div style="max-width: 520px;">
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+        <!-- Warning Header -->
+        <div style="background: #fef2f2; border-bottom: 1px solid #fecaca; padding: 24px; text-align: center;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" style="margin: 0 auto 10px; display: block;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <h2 style="margin: 0 0 6px; font-size: 17px; font-weight: 700; color: #991b1b;">Delete this task?</h2>
+            <p style="margin: 0; font-size: 13px; color: #b91c1c;">This action cannot be undone.</p>
+        </div>
+        <!-- Task Details -->
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px;">
+                <span style="color: #64748b; font-weight: 600;">Title</span>
+                <span style="color: #0f172a; font-weight: 500;">{{ task.title }}</span>
+                <span style="color: #64748b; font-weight: 600;">Project</span>
+                <span style="color: #0f172a;">{{ project.name }}</span>
+                <span style="color: #64748b; font-weight: 600;">Status</span>
+                <span style="color: #0f172a;">{{ task.get_status_display }}</span>
+                {% if task.assigned_to %}
+                <span style="color: #64748b; font-weight: 600;">Assigned to</span>
+                <span style="color: #0f172a;">{{ task.assigned_to.get_full_name }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Actions -->
+        <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; justify-content: flex-end;">
+            <a href="{% url 'blu_projects:task_detail' task.id %}" style="padding: 8px 20px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: 600;">Cancel</a>
+            <form method="post" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" style="padding: 8px 20px; background: #dc2626; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    Delete Task
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

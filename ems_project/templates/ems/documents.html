@@ -1,0 +1,519 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}{% if user.role == 'EMPLOYEE' %}My Documents{% else %}Document Management{% endif %} - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2>{% if user.role == 'EMPLOYEE' %}My Documents{% else %}Document Management{% endif %}</h2>
+        <p>Manage and track employee documents and files</p>
+    </div>
+    <button onclick="showUploadModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 5 17 10"></polyline>
+            <line x1="12" y1="5" x2="12" y2="16"></line>
+        </svg>
+        Upload Document
+    </button>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ total_documents }}</h3>
+            <p>Total Documents</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ pending_count }}</h3>
+            <p>Pending Review</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #d1fae5; color: #059669;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ approved_count }}</h3>
+            <p>Approved</p>
+        </div>
+    </div>
+    {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ expiring_soon_count }}</h3>
+            <p>Expiring Soon</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ rejected_count }}</h3>
+            <p>Rejected</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Filters -->
+{% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 24px;">
+    <form method="get" id="document-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+        <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Search</label>
+            <input type="text" name="search" placeholder="Title, employee, description..." value="{{ search_query }}" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
+        </div>
+        <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Status</label>
+            <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Type</label>
+            <select name="type" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
+                <option value="">All Types</option>
+                {% for value, label in document_types %}
+                    <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: end;">
+            <button class="btn btn-primary" type="submit" style="padding: 8px 16px; font-size: 14px;">Apply</button>
+            <a class="btn btn-secondary" href="{% url 'documents_list' %}" style="padding: 8px 16px; font-size: 14px;">Reset</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<!-- Bulk Action Buttons -->
+{% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+<div style="margin-top: 16px; display: flex; gap: 8px;">
+    <button class="btn btn-secondary" onclick="bulkDownload()" id="bulk-download-btn" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download Selected
+    </button>
+    <button class="btn" onclick="bulkApprove()" id="bulk-approve-btn" style="display: none; background: #059669; color: white;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        Approve Selected
+    </button>
+</div>
+{% endif %}
+
+<!-- Documents Table -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-top: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="padding: 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(to right, #f8fafc, #ffffff);">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            {% if user.role == 'EMPLOYEE' %}My Documents{% else %}Employee Documents{% endif %}
+        </h3>
+        <p style="margin: 6px 0 0; font-size: 14px; color: #64748b;">Manage and track employee documents and files</p>
+    </div>
+    <div>
+        {% if employee_documents %}
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+                            <th style="width: 40px;">
+                                <input type="checkbox" id="select-all-docs" onchange="toggleSelectAllDocs(this)" style="cursor: pointer;">
+                            </th>
+                            <th>Employee</th>
+                            {% endif %}
+                            <th>Title</th>
+                            <th>Document Type</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Expiry</th>
+                            <th>Uploaded</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in employee_documents %}
+                            {% load tz %}
+                            {% now "Y-m-d" as today %}
+                            <tr>
+                                {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+                                    <td>
+                                        <input type="checkbox" class="doc-checkbox" data-doc-id="{{ doc.id }}" onchange="updateBulkButtons()" style="cursor: pointer;">
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 500;">{{ doc.employee.first_name }} {{ doc.employee.last_name }}</div>
+                                        <div style="font-size: 12px; color: #64748b;">{{ doc.employee.employee_profile.job_title|default:'No position assigned' }}</div>
+                                    </td>
+                                {% endif %}
+                                <td>
+                                    <div style="font-weight: 500;">{{ doc.title }}</div>
+                                    {% if doc.description %}
+                                        <div style="font-size: 12px; color: #64748b;">{{ doc.description|truncatewords:10 }}</div>
+                                    {% endif %}
+                                    {% if doc.is_confidential %}
+                                        <span style="font-size: 11px; color: #ef4444;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg> Confidential</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ doc.get_document_type_display }}</td>
+                                <td>{{ doc.category.name|default:'—' }}</td>
+                                <td><span class="status {{ doc.status|lower }}">{{ doc.get_status_display }}</span></td>
+                                <td>
+                                    {% if doc.expiry_date %}
+                                        <div style="font-size: 12px;">{{ doc.expiry_date|date:'M d, Y' }}</div>
+                                        {% load custom_filters %}
+                                        {% if doc.expiry_date|is_expired %}
+                                            <span style="font-size: 11px; color: #ef4444;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg> Expired</span>
+                                        {% elif doc.expiry_date|is_expiring_soon %}
+                                            <span style="font-size: 11px; color: #f59e0b;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Soon</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span style="color: #94a3b8;">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="font-size: 12px;">{{ doc.created_at|date:'M d, Y' }}</div>
+                                    <div style="font-size: 11px; color: #64748b;">{{ doc.uploaded_by.get_full_name }}</div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                        <a href="{% url 'document_download' doc.id %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg> Download</a>
+                                        {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' and doc.status == 'PENDING' %}
+                                            <a href="{% url 'document_approve' doc.id %}" class="btn btn-success" style="padding: 4px 8px; font-size: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></a>
+                                            <button onclick="showRejectModal({{ doc.id }})" class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg></button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #64748b;">
+                <div style="font-size: 48px; margin-bottom: 16px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg></div>
+                <h3>No Documents Found</h3>
+                <p>{% if user.role == 'EMPLOYEE' %}You haven't uploaded any documents yet.{% else %}No employee documents to display.{% endif %}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+    <div class="modal-content" style="background: white; border-radius: 8px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto;">
+        <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+            <h3 style="margin: 0; font-size: 20px;">Upload Document</h3>
+        </div>
+        <form method="post" action="{% url 'document_upload' %}" enctype="multipart/form-data" style="padding: 20px;">
+            {% csrf_token %}
+            
+            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+            <div style="margin-bottom: 16px;">
+                <label class="control-label">Employee *</label>
+                <select name="employee" class="control-input" required>
+                    <option value="">Select Employee</option>
+                    {% for emp in company.users.all %}
+                        {% if emp.role == 'EMPLOYEE' %}
+                            <option value="{{ emp.id }}">{{ emp.first_name }} {{ emp.last_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 16px;">
+                <label class="control-label">Title *</label>
+                <input type="text" name="title" class="control-input" required>
+            </div>
+
+            <div class="modal-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label class="control-label">Document Type *</label>
+                    <select name="document_type" class="control-input" required>
+                        {% for value, label in document_types %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="control-label">Category</label>
+                    <select name="category" class="control-input">
+                        <option value="">None</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label class="control-label">Description</label>
+                <textarea name="description" class="control-input" rows="3"></textarea>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label class="control-label">File * (PDF, DOC, DOCX, JPG, PNG - Max 10MB)</label>
+                <input type="file" name="file" class="control-input" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx,.txt,.rtf">
+            </div>
+
+            <div class="modal-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label class="control-label">Expiry Date</label>
+                    <input type="date" name="expiry_date" class="control-input">
+                </div>
+                <div style="display: flex; align-items: center; padding-top: 28px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="is_confidential">
+                        <span style="font-size: 14px;">Mark as Confidential</span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-primary">Upload</button>
+                <button type="button" class="btn btn-secondary" onclick="hideUploadModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+    <div class="modal-content" style="background: white; border-radius: 8px; max-width: 500px; width: 100%; margin: auto;">
+        <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+            <h3 style="margin: 0; font-size: 20px;">Reject Document</h3>
+        </div>
+        <form method="post" id="rejectForm" style="padding: 20px;">
+            {% csrf_token %}
+            <div style="margin-bottom: 16px;">
+                <label class="control-label">Rejection Reason *</label>
+                <textarea name="reason" class="control-input" rows="4" required placeholder="Explain why this document is being rejected..."></textarea>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-warning">Reject Document</button>
+                <button type="button" class="btn btn-secondary" onclick="hideRejectModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showUploadModal() {
+        document.getElementById('uploadModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideUploadModal() {
+        document.getElementById('uploadModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function showRejectModal(docId) {
+        const form = document.getElementById('rejectForm');
+        form.action = `/documents/${docId}/reject/`;
+        document.getElementById('rejectModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Bulk Actions
+    function toggleSelectAllDocs(checkbox) {
+        const checkboxes = document.querySelectorAll('.doc-checkbox');
+        checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        updateBulkButtons();
+    }
+
+    function updateBulkButtons() {
+        const checkboxes = document.querySelectorAll('.doc-checkbox:checked');
+        const count = checkboxes.length;
+        const downloadBtn = document.getElementById('bulk-download-btn');
+        const approveBtn = document.getElementById('bulk-approve-btn');
+
+        if (count > 0) {
+            if (downloadBtn) downloadBtn.style.display = 'block';
+            if (approveBtn) approveBtn.style.display = 'block';
+        } else {
+            if (downloadBtn) downloadBtn.style.display = 'none';
+            if (approveBtn) approveBtn.style.display = 'none';
+        }
+
+        // Update select-all checkbox
+        const allCheckboxes = document.querySelectorAll('.doc-checkbox');
+        const selectAllCheckbox = document.getElementById('select-all-docs');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count === allCheckboxes.length && count > 0;
+            selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
+        }
+    }
+
+    function getSelectedDocIds() {
+        const checkboxes = document.querySelectorAll('.doc-checkbox:checked');
+        return Array.from(checkboxes).map(cb => cb.dataset.docId);
+    }
+
+    function bulkDownload() {
+        const docIds = getSelectedDocIds();
+        if (docIds.length === 0) {
+            alert('Please select at least one document');
+            return;
+        }
+
+        // Create form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/documents/bulk-download/';
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        form.appendChild(csrfInput);
+
+        docIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'doc_ids';
+            input.value = id;
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    function bulkApprove() {
+        const docIds = getSelectedDocIds();
+        if (docIds.length === 0) {
+            alert('Please select at least one document');
+            return;
+        }
+
+        if (!confirm(`Approve ${docIds.length} document(s)?`)) {
+            return;
+        }
+
+        fetch('/documents/bulk-approve/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ doc_ids: docIds })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to approve documents. Please try again.');
+        });
+    }
+</script>
+
+<style>
+    /* Responsive modal styles */
+    @media (max-width: 640px) {
+        .modal-content {
+            width: 95% !important;
+            max-height: 95vh !important;
+        }
+        
+        .modal-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        #uploadModal, #rejectModal {
+            padding: 8px !important;
+        }
+        
+        .modal-content form {
+            padding: 16px !important;
+        }
+        
+        .modal-content > div:first-child {
+            padding: 16px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+        
+        #document-filters {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .table-responsive {
+            font-size: 13px;
+        }
+        
+        .btn {
+            font-size: 13px;
+            padding: 8px 12px;
+        }
+    }
+</style>
+{% endblock %}

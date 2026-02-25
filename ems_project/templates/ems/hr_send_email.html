@@ -1,0 +1,86 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}HR Send Email{% endblock %}
+{% block page_title %}HR Send Email{% endblock %}
+
+{% block content %}
+<div class="content-card" style="padding:20px; margin-top:16px; display:flex; flex-direction:column; gap:16px;">
+    <div class="card-header" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+            <div class="card-title" style="font-size:18px; font-weight:700; color:#0f172a;">Send Email to Employees</div>
+            <div class="card-subtitle" style="font-size:13px; color:#64748b;">Search employees, select recipients, and compose a message</div>
+        </div>
+    </div>
+
+    <form method="get" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <input type="text" name="q" placeholder="Search by name or email" value="{{ query }}" style="padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; min-width:220px;">
+        <button type="submit" class="btn btn-primary" style="padding:10px 14px; border-radius:8px; border:none;">Search</button>
+        <a href="{% url 'hr_send_email' %}" class="btn btn-secondary" style="padding:10px 14px; border-radius:8px;">Reset</a>
+    </form>
+
+    <form method="post" style="display:grid; gap:16px;">
+        {% csrf_token %}
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+            <label style="display:flex; align-items:center; gap:6px; font-weight:600; color:#0f172a;">
+                <input type="radio" name="send_mode" value="selected" checked> Send to selected
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:600; color:#0f172a;">
+                <input type="radio" name="send_mode" value="all"> Send to all (current filter)
+            </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+            {% for emp in employees %}
+            <label style="display:flex; gap:10px; align-items:center; padding:10px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc;">
+                <input type="checkbox" name="recipient_ids" value="{{ emp.id }}" style="margin-top:2px;">
+                {% if emp.profile_picture %}
+                    <img src="{{ emp.profile_picture.url }}" alt="{{ emp.get_full_name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">
+                {% else %}
+                    <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#60a5fa); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">
+                        {{ emp.first_name|slice:':1' }}{{ emp.last_name|slice:':1' }}
+                    </div>
+                {% endif %}
+                <div style="flex:1;">
+                    <div style="font-weight:700; color:#0f172a;">{{ emp.get_full_name }}</div>
+                    <div style="font-size:12px; color:#64748b;">{{ emp.email }}</div>
+                </div>
+            </label>
+            {% empty %}
+            <div style="grid-column:1 / -1; padding:16px; background:#f8fafc; border:1px dashed #e2e8f0; border-radius:12px; color:#64748b;">No employees match this search.</div>
+            {% endfor %}
+        </div>
+
+        <div style="display:grid; gap:10px;">
+            <input type="text" name="subject" placeholder="Subject" style="padding:10px 12px; border:1px solid #e2e8f0; border-radius:10px;">
+            <textarea name="body" rows="6" placeholder="Write your message..." style="padding:10px 12px; border:1px solid #e2e8f0; border-radius:10px; resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+            <button type="submit" name="action" value="send" class="btn btn-primary" style="padding:10px 14px; border:none; border-radius:8px;">Send Payslip Emails</button>
+            <a href="#" class="btn btn-secondary" style="padding:10px 14px; border-radius:8px;" onclick="window.print(); return false;">Generate PDF (print/save)</a>
+            <button type="button" class="btn btn-secondary" style="padding:10px 14px; border-radius:8px;" onclick="exportCSV()">Download Recipients (CSV)</button>
+        </div>
+    </form>
+</div>
+<script>
+function exportCSV() {
+    const rows = [['Name','Email']];
+    document.querySelectorAll('input[name="recipient_ids"]:checked').forEach(cb => {
+        const card = cb.closest('label');
+        const name = card.querySelector('[data-name]')?.textContent?.trim() || '';
+        const email = card.querySelector('[data-email]')?.textContent?.trim() || '';
+        rows.push([name,email]);
+    });
+    if (rows.length === 1) { alert('Select at least one employee to export.'); return; }
+    const csv = rows.map(r => r.map(v => '"' + v.replace(/"/g,'""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'recipients.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

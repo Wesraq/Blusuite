@@ -1,0 +1,583 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Performance Review - EMS{% endblock %}
+{% block page_title %}{% if review %}Edit Performance Review{% else %}Create Performance Review{% endif %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .competency-section {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .competency-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .competency-icon {
+        width: 40px;
+        height: 40px;
+        background: #E11D48;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .competency-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    
+    .rating-group {
+        margin-bottom: 24px;
+    }
+    
+    .rating-label {
+        display: block;
+        font-weight: 500;
+        color: #334155;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    
+    .star-rating {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .star {
+        cursor: pointer;
+        font-size: 28px;
+        color: #cbd5e1;
+        transition: all 0.2s;
+        user-select: none;
+    }
+    
+    .star:hover,
+    .star.active {
+        color: #fbbf24;
+        transform: scale(1.1);
+    }
+    
+    .rating-value {
+        margin-left: 12px;
+        font-weight: 600;
+        color: #64748b;
+        min-width: 80px;
+    }
+    
+    .goal-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 16px;
+        margin-bottom: 12px;
+        position: relative;
+    }
+    
+    .goal-item .remove-goal {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #fee2e2;
+        color: #dc2626;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .goal-item .remove-goal:hover {
+        background: #fecaca;
+    }
+    
+    .add-goal-btn {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px dashed #86efac;
+        border-radius: 6px;
+        padding: 12px;
+        width: 100%;
+        cursor: pointer;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    
+    .add-goal-btn:hover {
+        background: #dcfce7;
+        border-color: #4ade80;
+    }
+    
+    .form-section {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: #334155;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    
+    .form-input,
+    .form-textarea,
+    .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+    
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #E11D48;
+        box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .help-text {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 4px;
+    }
+    
+    .action-bar {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        padding: 16px 24px;
+        margin: 24px -24px -24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        border-radius: 0 0 8px 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'performance_reviews_list' %}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 14px; margin-bottom: 16px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    Back to Reviews
+</a>
+
+<form method="post" id="reviewForm">
+    {% csrf_token %}
+    
+    <!-- Basic Information -->
+    <div class="form-section">
+        <div class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Basic Information
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+            <div class="form-group">
+                <label class="form-label">Employee *</label>
+                {{ form.employee }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Review Type *</label>
+                {{ form.review_type }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Review Title *</label>
+                {{ form.title }}
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+            <div class="form-group">
+                <label class="form-label">Period Start *</label>
+                {{ form.review_period_start }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Period End *</label>
+                {{ form.review_period_end }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Review Date *</label>
+                {{ form.review_date }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Overall Rating *</label>
+                {{ form.overall_rating }}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Core Competencies with Star Ratings -->
+    <div class="competency-section">
+        <div class="competency-header">
+            <div class="competency-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+            </div>
+            <div class="competency-title">Core Competencies</div>
+        </div>
+        
+        <div class="rating-group">
+            <label class="rating-label">Job Knowledge & Skills</label>
+            <div class="star-rating">
+                <input type="hidden" name="competency_job_knowledge" id="competency_job_knowledge" value="3">
+                <span class="star" data-rating="1" data-field="competency_job_knowledge">★</span>
+                <span class="star" data-rating="2" data-field="competency_job_knowledge">★</span>
+                <span class="star active" data-rating="3" data-field="competency_job_knowledge">★</span>
+                <span class="star" data-rating="4" data-field="competency_job_knowledge">★</span>
+                <span class="star" data-rating="5" data-field="competency_job_knowledge">★</span>
+                <span class="rating-value" id="value_competency_job_knowledge">3 - Good</span>
+            </div>
+        </div>
+        
+        <div class="rating-group">
+            <label class="rating-label">Quality of Work</label>
+            <div class="star-rating">
+                <input type="hidden" name="competency_quality" id="competency_quality" value="3">
+                <span class="star" data-rating="1" data-field="competency_quality">★</span>
+                <span class="star" data-rating="2" data-field="competency_quality">★</span>
+                <span class="star active" data-rating="3" data-field="competency_quality">★</span>
+                <span class="star" data-rating="4" data-field="competency_quality">★</span>
+                <span class="star" data-rating="5" data-field="competency_quality">★</span>
+                <span class="rating-value" id="value_competency_quality">3 - Good</span>
+            </div>
+        </div>
+        
+        <div class="rating-group">
+            <label class="rating-label">Productivity & Efficiency</label>
+            <div class="star-rating">
+                <input type="hidden" name="competency_productivity" id="competency_productivity" value="3">
+                <span class="star" data-rating="1" data-field="competency_productivity">★</span>
+                <span class="star" data-rating="2" data-field="competency_productivity">★</span>
+                <span class="star active" data-rating="3" data-field="competency_productivity">★</span>
+                <span class="star" data-rating="4" data-field="competency_productivity">★</span>
+                <span class="star" data-rating="5" data-field="competency_productivity">★</span>
+                <span class="rating-value" id="value_competency_productivity">3 - Good</span>
+            </div>
+        </div>
+        
+        <div class="rating-group">
+            <label class="rating-label">Communication Skills</label>
+            <div class="star-rating">
+                <input type="hidden" name="competency_communication" id="competency_communication" value="3">
+                <span class="star" data-rating="1" data-field="competency_communication">★</span>
+                <span class="star" data-rating="2" data-field="competency_communication">★</span>
+                <span class="star active" data-rating="3" data-field="competency_communication">★</span>
+                <span class="star" data-rating="4" data-field="competency_communication">★</span>
+                <span class="star" data-rating="5" data-field="competency_communication">★</span>
+                <span class="rating-value" id="value_competency_communication">3 - Good</span>
+            </div>
+        </div>
+        
+        <div class="rating-group">
+            <label class="rating-label">Teamwork & Collaboration</label>
+            <div class="star-rating">
+                <input type="hidden" name="competency_teamwork" id="competency_teamwork" value="3">
+                <span class="star" data-rating="1" data-field="competency_teamwork">★</span>
+                <span class="star" data-rating="2" data-field="competency_teamwork">★</span>
+                <span class="star active" data-rating="3" data-field="competency_teamwork">★</span>
+                <span class="star" data-rating="4" data-field="competency_teamwork">★</span>
+                <span class="star" data-rating="5" data-field="competency_teamwork">★</span>
+                <span class="rating-value" id="value_competency_teamwork">3 - Good</span>
+            </div>
+        </div>
+        
+        <div class="rating-group">
+            <label class="rating-label">Initiative & Problem Solving</label>
+            <div class="star-rating">
+                <input type="hidden" name="competency_initiative" id="competency_initiative" value="3">
+                <span class="star" data-rating="1" data-field="competency_initiative">★</span>
+                <span class="star" data-rating="2" data-field="competency_initiative">★</span>
+                <span class="star active" data-rating="3" data-field="competency_initiative">★</span>
+                <span class="star" data-rating="4" data-field="competency_initiative">★</span>
+                <span class="star" data-rating="5" data-field="competency_initiative">★</span>
+                <span class="rating-value" id="value_competency_initiative">3 - Good</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Achievements & Strengths -->
+    <div class="form-section">
+        <div class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Achievements & Strengths
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Key Achievements</label>
+            {{ form.achievements }}
+            <div class="help-text">List major accomplishments and contributions during the review period</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Strengths</label>
+            {{ form.strengths }}
+            <div class="help-text">Highlight the employee's key strengths and positive attributes</div>
+        </div>
+    </div>
+    
+    <!-- Areas for Development -->
+    <div class="form-section">
+        <div class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            Areas for Development
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Areas for Improvement</label>
+            {{ form.areas_for_improvement }}
+            <div class="help-text">Identify specific areas where growth and development are needed</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Development Plan</label>
+            {{ form.development_plan }}
+            <div class="help-text">Outline specific actions, training, or resources to support development</div>
+        </div>
+    </div>
+    
+    <!-- SMART Goals for Next Period -->
+    <div class="form-section">
+        <div class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+            SMART Goals for Next Period
+        </div>
+        
+        <div id="goals-container">
+            <!-- Goals will be added here dynamically -->
+        </div>
+        
+        <button type="button" class="add-goal-btn" onclick="addGoal()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Goal
+        </button>
+        
+        <div class="form-group" style="margin-top: 20px;">
+            <label class="form-label">Summary of Goals</label>
+            {{ form.goals_next_period }}
+            <div class="help-text">Overall summary of objectives for the next review period</div>
+        </div>
+    </div>
+    
+    <!-- Additional Information -->
+    <div class="form-section">
+        <div class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Additional Information
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Additional Comments</label>
+            {{ form.additional_comments }}
+            <div class="help-text">Any other relevant notes, observations, or feedback</div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div class="form-group">
+                <label class="form-label">Status *</label>
+                {{ form.status }}
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    {{ form.is_confidential }}
+                    <span class="form-label" style="margin: 0;">Confidential Review</span>
+                </label>
+                <div class="help-text">Mark as confidential to restrict access</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div style="display: flex; gap: 8px;">
+            <button type="submit" name="action" value="save_draft" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Draft
+            </button>
+            <button type="submit" name="action" value="submit" class="btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                Submit Review
+            </button>
+        </div>
+        <a href="{% url 'performance_reviews_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<script>
+// Star rating functionality
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+        const rating = parseInt(this.getAttribute('data-rating'));
+        const field = this.getAttribute('data-field');
+        const input = document.getElementById(field);
+        const valueDisplay = document.getElementById('value_' + field);
+        
+        input.value = rating;
+        
+        // Update star display
+        const stars = document.querySelectorAll(`.star[data-field="${field}"]`);
+        stars.forEach((s, index) => {
+            if (index < rating) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
+        });
+        
+        // Update value display
+        const ratingLabels = {
+            1: '1 - Poor',
+            2: '2 - Fair',
+            3: '3 - Good',
+            4: '4 - Very Good',
+            5: '5 - Excellent'
+        };
+        valueDisplay.textContent = ratingLabels[rating];
+    });
+});
+
+// Goal management
+let goalCounter = 0;
+
+function addGoal() {
+    goalCounter++;
+    const goalHtml = `
+        <div class="goal-item" id="goal-${goalCounter}">
+            <button type="button" class="remove-goal" onclick="removeGoal(${goalCounter})">Remove</button>
+            <div style="display: grid; gap: 12px;">
+                <div>
+                    <label style="display: block; font-weight: 500; font-size: 13px; color: #334155; margin-bottom: 4px;">Goal Title</label>
+                    <input type="text" name="goal_title_${goalCounter}" class="form-input" placeholder="e.g., Improve customer satisfaction score" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="display: block; font-weight: 500; font-size: 13px; color: #334155; margin-bottom: 4px;">Specific</label>
+                        <input type="text" name="goal_specific_${goalCounter}" class="form-input" placeholder="What exactly?">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 500; font-size: 13px; color: #334155; margin-bottom: 4px;">Measurable</label>
+                        <input type="text" name="goal_measurable_${goalCounter}" class="form-input" placeholder="How to measure?">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 500; font-size: 13px; color: #334155; margin-bottom: 4px;">Target Date</label>
+                        <input type="date" name="goal_target_${goalCounter}" class="form-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('goals-container').insertAdjacentHTML('beforeend', goalHtml);
+}
+
+function removeGoal(id) {
+    document.getElementById(`goal-${id}`).remove();
+}
+
+// Add one goal by default
+addGoal();
+
+// Form validation
+document.getElementById('reviewForm').addEventListener('submit', function(e) {
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.style.borderColor = '#dc2626';
+        } else {
+            field.style.borderColor = '#d1d5db';
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        alert('Please fill in all required fields');
+    }
+});
+</script>
+{% endblock %}

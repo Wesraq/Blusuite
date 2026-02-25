@@ -1,0 +1,260 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Renew Contract - EMS{% endblock %}
+{% block page_title %}Renew Contract{% endblock %}
+
+{% block content %}
+<style>
+    .renewal-form input,
+    .renewal-form select,
+    .renewal-form textarea {
+        box-sizing: border-box;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.renewal-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitter = e.submitter;
+            if (submitter) {
+                const action = submitter.value;
+                console.log('Form submitting with action:', action);
+                console.log('Button clicked:', submitter.textContent.trim());
+                
+                // Show alert for debugging
+                if (action === 'renew_now') {
+                    console.log('RENEW NOW button clicked - creating contract directly');
+                } else if (action === 'submit_for_approval') {
+                    console.log('SUBMIT FOR APPROVAL button clicked - creating renewal request');
+                }
+            }
+        });
+    }
+});
+</script>
+
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Renew Contract</h1>
+        <p class="page-subtitle">{{ contract.employee.get_full_name }} - {{ contract.job_title }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'contracts:contract_detail' contract.id %}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Cancel
+        </a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <!-- Main Form -->
+    <div>
+        <div class="content-card">
+            <div class="card-header">
+                <h3>Contract Renewal Details</h3>
+            </div>
+            <div class="card-content">
+                <form method="POST" class="renewal-form">
+                    {% csrf_token %}
+                    
+                    <!-- Current Contract Info -->
+                    <div style="margin-bottom: 24px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h4 style="margin: 0 0 12px 0; color: #1e293b; font-size: 14px; font-weight: 600;">Current Contract</h4>
+                        <div class="form-grid-2" style="font-size: 14px;">
+                            <div>
+                                <span style="color: #64748b;">Start Date:</span>
+                                <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">{{ contract.start_date|date:"M j, Y" }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #64748b;">End Date:</span>
+                                <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">{{ contract.end_date|date:"M j, Y" }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #64748b;">Contract Type:</span>
+                                <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">{{ contract.get_contract_type_display }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #64748b;">Days Until Expiry:</span>
+                                <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">{{ contract.days_until_expiry }} days</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Renewal Period -->
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="margin: 0 0 16px 0; color: #1e293b; font-size: 14px; font-weight: 600;">New Contract Period</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">New Start Date *</label>
+                                <input type="date" name="proposed_start_date" value="{{ suggested_start|date:'Y-m-d' }}" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                                <small style="color: #64748b; font-size: 12px;">Usually the day after current contract ends</small>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">New End Date</label>
+                                <input type="date" name="proposed_end_date" value="{{ suggested_end|date:'Y-m-d' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                                <small style="color: #64748b; font-size: 12px;">Leave blank for permanent contract</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Renewal Terms -->
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="margin: 0 0 16px 0; color: #1e293b; font-size: 14px; font-weight: 600;">Renewal Terms (Optional)</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">New Salary</label>
+                                <input type="number" name="proposed_salary" step="0.01" placeholder="{{ contract.salary }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                                <small style="color: #64748b; font-size: 12px;">Current: {{ contract.currency }} {{ contract.salary|floatformat:2 }}</small>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">New Job Title</label>
+                                <input type="text" name="proposed_job_title" placeholder="{{ contract.job_title }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                                <small style="color: #64748b; font-size: 12px;">Current: {{ contract.job_title }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Renewal Notes -->
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Renewal Notes</label>
+                        <textarea name="renewal_notes" rows="4" placeholder="Add any notes about this renewal (e.g., performance review, salary adjustment reason, etc.)" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                    </div>
+
+                    <!-- Terms & Conditions -->
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Updated Terms & Conditions</label>
+                        <textarea name="proposed_terms" rows="4" placeholder="Enter any updated terms and conditions for the renewed contract..." style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; resize: vertical;">{{ contract.terms_and_conditions }}</textarea>
+                        <small style="color: #64748b; font-size: 12px;">Leave blank to keep existing terms</small>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                        <a href="{% url 'contracts:contract_detail' contract.id %}" class="btn btn-secondary">Cancel</a>
+                        
+                        <!-- Submit for Approval Button -->
+                        <button type="submit" name="action" value="submit_for_approval" class="btn" style="background: #f59e0b; border-color: #f59e0b;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                <path d="M9 11l3 3L22 4"></path>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                            </svg>
+                            Submit for Approval
+                        </button>
+                        
+                        <!-- Direct Renewal Button -->
+                        <button type="submit" name="action" value="renew_now" class="btn" style="background: #10b981; border-color: #10b981;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            Renew Contract Now
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <!-- Renewal Information -->
+        <div class="content-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3>Renewal Options</h3>
+            </div>
+            <div class="card-content">
+                <p style="margin: 0 0 20px 0; color: #64748b; font-size: 14px;">Choose how to process this contract renewal:</p>
+                
+                <!-- Option 1: Direct Renewal -->
+                <div style="padding: 16px; background: #d1fae5; border: 2px solid #10b981; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="display: flex; gap: 12px; align-items: start;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 600; color: #065f46; margin-bottom: 4px;">Renew Contract Now</div>
+                            <div style="font-size: 13px; color: #047857; margin-bottom: 8px;">
+                                Create new contract immediately without approval. Best for straightforward renewals.
+                            </div>
+                            <div style="font-size: 12px; color: #047857;">
+                                ✓ Instant processing<br>
+                                ✓ No waiting for approval<br>
+                                ✓ Employee notified immediately
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Option 2: Approval Workflow -->
+                <div style="padding: 16px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;">
+                    <div style="display: flex; gap: 12px; align-items: start;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">Submit for Approval</div>
+                            <div style="font-size: 13px; color: #b45309; margin-bottom: 8px;">
+                                Send renewal request to Admin/Director for review. Best for complex changes.
+                            </div>
+                            <div style="font-size: 12px; color: #b45309;">
+                                ✓ Admin oversight<br>
+                                ✓ Review process<br>
+                                ✓ Full audit trail
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Contract Summary -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3>Current Contract</h3>
+            </div>
+            <div class="card-content">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; color: #64748b; margin-bottom: 4px;">Employee</label>
+                        <div style="font-weight: 600; color: #0f172a; font-size: 14px;">{{ contract.employee.get_full_name }}</div>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-size: 12px; color: #64748b; margin-bottom: 4px;">Job Title</label>
+                        <div style="font-weight: 600; color: #0f172a; font-size: 14px;">{{ contract.job_title }}</div>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-size: 12px; color: #64748b; margin-bottom: 4px;">Contract Type</label>
+                        <div style="font-weight: 600; color: #0f172a; font-size: 14px;">{{ contract.get_contract_type_display }}</div>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-size: 12px; color: #64748b; margin-bottom: 4px;">Salary</label>
+                        <div style="font-weight: 600; color: #0f172a; font-size: 14px;">
+                            {% if contract.salary %}
+                                {{ contract.currency }} {{ contract.salary|floatformat:2 }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-size: 12px; color: #64748b; margin-bottom: 4px;">Current Period</label>
+                        <div style="font-weight: 600; color: #0f172a; font-size: 14px;">
+                            {{ contract.start_date|date:"M j, Y" }} - {{ contract.end_date|date:"M j, Y" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

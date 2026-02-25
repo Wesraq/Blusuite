@@ -1,0 +1,57 @@
+{% extends 'ems/base_platform.html' %}
+{% block title %}Support Portal{% endblock %}
+{% block page_title %}Support Portal{% endblock %}
+{% block content %}
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Support Queue</div>
+        <div class="card-subtitle">System-owner support workspace</div>
+    </div>
+    <div class="card-content" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+        <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">{{ summary.total }}</div></div>
+        <div class="stat-card"><div class="stat-label">Open</div><div class="stat-value">{{ summary.open }}</div></div>
+        <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value">{{ summary.in_progress }}</div></div>
+        <div class="stat-card"><div class="stat-label">Resolved</div><div class="stat-value">{{ summary.resolved }}</div></div>
+        <div class="stat-card"><div class="stat-label">Urgent</div><div class="stat-value">{{ summary.urgent }}</div></div>
+    </div>
+</div>
+
+<div class="content-card" style="margin-top:16px;">
+    <div class="card-header">
+        <div class="card-title">Recent Tickets</div>
+        <div class="card-subtitle">Latest 10 tickets</div>
+    </div>
+    <div class="card-content">
+        {% if recent_tickets %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Subject</th><th>Company</th><th>Status</th><th>Priority</th><th>Created</th></tr>
+                </thead>
+                <tbody>
+                    {% for t in recent_tickets %}
+                    <tr>
+                        <td>{{ t.subject|default:"(No subject)" }}</td>
+                        <td>{{ t.company.name|default:"N/A" }}</td>
+                        <td>{{ t.get_status_display }}</td>
+                        <td>{{ t.get_priority_display }}</td>
+                        <td>{{ t.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No tickets found.</p>
+        {% endif %}
+    </div>
+</div>
+<style>
+.stat-card{background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:12px}
+.stat-label{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.stat-value{font-size:20px;font-weight:700;color:#0f172a;margin-top:4px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th,.data-table td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}
+.data-table th{background:#f8fafc;font-weight:700;color:#475569;text-transform:uppercase;font-size:12px;letter-spacing:.04em}
+</style>
+{% endblock %}

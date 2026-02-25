@@ -1,0 +1,131 @@
+{% extends 'ems/blusuite_base.html' %}
+
+{% block title %}Create Form Template - BLU Suite{% endblock %}
+
+{% block extra_head %}
+<style>
+    .efc-header { background:#fff; border:1px solid #e2e8f0; border-radius:4px; padding:20px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+    .efc-header h1 { margin:0 0 4px; font-size:20px; font-weight:700; color:#0f172a; }
+    .efc-header p { margin:0; font-size:13px; color:#64748b; }
+    .efc-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:1px solid; cursor:pointer; transition:all .15s; font-family:inherit; }
+    .efc-btn-primary { background:#E11D48; color:#fff; border-color:#E11D48; }
+    .efc-btn-primary:hover { background:#BE123C; border-color:#BE123C; }
+    .efc-btn-secondary { background:#fff; color:#0f172a; border-color:#e2e8f0; }
+    .efc-btn-secondary:hover { background:#f8fafc; border-color:#cbd5e1; }
+    .efc-card { background:#fff; border:1px solid #e2e8f0; border-radius:4px; overflow:hidden; }
+    .efc-card-head { padding:14px 20px; border-bottom:1px solid #f1f5f9; font-size:14px; font-weight:600; color:#0f172a; display:flex; align-items:center; gap:8px; }
+    .efc-card-body { padding:20px; }
+    .efc-label { font-size:13px; font-weight:600; color:#0f172a; margin-bottom:4px; display:block; }
+    .efc-hint { font-size:12px; color:#64748b; margin-top:2px; }
+    .efc-input { width:100%; padding:9px 12px; border:1px solid #e2e8f0; border-radius:4px; font-size:13px; font-family:inherit; transition:border-color .15s; }
+    .efc-input:focus { outline:none; border-color:#E11D48; box-shadow:0 0 0 2px rgba(225,29,72,.08); }
+    select.efc-input { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e"); background-position:right 8px center; background-repeat:no-repeat; background-size:14px; padding-right:28px; }
+    .efc-toggle { display:flex; align-items:flex-start; gap:12px; padding:12px 14px; background:#fff; border:1px solid #e2e8f0; border-radius:4px; cursor:pointer; transition:border-color .15s; }
+    .efc-toggle:hover { border-color:#cbd5e1; }
+    .efc-toggle input[type="checkbox"] { width:18px; height:18px; margin-top:1px; cursor:pointer; accent-color:#E11D48; flex-shrink:0; }
+    .efc-toggle-title { font-weight:600; color:#0f172a; font-size:13px; }
+    .efc-toggle-desc { font-size:12px; color:#64748b; margin-top:2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="efc-header">
+    <div>
+        <h1>Create Form Template</h1>
+        <p>Set up a new digital form for your organisation</p>
+    </div>
+    <a href="{% url 'form_templates_list' %}" class="efc-btn efc-btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+    </a>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 320px; gap:16px;">
+    <!-- Main Form -->
+    <div class="efc-card">
+        <div class="efc-card-head">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Template Details
+        </div>
+        <div class="efc-card-body">
+            <form method="POST" id="create-form">
+                {% csrf_token %}
+                <div style="display:grid; gap:16px;">
+                    <div>
+                        <label class="efc-label">Template Title <span style="color:#ef4444;">*</span></label>
+                        <input type="text" name="title" required class="efc-input" placeholder="e.g., Employee Exit Form, Leave Application">
+                    </div>
+                    <div>
+                        <label class="efc-label">Description</label>
+                        <textarea name="description" rows="3" class="efc-input" style="resize:vertical;" placeholder="Describe the purpose of this form..."></textarea>
+                        <div class="efc-hint">Visible to employees when browsing available forms</div>
+                    </div>
+                    <div>
+                        <label class="efc-label">Category <span style="color:#ef4444;">*</span></label>
+                        <select name="category" required class="efc-input">
+                            {% for value, label in categories %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="display:flex; gap:10px; padding-top:16px; border-top:1px solid #e2e8f0;">
+                        <button type="submit" class="efc-btn efc-btn-primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Create & Open Builder
+                        </button>
+                        <a href="{% url 'form_templates_list' %}" class="efc-btn efc-btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar: Settings -->
+    <div>
+        <div class="efc-card">
+            <div class="efc-card-head">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Form Settings
+            </div>
+            <div class="efc-card-body" style="display:grid; gap:10px;">
+                <label class="efc-toggle" form="create-form">
+                    <input type="checkbox" name="requires_signature" form="create-form">
+                    <div>
+                        <div class="efc-toggle-title">E-Signature</div>
+                        <div class="efc-toggle-desc">Require electronic signature after submission</div>
+                    </div>
+                </label>
+                <label class="efc-toggle" form="create-form">
+                    <input type="checkbox" name="requires_approval" id="requires_approval" onchange="toggleApproverRole()" form="create-form">
+                    <div>
+                        <div class="efc-toggle-title">Approval Workflow</div>
+                        <div class="efc-toggle-desc">Submissions require manager/HR approval</div>
+                    </div>
+                </label>
+                <div id="approver-role-field" style="display:none;">
+                    <label class="efc-label" style="font-size:12px;">Approver Role</label>
+                    <select name="approver_role" class="efc-input" form="create-form">
+                        <option value="">Any HR or Admin</option>
+                        <option value="HR">HR Only</option>
+                        <option value="SUPERVISOR">Supervisor Only</option>
+                        <option value="ACCOUNTANT">Accountant Only</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:12px; padding:14px; background:#F8FAFC; border:1px solid #e2e8f0; border-radius:4px;">
+            <div style="font-size:12px; font-weight:600; color:#64748b; margin-bottom:6px;">What happens next?</div>
+            <div style="font-size:12px; color:#94a3b8; line-height:1.6;">
+                After creating the template, you will be taken to the <strong style="color:#0f172a;">Form Builder</strong> where you can drag and drop fields to design your form layout.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleApproverRole() {
+    document.getElementById('approver-role-field').style.display = 
+        document.getElementById('requires_approval').checked ? 'block' : 'none';
+}
+</script>
+{% endblock %}

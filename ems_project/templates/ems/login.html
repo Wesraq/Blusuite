@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management System</title>
+    {% load static %}
+    <script src="{% static 'js/logout.js' %}"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
+        }
+
+
+        .login-container {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 3.2px 7.2px rgba(0, 0, 0, 0.13);
+            padding: 48px;
+            width: 100%;
+            max-width: 480px;
+            border: 1px solid #EDEBE9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 16px;
+            letter-spacing: 0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 8px;
+            letter-spacing: 0;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #616161;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #EDEBE9;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #000000;
+            background-color: #fff;
+            transition: all 0.1s ease;
+        }
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #DC143C;
+            box-shadow: 0 0 0 1px #DC143C;
+        }
+
+        .sign-in-btn {
+            width: 100%;
+            background-color: #E11D48;
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            margin-bottom: 24px;
+        }
+
+        .sign-in-btn:hover {
+            background-color: #BE123C;
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 12px;
+            color: #616161;
+            line-height: 1.5;
+        }
+
+        .error-message {
+            background: #FDE7E9;
+            color: #A4262C;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 3px solid #A4262C;
+            font-size: 13px;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 32px 24px;
+                margin: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="header">
+            <div class="logo">Eiscomtech</div>
+            <h1>Employee Management System</h1>
+            <p>Sign in to access your account</p>
+        </div>
+
+        {% if messages %}
+            <div id="flash-messages" style="display:flex; flex-direction:column; gap:8px;">
+                {% for message in messages %}
+                <div class="error-message flash-message {{ message.tags|default:'' }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        {% elif error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            <div class="form-group">
+                <label for="username">Email</label>
+                <input type="email" id="username" name="username" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="sign-in-btn">Sign In</button>
+        </form>
+
+        <div class="footer-text">
+            Only registered users can access the system.<br>
+            Contact your administrator for account access.
+        </div>
+    </div>
+    <script>
+        // Auto-dismiss flash messages after a short delay
+        (function() {
+            const flashes = document.querySelectorAll('.flash-message');
+            flashes.forEach((el, idx) => {
+                const delay = 3500 + (idx * 300); // stagger slightly
+                setTimeout(() => {
+                    el.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(-6px)';
+                    setTimeout(() => el.remove(), 400);
+                }, delay);
+            });
+            // After rendering, clear messages from session to prevent buildup
+            if (window.location.pathname === '{% url "login" %}') {
+                fetch('{% url "login" %}', {
+                    method: 'HEAD',
+                    headers: {'X-Requested-With': 'XMLHttpRequest'}
+                }).catch(() => {});
+            }
+        })();
+    </script>
+</body>
+</html>

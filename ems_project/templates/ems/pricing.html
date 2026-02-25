@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - Eiscomtech EMS</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #DC143C;
+            --primary-dark: #B01030;
+            --secondary: #FF6B8A;
+            --dark: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #666666;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+            --border-color: #E0E0E0;
+            --shadow-sm: 0 1.6px 3.6px rgba(0, 0, 0, 0.13);
+            --shadow-md: 0 3.2px 7.2px rgba(0, 0, 0, 0.13);
+            --shadow-lg: 0 6.4px 14.4px rgba(0, 0, 0, 0.13);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background: var(--white);
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 54px;
+        }
+
+        .nav-logo {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark);
+            text-decoration: none;
+            padding: 0 16px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            transition: background 0.1s ease;
+        }
+
+        .nav-logo:hover {
+            background: var(--light-gray);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 0;
+            list-style: none;
+            align-items: center;
+            height: 54px;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            padding: 0 16px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            transition: background 0.1s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--light-gray);
+        }
+
+        .btn {
+            padding: 5px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.1s ease;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 32px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--dark);
+            border: 1px solid var(--dark);
+        }
+
+        .hero {
+            padding: 120px 5% 80px;
+            text-align: center;
+            background: var(--light-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        .hero h1,
+        .hero p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 24px;
+            letter-spacing: -1.5px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--medium-gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .pricing-section {
+            padding: 80px 5%;
+            background: white;
+        }
+
+        .pricing-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 40px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary);
+            border-width: 2px;
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pricing-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .pricing-card p {
+            font-size: 14px;
+            color: var(--medium-gray);
+            margin-bottom: 24px;
+        }
+
+        .pricing-price {
+            margin-bottom: 32px;
+        }
+
+        .pricing-amount {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1;
+        }
+
+        .pricing-period {
+            font-size: 16px;
+            color: var(--medium-gray);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-features li::before {
+            content: '';
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background: var(--primary);
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .pricing-btn {
+            width: 100%;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+            transition: all 0.1s ease;
+        }
+
+        .pricing-btn-primary {
+            background: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+
+        .pricing-btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .pricing-btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .pricing-btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .footer {
+            background: var(--dark-gray);
+            color: white;
+            padding: 60px 5% 32px;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(2, 1fr);
+            gap: 64px;
+            margin-bottom: 48px;
+        }
+
+        .footer-brand {
+            max-width: 320px;
+        }
+
+        .footer-logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .footer-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .footer-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 32px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Eiscomtech</a>
+            
+            <ul class="nav-menu">
+                <li><a href="/features/" class="nav-link">Features</a></li>
+                <li><a href="/solutions/" class="nav-link">Solutions</a></li>
+                <li><a href="/pricing/" class="nav-link">Pricing</a></li>
+                <li><a href="/about/" class="nav-link">About</a></li>
+            </ul>
+            
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <a href="/login/" class="btn btn-secondary">Sign In</a>
+                <a href="/register/" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Simple, Transparent Pricing</h1>
+        <p>Choose the plan that fits your business needs. No hidden fees, no surprises.</p>
+    </section>
+
+    <section class="pricing-section">
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Starter</h3>
+                <p>Perfect for small teams getting started</p>
+                <div class="pricing-price">
+                    <div class="pricing-amount">$29</div>
+                    <div class="pricing-period">per month</div>
+                </div>
+                <ul class="pricing-features">
+                    <li>Up to 25 employees</li>
+                    <li>Basic attendance tracking</li>
+                    <li>Leave management</li>
+                    <li>Payroll processing</li>
+                    <li>Email support</li>
+                    <li>Mobile app access</li>
+                </ul>
+                <a href="/register/" class="pricing-btn pricing-btn-secondary">Get Started</a>
+            </div>
+
+            <div class="pricing-card featured">
+                <div class="pricing-badge">Most Popular</div>
+                <h3>Professional</h3>
+                <p>For growing businesses with advanced needs</p>
+                <div class="pricing-price">
+                    <div class="pricing-amount">$79</div>
+                    <div class="pricing-period">per month</div>
+                </div>
+                <ul class="pricing-features">
+                    <li>Up to 100 employees</li>
+                    <li>Advanced attendance & GPS tracking</li>
+                    <li>Leave management & approvals</li>
+                    <li>Automated payroll processing</li>
+                    <li>Performance reviews</li>
+                    <li>Document management</li>
+                    <li>Custom reports</li>
+                    <li>Priority support</li>
+                </ul>
+                <a href="/register/" class="pricing-btn pricing-btn-primary">Get Started</a>
+            </div>
+
+            <div class="pricing-card">
+                <h3>Enterprise</h3>
+                <p>For large organizations with custom requirements</p>
+                <div class="pricing-price">
+                    <div class="pricing-amount">Custom</div>
+                    <div class="pricing-period">contact sales</div>
+                </div>
+                <ul class="pricing-features">
+                    <li>Unlimited employees</li>
+                    <li>All Professional features</li>
+                    <li>Advanced analytics & insights</li>
+                    <li>Custom integrations</li>
+                    <li>Dedicated account manager</li>
+                    <li>24/7 phone support</li>
+                    <li>Custom training</li>
+                    <li>SLA guarantee</li>
+                </ul>
+                <a href="/register/" class="pricing-btn pricing-btn-secondary">Contact Sales</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">Eiscomtech</div>
+                    <p class="footer-description">
+                        Enterprise management platform designed for modern businesses. Streamline operations, boost productivity, and scale with confidence.
+                    </p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about/" class="footer-link">About</a></li>
+                        <li><a href="/careers/" class="footer-link">Careers</a></li>
+                        <li><a href="/blog/" class="footer-link">Blog</a></li>
+                        <li><a href="/press/" class="footer-link">Press</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="/help/" class="footer-link">Help Center</a></li>
+                        <li><a href="/contact/" class="footer-link">Contact Us</a></li>
+                        <li><a href="/status/" class="footer-link">Status</a></li>
+                        <li><a href="/docs/" class="footer-link">Documentation</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                © 2026 Eiscomtech. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

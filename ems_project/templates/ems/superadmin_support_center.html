@@ -1,0 +1,171 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Support Center - EMS{% endblock %}
+{% block nav_support %} active{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <!-- Header -->
+    <div class="content-card" style="margin-bottom: 20px; max-width: 100%;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+            <div>
+                <h3 class="card-title">Support Center</h3>
+                <div class="card-subtitle">Platform view of tenant queries and tickets</div>
+            </div>
+            <a href="{% url 'superadmin_knowledge_base' %}" class="btn" style="padding:6px 14px; font-size:12px; white-space:nowrap;">
+                Manage Knowledge Base
+            </a>
+        </div>
+        <div class="card-content">
+            <p style="margin: 0; font-size: 14px; color:#64748b;">
+                View and filter support tickets raised by companies across the platform. Use this to monitor
+                open issues, prioritise urgent requests and ensure tenants are getting timely responses. Use the
+                Knowledge Base to publish updates and training material that tenants can self-serve.
+            </p>
+        </div>
+    </div>
+
+    <!-- Metrics row -->
+    <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Total Tickets</div>
+                <div class="card-subtitle">All time</div>
+            </div>
+            <div class="card-content">
+                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ total_tickets|default:"0" }}</div>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Open</div>
+                <div class="card-subtitle">Awaiting response</div>
+            </div>
+            <div class="card-content">
+                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ open_count|default:"0" }}</div>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">In Progress</div>
+                <div class="card-subtitle">Being handled</div>
+            </div>
+            <div class="card-content">
+                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ in_progress_count|default:"0" }}</div>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Resolved</div>
+                <div class="card-subtitle">Marked as resolved</div>
+            </div>
+            <div class="card-content">
+                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ resolved_count|default:"0" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="content-card" style="margin-bottom: 24px; max-width: 100%;">
+        <div class="card-content">
+            <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Subject, company or email" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Status</label>
+                    <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <option value="">All</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Priority</label>
+                    <select name="priority" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <option value="">All</option>
+                        {% for value, label in priority_choices %}
+                            <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Company</label>
+                    <select name="company" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <option value="">All companies</option>
+                        {% for company in companies %}
+                            <option value="{{ company.id }}" {% if company_filter|default:'' == company.id|stringformat:'s' %}selected{% endif %}>{{ company.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn">Apply</button>
+                    <a href="{% url 'superadmin_support_center' %}" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tickets table -->
+    <div class="content-card" style="max-width: 100%;">
+        <div class="card-header">
+            <div class="card-title">Support Tickets</div>
+            <div class="card-subtitle">Most recent first</div>
+        </div>
+        <div class="card-content">
+            <div class="table-responsive">
+                <table class="data-table company-table">
+                    <thead>
+                        <tr>
+                            <th>Ref</th>
+                            <th>Created</th>
+                            <th>Company</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td>{{ ticket.reference }}</td>
+                            <td>{{ ticket.created_at|date:"M j, Y g:i A" }}</td>
+                            <td>{% if ticket.company %}{{ ticket.company.name }}{% else %}-{% endif %}</td>
+                            <td>{{ ticket.subject }}</td>
+                            <td>
+                                {% if ticket.priority == 'URGENT' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:600; text-transform:uppercase;">Urgent</span>
+                                {% elif ticket.priority == 'HIGH' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">High</span>
+                                {% elif ticket.priority == 'LOW' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e0f2fe; color:#1d4ed8; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
+                                {% else %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Normal</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ticket.status == 'OPEN' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:600; text-transform:uppercase;">Open</span>
+                                {% elif ticket.status == 'IN_PROGRESS' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">In progress</span>
+                                {% elif ticket.status == 'RESOLVED' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#dcfce7; color:#166534; font-size:11px; font-weight:600; text-transform:uppercase;">Resolved</span>
+                                {% else %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Closed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No support tickets found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

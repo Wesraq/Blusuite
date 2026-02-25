@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+{% include 'eforms/partials/sidebar_eforms.html' %}
+{% endblock %}
+
+{% block extra_css %}
+{% block eforms_page_css %}{% endblock %}
+<style>
+    .sidebar .nav-section-header {
+        color: #94a3b8 !important;
+        font-size: 11px !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}My Tasks - BLU Projects{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h2 style="margin: 0 0 4px; font-size: 22px; font-weight: 700; color: #0f172a;">My Tasks</h2>
+        <p style="margin: 0; color: #64748b; font-size: 14px;">{{ stats.total }} task{{ stats.total|pluralize }} across your projects</p>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px;">
+    <a href="{% url 'blu_projects:my_tasks' %}" style="text-decoration: none; background: white; border: 1px solid {% if not status_filter %}#1d4ed8{% else %}#e2e8f0{% endif %}; border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;">
+        <span style="font-size: 20px; font-weight: 700; color: #0f172a;">{{ stats.total }}</span>
+        <span style="font-size: 11px; color: #64748b;">All Tasks</span>
+    </a>
+    <a href="{% url 'blu_projects:my_tasks' %}?status=TODO" style="text-decoration: none; background: white; border: 1px solid {% if status_filter == 'TODO' %}#64748b{% else %}#e2e8f0{% endif %}; border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;">
+        <span style="font-size: 20px; font-weight: 700; color: #64748b;">{{ stats.todo }}</span>
+        <span style="font-size: 11px; color: #64748b;">To Do</span>
+    </a>
+    <a href="{% url 'blu_projects:my_tasks' %}?status=IN_PROGRESS" style="text-decoration: none; background: white; border: 1px solid {% if status_filter == 'IN_PROGRESS' %}#d97706{% else %}#e2e8f0{% endif %}; border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;">
+        <span style="font-size: 20px; font-weight: 700; color: #d97706;">{{ stats.in_progress }}</span>
+        <span style="font-size: 11px; color: #64748b;">In Progress</span>
+    </a>
+    <a href="{% url 'blu_projects:my_tasks' %}?status=IN_REVIEW" style="text-decoration: none; background: white; border: 1px solid {% if status_filter == 'IN_REVIEW' %}#7c3aed{% else %}#e2e8f0{% endif %}; border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;">
+        <span style="font-size: 20px; font-weight: 700; color: #7c3aed;">{{ stats.in_review }}</span>
+        <span style="font-size: 11px; color: #64748b;">In Review</span>
+    </a>
+    <a href="{% url 'blu_projects:my_tasks' %}?status=COMPLETED" style="text-decoration: none; background: white; border: 1px solid {% if status_filter == 'COMPLETED' %}#16a34a{% else %}#e2e8f0{% endif %}; border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;">
+        <span style="font-size: 20px; font-weight: 700; color: #16a34a;">{{ stats.completed }}</span>
+        <span style="font-size: 11px; color: #64748b;">Completed</span>
+    </a>
+    {% if stats.overdue > 0 %}
+    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;">
+        <span style="font-size: 20px; font-weight: 700; color: #dc2626;">{{ stats.overdue }}</span>
+        <span style="font-size: 11px; color: #dc2626; font-weight: 600;">Overdue</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Filter Bar -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 16px; margin-bottom: 16px;">
+    <form method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <div style="flex: 1; min-width: 180px; position: relative;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" name="search" value="{{ search }}" placeholder="Search tasks..." style="width: 100%; padding: 7px 10px 7px 30px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px;">
+        </div>
+        <select name="status" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; min-width: 120px;">
+            <option value="">All Status</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        {% if priority_choices %}
+        <select name="priority" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; min-width: 120px;">
+            <option value="">All Priority</option>
+            {% for value, label in priority_choices %}
+            <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        <select name="project" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; min-width: 140px;">
+            <option value="">All Projects</option>
+            {% for p in filter_projects %}
+            <option value="{{ p.id }}" {% if project_filter == p.id|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="sort" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; min-width: 130px;">
+            <option value="due_date" {% if sort == 'due_date' %}selected{% endif %}>Due Date (asc)</option>
+            <option value="-due_date" {% if sort == '-due_date' %}selected{% endif %}>Due Date (desc)</option>
+            <option value="priority" {% if sort == 'priority' %}selected{% endif %}>Priority</option>
+            <option value="status" {% if sort == 'status' %}selected{% endif %}>Status</option>
+            <option value="project" {% if sort == 'project' %}selected{% endif %}>Project</option>
+            <option value="-updated" {% if sort == '-updated' %}selected{% endif %}>Recently Updated</option>
+        </select>
+        <button type="submit" style="padding: 7px 16px; background: #1e293b; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer;">Filter</button>
+        {% if search or status_filter or priority_filter or project_filter %}
+        <a href="{% url 'blu_projects:my_tasks' %}" style="padding: 7px 14px; background: white; border: 1px solid #e2e8f0; color: #64748b; border-radius: 4px; text-decoration: none; font-size: 13px;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Tasks List -->
+<div style="display: flex; flex-direction: column; gap: 8px;">
+    {% for task in tasks %}
+    <div style="background: white; border: 1px solid {% if task.due_date and task.due_date < today and task.status != 'COMPLETED' %}#fecaca{% else %}#e2e8f0{% endif %}; border-radius: 4px; border-left: 3px solid {% if task.status == 'COMPLETED' %}#16a34a{% elif task.due_date and task.due_date < today and task.status != 'COMPLETED' %}#dc2626{% elif task.status == 'IN_PROGRESS' %}#d97706{% elif task.status == 'IN_REVIEW' %}#7c3aed{% elif task.status == 'BLOCKED' %}#dc2626{% else %}#94a3b8{% endif %}; overflow: hidden;">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px;">
+            <!-- Status indicator -->
+            <div style="flex-shrink: 0;">
+                {% if task.status == 'COMPLETED' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                {% elif task.status == 'IN_PROGRESS' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                {% elif task.status == 'BLOCKED' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                {% else %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+                {% endif %}
+            </div>
+
+            <!-- Task info -->
+            <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                    <a href="{% url 'blu_projects:task_detail' task.id %}" style="font-size: 14px; font-weight: 600; color: #0f172a; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ task.title }}</a>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #64748b; flex-wrap: wrap;">
+                    <a href="{% url 'blu_projects:project_detail' task.project.id %}" style="color: #1d4ed8; text-decoration: none; font-weight: 500;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 2px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                        {{ task.project.name }}
+                    </a>
+                    {% if task.due_date %}
+                    <span style="{% if task.due_date < today and task.status != 'COMPLETED' %}color: #dc2626; font-weight: 600;{% endif %}">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 2px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        {% if task.due_date < today and task.status != 'COMPLETED' %}Overdue &middot; {% endif %}{{ task.due_date|date:"M j" }}
+                    </span>
+                    {% endif %}
+                    {% if task.estimated_hours %}
+                    <span>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 2px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        {{ task.estimated_hours }}h
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Badges -->
+            <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600;
+                    {% if task.priority == 'CRITICAL' %}background: #fef2f2; color: #dc2626;
+                    {% elif task.priority == 'HIGH' %}background: #fff7ed; color: #ea580c;
+                    {% elif task.priority == 'MEDIUM' %}background: #eff6ff; color: #2563eb;
+                    {% else %}background: #f8fafc; color: #64748b;{% endif %}">
+                    {{ task.get_priority_display }}
+                </span>
+                <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600;
+                    {% if task.status == 'COMPLETED' %}background: #f0fdf4; color: #16a34a;
+                    {% elif task.status == 'IN_PROGRESS' %}background: #fef3c7; color: #d97706;
+                    {% elif task.status == 'IN_REVIEW' %}background: #f5f3ff; color: #7c3aed;
+                    {% elif task.status == 'BLOCKED' %}background: #fef2f2; color: #dc2626;
+                    {% else %}background: #f8fafc; color: #64748b;{% endif %}">
+                    {{ task.get_status_display }}
+                </span>
+            </div>
+
+            <!-- Quick actions -->
+            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                <form method="post" action="{% url 'blu_projects:task_update_status' task.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <select name="status" onchange="this.form.submit()" style="padding: 4px 6px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 11px; color: #475569; cursor: pointer;">
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                <a href="{% url 'blu_projects:task_detail' task.id %}" style="padding: 4px 8px; color: #64748b; text-decoration: none; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px;" title="View Details">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 48px 20px; background: white; border: 1px solid #e2e8f0; border-radius: 4px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px; display: block;">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+        <h3 style="margin: 0 0 6px; font-size: 16px; color: #0f172a;">No tasks found</h3>
+        <p style="margin: 0; color: #64748b; font-size: 13px;">
+            {% if search or status_filter or priority_filter or project_filter %}
+            Try adjusting your filters
+            {% else %}
+            You don't have any tasks assigned yet
+            {% endif %}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if tasks.has_other_pages %}
+<div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px;">
+    {% if tasks.has_previous %}
+    <a href="?page={{ tasks.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if project_filter %}&project={{ project_filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" style="padding: 6px 14px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; text-decoration: none; font-size: 13px;">Previous</a>
+    {% endif %}
+    <span style="padding: 6px 14px; background: #1e293b; color: white; border-radius: 4px; font-size: 13px;">
+        {{ tasks.number }} / {{ tasks.paginator.num_pages }}
+    </span>
+    {% if tasks.has_next %}
+    <a href="?page={{ tasks.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if project_filter %}&project={{ project_filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" style="padding: 6px 14px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; text-decoration: none; font-size: 13px;">Next</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends 'blu_assets/base_assets.html' %}
+{% load static %}
+
+{% block title %}{{ department.name }} - Asset Dashboard{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .dd-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .dd-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .dd-card-title { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+    .dd-card-body { padding: 20px; }
+    .dd-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 14px; border-radius: 4px; font-size: 12px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .dd-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .dd-btn-primary:hover { background: #be123c; border-color: #be123c; }
+    .dd-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .dd-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .dd-btn-sm { padding: 4px 10px; font-size: 11px; }
+    .dd-stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px; }
+    .dd-stat-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .dd-stat-value { font-size: 28px; font-weight: 700; color: #0f172a; }
+    .dd-stat-hint { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+    .dd-badge { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .dd-table { width: 100%; border-collapse: collapse; }
+    .dd-table thead { background: #f8fafc; }
+    .dd-table th { padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; }
+    .dd-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .dd-table tbody tr:hover { background: #fafbfc; }
+    .dd-link { color: #e11d48; text-decoration: none; font-weight: 500; font-size: 13px; }
+    .dd-link:hover { text-decoration: underline; }
+    .dd-progress-track { background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden; }
+    .dd-progress-bar { background: #e11d48; height: 100%; border-radius: 3px; transition: width 0.3s; }
+</style>
+{% endblock page_content %}
+
+{% block page_content %}
+<!-- Back Link -->
+<div style="margin-bottom: 12px;">
+    <a href="{% url 'assets:asset_list' %}" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 500;" onmouseover="this.style.color='#e11d48'" onmouseout="this.style.color='#64748b'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Assets
+    </a>
+</div>
+
+<!-- Page Header -->
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">{{ department.name }} - Asset Dashboard</h1>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">Overview of departmental assets and requests</p>
+        </div>
+        <a href="{% url 'assets:asset_request_create' %}" class="dd-btn dd-btn-primary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Request Asset
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px;">
+    <div class="dd-stat">
+        <div class="dd-stat-label">Total Assets</div>
+        <div class="dd-stat-value">{{ stats.total_assets }}</div>
+        <div class="dd-stat-hint">All department assets</div>
+    </div>
+    <div class="dd-stat">
+        <div class="dd-stat-label">Assigned</div>
+        <div class="dd-stat-value" style="color: #1e40af;">{{ stats.assigned }}</div>
+        <div class="dd-stat-hint">Currently in use</div>
+    </div>
+    <div class="dd-stat">
+        <div class="dd-stat-label">Available</div>
+        <div class="dd-stat-value" style="color: #10b981;">{{ stats.available }}</div>
+        <div class="dd-stat-hint">Ready for assignment</div>
+    </div>
+    <div class="dd-stat">
+        <div class="dd-stat-label">In Repair</div>
+        <div class="dd-stat-value" style="color: #d97706;">{{ stats.in_repair }}</div>
+        <div class="dd-stat-hint">Under maintenance</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+    <!-- Left: Recent Assets -->
+    <div class="dd-card">
+        <div class="dd-card-header">
+            <h3 class="dd-card-title">Recent Assets</h3>
+            <a href="{% url 'assets:asset_list' %}" class="dd-link">View All</a>
+        </div>
+        {% if recent_assets %}
+        <div style="overflow-x: auto;">
+            <table class="dd-table">
+                <thead>
+                    <tr><th>Asset Tag</th><th>Name</th><th>Type</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for asset in recent_assets %}
+                    <tr>
+                        <td style="font-weight: 700; color: #e11d48; font-family: 'Cascadia Code', monospace;">{{ asset.asset_tag }}</td>
+                        <td style="font-weight: 600; color: #0f172a;">{{ asset.name }}</td>
+                        <td style="color: #64748b;">{{ asset.get_asset_type_display }}</td>
+                        <td>
+                            {% if asset.status == 'ASSIGNED' %}
+                            <span class="dd-badge" style="background: #dbeafe; color: #1e40af;">Assigned</span>
+                            {% elif asset.status == 'AVAILABLE' %}
+                            <span class="dd-badge" style="background: #d1fae5; color: #065f46;">Available</span>
+                            {% elif asset.status == 'IN_REPAIR' %}
+                            <span class="dd-badge" style="background: #fef3c7; color: #92400e;">In Repair</span>
+                            {% else %}
+                            <span class="dd-badge" style="background: #f1f5f9; color: #475569;">{{ asset.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="dd-card-body" style="text-align: center; padding: 40px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 8px; display: block;">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            </svg>
+            <p style="color: #94a3b8; font-size: 13px; margin: 0;">No assets found</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right: Type Breakdown & Pending Requests -->
+    <div>
+        <!-- Assets by Type -->
+        <div class="dd-card">
+            <div class="dd-card-header"><h3 class="dd-card-title">Assets by Type</h3></div>
+            <div class="dd-card-body">
+                {% if stats.by_type %}
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    {% for item in stats.by_type %}
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="font-size: 12px; color: #475569; font-weight: 500;">{{ item.asset_type }}</span>
+                            <span style="font-size: 13px; color: #0f172a; font-weight: 700;">{{ item.count }}</span>
+                        </div>
+                        <div class="dd-progress-track">
+                            <div class="dd-progress-bar" style="width: {{ item.count }}%;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="color: #94a3b8; font-size: 13px; text-align: center; margin: 0;">No data available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pending Requests -->
+        <div class="dd-card" style="border-color: #fde047;">
+            <div class="dd-card-body">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span style="font-size: 13px; font-weight: 600; color: #78350f;">Pending Requests</span>
+                </div>
+                <div style="font-size: 28px; font-weight: 700; color: #92400e; margin-bottom: 4px;">{{ pending_requests }}</div>
+                <p style="font-size: 11px; color: #92400e; margin: 0 0 10px;">Asset requests awaiting approval</p>
+                <a href="{% url 'assets:asset_request_list' %}" class="dd-btn dd-btn-secondary dd-btn-sm" style="color: #92400e; border-color: #fde047;">
+                    View Requests
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}

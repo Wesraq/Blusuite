@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+{% include 'assets/partials/sidebar_ams.html' %}
+{% endblock %}
+
+{% block extra_css %}
+{% block ams_page_css %}{% endblock %}
+<style>
+    /* AMS-specific sidebar tweaks — rose red is now global via base.html + universal.css */
+    .sidebar .nav-section-header {
+        color: #94a3b8 !important;
+        font-size: 11px !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Eiscomtech EMS</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #DC143C;
+            --primary-dark: #B01030;
+            --dark: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #666666;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+            --border-color: #E0E0E0;
+            --shadow-sm: 0 1.6px 3.6px rgba(0, 0, 0, 0.13);
+            --shadow-md: 0 3.2px 7.2px rgba(0, 0, 0, 0.13);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background: var(--white);
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 54px;
+        }
+
+        .nav-logo {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark);
+            text-decoration: none;
+            padding: 0 16px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            transition: background 0.1s ease;
+        }
+
+        .nav-logo:hover {
+            background: var(--light-gray);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 0;
+            list-style: none;
+            align-items: center;
+            height: 54px;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            padding: 0 16px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            transition: background 0.1s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--light-gray);
+        }
+
+        .btn {
+            padding: 5px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.1s ease;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 32px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--dark);
+            border: 1px solid var(--dark);
+        }
+
+        .hero {
+            padding: 120px 5% 80px;
+            text-align: center;
+            background: var(--light-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        .hero h1,
+        .hero p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 24px;
+            letter-spacing: -1.5px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--medium-gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .content-section {
+            padding: 80px 5%;
+            background: white;
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 48px;
+        }
+
+        .blog-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .blog-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 200px;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--medium-gray);
+        }
+
+        .blog-content {
+            padding: 24px;
+        }
+
+        .blog-meta {
+            font-size: 13px;
+            color: var(--medium-gray);
+            margin-bottom: 12px;
+        }
+
+        .blog-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .blog-card p {
+            font-size: 15px;
+            color: var(--dark-gray);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .blog-card a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .blog-card a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            background: var(--dark-gray);
+            color: white;
+            padding: 60px 5% 32px;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(2, 1fr);
+            gap: 64px;
+            margin-bottom: 48px;
+        }
+
+        .footer-brand {
+            max-width: 320px;
+        }
+
+        .footer-logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .footer-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .footer-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 32px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Eiscomtech</a>
+            
+            <ul class="nav-menu">
+                <li><a href="/features/" class="nav-link">Features</a></li>
+                <li><a href="/solutions/" class="nav-link">Solutions</a></li>
+                <li><a href="/pricing/" class="nav-link">Pricing</a></li>
+                <li><a href="/about/" class="nav-link">About</a></li>
+            </ul>
+            
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <a href="/login/" class="btn btn-secondary">Sign In</a>
+                <a href="/register/" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Blog</h1>
+        <p>Insights, updates, and best practices for modern HR management.</p>
+    </section>
+
+    <section class="content-section">
+        <div class="content-container">
+            <div class="blog-grid">
+                <div class="blog-card">
+                    <div class="blog-image">Blog Image</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">January 15, 2026 • 5 min read</div>
+                        <h3>The Future of Employee Management</h3>
+                        <p>Discover how AI and automation are transforming HR operations and what it means for your business.</p>
+                        <a href="#">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <div class="blog-image">Blog Image</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">January 10, 2026 • 4 min read</div>
+                        <h3>10 Tips for Better Attendance Tracking</h3>
+                        <p>Learn proven strategies to improve attendance management and reduce time theft in your organization.</p>
+                        <a href="#">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <div class="blog-image">Blog Image</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">January 5, 2026 • 6 min read</div>
+                        <h3>Payroll Compliance in 2026</h3>
+                        <p>Stay compliant with the latest payroll regulations and avoid costly penalties with these expert tips.</p>
+                        <a href="#">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <div class="blog-image">Blog Image</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">December 28, 2025 • 5 min read</div>
+                        <h3>Building a Strong Company Culture</h3>
+                        <p>How to create and maintain a positive workplace culture that attracts and retains top talent.</p>
+                        <a href="#">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <div class="blog-image">Blog Image</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">December 20, 2025 • 7 min read</div>
+                        <h3>Remote Work Best Practices</h3>
+                        <p>Essential strategies for managing remote teams effectively in the modern workplace.</p>
+                        <a href="#">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <div class="blog-image">Blog Image</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">December 15, 2025 • 4 min read</div>
+                        <h3>Performance Review Templates</h3>
+                        <p>Free templates and frameworks to conduct effective performance reviews that drive results.</p>
+                        <a href="#">Read More →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">Eiscomtech</div>
+                    <p class="footer-description">
+                        Enterprise management platform designed for modern businesses.
+                    </p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about/" class="footer-link">About</a></li>
+                        <li><a href="/careers/" class="footer-link">Careers</a></li>
+                        <li><a href="/blog/" class="footer-link">Blog</a></li>
+                        <li><a href="/press/" class="footer-link">Press</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="/help/" class="footer-link">Help Center</a></li>
+                        <li><a href="/contact/" class="footer-link">Contact Us</a></li>
+                        <li><a href="/status/" class="footer-link">Status</a></li>
+                        <li><a href="/docs/" class="footer-link">Documentation</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                © 2026 Eiscomtech. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

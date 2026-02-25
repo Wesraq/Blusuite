@@ -1,0 +1,3589 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Company Settings - EMS{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Global box-sizing for this page */
+  .content-card *,
+  .content-card *::before,
+  .content-card *::after {
+    box-sizing: border-box;
+  }
+
+  /* Tab Navigation Styles */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    background: #f8fafc;
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+  }
+
+  /* Payslip designer layout */
+  .payslip-designer-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 24px;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .payslip-designer-layout > div {
+    min-width: 0;
+  }
+
+  @media (max-width: 1200px) {
+    .payslip-designer-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Draggable stamp */
+  .draggable-stamp {
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+  }
+  
+  .draggable-stamp:active {
+    cursor: grabbing;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: -2px;
+  }
+
+  .tab-btn:hover {
+    color: #E11D48;
+    background: rgba(225, 29, 72, 0.04);
+  }
+
+  .tab-btn.active {
+    color: #E11D48;
+    border-bottom-color: #E11D48;
+    font-weight: 600;
+    background: transparent;
+  }
+
+  .tab-btn svg {
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .tab-btn:hover svg,
+  .tab-btn.active svg {
+    opacity: 1;
+  }
+
+  /* Content Card (tab panels) */
+  .content-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .content-card .card-header {
+    background: #ffffff;
+  }
+
+  /* Text wrapper in card headers fills remaining space */
+  .content-card .card-header .header-text {
+    flex: 1;
+  }
+
+  .content-card .card-content {
+    padding: 24px;
+  }
+
+  .content-card .card-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .content-card .card-subtitle {
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  /* Form styling inside card-content (extends .settings-section rules) */
+  .card-content label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  .card-content input[type="text"],
+  .card-content input[type="email"],
+  .card-content input[type="password"],
+  .card-content input[type="number"],
+  .card-content input[type="url"],
+  .card-content input[type="tel"],
+  .card-content select,
+  .card-content textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    color: #1e293b;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+  }
+
+  .card-content input[type="text"]:focus,
+  .card-content input[type="email"]:focus,
+  .card-content input[type="password"]:focus,
+  .card-content input[type="number"]:focus,
+  .card-content input[type="url"]:focus,
+  .card-content input[type="tel"]:focus,
+  .card-content select:focus,
+  .card-content textarea:focus {
+    outline: none;
+    border-color: #E11D48;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+  }
+
+  .card-content .form-group {
+    margin-bottom: 20px;
+  }
+
+  /* Form field wrapper spacing */
+  .form-field {
+    margin-bottom: 0;
+  }
+
+  .form-field label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .form-field .field-hint {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+    font-style: normal;
+  }
+
+  /* Section divider with icon */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #fecdd3;
+  }
+
+  .section-divider svg {
+    color: #E11D48;
+    flex-shrink: 0;
+  }
+
+  .section-divider .section-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .section-divider .section-desc {
+    font-size: 12px;
+    color: #64748b;
+    margin-left: auto;
+  }
+
+  .card-content .btn,
+  .card-content button[type="submit"] {
+    background: #E11D48;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .card-content .btn:hover,
+  .card-content button[type="submit"]:hover {
+    background: #BE123C;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(225, 29, 72, 0.15);
+  }
+
+  .card-content .btn-secondary {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+  }
+
+  .card-content .btn-secondary:hover {
+    background: #e2e8f0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Tab Content Styles */
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.25s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive tabs */
+  @media (max-width: 768px) {
+    #settings-tabs > div {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      flex-wrap: nowrap;
+    }
+
+    #settings-tabs > div::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      font-size: 13px;
+      padding: 10px 14px;
+    }
+
+    .tab-btn svg {
+      display: none;
+    }
+
+    .content-card .card-header {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 12px !important;
+    }
+
+    .content-card .card-content {
+      padding: 16px;
+    }
+
+    .content-grid.three-cols {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  /* Settings Content Styling */
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #fecdd3;
+  }
+
+  .settings-section {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .settings-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .settings-section h3 svg {
+    color: #E11D48;
+    flex-shrink: 0;
+  }
+
+  .settings-section .card-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 16px;
+  }
+
+  /* Info banner */
+  .info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #1e40af;
+    line-height: 1.5;
+  }
+
+  .info-banner svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .info-banner.warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+  }
+
+  /* Toggle card for notification-style checkboxes */
+  .toggle-card {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 14px;
+  }
+
+  .toggle-card:hover {
+    border-color: #E11D48;
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.06);
+  }
+
+  .toggle-card .toggle-text {
+    flex: 1;
+  }
+
+  .toggle-card .toggle-title {
+    font-weight: 500;
+    color: #1e293b;
+    font-size: 14px;
+  }
+
+  .toggle-card .toggle-desc {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  /* Status dot */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-dot.online { background: #10b981; }
+  .status-dot.offline { background: #ef4444; }
+  .status-dot.pending { background: #f59e0b; }
+
+  /* Form Styling (settings-section inherits from .card-content above) */
+  .settings-section input[type="text"],
+  .settings-section input[type="number"],
+  .settings-section input[type="url"],
+  .settings-section input[type="email"],
+  .settings-section input[type="password"],
+  .settings-section input[type="tel"],
+  .settings-section select,
+  .settings-section textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .settings-section input:focus,
+  .settings-section select:focus,
+  .settings-section textarea:focus {
+    outline: none;
+    border-color: #E11D48;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+  }
+
+  /* Button row at bottom of forms */
+  .form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 8px;
+  }
+
+  /* List Styling */
+  .settings-section .list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0 0;
+  }
+
+  .settings-section .list-item {
+    padding: 12px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .settings-section .list-item:hover {
+    border-color: #E11D48;
+    box-shadow: 0 2px 4px rgba(225, 29, 72, 0.08);
+    transform: translateX(4px);
+  }
+
+  .settings-section .list-item > div:first-child {
+    font-weight: 500;
+    color: #1e293b;
+    font-size: 14px;
+  }
+
+  /* Integration styles */
+  .integration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .integration-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .integration-card:hover {
+    border-color: #cbd5f5;
+    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+  }
+
+  .integration-card.integration-card-loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .integration-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .integration-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #eef2ff;
+    color: #312e81;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .integration-header-text {
+    flex: 1;
+  }
+
+  .integration-header-text h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .integration-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .integration-status-pill.status-active {
+    background: #ecfdf5;
+    color: #047857;
+  }
+
+  .integration-status-pill.status-error {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+
+  .integration-status-pill.status-pending,
+  .integration-status-pill.status-pending_authorization {
+    background: #fefce8;
+    color: #b45309;
+  }
+
+  .integration-status-pill.status-not_connected,
+  .integration-status-pill.status-inactive {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  .integration-description {
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.5;
+    min-height: 40px;
+  }
+
+  .integration-meta {
+    display: grid;
+    gap: 6px;
+    font-size: 12px;
+    color: #475569;
+  }
+
+  .integration-meta strong {
+    color: #1f2937;
+  }
+
+  .integration-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .integration-credentials {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+    border: 1px dashed #cbd5f5;
+    border-radius: 8px;
+    background: #f8fafc;
+  }
+
+  .integration-credentials label {
+    font-size: 12px;
+    color: #334155;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .integration-feedback {
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+  }
+
+  .integration-feedback[data-state="success"] {
+    color: #047857;
+  }
+
+  .integration-feedback[data-state="error"] {
+    color: #b91c1c;
+  }
+
+  .integration-feedback[data-state="info"] {
+    color: #1d4ed8;
+  }
+
+  .integration-error-message {
+    font-size: 12px;
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 10px;
+  }
+
+  .integration-log-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+
+  .integration-log-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #fff;
+  }
+
+  .integration-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .integration-log-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+  }
+
+  .integration-log-description {
+    font-size: 12px;
+    color: #475569;
+    margin-top: 6px;
+  }
+
+  .integration-log-action {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+
+  .btn-danger {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  .btn-danger:hover {
+    background: #b91c1c;
+  }
+
+  /* Preview Box */
+  .preview-box {
+    background: #fff1f2;
+    border: 2px dashed #E11D48;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: #9f1239;
+    text-align: center;
+  }
+
+  /* Grid Layouts */
+  .content-grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .content-grid.two-cols {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .content-grid.three-cols {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .content-grid.four-cols {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  /* Empty State */
+  .form-hint {
+    font-size: 13px;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 32px 20px;
+    color: #9ca3af;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px dashed #d1d5db;
+  }
+
+  /* Django Form Fields Styling */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="url"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1e293b;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  input[type="url"]:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #E11D48;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+  }
+
+  input[type="text"]:disabled,
+  input[type="email"]:disabled,
+  input[type="password"]:disabled,
+  input[type="number"]:disabled,
+  select:disabled,
+  textarea:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+    color: #9ca3af;
+  }
+
+  /* Checkbox styling */
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #E11D48;
+  }
+
+  /* Select dropdown arrow */
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 20px;
+    padding-right: 36px;
+  }
+
+  /* Error states */
+  .errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0 0;
+  }
+
+  .errorlist li {
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Form labels */
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  label:not(.settings-section label) {
+    color: #4b5563;
+  }
+
+  /* Textarea specific */
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  /* Placeholder styling */
+  ::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+  }
+
+  /* Button styling - general */
+  button, .btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  button.btn, .btn {
+    background: #E11D48;
+    color: white;
+  }
+
+  button.btn:hover, .btn:hover {
+    background: #BE123C;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(225, 29, 72, 0.15);
+  }
+
+  button.btn-secondary, .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  button.btn-secondary:hover, .btn-secondary:hover {
+    background: #e2e8f0;
+  }
+
+  /* Toast Notifications */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .toast {
+    background: white;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    animation: slideIn 0.3s ease;
+  }
+
+  .toast.success { border-left: 4px solid #10b981; }
+  .toast.error { border-left: 4px solid #ef4444; }
+  .toast.info { border-left: 4px solid #3b82f6; }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* Tooltips */
+  .tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: help;
+    margin-left: 6px;
+    position: relative;
+  }
+
+  .tooltip-trigger:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .tooltip-trigger:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1e293b;
+  }
+
+  /* Action Buttons */
+  .action-btn {
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .action-btn.edit {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .action-btn.edit:hover {
+    background: #bfdbfe;
+  }
+
+  .action-btn.delete {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .action-btn.delete:hover {
+    background: #fecaca;
+  }
+
+  /* Collapsible Sections */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px 0;
+    user-select: none;
+  }
+
+  .section-header h3 {
+    margin: 0;
+  }
+
+  .collapse-icon {
+    transition: transform 0.3s ease;
+    font-size: 14px;
+  }
+
+  .section-header.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+  }
+
+  .section-body {
+    max-height: 2000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .section-body.collapsed {
+    max-height: 0;
+  }
+
+  /* Search Input */
+  .search-box {
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .search-box input {
+    padding-left: 36px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 14px;
+  }
+
+  /* Drag and Drop */
+  .draggable {
+    cursor: move;
+    transition: all 0.2s;
+  }
+
+  .draggable:hover {
+    background: #f9fafb;
+  }
+
+  .dragging {
+    opacity: 0.5;
+  }
+
+  .drag-over {
+    border-top: 2px solid #E11D48;
+  }
+
+  /* Modal/Dialog */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.2s ease;
+  }
+
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #1e293b;
+  }
+
+  .modal-body {
+    margin-bottom: 20px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  /* Loading Spinner */
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f4f6;
+    border-top-color: #E11D48;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Form Validation */
+  input.error, select.error, textarea.error {
+    border-color: #ef4444;
+  }
+
+  .error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block page_title %}HRMS Settings{% endblock %}
+
+{% block content %}
+<!-- Hidden CSRF token for JavaScript -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<div class="page-content" style="max-width: 1400px; margin: 0 auto;">
+  <!-- Statistics Dashboard -->
+  <div class="stats-grid" style="margin-bottom: 24px;">
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg></div>
+      <div class="stat-details">
+        <div class="stat-value">{{ total_departments }}</div>
+        <div class="stat-label">Departments</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #dcfce7; color: #16a34a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg></div>
+      <div class="stat-details">
+        <div class="stat-value">{{ total_positions }}</div>
+        <div class="stat-label">Positions</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg></div>
+      <div class="stat-details">
+        <div class="stat-value">{{ total_pay_grades }}</div>
+        <div class="stat-label">Pay Grades</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #e0e7ff; color: #6366f1;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                        </svg></div>
+      <div class="stat-details">
+        <div class="stat-value">{{ total_configurations }}</div>
+        <div class="stat-label">Total Configurations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Export -->
+  <div class="content-card" style="margin-bottom: 24px; padding: 20px;">
+    <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+      <div class="filter-group">
+        <label for="search" class="control-label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg> Search</label>
+        <input type="text" id="search" name="search" class="control-input" placeholder="Name, description..." value="{{ search_query }}">
+      </div>
+      <div class="filter-group">
+        <label for="department" class="control-label">Department Filter</label>
+        <select id="department" name="department" class="control-input">
+          <option value="">All Departments</option>
+          {% for dept in all_departments %}
+            <option value="{{ dept.id }}" {% if dept_filter == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: end;">
+        <button class="btn" type="submit">Apply Filters</button>
+        <a class="btn btn-secondary" href="{% url 'settings_dashboard' %}">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Export Buttons -->
+  <div style="display: flex; justify-content: flex-start; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+    <a href="?export=departments" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export Departments</a>
+    <a href="?export=positions" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export Positions</a>
+    <a href="?export=pay_grades" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export Pay Grades</a>
+  </div>
+
+  <div style="border-bottom: 2px solid #e2e8f0; margin-bottom: 24px;" id="settings-tabs">
+    <div style="display: flex; gap: 0; flex-wrap: wrap;">
+      <button class="tab-btn active" data-tab="employee-config">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        Employee Configuration
+      </button>
+      <button class="tab-btn" data-tab="notifications">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        Notifications
+      </button>
+      <button class="tab-btn" data-tab="payslip-designer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Payslip Designer
+      </button>
+    </div>
+  </div>
+
+  <!-- Employee configuration tab -->
+  <div class="content-card tab-content active" id="employee-config">
+    <div class="card-header" style="display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid #f1f5f9;">
+      <div style="width: 40px; height: 40px; border-radius: 4px; background: #fff1f2; display: flex; align-items: center; justify-content: center; color: #E11D48; flex-shrink: 0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      <div class="header-text">
+        <div class="card-title" style="margin: 0; font-size: 17px;">Employee Configuration</div>
+        <div class="card-subtitle" style="margin: 2px 0 0; font-size: 13px; color: #64748b;">Manage employee identifiers, departments, positions, and pay grades.</div>
+      </div>
+    </div>
+    <div class="card-content">
+
+      <!-- Employee ID Configuration -->
+      <div class="form-section" style="margin-bottom: 32px;">
+        <h3 class="section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          Employee ID Format
+        </h3>
+        <form method="post" class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; align-items: end;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="employee_id">
+          <div>
+            <label>Prefix</label>
+            {{ employee_id_form.prefix }}
+          </div>
+          <div>
+            <label>Padding</label>
+            {{ employee_id_form.padding }}
+          </div>
+          <div>
+            <label>Suffix</label>
+            {{ employee_id_form.suffix }}
+          </div>
+          <div>
+            <label>Preview</label>
+            <div class="preview-box">{{ employee_id_preview }}</div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button type="submit" class="btn">Save</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="content-grid three-cols">
+        <!-- Departments -->
+        <div class="settings-section">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Departments
+          </h3>
+          <div class="card-subtitle">Maintain the list of departments.</div>
+          <div>
+            <form method="post" style="display:flex; gap:10px; margin-bottom: 16px;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="department">
+              {{ department_form.name }}
+              <button type="submit" class="btn" style="white-space:nowrap;">Add</button>
+            </form>
+            {% if departments %}
+            <ul class="list">
+              {% for dept in departments %}
+              <li class="list-item" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>{{ dept.name }}</div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="action-btn edit" onclick="editItem('Department', {{ dept.id }}, '{{ dept.name|escapejs }}', '{{ dept.description|default:""|escapejs }}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg> Edit</button>
+                  <button class="action-btn delete" onclick="deleteItem('Department', {{ dept.id }}, '{{ dept.name|escapejs }}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete</button>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p class="form-hint">No departments yet. Add your first department above.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Positions -->
+        <div class="settings-section">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            Positions
+          </h3>
+          <div class="card-subtitle">Associate positions with departments.</div>
+          <div>
+            <form method="post" style="display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom: 16px;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="position">
+              {{ position_form.name }}
+              {{ position_form.department }}
+              <button type="submit" class="btn">Add</button>
+            </form>
+            {% if positions %}
+            <ul class="list">
+              {% for pos in positions %}
+              <li class="list-item" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex: 1;">
+                  <div style="font-weight:500;">{{ pos.name }}</div>
+                  {% if pos.department %}
+                  <div class="form-hint">Department: {{ pos.department.name }}</div>
+                  {% endif %}
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="action-btn edit" onclick="editItem('Position', {{ pos.id }}, '{{ pos.name|escapejs }}', '{{ pos.description|default:""|escapejs }}', '{{ pos.department.id|default:"" }}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg></button>
+                  <button class="action-btn delete" onclick="deleteItem('Position', {{ pos.id }}, '{{ pos.name|escapejs }}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p class="form-hint">No positions yet. Add positions and link them to departments.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Pay Grades -->
+        <div class="settings-section">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Pay Grades
+          </h3>
+          <div class="card-subtitle">Standardize salary bands across employees.</div>
+          <div>
+            <form method="post" style="display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom: 16px;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="pay_grade">
+              {{ pay_grade_form.name }}
+              {{ pay_grade_form.description }}
+              <button type="submit" class="btn">Add</button>
+            </form>
+            {% if pay_grades %}
+            <ul class="list">
+              {% for grade in pay_grades %}
+              <li class="list-item" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex: 1;">
+                  <div style="font-weight:500;">{{ grade.name }}</div>
+                  {% if grade.description %}
+                  <div class="form-hint">{{ grade.description }}</div>
+                  {% endif %}
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="action-btn edit" onclick="editItem('Pay Grade', {{ grade.id }}, '{{ grade.name|escapejs }}', '{{ grade.description|default:""|escapejs }}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg></button>
+                  <button class="action-btn delete" onclick="deleteItem('Pay Grade', {{ grade.id }}, '{{ grade.name|escapejs }}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p class="form-hint">No pay grades yet. Add pay grades to standardize compensation.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notifications tab -->
+  <div class="content-card tab-content" id="notifications">
+    <div class="card-header" style="display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid #f1f5f9;">
+      <div style="width: 40px; height: 40px; border-radius: 4px; background: #fff1f2; display: flex; align-items: center; justify-content: center; color: #E11D48; flex-shrink: 0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+      </div>
+      <div class="header-text">
+        <div class="card-title" style="margin: 0; font-size: 17px;">Notifications Settings</div>
+        <div class="card-subtitle" style="margin: 2px 0 0; font-size: 13px; color: #64748b;">Configure system alerts and communication preferences.</div>
+      </div>
+    </div>
+    <div class="card-content">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="notifications">
+        
+        <div class="settings-section" style="margin-bottom: 24px;">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-10 6L2 7"></path></svg>
+            Email Notifications
+          </h3>
+          <p class="form-hint" style="margin-bottom: 16px;">Control which email notifications are sent to employees and administrators.</p>
+          
+          <div style="display: grid; gap: 12px;">
+            <label class="toggle-card">
+              {{ notification_form.email_leave_requests }}
+              <div class="toggle-text">
+                <div class="toggle-title">Leave Request Notifications</div>
+                <div class="toggle-desc">Notify managers when employees submit leave requests</div>
+              </div>
+            </label>
+            
+            <label class="toggle-card">
+              {{ notification_form.email_leave_approvals }}
+              <div class="toggle-text">
+                <div class="toggle-title">Leave Approval Notifications</div>
+                <div class="toggle-desc">Notify employees when their leave requests are approved/rejected</div>
+              </div>
+            </label>
+            
+            <label class="toggle-card">
+              {{ notification_form.email_document_uploads }}
+              <div class="toggle-text">
+                <div class="toggle-title">Document Upload Notifications</div>
+                <div class="toggle-desc">Notify when new documents are uploaded or require review</div>
+              </div>
+            </label>
+            
+            <label class="toggle-card">
+              {{ notification_form.email_performance_reminders }}
+              <div class="toggle-text">
+                <div class="toggle-title">Performance Review Reminders</div>
+                <div class="toggle-desc">Send reminders for upcoming performance reviews</div>
+              </div>
+            </label>
+            
+            <label class="toggle-card">
+              {{ notification_form.email_training_assignments }}
+              <div class="toggle-text">
+                <div class="toggle-title">Training Assignment Notifications</div>
+                <div class="toggle-desc">Notify employees when new training is assigned</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        
+        <div class="settings-section" style="margin-bottom: 24px;">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            In-App Notifications
+          </h3>
+          <p class="form-hint" style="margin-bottom: 16px;">Configure browser-based notifications within the system.</p>
+          
+          <div style="display: grid; gap: 12px;">
+            <label class="toggle-card">
+              {{ notification_form.inapp_realtime }}
+              <div class="toggle-text">
+                <div class="toggle-title">Real-time Notifications</div>
+                <div class="toggle-desc">Show notifications immediately when events occur</div>
+              </div>
+            </label>
+            
+            <label class="toggle-card">
+              {{ notification_form.inapp_sound_alerts }}
+              <div class="toggle-text">
+                <div class="toggle-title">Sound Alerts</div>
+                <div class="toggle-desc">Play sound when receiving important notifications</div>
+              </div>
+            </label>
+            
+            <label class="toggle-card">
+              {{ notification_form.inapp_desktop_notifications }}
+              <div class="toggle-text">
+                <div class="toggle-title">Desktop Notifications</div>
+                <div class="toggle-desc">Show browser notifications even when tab is inactive</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Notification Frequency
+          </h3>
+          <p class="form-hint" style="margin-bottom: 16px;">Control how often notification emails are sent.</p>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+            <div>
+              <label>Daily Digest Time
+                <span class="tooltip-trigger" data-tooltip="Time to send daily summary emails">?</span>
+              </label>
+              {{ notification_form.digest_time }}
+            </div>
+            
+            <div>
+              <label>Digest Frequency</label>
+              {{ notification_form.digest_frequency }}
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+          <button type="submit" class="btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Notification Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Payslip Designer Tab -->
+<div class="content-card tab-content" id="payslip-designer">
+  <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 24px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div style="width: 40px; height: 40px; border-radius: 4px; background: #fff1f2; display: flex; align-items: center; justify-content: center; color: #E11D48; flex-shrink: 0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+      </div>
+      <div>
+        <div class="card-title" style="margin: 0; font-size: 17px;">Payslip Designer</div>
+        <div class="card-subtitle" style="margin: 2px 0 0; font-size: 13px; color: #64748b;">Customize payslip template and preview changes in real-time</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button type="button" id="previewModeBtn" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        Preview
+      </button>
+      <button type="button" id="exportPdfBtn" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Export PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="card-content" style="padding: 0;">
+      <div style="padding: 24px; background: #f8fafc;">
+        <div class="payslip-designer-layout">
+        <!-- Left Panel: Template Designer -->
+        <div style="background: transparent;">
+
+          <div style="background: white; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08); border: 1px solid #e2e8f0; display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+          <div style="padding: 24px 28px; border-bottom: 1px solid #e5e7eb; background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);">
+            <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 4px;">Template Designer</h3>
+            <p style="font-size: 13px; color: #6b7280;">Customize your payslip template</p>
+          </div>
+
+          <!-- Designer Tabs -->
+          <div class="tab-nav" style="display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; background: #ffffff; padding: 16px 24px 12px;">
+            <button type="button" class="designer-tab tab-btn active" data-tab="company" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Company</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="employee" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Employee</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="period" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Period</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="earnings" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Earnings</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="deductions" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Deductions</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="styles" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Styles</button>
+            <button type="button" class="designer-tab tab-btn" data-tab="footer" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Footer</button>
+          </div>
+
+          <!-- Designer Content -->
+          <div style="flex: 1; overflow-y: auto; padding: 24px 28px;">
+          <!-- Company Tab -->
+          <div class="designer-tab-content active" id="tab-company">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Company Information</h4>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Company Name</label>
+                <input type="text" id="previewCompanyName" value="{{ company.name }}" placeholder="Company Name" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Phone</label>
+                <input type="text" id="previewCompanyPhone" value="{{ company.phone }}" placeholder="Phone Number" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Email</label>
+                <input type="email" id="previewCompanyEmail" value="{{ company.email }}" placeholder="Email Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Address</label>
+                <textarea id="previewCompanyAddress" placeholder="Street Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 70px; resize: vertical;" oninput="updatePreview()">{{ company.address }}</textarea>
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Tax ID / NRC</label>
+                <input type="text" id="previewTaxId" value="{{ company.business_registration }}" placeholder="TAX-12345" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Currency</label>
+                <select id="previewCurrency" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
+                  <option value="ZMW" selected>ZMW - Zambian Kwacha</option>
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="GBP">GBP - British Pound</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Employee Tab -->
+          <div class="designer-tab-content" id="tab-employee">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Employee Information</h4>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Employee Name</label>
+                <input type="text" id="previewEmployeeName" value="EMMANUEL SIMWANZA" placeholder="Full Name" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Employee ID</label>
+                <input type="text" id="previewEmployeeId" value="EMP-2024-001" placeholder="Employee ID" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Designation</label>
+                <input type="text" id="previewDesignation" value="Software Engineer" placeholder="Job Title" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Department</label>
+                <input type="text" id="previewDepartment" value="Engineering" placeholder="Department" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Date of Joining</label>
+                <input type="date" id="previewDateOfJoining" value="2020-01-15" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Period Tab -->
+          <div class="designer-tab-content" id="tab-period">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Pay Period</h4>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Month</label>
+                <select id="previewMonth" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
+                  <option value="January">January</option>
+                  <option value="February">February</option>
+                  <option value="March">March</option>
+                  <option value="April">April</option>
+                  <option value="May">May</option>
+                  <option value="June">June</option>
+                  <option value="July">July</option>
+                  <option value="August">August</option>
+                  <option value="September">September</option>
+                  <option value="October">October</option>
+                  <option value="November">November</option>
+                  <option value="December" selected>December</option>
+                </select>
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Year</label>
+                <input type="number" id="previewYear" value="2024" placeholder="2024" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Pay Date</label>
+                <input type="date" id="previewPayDate" value="2024-12-31" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Working Days</label>
+                  <input type="number" id="previewWorkingDays" value="22" placeholder="22" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Present Days</label>
+                  <input type="number" id="previewPresentDays" value="22" placeholder="22" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Earnings Tab -->
+          <div class="designer-tab-content" id="tab-earnings">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0;">Earnings</h4>
+              <button type="button" onclick="addEarningItem()" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add
+              </button>
+            </div>
+            <div id="earningsList" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Earnings items will be added here by JavaScript -->
+            </div>
+            <div style="margin-top: 16px; padding: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: #166534; font-size: 13px;">Total Earnings</span>
+              <span id="totalEarnings" style="font-weight: 700; font-size: 16px; color: #15803d;">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Deductions Tab -->
+          <div class="designer-tab-content" id="tab-deductions">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0;">Deductions</h4>
+              <button type="button" onclick="addDeductionItem()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add
+              </button>
+            </div>
+            <div id="deductionsList" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Deductions items will be added here by JavaScript -->
+            </div>
+            <div style="margin-top: 16px; padding: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: #991b1b; font-size: 13px;">Total Deductions</span>
+              <span id="totalDeductions" style="font-weight: 700; font-size: 16px; color: #dc2626;">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Styles Tab -->
+          <div class="designer-tab-content" id="tab-styles">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Visual Styling</h4>
+            <div style="display: grid; gap: 16px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Earnings Header Color</label>
+                <input type="color" id="previewEarningsColor" value="#93c5fd" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Deductions Header Color</label>
+                <input type="color" id="previewDeductionsColor" value="#93c5fd" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Font Family</label>
+                <select id="previewFontFamily" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
+                  <option value="Arial, sans-serif" selected>Arial</option>
+                  <option value="'Times New Roman', serif">Times New Roman</option>
+                  <option value="Georgia, serif">Georgia</option>
+                  <option value="'Courier New', monospace">Courier New</option>
+                  <option value="Inter, sans-serif">Inter</option>
+                </select>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                <span style="font-size: 13px; font-weight: 500; color: #374151;">Show Company Logo</span>
+                <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                  <input type="checkbox" id="previewShowLogo" checked onchange="updatePreview()" style="opacity: 0; width: 0; height: 0;">
+                  <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3b82f6; transition: 0.3s; border-radius: 24px;"></span>
+                  <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
+                </label>
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Header Layout</label>
+                <div style="display: grid; gap: 8px;">
+                  <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
+                    <input type="radio" name="previewHeaderLayout" value="logo-left" checked onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <span style="font-size: 13px; color: #1f2937;">Logo left, company info right</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
+                    <input type="radio" name="previewHeaderLayout" value="logo-right" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <span style="font-size: 13px; color: #1f2937;">Company info left, logo right</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
+                    <input type="radio" name="previewHeaderLayout" value="stacked-logo-top" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <span style="font-size: 13px; color: #1f2937;">Logo top, company info below</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
+                    <input type="radio" name="previewHeaderLayout" value="stacked-info-top" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <span style="font-size: 13px; color: #1f2937;">Company info top, logo below</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Tab -->
+          <div class="designer-tab-content" id="tab-footer">
+            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Footer</h4>
+            <div style="display: grid; gap: 16px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Footer Text</label>
+                <textarea id="previewFooterText" placeholder="Pay Slip Not Valid Unless Signed..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 90px; resize: vertical;" oninput="updatePreview()">Pay Slip Not Valid Unless Signed
+Please Treat Your Pay Slip as Confidential. Have a Nice Month</textarea>
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Receiver's Name Label</label>
+                <input type="text" id="previewReceiverLabel" value="Receiver's Name:" placeholder="Receiver's Name:" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <button type="submit" style="width: 100%; padding: 12px; background: #1e293b; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              </svg>
+              Save Design
+            </button>
+          </div>
+          </div><!-- /designer content (flex:1 overflow-y) -->
+        </div><!-- /white card -->
+      </div><!-- /left panel (background: transparent) -->
+
+      <!-- Right Panel: Live Preview -->
+      <div style="background: transparent; min-width: 0;">
+        <div style="background: white; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; width: 100%; max-width: 760px;">
+        <div style="padding: 24px 28px; border-bottom: 1px solid #e5e7eb; background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);">
+          <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 4px;">Live Preview</h3>
+          <p style="font-size: 13px; color: #6b7280;">Changes appear instantly as you edit</p>
+        </div>
+        <div style="padding: 24px 28px;">
+          <div id="payslipPreview" style="background: white; border: 2px solid #000; width: 100%; max-width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.12); margin: 0; font-family: Arial, sans-serif;">
+          
+          <!-- Header -->
+          <div id="previewHeader" style="padding: 16px 20px; border-bottom: 3px solid #000; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div id="previewHeaderLogoWrapper" style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+              <div id="previewLogoContainer" style="width: 80px; height: 60px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                {% if company.logo %}
+                  <img src="{{ company.logo.url }}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                {% else %}
+                  <div style="width: 80px; height: 60px; background: #000; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;">LOGO</div>
+                {% endif %}
+              </div>
+            </div>
+            <div id="previewHeaderInfo" style="text-align: right; flex: 1; margin-left: 12px;">
+              <div id="previewHeaderCompanyName" style="font-size: 14px; font-weight: 700; color: #000; text-transform: uppercase;">{{ company.name }}</div>
+              <div id="previewHeaderAddress" style="font-size: 10px; color: #000; line-height: 1.4; margin-top: 2px;">{{ company.address }}</div>
+              <div id="previewHeaderPhone" style="font-size: 10px; color: #000;">{{ company.phone }}</div>
+              <div id="previewHeaderEmail" style="font-size: 10px; color: #000;">{{ company.email }}</div>
+            </div>
+          </div>
+
+          <!-- Employee Info -->
+          <div style="padding: 12px 20px; border-bottom: 1px solid #000;">
+            <table style="width: 100%; font-size: 11px;">
+              <tr>
+                <td style="padding: 3px 0; text-align: right; width: 35%; font-weight: 600;">Employee Name :</td>
+                <td id="previewInfoEmployeeName" style="padding: 3px 0 3px 10px; text-transform: uppercase;">EMMANUEL SIMWANZA</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Employee ID :</td>
+                <td id="previewInfoEmployeeId" style="padding: 3px 0 3px 10px;">MFI2001</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Designation :</td>
+                <td id="previewInfoDesignation" style="padding: 3px 0 3px 10px; text-transform: uppercase;">GENERAL MANAGER</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Department :</td>
+                <td id="previewInfoDepartment" style="padding: 3px 0 3px 10px; text-transform: uppercase;">ADMIN</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">NRC :</td>
+                <td id="previewHeaderTaxId" style="padding: 3px 0 3px 10px;">431448/9/1</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Month :</td>
+                <td id="previewPayPeriod" style="padding: 3px 0 3px 10px;">Sep-2025</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Earnings Section -->
+          <div style="padding: 0; border-bottom: 1px solid #000;">
+            <div id="previewEarningsHeader" style="background: #93c5fd; padding: 6px 20px; font-size: 12px; font-weight: 700; color: #000; text-align: center;">EARNINGS</div>
+            <div style="padding: 8px 20px;">
+              <table style="width: 100%; font-size: 11px;">
+                <tbody id="previewEarningsList">
+                  <!-- Will be populated by JavaScript -->
+                </tbody>
+                <tr style="border-top: 1px solid #000; font-weight: 700;">
+                  <td style="padding: 6px 0;">Gross Salary</td>
+                  <td id="previewTotalEarnings" style="padding: 6px 0; text-align: right;">ZMW 0.00</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Statutory Deductions -->
+          <div style="padding: 0; border-bottom: 1px solid #000;">
+            <div id="previewDeductionsHeader" style="background: #93c5fd; padding: 6px 20px; font-size: 12px; font-weight: 700; color: #000; text-align: center;">STATUTORY DEDUCTION</div>
+            <div style="padding: 8px 20px;">
+              <table style="width: 100%; font-size: 11px;">
+                <tbody id="previewDeductionsList">
+                  <!-- Will be populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div style="padding: 12px 20px; border-bottom: 1px solid #000;">
+            <table style="width: 100%; font-size: 11px;">
+              <tr>
+                <td style="padding: 3px 0;">Total Earnings (A)</td>
+                <td id="previewSummaryEarnings" style="padding: 3px 0; text-align: right; font-weight: 600;">ZMW 0.00</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0;">Total Deductions (B)</td>
+                <td id="previewSummaryDeductions" style="padding: 3px 0; text-align: right; font-weight: 600; color: #dc2626;">ZMW 0.00</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0;">GRATUITY + BONUS</td>
+                <td style="padding: 3px 0; text-align: right;">-</td>
+              </tr>
+              <tr style="border-top: 2px solid #000; font-weight: 700; font-size: 13px;">
+                <td style="padding: 6px 0;">Net Salary (A-B)</td>
+                <td id="previewNetPay" style="padding: 6px 0; text-align: right; text-decoration: underline;">ZMW 0.00</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0;">LOANS BALANCE</td>
+                <td style="padding: 3px 0; text-align: right;"></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Signature Section -->
+          <div style="padding: 16px 20px; border-bottom: 1px solid #000;">
+            <table style="width: 100%; font-size: 11px;">
+              <tr>
+                <td style="width: 50%; vertical-align: top;">
+                  <div id="displayReceiverLabel" style="font-weight: 600; margin-bottom: 40px;">Receiver's Name:</div>
+                  <div id="previewReceiverName" style="border-bottom: 1px solid #000; padding-bottom: 2px;"></div>
+                </td>
+                <td style="width: 50%; text-align: center; vertical-align: top; position: relative;">
+                  <div id="displayStampLabel" style="font-weight: 600; margin-bottom: 8px;">
+                    Company Stamp (Drag to Position)
+                    <div style="display: inline-flex; gap: 8px; margin-left: 12px; align-items: center;">
+                      <label style="font-size: 11px; font-weight: 400; color: #64748b;">Opacity:</label>
+                      <input type="range" id="stampOpacitySlider" min="10" max="100" value="100" step="5" style="width: 80px;" oninput="updateStampOpacity(this.value)">
+                      <span id="stampOpacityValue" style="font-size: 11px; color: #64748b;">100%</span>
+                    </div>
+                  </div>
+                  <div id="previewStampContainer" class="draggable-stamp resizable-stamp" style="position: absolute; left: 50%; top: 20px; transform: translateX(-50%); width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 12px; background: rgba(248, 250, 252, 0.5); z-index: 10;">
+                    {% if company.company_stamp %}
+                    <img id="stampImageElement" src="{{ company.company_stamp.url }}" alt="Company Stamp" style="width: 100%; height: 100%; object-fit: contain; opacity: 1;">
+                    {% else %}
+                    <div id="previewStampGenerated" style="display: none; position: relative; width: 100%; height: 100%; justify-content: center; align-items: center;"></div>
+                    <img id="previewStampImage" src="" alt="" style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                    <span id="previewStampPlaceholder" style="font-size: 10px; color: #94a3b8;">Stamp Area</span>
+                    {% endif %}
+                    <!-- Resize handles -->
+                    <div class="resize-handle resize-se" style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #0ea5e9; border: 2px solid white; border-radius: 50%; cursor: se-resize; z-index: 11;"></div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Footer -->
+          <div style="padding: 12px 20px; text-align: center; border-bottom: 1px solid #000;">
+            <div id="displayFooterText" style="font-size: 10px; color: #000; line-height: 1.5; white-space: pre-line;">Pay Slip Not Valid Unless Signed
+Please Treat Your Pay Slip as Confidential. Have a Nice Month</div>
+          </div>
+
+          <!-- Company Footer -->
+          <div style="padding: 8px 20px; text-align: center; font-size: 9px; color: #000;">
+            <div style="font-weight: 700; margin-bottom: 4px;">{{ company.name|upper }}</div>
+            <div style="line-height: 1.4;">{{ company.address }}</div>
+          </div>
+          </div><!-- /payslipPreview -->
+        </div><!-- /padding div -->
+        </div><!-- /white card -->
+      </div><!-- /right panel -->
+      </div><!-- /payslip-designer-layout -->
+      </div><!-- /padding wrapper -->
+  </div><!-- /card-content -->
+</div><!-- /content-card payslip-designer -->
+
+</div><!-- /page-content wrapper -->
+
+<style>
+.designer-tab-content {
+  display: none;
+}
+
+.designer-tab-content.active {
+  display: block;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#designerPreviewModal.active {
+  display: flex !important;
+}
+
+#designerPreviewModal .designer-preview-modal-panel::-webkit-scrollbar {
+  width: 10px;
+}
+
+#designerPreviewModal .designer-preview-modal-panel::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 999px;
+}
+
+#designerPreviewModal .designer-preview-modal-panel::-webkit-scrollbar-thumb {
+  background: #cbd5f5;
+  border-radius: 999px;
+}
+</style>
+
+<script>
+// Designer Tab Switching
+document.querySelectorAll('.designer-tab').forEach(tab => {
+  tab.addEventListener('click', function(e) {
+    e.preventDefault();
+    const tabName = this.dataset.tab;
+    
+    document.querySelectorAll('.designer-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.designer-tab-content').forEach(c => c.classList.remove('active'));
+    
+    this.classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+  const csrfToken = csrfInput ? csrfInput.value : '';
+
+  const notify = (message, type = 'info') => {
+    if (window.Toast && typeof window.Toast.show === 'function') {
+      window.Toast.show(message, type);
+    } else {
+      const logMethod = type === 'error' ? 'error' : 'log';
+      console[logMethod](`[${type.toUpperCase()}] ${message}`);
+    }
+  };
+
+  const setCardLoading = (card, isLoading) => {
+    card.classList.toggle('integration-card-loading', isLoading);
+    card.querySelectorAll('button, input, textarea, select').forEach(element => {
+      element.disabled = isLoading;
+    });
+  };
+
+  const setFeedback = (card, message = '', state = 'info') => {
+    const feedbackEl = card.querySelector('[data-feedback]');
+    if (!feedbackEl) {
+      return;
+    }
+    feedbackEl.textContent = message;
+    feedbackEl.dataset.state = state;
+    feedbackEl.style.display = message ? 'block' : 'none';
+  };
+
+  const sendIntegrationRequest = (url, payload = {}) => {
+    if (!csrfToken) {
+      return Promise.reject(new Error('Missing CSRF token. Please refresh the page.'));
+    }
+
+    const body = new URLSearchParams(payload);
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body.toString(),
+    }).then(async response => {
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (err) {
+        data = {};
+      }
+
+      if (!response.ok || data.error) {
+        const message = data.error || data.message || `Request failed (${response.status})`;
+        throw new Error(message);
+      }
+
+      return data;
+    });
+  };
+
+  document.querySelectorAll('[data-integration-card]').forEach(card => {
+    const requiresOAuth = card.dataset.requiresOauth === 'true';
+    const integrationName = card.dataset.integrationName || 'Integration';
+    const connectUrl = card.dataset.connectUrl;
+    const disconnectUrl = card.dataset.disconnectUrl;
+    const testUrl = card.dataset.testUrl;
+
+    const getCredentials = () => {
+      const container = card.querySelector('[data-credentials]');
+      if (!container) {
+        return { apiKey: '', apiSecret: '' };
+      }
+      const apiKey = container.querySelector('[data-field="api_key"]')?.value.trim() || '';
+      const apiSecret = container.querySelector('[data-field="api_secret"]')?.value.trim() || '';
+      return { apiKey, apiSecret };
+    };
+
+    const handleConnect = async () => {
+      if (!connectUrl) {
+        throw new Error('Connect endpoint not configured.');
+      }
+
+      const payload = {};
+      if (!requiresOAuth) {
+        const { apiKey, apiSecret } = getCredentials();
+        if (!apiKey) {
+          throw new Error('Please provide an API key before connecting.');
+        }
+        payload.api_key = apiKey;
+        if (apiSecret) {
+          payload.api_secret = apiSecret;
+        }
+      }
+
+      setCardLoading(card, true);
+      const response = await sendIntegrationRequest(connectUrl, payload);
+      setCardLoading(card, false);
+
+      if (response.requires_oauth && response.oauth_url) {
+        setFeedback(card, 'Redirecting to complete authorization…', 'info');
+        window.location.href = response.oauth_url;
+        return;
+      }
+
+      setFeedback(card, 'Connected successfully. Refreshing…', 'success');
+      notify(`${integrationName} connected successfully.`, 'success');
+      setTimeout(() => window.location.reload(), 800);
+    };
+
+    const handleDisconnect = async () => {
+      if (!disconnectUrl) {
+        throw new Error('Disconnect endpoint not configured.');
+      }
+
+      if (!window.confirm(`Disconnect ${integrationName}?`)) {
+        return;
+      }
+
+      setCardLoading(card, true);
+      await sendIntegrationRequest(disconnectUrl);
+      setCardLoading(card, false);
+      setFeedback(card, 'Disconnected successfully. Refreshing…', 'success');
+      notify(`${integrationName} disconnected.`, 'success');
+      setTimeout(() => window.location.reload(), 800);
+    };
+
+    const handleTest = async () => {
+      if (!testUrl) {
+        throw new Error('Test endpoint not configured.');
+      }
+
+      setCardLoading(card, true);
+      const result = await sendIntegrationRequest(testUrl);
+      setCardLoading(card, false);
+
+      const message = result.message || 'Connection test completed.';
+      setFeedback(card, message, result.success ? 'success' : 'error');
+      notify(`${integrationName}: ${message}`, result.success ? 'success' : 'error');
+    };
+
+    card.querySelectorAll('button[data-action]').forEach(button => {
+      const action = button.dataset.action;
+      button.addEventListener('click', async () => {
+        setFeedback(card, '');
+
+        try {
+          if (action === 'connect') {
+            await handleConnect();
+          } else if (action === 'disconnect') {
+            await handleDisconnect();
+          } else if (action === 'test') {
+            await handleTest();
+          }
+        } catch (error) {
+          setCardLoading(card, false);
+          setFeedback(card, error.message || 'Something went wrong.', 'error');
+          notify(error.message || `${integrationName} request failed.`, 'error');
+        }
+      });
+    });
+  });
+});
+
+// Earnings and Deductions Data
+let earningsData = [
+  { id: 1, label: 'Basic Salary', amount: 985.00, enabled: true },
+  { id: 2, label: 'House Rents Allowance (HRA @30%)', amount: 295.50, enabled: true },
+  { id: 3, label: 'Transport Allowance', amount: 180.00, enabled: true },
+  { id: 4, label: 'Lunch Allowance', amount: 200.00, enabled: true }
+];
+
+let deductionsData = [
+  { id: 1, label: 'NAPSA @5%', amount: 83.03, enabled: true },
+  { id: 2, label: 'NHIMA', amount: 11.62, enabled: true },
+  { id: 3, label: 'PAYE', amount: 0.00, enabled: true }
+];
+
+let earningsIdCounter = 5;
+let deductionsIdCounter = 4;
+
+// Stamp Designer State
+let activeStampTab = 'shape';
+let stampConfig = {
+  enabled: true,
+  preset: 'classic',
+  shape: 'circle',
+  size: 150,
+  borderWidth: 3,
+  borderStyle: 'solid',
+  position: 'bottom-right',
+  label: 'Company Stamp',
+  topText: 'MFI DOCUMENT SOLUTIONS',
+  middleText: 'AUTHORIZED SIGNATURE',
+  bottomText: '2025',
+  fontSize: 14,
+  fontWeight: '600',
+  borderColor: '#1d4ed8',
+  backgroundColor: '#f8fafc',
+  textColor: '#1d4ed8',
+  rotation: 0,
+  opacity: 90,
+  innerBorder: false,
+  curvedText: false,
+  customImage: null
+};
+
+// Render Earnings List
+function renderEarnings() {
+  console.log('Rendering earnings:', earningsData.length, 'items');
+  const container = document.getElementById('earningsList');
+  if (!container) {
+    console.error('Earnings container not found');
+    return;
+  }
+  
+  container.innerHTML = '';
+  earningsData.forEach(item => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;';
+    div.innerHTML = `
+      <input type="checkbox" ${item.enabled ? 'checked' : ''} onchange="toggleEarning(${item.id})" style="width: 16px; height: 16px; cursor: pointer;">
+      <input type="text" value="${item.label}" onchange="updateEarningLabel(${item.id}, this.value)" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+      <input type="number" value="${item.amount}" onchange="updateEarningAmount(${item.id}, this.value)" style="width: 90px; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+      <button type="button" onclick="removeEarning(${item.id})" style="padding: 4px 8px; background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">×</button>
+    `;
+    container.appendChild(div);
+  });
+  console.log('Earnings rendered, calling updateTotals');
+  updateTotals();
+}
+
+// Render Deductions List
+function renderDeductions() {
+  console.log('Rendering deductions:', deductionsData.length, 'items');
+  const container = document.getElementById('deductionsList');
+  if (!container) {
+    console.error('Deductions container not found');
+    return;
+  }
+  
+  container.innerHTML = '';
+  deductionsData.forEach(item => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;';
+    div.innerHTML = `
+      <input type="checkbox" ${item.enabled ? 'checked' : ''} onchange="toggleDeduction(${item.id})" style="width: 16px; height: 16px; cursor: pointer;">
+      <input type="text" value="${item.label}" onchange="updateDeductionLabel(${item.id}, this.value)" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+      <input type="number" value="${item.amount}" onchange="updateDeductionAmount(${item.id}, this.value)" style="width: 90px; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
+      <button type="button" onclick="removeDeduction(${item.id})" style="padding: 4px 8px; background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">×</button>
+    `;
+    container.appendChild(div);
+  });
+  console.log('Deductions rendered, calling updateTotals');
+  updateTotals();
+}
+
+// Update Totals and Preview
+function updateTotals() {
+  console.log('updateTotals called');
+  const currency = document.getElementById('previewCurrency')?.value || 'ZMW';
+  const totalEarnings = earningsData.filter(e => e.enabled).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const totalDeductions = deductionsData.filter(d => d.enabled).reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
+  const netPay = totalEarnings - totalDeductions;
+  
+  console.log('Totals calculated:', { totalEarnings, totalDeductions, netPay, currency });
+  
+  // Update tab totals
+  const earningsEl = document.getElementById('totalEarnings');
+  const deductionsEl = document.getElementById('totalDeductions');
+  if (earningsEl) earningsEl.textContent = `${currency} ${totalEarnings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (deductionsEl) deductionsEl.textContent = `${currency} ${totalDeductions.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  
+  // Update preview earnings
+  const previewEarningsEl = document.getElementById('previewEarningsList');
+  console.log('Preview earnings element:', !!previewEarningsEl);
+  if (previewEarningsEl) {
+    previewEarningsEl.innerHTML = '';
+    const enabledEarnings = earningsData.filter(e => e.enabled);
+    console.log('Enabled earnings:', enabledEarnings.length);
+    enabledEarnings.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="padding: 3px 0;">${item.label}</td>
+        <td style="padding: 3px 0; text-align: right;">${currency} ${parseFloat(item.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+      `;
+      previewEarningsEl.appendChild(tr);
+    });
+  }
+  
+  // Update preview deductions
+  const previewDeductionsEl = document.getElementById('previewDeductionsList');
+  console.log('Preview deductions element:', !!previewDeductionsEl);
+  if (previewDeductionsEl) {
+    previewDeductionsEl.innerHTML = '';
+    const enabledDeductions = deductionsData.filter(d => d.enabled);
+    console.log('Enabled deductions:', enabledDeductions.length);
+    enabledDeductions.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="padding: 3px 0;">${item.label}</td>
+        <td style="padding: 3px 0; text-align: right;">${currency} ${parseFloat(item.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+      `;
+      previewDeductionsEl.appendChild(tr);
+    });
+  }
+  
+  // Update preview totals
+  const previewTotalEarningsEl = document.getElementById('previewTotalEarnings');
+  const previewSummaryEarningsEl = document.getElementById('previewSummaryEarnings');
+  const previewSummaryDeductionsEl = document.getElementById('previewSummaryDeductions');
+  const previewNetPayEl = document.getElementById('previewNetPay');
+  if (previewTotalEarningsEl) previewTotalEarningsEl.textContent = `${currency} ${totalEarnings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (previewSummaryEarningsEl) previewSummaryEarningsEl.textContent = `${currency} ${totalEarnings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (previewSummaryDeductionsEl) previewSummaryDeductionsEl.textContent = `${currency} ${totalDeductions.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (previewNetPayEl) previewNetPayEl.textContent = `${currency} ${netPay.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  
+  console.log('updateTotals completed');
+}
+
+// Earnings Functions
+window.addEarningItem = function() {
+  earningsData.push({ id: earningsIdCounter++, label: 'New Earning', amount: 0, enabled: true });
+  renderEarnings();
+};
+
+window.toggleEarning = function(id) {
+  const item = earningsData.find(e => e.id === id);
+  if (item) { item.enabled = !item.enabled; updateTotals(); }
+};
+
+window.updateEarningLabel = function(id, value) {
+  const item = earningsData.find(e => e.id === id);
+  if (item) { item.label = value; updateTotals(); }
+};
+
+window.updateEarningAmount = function(id, value) {
+  const item = earningsData.find(e => e.id === id);
+  if (item) { item.amount = parseFloat(value) || 0; updateTotals(); }
+};
+
+window.removeEarning = function(id) {
+  earningsData = earningsData.filter(e => e.id !== id);
+  renderEarnings();
+};
+
+// Deductions Functions
+window.addDeductionItem = function() {
+  deductionsData.push({ id: deductionsIdCounter++, label: 'New Deduction', amount: 0, enabled: true });
+  renderDeductions();
+};
+
+window.toggleDeduction = function(id) {
+  const item = deductionsData.find(d => d.id === id);
+  if (item) { item.enabled = !item.enabled; updateTotals(); }
+};
+
+window.updateDeductionLabel = function(id, value) {
+  const item = deductionsData.find(d => d.id === id);
+  if (item) { item.label = value; updateTotals(); }
+};
+
+window.updateDeductionAmount = function(id, value) {
+  const item = deductionsData.find(d => d.id === id);
+  if (item) { item.amount = parseFloat(value) || 0; updateTotals(); }
+};
+
+window.removeDeduction = function(id) {
+  deductionsData = deductionsData.filter(d => d.id !== id);
+  renderDeductions();
+};
+
+// Stamp Designer Helpers
+function updateStampPresetButtons() {
+  const buttons = document.querySelectorAll('.stamp-preset');
+  buttons.forEach(button => {
+    const isActive = button.dataset.preset === stampConfig.preset;
+    button.classList.toggle('active', isActive);
+    button.style.borderColor = isActive ? '#2563eb' : '#d1d5db';
+    button.style.background = isActive ? 'rgba(37, 99, 235, 0.08)' : '#ffffff';
+    button.style.color = isActive ? '#1d4ed8' : '#1f2937';
+    button.style.fontWeight = isActive ? '600' : '500';
+  });
+}
+
+function updateStampTabButtons() {
+  const buttons = document.querySelectorAll('.stamp-tab-button');
+  buttons.forEach(button => {
+    const isActive = button.dataset.stampTab === activeStampTab;
+    button.classList.toggle('active', isActive);
+    button.style.background = isActive ? '#ffffff' : 'transparent';
+    button.style.color = isActive ? '#1e3a8a' : '#475569';
+    button.style.fontWeight = isActive ? '600' : '500';
+  });
+  document.querySelectorAll('.stamp-tab-panel').forEach(panel => {
+    panel.style.display = panel.id === `stamp-tab-${activeStampTab}` ? 'block' : 'none';
+  });
+}
+
+function syncStampControls() {
+  const shapeEl = document.getElementById('stampShape');
+  if (shapeEl) shapeEl.value = stampConfig.shape;
+
+  const sizeEl = document.getElementById('stampSize');
+  if (sizeEl) sizeEl.value = stampConfig.size;
+
+  const borderWidthEl = document.getElementById('stampBorderWidth');
+  if (borderWidthEl) borderWidthEl.value = stampConfig.borderWidth;
+
+  const borderStyleEl = document.getElementById('stampBorderStyle');
+  if (borderStyleEl) borderStyleEl.value = stampConfig.borderStyle;
+
+  const positionEl = document.getElementById('stampPosition');
+  if (positionEl) positionEl.value = stampConfig.position;
+
+  const labelEl = document.getElementById('previewStampLabel');
+  if (labelEl) labelEl.value = stampConfig.label;
+
+  const topTextEl = document.getElementById('stampTopText');
+  if (topTextEl) topTextEl.value = stampConfig.topText;
+
+  const middleTextEl = document.getElementById('stampMiddleText');
+  if (middleTextEl) middleTextEl.value = stampConfig.middleText;
+
+  const bottomTextEl = document.getElementById('stampBottomText');
+  if (bottomTextEl) bottomTextEl.value = stampConfig.bottomText;
+
+  const fontSizeEl = document.getElementById('stampFontSize');
+  if (fontSizeEl) fontSizeEl.value = stampConfig.fontSize;
+
+  const fontWeightEl = document.getElementById('stampFontWeight');
+  if (fontWeightEl) fontWeightEl.value = stampConfig.fontWeight;
+
+  const borderColorEl = document.getElementById('stampBorderColor');
+  if (borderColorEl) borderColorEl.value = stampConfig.borderColor;
+
+  const backgroundColorEl = document.getElementById('stampBackgroundColor');
+  if (backgroundColorEl) backgroundColorEl.value = stampConfig.backgroundColor;
+
+  const textColorEl = document.getElementById('stampTextColor');
+  if (textColorEl) textColorEl.value = stampConfig.textColor;
+
+  const rotationEl = document.getElementById('stampRotation');
+  if (rotationEl) rotationEl.value = stampConfig.rotation;
+
+  const opacityEl = document.getElementById('stampOpacity');
+  if (opacityEl) opacityEl.value = stampConfig.opacity;
+
+  const innerBorderEl = document.getElementById('stampInnerBorder');
+  if (innerBorderEl) innerBorderEl.checked = stampConfig.innerBorder;
+
+  const curvedTextEl = document.getElementById('stampCurvedText');
+  if (curvedTextEl) curvedTextEl.checked = stampConfig.curvedText;
+
+  const enabledEl = document.getElementById('stampEnabled');
+  if (enabledEl) enabledEl.checked = stampConfig.enabled;
+
+  const customImageInput = document.getElementById('stampCustomImage');
+  if (customImageInput && !stampConfig.customImage) {
+    customImageInput.value = '';
+  }
+}
+
+function computeStampDimensions() {
+  const size = stampConfig.size;
+  if (stampConfig.shape === 'rectangle') {
+    return {
+      width: Math.round(size * 1.4),
+      height: Math.round(size * 0.75),
+      borderRadius: '24px'
+    };
+  }
+  if (stampConfig.shape === 'square') {
+    return {
+      width: size,
+      height: size,
+      borderRadius: '16px'
+    };
+  }
+  return {
+    width: size,
+    height: size,
+    borderRadius: `${size}px`
+  };
+}
+
+function updateStampLivePreviewText() {
+  const topEl = document.getElementById('stampLivePreviewTop');
+  const middleEl = document.getElementById('stampLivePreviewMiddle');
+  const bottomEl = document.getElementById('stampLivePreviewBottom');
+  if (topEl) {
+    topEl.textContent = stampConfig.topText;
+    topEl.style.letterSpacing = stampConfig.curvedText ? '1.2px' : 'normal';
+  }
+  if (middleEl) {
+    middleEl.textContent = stampConfig.middleText;
+    middleEl.style.letterSpacing = 'normal';
+  }
+  if (bottomEl) {
+    bottomEl.textContent = stampConfig.bottomText;
+    bottomEl.style.letterSpacing = stampConfig.curvedText ? '1.2px' : 'normal';
+  }
+  if (topEl && middleEl && bottomEl) {
+    topEl.style.fontSize = `${stampConfig.fontSize}px`;
+    middleEl.style.fontSize = `${Math.max(stampConfig.fontSize - 2, 10)}px`;
+    bottomEl.style.fontSize = `${Math.max(stampConfig.fontSize - 2, 10)}px`;
+    topEl.style.fontWeight = stampConfig.fontWeight;
+    middleEl.style.fontWeight = stampConfig.fontWeight;
+    bottomEl.style.fontWeight = stampConfig.fontWeight;
+    const textColor = stampConfig.textColor;
+    topEl.style.color = textColor;
+    middleEl.style.color = textColor;
+    bottomEl.style.color = textColor;
+  }
+}
+
+function renderStampGenerated(targetElement, dims, isPayslip) {
+  if (!targetElement) return;
+  const innerBorderStyle = stampConfig.innerBorder ?
+    `<div style="position:absolute; inset:12px; border:1px solid ${stampConfig.borderColor}33; border-radius:${dims.borderRadius}; pointer-events:none;"></div>` : '';
+
+  targetElement.innerHTML = `
+    <div style="position:relative; width:${dims.width}px; height:${dims.height}px; border:${stampConfig.borderWidth}px ${stampConfig.borderStyle} ${stampConfig.borderColor}; border-radius:${dims.borderRadius}; background:${stampConfig.backgroundColor}; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; text-align:center; text-transform:uppercase; color:${stampConfig.textColor}; font-weight:${stampConfig.fontWeight}; line-height:1.2; gap:4px; transform: rotate(${stampConfig.rotation}deg); opacity:${stampConfig.opacity / 100}; ${isPayslip ? 'box-shadow:0 0 0 1px rgba(148,163,184,0.15);' : ''}">
+      <span style="font-size:${stampConfig.fontSize}px; letter-spacing:${stampConfig.curvedText ? '1.2px' : 'normal'};">${stampConfig.topText}</span>
+      <span style="font-size:${Math.max(stampConfig.fontSize - 2, 10)}px; letter-spacing:normal;">${stampConfig.middleText}</span>
+      <span style="font-size:${Math.max(stampConfig.fontSize - 2, 10)}px; letter-spacing:${stampConfig.curvedText ? '1.2px' : 'normal'};">${stampConfig.bottomText}</span>
+      ${innerBorderStyle}
+    </div>
+  `;
+}
+
+function updateStampPositionAlignment(container) {
+  if (!container) return;
+  switch (stampConfig.position) {
+    case 'bottom-left':
+      container.style.justifyContent = 'flex-start';
+      break;
+    case 'bottom-center':
+      container.style.justifyContent = 'center';
+      break;
+    default:
+      container.style.justifyContent = 'flex-end';
+      break;
+  }
+}
+
+function updateStampToggleUI() {
+  const toggleBg = document.querySelector('.stamp-toggle-bg');
+  const toggleKnob = document.querySelector('.stamp-toggle-knob');
+  if (toggleBg && toggleKnob) {
+    if (stampConfig.enabled) {
+      toggleBg.style.backgroundColor = '#2563eb';
+      toggleKnob.style.transform = 'translateX(22px)';
+    } else {
+      toggleBg.style.backgroundColor = '#cbd5e1';
+      toggleKnob.style.transform = 'translateX(0)';
+    }
+  }
+}
+
+function refreshStampValueLabels() {
+  const sizeValue = document.getElementById('stampSizeValue');
+  if (sizeValue) sizeValue.textContent = `${stampConfig.size}px`;
+
+  const borderWidthValue = document.getElementById('stampBorderWidthValue');
+  if (borderWidthValue) borderWidthValue.textContent = `${stampConfig.borderWidth}px`;
+
+  const fontSizeValue = document.getElementById('stampFontSizeValue');
+  if (fontSizeValue) fontSizeValue.textContent = `${stampConfig.fontSize}px`;
+
+  const rotationValue = document.getElementById('stampRotationValue');
+  if (rotationValue) rotationValue.textContent = `${stampConfig.rotation}°`;
+
+  const opacityValue = document.getElementById('stampOpacityValue');
+  if (opacityValue) opacityValue.textContent = `${stampConfig.opacity}%`;
+}
+
+function updateStampLivePreview(dims) {
+  const shapeEl = document.getElementById('stampLivePreviewShape');
+  const innerBorderEl = document.getElementById('stampLivePreviewInnerBorder');
+  const imageEl = document.getElementById('stampLivePreviewImage');
+  if (!shapeEl || !innerBorderEl || !imageEl) return;
+
+  if (!stampConfig.enabled) {
+    shapeEl.style.display = 'none';
+    innerBorderEl.style.display = 'none';
+    imageEl.style.display = 'none';
+    return;
+  }
+
+  if (stampConfig.customImage) {
+    imageEl.src = stampConfig.customImage;
+    imageEl.style.display = 'block';
+    shapeEl.style.display = 'none';
+    innerBorderEl.style.display = 'none';
+  } else {
+    imageEl.style.display = 'none';
+    shapeEl.style.display = 'flex';
+    shapeEl.style.width = `${dims.width}px`;
+    shapeEl.style.height = `${dims.height}px`;
+    shapeEl.style.border = `${stampConfig.borderWidth}px ${stampConfig.borderStyle} ${stampConfig.borderColor}`;
+    shapeEl.style.borderRadius = dims.borderRadius;
+    shapeEl.style.background = stampConfig.backgroundColor;
+    shapeEl.style.color = stampConfig.textColor;
+    shapeEl.style.transform = `rotate(${stampConfig.rotation}deg)`;
+    shapeEl.style.opacity = (stampConfig.opacity / 100).toString();
+    shapeEl.style.fontWeight = stampConfig.fontWeight;
+    shapeEl.style.textTransform = 'uppercase';
+    updateStampLivePreviewText();
+    innerBorderEl.style.display = stampConfig.innerBorder ? 'block' : 'none';
+    innerBorderEl.style.borderRadius = dims.borderRadius;
+  }
+}
+
+function updateStampPreview() {
+  const enabledCheckbox = document.getElementById('stampEnabled');
+  if (enabledCheckbox) {
+    stampConfig.enabled = enabledCheckbox.checked;
+  }
+
+  const shapeEl = document.getElementById('stampShape');
+  if (shapeEl) stampConfig.shape = shapeEl.value;
+
+  const sizeEl = document.getElementById('stampSize');
+  if (sizeEl) stampConfig.size = parseInt(sizeEl.value, 10) || stampConfig.size;
+
+  const borderWidthEl = document.getElementById('stampBorderWidth');
+  if (borderWidthEl) stampConfig.borderWidth = parseInt(borderWidthEl.value, 10) || stampConfig.borderWidth;
+
+  const borderStyleEl = document.getElementById('stampBorderStyle');
+  if (borderStyleEl) stampConfig.borderStyle = borderStyleEl.value;
+
+  const positionEl = document.getElementById('stampPosition');
+  if (positionEl) stampConfig.position = positionEl.value;
+
+  const labelEl = document.getElementById('previewStampLabel');
+  if (labelEl) stampConfig.label = labelEl.value || 'Company Stamp';
+
+  const topTextEl = document.getElementById('stampTopText');
+  if (topTextEl) stampConfig.topText = topTextEl.value || '';
+
+  const middleTextEl = document.getElementById('stampMiddleText');
+  if (middleTextEl) stampConfig.middleText = middleTextEl.value || '';
+
+  const bottomTextEl = document.getElementById('stampBottomText');
+  if (bottomTextEl) stampConfig.bottomText = bottomTextEl.value || '';
+
+  const fontSizeEl = document.getElementById('stampFontSize');
+  if (fontSizeEl) stampConfig.fontSize = parseInt(fontSizeEl.value, 10) || stampConfig.fontSize;
+
+  const fontWeightEl = document.getElementById('stampFontWeight');
+  if (fontWeightEl) stampConfig.fontWeight = fontWeightEl.value;
+
+  const borderColorEl = document.getElementById('stampBorderColor');
+  if (borderColorEl) stampConfig.borderColor = borderColorEl.value;
+
+  const backgroundColorEl = document.getElementById('stampBackgroundColor');
+  if (backgroundColorEl) stampConfig.backgroundColor = backgroundColorEl.value;
+
+  const textColorEl = document.getElementById('stampTextColor');
+  if (textColorEl) stampConfig.textColor = textColorEl.value;
+
+  const rotationEl = document.getElementById('stampRotation');
+  if (rotationEl) stampConfig.rotation = parseInt(rotationEl.value, 10) || stampConfig.rotation;
+
+  const opacityEl = document.getElementById('stampOpacity');
+  if (opacityEl) stampConfig.opacity = parseInt(opacityEl.value, 10) || stampConfig.opacity;
+
+  const innerBorderEl = document.getElementById('stampInnerBorder');
+  if (innerBorderEl) stampConfig.innerBorder = innerBorderEl.checked;
+
+  const curvedTextEl = document.getElementById('stampCurvedText');
+  if (curvedTextEl) stampConfig.curvedText = curvedTextEl.checked;
+
+  if (!updateStampPreview._applyingPreset) {
+    stampConfig.preset = 'custom';
+  }
+
+  refreshStampValueLabels();
+  updateStampPresetButtons();
+  updateStampToggleUI();
+
+  const dims = computeStampDimensions();
+  updateStampLivePreview(dims);
+
+  const previewContainer = document.getElementById('previewStampContainer');
+  const previewGenerated = document.getElementById('previewStampGenerated');
+  const previewImage = document.getElementById('previewStampImage');
+  const previewPlaceholder = document.getElementById('previewStampPlaceholder');
+
+  updateStampPositionAlignment(previewContainer);
+
+  if (!stampConfig.enabled) {
+    if (previewGenerated) previewGenerated.style.display = 'none';
+    if (previewImage) previewImage.style.display = 'none';
+    if (previewPlaceholder) {
+      previewPlaceholder.style.display = 'block';
+      previewPlaceholder.textContent = 'Stamp disabled';
+    }
+    return;
+  }
+
+  if (previewPlaceholder) {
+    previewPlaceholder.style.display = 'none';
+    previewPlaceholder.textContent = 'Stamp Area';
+  }
+
+  if (stampConfig.customImage) {
+    if (previewGenerated) previewGenerated.style.display = 'none';
+    if (previewImage) {
+      previewImage.src = stampConfig.customImage;
+      previewImage.style.display = 'block';
+      previewImage.style.opacity = (stampConfig.opacity / 100).toString();
+    }
+  } else {
+    if (previewImage) previewImage.style.display = 'none';
+    if (previewGenerated) {
+      previewGenerated.style.display = 'flex';
+      previewGenerated.style.justifyContent = 'center';
+      previewGenerated.style.alignItems = 'center';
+      renderStampGenerated(previewGenerated, dims, true);
+    }
+  }
+}
+
+updateStampPreview._applyingPreset = false;
+
+window.switchStampTab = function(tab) {
+  activeStampTab = tab;
+  updateStampTabButtons();
+};
+
+window.applyStampPreset = function(preset) {
+  const presets = {
+    classic: {
+      shape: 'circle',
+      size: 150,
+      borderWidth: 3,
+      borderStyle: 'double',
+      borderColor: '#1d4ed8',
+      backgroundColor: '#f8fafc',
+      textColor: '#1d4ed8',
+      fontSize: 14,
+      fontWeight: '600',
+      topText: 'MFI DOCUMENT SOLUTIONS',
+      middleText: 'AUTHORIZED SIGNATURE',
+      bottomText: '2025'
+    },
+    modern: {
+      shape: 'square',
+      size: 140,
+      borderWidth: 2,
+      borderStyle: 'solid',
+      borderColor: '#0f172a',
+      backgroundColor: '#ffffff',
+      textColor: '#0f172a',
+      fontSize: 14,
+      fontWeight: '600',
+      topText: 'MFI DOCUMENT SOLUTIONS',
+      middleText: 'APPROVED',
+      bottomText: '2025'
+    },
+    elegant: {
+      shape: 'rectangle',
+      size: 160,
+      borderWidth: 3,
+      borderStyle: 'solid',
+      borderColor: '#0ea5e9',
+      backgroundColor: '#ecfeff',
+      textColor: '#0c4a6e',
+      fontSize: 15,
+      fontWeight: '700',
+      topText: 'MFI DOCUMENT SOLUTIONS',
+      middleText: 'AUTHORIZED SIGNATURE',
+      bottomText: 'TRUSTED PARTNER'
+    },
+    bold: {
+      shape: 'circle',
+      size: 170,
+      borderWidth: 4,
+      borderStyle: 'solid',
+      borderColor: '#b91c1c',
+      backgroundColor: '#fee2e2',
+      textColor: '#991b1b',
+      fontSize: 16,
+      fontWeight: '700',
+      topText: 'MFI DOCUMENT SOLUTIONS',
+      middleText: 'CONFIDENTIAL',
+      bottomText: 'APPROVED'
+    }
+  };
+
+  if (!presets[preset]) return;
+
+  const presetConfig = presets[preset];
+  Object.assign(stampConfig, presetConfig, { preset, customImage: null });
+  updateStampPreview._applyingPreset = true;
+  syncStampControls();
+  refreshStampValueLabels();
+  updateStampPresetButtons();
+  updateStampPreview();
+  updateStampPreview._applyingPreset = false;
+};
+
+window.applyStampTheme = function(theme) {
+  if (theme === 'transparent') {
+    stampConfig.backgroundColor = '#ffffff00';
+    stampConfig.borderColor = '#1e293b';
+    stampConfig.textColor = '#1e293b';
+  } else if (theme === 'blue') {
+    stampConfig.backgroundColor = '#f0f7ff';
+    stampConfig.borderColor = '#1d4ed8';
+    stampConfig.textColor = '#1e3a8a';
+  } else if (theme === 'red') {
+    stampConfig.backgroundColor = '#fef2f2';
+    stampConfig.borderColor = '#dc2626';
+    stampConfig.textColor = '#b91c1c';
+  }
+  stampConfig.customImage = null;
+  refreshStampValueLabels();
+  updateStampPreview();
+};
+
+// Live Preview Updates
+function updatePreview() {
+  // Header
+  document.getElementById('previewHeaderCompanyName').textContent = (document.getElementById('previewCompanyName')?.value || 'Company Name').toUpperCase();
+  document.getElementById('previewHeaderPhone').textContent = document.getElementById('previewCompanyPhone')?.value || '+1 (555) 123-4567';
+  document.getElementById('previewHeaderEmail').textContent = document.getElementById('previewCompanyEmail')?.value || 'hr@company.com';
+  document.getElementById('previewHeaderAddress').textContent = document.getElementById('previewCompanyAddress')?.value || 'Address';
+  document.getElementById('previewHeaderTaxId').textContent = document.getElementById('previewTaxId')?.value || '913365/10/2';
+  
+  // Pay Period
+  const month = document.getElementById('previewMonth')?.value || 'December';
+  const year = document.getElementById('previewYear')?.value || '2024';
+  const monthShort = month.substring(0, 3);
+  document.getElementById('previewPayPeriod').textContent = `${monthShort}-${year}`;
+  
+  // Employee Info
+  document.getElementById('previewInfoEmployeeName').textContent = (document.getElementById('previewEmployeeName')?.value || 'BIJESH VANNERI KATIL').toUpperCase();
+  document.getElementById('previewInfoDepartment').textContent = (document.getElementById('previewDepartment')?.value || 'OPERATIONS').toUpperCase();
+  document.getElementById('previewInfoEmployeeId').textContent = document.getElementById('previewEmployeeId')?.value || 'MFI2001';
+  document.getElementById('previewInfoDesignation').textContent = (document.getElementById('previewDesignation')?.value || 'GENERAL MANAGER').toUpperCase();
+  
+  // Receiver Name
+  const receiverLabelInput = document.getElementById('previewReceiverLabel');
+  const displayReceiverLabel = document.getElementById('displayReceiverLabel');
+  if (receiverLabelInput && displayReceiverLabel) {
+    displayReceiverLabel.textContent = receiverLabelInput.value || "Receiver's Name:";
+  }
+  
+  const receiverName = document.getElementById('previewReceiverName');
+  if (receiverName) {
+    receiverName.textContent = document.getElementById('previewEmployeeName')?.value || '';
+  }
+  
+  // Stamp Label
+  const stampLabelInput = document.getElementById('previewStampLabel');
+  const displayStampLabel = document.getElementById('displayStampLabel');
+  if (stampLabelInput && displayStampLabel) {
+    displayStampLabel.textContent = stampLabelInput.value || 'Company Stamp';
+  }
+  
+  // Footer Text
+  const footerTextInput = document.getElementById('previewFooterText');
+  const displayFooterText = document.getElementById('displayFooterText');
+  if (footerTextInput && displayFooterText) {
+    displayFooterText.textContent = footerTextInput.value || 'Pay Slip Not Valid Unless Signed\nPlease Treat Your Pay Slip as Confidential. Have a Nice Month';
+  }
+  
+  // Styles
+  const earningsColor = document.getElementById('previewEarningsColor')?.value || '#93c5fd';
+  const deductionsColor = document.getElementById('previewDeductionsColor')?.value || '#93c5fd';
+  const fontFamily = document.getElementById('previewFontFamily')?.value || 'Arial, sans-serif';
+  const showLogo = document.getElementById('previewShowLogo')?.checked !== false;
+  const headerLayout = document.querySelector('input[name="previewHeaderLayout"]:checked')?.value || 'logo-left';
+  
+  const payslipPreview = document.getElementById('payslipPreview');
+  if (payslipPreview) {
+    payslipPreview.style.fontFamily = fontFamily;
+  }
+  
+  const earningsHeader = document.getElementById('previewEarningsHeader');
+  if (earningsHeader) {
+    earningsHeader.style.backgroundColor = earningsColor;
+  }
+  
+  const deductionsHeader = document.getElementById('previewDeductionsHeader');
+  if (deductionsHeader) {
+    deductionsHeader.style.backgroundColor = deductionsColor;
+  }
+  
+  const headerContainer = document.getElementById('previewHeader');
+  const headerLogoWrapper = document.getElementById('previewHeaderLogoWrapper');
+  const headerInfo = document.getElementById('previewHeaderInfo');
+
+  if (headerContainer && headerLogoWrapper && headerInfo) {
+    headerContainer.style.display = 'flex';
+    headerContainer.style.gap = '12px';
+    headerContainer.style.justifyContent = 'space-between';
+    headerLogoWrapper.style.marginLeft = '0';
+    headerLogoWrapper.style.marginRight = '0';
+
+    headerInfo.style.display = 'flex';
+    headerInfo.style.flexDirection = 'column';
+    headerInfo.style.marginLeft = '12px';
+    headerInfo.style.marginRight = '0';
+
+    switch (headerLayout) {
+      case 'logo-right':
+        headerContainer.style.flexDirection = 'row';
+        headerLogoWrapper.style.order = '2';
+        headerInfo.style.order = '1';
+        headerInfo.style.textAlign = 'left';
+        headerInfo.style.alignItems = 'flex-start';
+        headerInfo.style.marginLeft = '0';
+        headerInfo.style.marginRight = '12px';
+        headerContainer.style.alignItems = 'center';
+        break;
+      case 'stacked-logo-top':
+        headerContainer.style.flexDirection = 'column';
+        headerLogoWrapper.style.order = '1';
+        headerInfo.style.order = '2';
+        headerInfo.style.textAlign = 'center';
+        headerInfo.style.alignItems = 'center';
+        headerInfo.style.marginLeft = '0';
+        headerContainer.style.alignItems = 'center';
+        break;
+      case 'stacked-info-top':
+        headerContainer.style.flexDirection = 'column';
+        headerLogoWrapper.style.order = '2';
+        headerInfo.style.order = '1';
+        headerInfo.style.textAlign = 'center';
+        headerInfo.style.alignItems = 'center';
+        headerInfo.style.marginLeft = '0';
+        headerContainer.style.alignItems = 'center';
+        break;
+      default:
+        headerContainer.style.flexDirection = 'row';
+        headerLogoWrapper.style.order = '1';
+        headerInfo.style.order = '2';
+        headerInfo.style.textAlign = 'right';
+        headerInfo.style.marginLeft = '12px';
+        headerInfo.style.marginRight = '0';
+        headerContainer.style.alignItems = 'flex-start';
+        break;
+    }
+  }
+
+  const logoContainer = document.getElementById('previewLogoContainer');
+  if (logoContainer) {
+    logoContainer.style.display = showLogo ? 'flex' : 'none';
+  }
+  
+  updateStampPreview();
+  // Update totals with new currency
+  updateTotals();
+}
+
+// Handle Stamp Upload
+window.handleStampUpload = function(input) {
+  console.log('Stamp upload triggered', input.files);
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      console.log('Image loaded successfully');
+      stampConfig.customImage = e.target.result;
+      updateStampPreview();
+    };
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    console.log('No file selected');
+    stampConfig.customImage = null;
+    updateStampPreview();
+  }
+};
+
+// Initialize Preview
+document.addEventListener('DOMContentLoaded', function() {
+  renderEarnings();
+  renderDeductions();
+  updatePreview();
+});
+
+// Preview and Export buttons
+const designerPreviewModal = document.getElementById('designerPreviewModal');
+const designerPreviewModalClose = document.getElementById('designerPreviewModalClose');
+const designerPreviewModalContent = document.getElementById('designerPreviewModalContent');
+const previewModeBtn = document.getElementById('previewModeBtn');
+const exportPdfBtn = document.getElementById('exportPdfBtn');
+
+function clonePayslipPreview() {
+  const preview = document.getElementById('payslipPreview');
+  if (!preview) return null;
+  const clone = preview.cloneNode(true);
+  clone.style.width = '680px';
+  clone.style.maxWidth = '100%';
+  clone.style.transform = 'scale(1)';
+  clone.style.transformOrigin = 'top left';
+  return clone;
+}
+
+function openDesignerPreviewModal() {
+  const clone = clonePayslipPreview();
+  if (!clone || !designerPreviewModal || !designerPreviewModalContent) return;
+  designerPreviewModalContent.innerHTML = '';
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'width: 100%; display: flex; justify-content: center;';
+  wrapper.appendChild(clone);
+  designerPreviewModalContent.appendChild(wrapper);
+  designerPreviewModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDesignerPreviewModal() {
+  if (!designerPreviewModal || !designerPreviewModalContent) return;
+  designerPreviewModalContent.innerHTML = '';
+  designerPreviewModal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+previewModeBtn?.addEventListener('click', () => {
+  openDesignerPreviewModal();
+});
+
+designerPreviewModalClose?.addEventListener('click', closeDesignerPreviewModal);
+
+designerPreviewModal?.addEventListener('click', event => {
+  if (event.target === designerPreviewModal) {
+    closeDesignerPreviewModal();
+  }
+});
+
+async function exportPayslipToPdf() {
+  const preview = document.getElementById('payslipPreview');
+  if (!preview) {
+    console.error('Payslip preview element not found');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf || {};
+  if (!window.html2canvas || !jsPDF) {
+    alert('PDF export requires html2canvas and jsPDF. Please ensure these libraries are loaded.');
+    return;
+  }
+
+  const clone = clonePayslipPreview();
+  if (!clone) return;
+  clone.style.width = '794px';
+  clone.style.maxWidth = '794px';
+
+  document.body.appendChild(clone);
+  clone.style.position = 'fixed';
+  clone.style.left = '-9999px';
+  clone.style.top = '0';
+
+  try {
+    const canvas = await window.html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+    const pdfWidth = canvas.width * ratio;
+    const pdfHeight = canvas.height * ratio;
+    const marginX = (pageWidth - pdfWidth) / 2;
+    const marginY = (pageHeight - pdfHeight) / 2;
+
+    pdf.addImage(imgData, 'PNG', marginX, marginY, pdfWidth, pdfHeight, undefined, 'FAST');
+    pdf.save(`payslip-preview-${Date.now()}.pdf`);
+  } catch (error) {
+    console.error('Failed to export PDF', error);
+    alert('Something went wrong while exporting the PDF. Please try again.');
+  } finally {
+    document.body.removeChild(clone);
+  }
+}
+
+exportPdfBtn?.addEventListener('click', exportPayslipToPdf);
+
+// ========== Settings Action Functions ==========
+
+// Get CSRF token from the page
+function getCSRFToken() {
+  const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+  return input ? input.value : '';
+}
+
+// Show a toast/alert message
+function showSettingsMessage(message, type) {
+  // Try to use existing Toast system if available
+  if (window.Toast && typeof window.Toast.show === 'function') {
+    window.Toast.show(message, type);
+    return;
+  }
+  // Fallback: create a temporary notification banner
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    position: fixed; top: 20px; right: 20px; z-index: 10000;
+    padding: 14px 20px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15); max-width: 400px;
+    display: flex; align-items: center; gap: 10px;
+    animation: slideInRight 0.3s ease;
+    ${type === 'success' ? 'background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;' : ''}
+    ${type === 'error' ? 'background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;' : ''}
+    ${type === 'info' ? 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;' : ''}
+  `;
+  const icon = type === 'success' ? '&#10003;' : type === 'error' ? '&#10007;' : '&#9432;';
+  banner.innerHTML = `<span style="font-size: 18px;">${icon}</span><span>${message}</span>`;
+  document.body.appendChild(banner);
+  setTimeout(() => { banner.style.opacity = '0'; banner.style.transition = 'opacity 0.3s'; }, 3500);
+  setTimeout(() => banner.remove(), 4000);
+}
+
+// Edit Department / Position / Pay Grade
+function editItem(type, id, name, description, departmentId) {
+  const newName = prompt(`Edit ${type} name:`, name);
+  if (newName === null || newName.trim() === '') return;
+
+  const newDesc = prompt(`Edit ${type} description:`, description || '');
+  if (newDesc === null) return;
+
+  const formData = new FormData();
+  formData.append('csrfmiddlewaretoken', getCSRFToken());
+  formData.append('name', newName.trim());
+  formData.append('description', newDesc.trim());
+
+  if (type === 'Department') {
+    formData.append('action', 'edit_department');
+    formData.append('dept_id', id);
+  } else if (type === 'Position') {
+    formData.append('action', 'edit_position');
+    formData.append('pos_id', id);
+    if (departmentId) {
+      formData.append('department', departmentId);
+    }
+  } else if (type === 'Pay Grade') {
+    formData.append('action', 'edit_pay_grade');
+    formData.append('grade_id', id);
+  }
+
+  fetch(window.location.href, {
+    method: 'POST',
+    body: formData
+  }).then(response => {
+    if (response.ok) {
+      showSettingsMessage(`${type} "${newName.trim()}" updated successfully.`, 'success');
+      setTimeout(() => window.location.reload(), 800);
+    } else {
+      showSettingsMessage(`Failed to update ${type}. Please try again.`, 'error');
+    }
+  }).catch(err => {
+    showSettingsMessage(`Error: ${err.message}`, 'error');
+  });
+}
+
+// Delete Department / Position / Pay Grade
+function deleteItem(type, id, name) {
+  if (!confirm(`Are you sure you want to delete ${type} "${name}"? This action cannot be undone.`)) return;
+
+  let url = '';
+  if (type === 'Department') {
+    url = `/settings/delete-department/${id}/`;
+  } else if (type === 'Position') {
+    url = `/settings/delete-position/${id}/`;
+  } else if (type === 'Pay Grade') {
+    url = `/settings/delete-pay-grade/${id}/`;
+  }
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+      'X-Requested-With': 'XMLHttpRequest',
+      'Content-Type': 'application/json'
+    }
+  }).then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showSettingsMessage(data.message || `${type} deleted successfully.`, 'success');
+        setTimeout(() => window.location.reload(), 800);
+      } else {
+        showSettingsMessage(data.error || `Failed to delete ${type}.`, 'error');
+      }
+    }).catch(err => {
+      showSettingsMessage(`Error: ${err.message}`, 'error');
+    });
+}
+
+// Test SMTP Connection
+function testSMTPConnection() {
+  const btn = event.currentTarget;
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid #f3f4f6;border-top-color:#E11D48;border-radius:50%;animation:spin 0.6s linear infinite;"></span> Testing...';
+
+  fetch('/settings/test-smtp/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+      'X-Requested-With': 'XMLHttpRequest',
+      'Content-Type': 'application/json'
+    }
+  }).then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showSettingsMessage(data.message || 'SMTP connection successful!', 'success');
+      } else {
+        showSettingsMessage(data.error || 'SMTP connection failed.', 'error');
+      }
+    }).catch(err => {
+      showSettingsMessage(`Connection test failed: ${err.message}`, 'error');
+    }).finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    });
+}
+
+// Test Biometric Device Connection
+function testBiometricConnection() {
+  const btn = event.currentTarget;
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid #f3f4f6;border-top-color:#E11D48;border-radius:50%;animation:spin 0.6s linear infinite;"></span> Testing...';
+
+  fetch('/settings/test-biometric/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+      'X-Requested-With': 'XMLHttpRequest',
+      'Content-Type': 'application/json'
+    }
+  }).then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showSettingsMessage(data.message || 'Biometric device is reachable!', 'success');
+      } else {
+        showSettingsMessage(data.error || 'Device connection failed.', 'error');
+      }
+    }).catch(err => {
+      showSettingsMessage(`Connection test failed: ${err.message}`, 'error');
+    }).finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    });
+}
+
+// Copy API Key to clipboard
+function copyApiKey() {
+  const field = document.getElementById('apiKeyField');
+  if (field) {
+    navigator.clipboard.writeText(field.value).then(() => {
+      showSettingsMessage('API key copied to clipboard.', 'success');
+    }).catch(() => {
+      field.select();
+      document.execCommand('copy');
+      showSettingsMessage('API key copied to clipboard.', 'success');
+    });
+  }
+}
+
+// Regenerate API Key
+function regenerateApiKey() {
+  if (!confirm('Are you sure you want to regenerate the API key? The old key will be deactivated immediately.')) return;
+
+  const formData = new FormData();
+  formData.append('csrfmiddlewaretoken', getCSRFToken());
+  formData.append('action', 'api_key');
+
+  fetch(window.location.href, {
+    method: 'POST',
+    body: formData
+  }).then(response => {
+    if (response.ok) {
+      showSettingsMessage('API key regenerated successfully.', 'success');
+      setTimeout(() => window.location.reload(), 800);
+    } else {
+      showSettingsMessage('Failed to regenerate API key.', 'error');
+    }
+  }).catch(err => {
+    showSettingsMessage(`Error: ${err.message}`, 'error');
+  });
+}
+
+// Main Settings Tab System
+class TabSystem {
+  constructor(navSelector, buttonSelector, contentSelector) {
+    this.nav = document.querySelector(navSelector);
+    this.buttons = this.nav?.querySelectorAll(buttonSelector) || [];
+    this.contentSelector = contentSelector;
+    
+    if (!this.nav || this.buttons.length === 0) {
+      console.error('TabSystem: Navigation or buttons not found', {
+        nav: !!this.nav,
+        buttonsCount: this.buttons.length
+      });
+      return;
+    }
+
+    this.init();
+  }
+
+  init() {
+    this.buttons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabName = button.getAttribute('data-tab');
+        console.log('[OK] Main tab clicked:', tabName);
+        this.switchTab(tabName);
+      });
+    });
+
+    console.log('[OK] Main TabSystem initialized with', this.buttons.length, 'tabs');
+  }
+
+  switchTab(tabName) {
+    if (!tabName) {
+      console.warn('[ERR] No tab name provided');
+      return;
+    }
+
+    // Remove active from all buttons
+    this.buttons.forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    // Add active to clicked button
+    const activeButton = this.nav.querySelector(`[data-tab="${tabName}"]`);
+    if (activeButton) {
+      activeButton.classList.add('active');
+      console.log('[OK] Button marked active:', tabName);
+    }
+
+    // Hide all content
+    const allContent = document.querySelectorAll(this.contentSelector);
+    allContent.forEach(content => {
+      content.classList.remove('active');
+    });
+
+    // Show selected content
+    const activeContent = document.getElementById(tabName);
+    if (activeContent) {
+      activeContent.classList.add('active');
+      console.log('[OK] Content shown:', tabName);
+    } else {
+      console.error('[ERR] Content NOT found for:', tabName);
+      console.log('Available IDs:', Array.from(allContent).map(c => c.id));
+    }
+  }
+}
+
+  // Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('=== INITIALIZING TAB SYSTEMS ===');
+  
+  // Initialize Main Settings Tabs
+  console.log('Starting main tab system...');
+  new TabSystem('#settings-tabs', '.tab-btn', '.tab-content');
+  
+  // Initialize Payslip Designer Tabs
+  console.log('Starting designer tab system...');
+  const designerTabs = document.querySelectorAll('.designer-tab');
+  const designerTabContents = document.querySelectorAll('.designer-tab-content');
+
+  console.log('Found', designerTabs.length, 'designer tabs');
+
+  designerTabs.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      const tabName = this.dataset.tab;
+      console.log('Designer tab clicked:', tabName);
+
+      // Remove active from all tabs
+      designerTabs.forEach(t => t.classList.remove('active'));
+      designerTabContents.forEach(tc => tc.classList.remove('active'));
+
+      // Add active to clicked tab
+      this.classList.add('active');
+      const content = document.getElementById(`tab-${tabName}`);
+      if (content) {
+        content.classList.add('active');
+        console.log('Designer tab active:', tabName);
+      }
+    });
+  });
+
+  console.log('=== ALL TAB SYSTEMS INITIALIZED ===');
+  
+  // Initialize draggable stamp
+  initializeDraggableStamp();
+});
+
+// Stamp opacity control
+function updateStampOpacity(value) {
+  const stampImage = document.getElementById('stampImageElement');
+  const stampOpacityValue = document.getElementById('stampOpacityValue');
+  
+  if (stampImage) {
+    stampImage.style.opacity = value / 100;
+  }
+  if (stampOpacityValue) {
+    stampOpacityValue.textContent = value + '%';
+  }
+}
+
+// Draggable stamp functionality
+function initializeDraggableStamp() {
+  const stampContainer = document.getElementById('previewStampContainer');
+  if (!stampContainer) return;
+  
+  let isDragging = false;
+  let isResizing = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+  
+  // Drag functionality
+  stampContainer.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+  
+  // Touch events for mobile
+  stampContainer.addEventListener('touchstart', dragStart);
+  document.addEventListener('touchmove', drag);
+  document.addEventListener('touchend', dragEnd);
+  
+  // Resize functionality
+  const resizeHandle = stampContainer.querySelector('.resize-handle');
+  if (resizeHandle) {
+    resizeHandle.addEventListener('mousedown', resizeStart);
+    document.addEventListener('mousemove', resize);
+    document.addEventListener('mouseup', resizeEnd);
+  }
+  
+  function dragStart(e) {
+    // Don't drag if clicking on resize handle
+    if (e.target.classList.contains('resize-handle')) {
+      return;
+    }
+    
+    if (e.type === 'touchstart') {
+      initialX = e.touches[0].clientX - xOffset;
+      initialY = e.touches[0].clientY - yOffset;
+    } else {
+      initialX = e.clientX - xOffset;
+      initialY = e.clientY - yOffset;
+    }
+    
+    if (e.target === stampContainer || stampContainer.contains(e.target)) {
+      isDragging = true;
+      stampContainer.style.cursor = 'grabbing';
+    }
+  }
+  
+  function drag(e) {
+    if (isDragging && !isResizing) {
+      e.preventDefault();
+      
+      if (e.type === 'touchmove') {
+        currentX = e.touches[0].clientX - initialX;
+        currentY = e.touches[0].clientY - initialY;
+      } else {
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+      }
+      
+      xOffset = currentX;
+      yOffset = currentY;
+      
+      setTranslate(currentX, currentY, stampContainer);
+    }
+  }
+  
+  function dragEnd(e) {
+    if (isDragging) {
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+      stampContainer.style.cursor = 'move';
+    }
+  }
+  
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    el.style.left = '50%';
+    el.style.top = '20px';
+  }
+  
+  // Resize functions
+  let startWidth, startHeight, startX, startY;
+  
+  function resizeStart(e) {
+    e.stopPropagation();
+    isResizing = true;
+    startWidth = stampContainer.offsetWidth;
+    startHeight = stampContainer.offsetHeight;
+    startX = e.clientX;
+    startY = e.clientY;
+  }
+  
+  function resize(e) {
+    if (isResizing) {
+      e.preventDefault();
+      const width = startWidth + (e.clientX - startX);
+      const height = startHeight + (e.clientY - startY);
+      
+      // Maintain aspect ratio and set minimum size
+      const size = Math.max(60, Math.min(width, height));
+      stampContainer.style.width = size + 'px';
+      stampContainer.style.height = size + 'px';
+    }
+  }
+  
+  function resizeEnd(e) {
+    isResizing = false;
+  }
+}
+  </script>
+
+{% endblock %}

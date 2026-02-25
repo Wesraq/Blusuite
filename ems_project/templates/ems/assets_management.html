@@ -1,0 +1,191 @@
+{# DEPRECATED: This template is no longer routed. Asset management is now served by blu_assets app at templates/assets/asset_list.html, mounted at /assets/. Safe to delete. #}
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}{% if user.role == 'EMPLOYEE' %}My Assets{% else %}Assets Management{% endif %} - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2>{% if user.role == 'EMPLOYEE' %}My Assets{% else %}Assets Management{% endif %}</h2>
+        <p>Track and manage {% if user.role == 'EMPLOYEE' %}your assigned{% else %}company{% endif %} assets and equipment</p>
+    </div>
+    {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+    <a href="{% url 'assets:asset_create' %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Asset
+    </a>
+    {% endif %}
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ total_assets }}</h3>
+            <p>Total Assets</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ assigned_assets }}</h3>
+            <p>Assigned</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #d1fae5; color: #059669;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ available_assets }}</h3>
+            <p>Available</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+        </div>
+        <div class="stat-details">
+            <h3>{{ in_repair }}</h3>
+            <p>In Repair</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="am-card" style="padding: 16px; margin-bottom: 16px;">
+    <form method="get" action="">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end;">
+            <div>
+                <label class="am-label">Search</label>
+                <input type="text" name="search" placeholder="Asset tag, name, serial number, employee..." value="{{ search }}" class="am-input">
+            </div>
+            <div>
+                <label class="am-label">Type</label>
+                <select name="type" class="am-input">
+                    <option value="ALL">All Types</option>
+                    {% for value, label in asset_types %}
+                    <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="am-label">Status</label>
+                <select name="status" class="am-input">
+                    <option value="ALL">All Statuses</option>
+                    {% for value, label in asset_statuses %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="am-btn am-btn-primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Assets Table -->
+<div class="am-card" style="overflow: hidden;">
+    <div class="am-card-header">
+        <div class="am-card-title">All Assets <span style="color: #64748b; font-weight: 400;">({{ assets.count }})</span></div>
+        <button onclick="exportToCSV()" class="am-btn am-btn-secondary am-btn-sm">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+        </button>
+    </div>
+    
+    <table class="am-table">
+        <thead>
+            <tr>
+                <th>Asset Tag</th>
+                <th>Asset Details</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asset in assets %}
+            <tr>
+                <td><span class="am-tag">{{ asset.asset_tag }}</span></td>
+                <td>
+                    <div class="am-name">{{ asset.name }}</div>
+                    <div class="am-meta">
+                        {{ asset.get_asset_type_display }}
+                        {% if asset.serial_number %} &middot; SN: {{ asset.serial_number }}{% endif %}
+                        {% if asset.brand %} &middot; {{ asset.brand }}{% endif %}
+                    </div>
+                </td>
+                <td>
+                    {% if asset.employee %}
+                        <a href="{% url 'employer_edit_employee' asset.employee.id %}" class="am-link" style="font-size: 13px;">{{ asset.employee.get_full_name }}</a>
+                        <div class="am-meta">Since {{ asset.assigned_date|date:"M d, Y" }}</div>
+                    {% else %}
+                        <span class="am-meta">Not Assigned</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="am-badge am-badge-{{ asset.status|lower }}">{{ asset.get_status_display }}</span>
+                    {% if asset.warranty_expiry %}
+                    <div style="margin-top: 4px;">
+                        {% if asset.is_warranty_valid %}
+                        <span class="am-badge" style="background: #d1fae5; color: #065f46; font-size: 10px;">Warranty Valid</span>
+                        {% else %}
+                        <span class="am-badge" style="background: #fee2e2; color: #991b1b; font-size: 10px;">Warranty Expired</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if asset.employee and asset.days_with_employee %}
+                        <strong>{{ asset.days_with_employee }}</strong> <span class="am-meta">days</span>
+                        {% if asset.days_with_employee > 60 %}
+                        <span class="am-badge" style="background: #fee2e2; color: #991b1b; font-size: 10px; margin-left: 4px;">Overdue</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="am-meta">&mdash;</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <a href="{% url 'assets:asset_detail' asset.id %}" class="am-btn am-btn-secondary am-btn-sm">View</a>
+                        <a href="{% url 'assets:asset_edit' asset.id %}" class="am-btn am-btn-secondary am-btn-sm">Edit</a>
+                        {% if asset.employee %}
+                        <a href="{% url 'employer_edit_employee' asset.employee.id %}" class="am-btn am-btn-secondary am-btn-sm" style="color: #3b82f6; border-color: #3b82f6;">Employee</a>
+                        {% elif asset.status not in 'IN_REPAIR,RETIRED,LOST' %}
+                        <a href="{% url 'assets:asset_detail' asset.id %}" class="am-btn am-btn-primary am-btn-sm">Assign</a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 48px; color: #64748b;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="margin: 0 auto 12px; display: block;">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    <p style="margin: 0; font-size: 14px;">No assets found</p>
+                    <p style="margin: 6px 0 0; font-size: 12px; color: #94a3b8;">Try adjusting your filters or add a new asset</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function exportToCSV() {
+    window.location.href = '{% url "export_assets_report" %}';
+}
+</script>
+{% endblock %}

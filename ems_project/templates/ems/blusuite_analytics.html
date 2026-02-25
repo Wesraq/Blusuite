@@ -1,0 +1,680 @@
+{% extends 'ems/blusuite_base.html' %}
+{% load static %}
+
+{% block title %}Analytics Studio - BluSuite{% endblock %}
+
+{% block headline %}
+<h1 style="font-size: 28px; margin: 0 0 8px; color: var(--dark); font-weight: 700;">Analytics Studio</h1>
+<p style="margin: 0; color: var(--medium-gray); font-size: 14px;">Explore KPIs, custom dashboards and advanced reporting</p>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-layout">
+    <!-- Key Metrics Dashboard -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-header">
+                <div class="metric-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <span class="metric-label">Workforce</span>
+            </div>
+            <div class="metric-value">{{ metrics.total_employees|default:0 }}</div>
+            <div class="metric-change positive">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+                <span>{{ metrics.employee_growth|default:0 }}% this month</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <div class="metric-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <span class="metric-label">Attendance Rate</span>
+            </div>
+            <div class="metric-value">{{ metrics.attendance_rate|default:0 }}%</div>
+            <div class="metric-change positive">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+                <span>+{{ metrics.attendance_change|default:0 }}%</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <div class="metric-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3h7v7H3z"></path>
+                        <path d="M14 3h7v7h-7z"></path>
+                        <path d="M14 14h7v7h-7z"></path>
+                        <path d="M3 14h7v7H3z"></path>
+                    </svg>
+                </div>
+                <span class="metric-label">Active Projects</span>
+            </div>
+            <div class="metric-value">{{ metrics.active_projects|default:0 }}</div>
+            <div class="metric-change neutral">
+                <span>{{ metrics.total_projects|default:0 }} total</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <div class="metric-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <span class="metric-label">Payroll Cost</span>
+            </div>
+            <div class="metric-value">{{ currency_symbol }} {{ metrics.payroll_cost|default:0|floatformat:0 }}</div>
+            <div class="metric-change neutral">
+                <span>This month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Left Column - Dashboards & Reports -->
+        <div class="main-column">
+            <!-- Quick Dashboards -->
+            <div class="feature-section">
+                <div class="section-header">
+                    <h2 class="section-title">Analytics Dashboards</h2>
+                    <a href="{% url 'analytics_dashboard' %}" class="btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10"></path>
+                            <path d="M12 20V4"></path>
+                            <path d="M6 20v-6"></path>
+                        </svg>
+                        View All
+                    </a>
+                </div>
+
+                <div class="dashboards-grid">
+                    <a href="{% url 'analytics_dashboard' %}" class="dashboard-card">
+                        <div class="dashboard-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="dashboard-content">
+                            <h3>HR Analytics</h3>
+                            <p>Employee metrics, turnover, and workforce trends</p>
+                            <div class="dashboard-meta">
+                                <span class="meta-badge">{{ metrics.total_employees|default:0 }} employees</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'analytics_dashboard' %}" class="dashboard-card">
+                        <div class="dashboard-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="dashboard-content">
+                            <h3>Attendance Analytics</h3>
+                            <p>Attendance patterns, leave trends, and time tracking</p>
+                            <div class="dashboard-meta">
+                                <span class="meta-badge">{{ metrics.attendance_rate|default:0 }}% rate</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'analytics_dashboard' %}" class="dashboard-card">
+                        <div class="dashboard-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3h7v7H3z"></path>
+                                <path d="M14 3h7v7h-7z"></path>
+                                <path d="M14 14h7v7h-7z"></path>
+                                <path d="M3 14h7v7H3z"></path>
+                            </svg>
+                        </div>
+                        <div class="dashboard-content">
+                            <h3>Project Analytics</h3>
+                            <p>Project performance, timelines, and resource allocation</p>
+                            <div class="dashboard-meta">
+                                <span class="meta-badge">{{ metrics.active_projects|default:0 }} active</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'analytics_dashboard' %}" class="dashboard-card">
+                        <div class="dashboard-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div class="dashboard-content">
+                            <h3>Financial Analytics</h3>
+                            <p>Payroll costs, budgets, and financial forecasting</p>
+                            <div class="dashboard-meta">
+                                <span class="meta-badge">{{ currency_symbol }} {{ metrics.payroll_cost|default:0|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analytics Tools -->
+            <div class="feature-section" style="margin-top: 24px;">
+                <h2 class="section-title">Analytics Tools</h2>
+                <div class="feature-grid">
+                    <a href="{% url 'analytics_dashboard' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 20V10"></path>
+                                <path d="M12 20V4"></path>
+                                <path d="M6 20v-6"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Interactive Dashboards</h3>
+                            <p>Real-time data visualization with drill-down capabilities</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'reports_center' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Custom Reports</h3>
+                            <p>Generate and schedule custom reports with filters</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'analytics_dashboard' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Trend Analysis</h3>
+                            <p>Identify patterns and forecast future metrics</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'analytics_dashboard' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Data Export</h3>
+                            <p>Export data to Excel, CSV, or PDF formats</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Quick Insights -->
+        <div class="side-column">
+            <!-- Quick Actions -->
+            <div class="info-card">
+                <h3 class="card-title">Quick Actions</h3>
+                <div class="action-list">
+                    <a href="{% url 'analytics_dashboard' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10"></path>
+                            <path d="M12 20V4"></path>
+                            <path d="M6 20v-6"></path>
+                        </svg>
+                        <span>Open Dashboard</span>
+                    </a>
+                    <a href="{% url 'reports_center' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        </svg>
+                        <span>Generate Report</span>
+                    </a>
+                    <a href="{% url 'analytics_dashboard' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                        </svg>
+                        <span>Export Data</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Top Insights -->
+            <div class="info-card">
+                <h3 class="card-title">Key Insights</h3>
+                <div class="insights-list">
+                    <div class="insight-item">
+                        <div class="insight-icon positive">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                        </div>
+                        <div class="insight-content">
+                            <p>Attendance improved by {{ metrics.attendance_change|default:0 }}% this month</p>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon neutral">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                        </div>
+                        <div class="insight-content">
+                            <p>{{ metrics.active_projects|default:0 }} projects currently in progress</p>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon positive">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                        </div>
+                        <div class="insight-content">
+                            <p>Workforce grew by {{ metrics.employee_growth|default:0 }}% this month</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reports -->
+            <div class="info-card">
+                <h3 class="card-title">Recent Reports</h3>
+                <div class="reports-list">
+                    {% for report in recent_reports %}
+                    <div class="report-item">
+                        <div class="report-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            </svg>
+                        </div>
+                        <div class="report-content">
+                            <p class="report-name">{{ report.title }}</p>
+                            <span class="report-date">{{ report.date|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="empty-state-small">No recent reports</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .analytics-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+    }
+    .metric-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        transition: border-color 0.1s ease;
+    }
+    .metric-card:hover {
+        border-color: var(--primary);
+    }
+    .metric-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .metric-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+    .metric-label {
+        font-size: 13px;
+        color: var(--medium-gray);
+        font-weight: 500;
+    }
+    .metric-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 8px;
+    }
+    .metric-change {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    .metric-change.positive {
+        color: #059669;
+    }
+    .metric-change.negative {
+        color: #DC2626;
+    }
+    .metric-change.neutral {
+        color: var(--medium-gray);
+    }
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+    .feature-section {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 24px;
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--primary);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.1s ease;
+    }
+    .btn-primary:hover {
+        background: var(--primary-dark);
+    }
+    .dashboards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+    .dashboard-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        transition: all 0.1s ease;
+        display: flex;
+        gap: 16px;
+    }
+    .dashboard-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .dashboard-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .dashboard-content {
+        flex: 1;
+    }
+    .dashboard-content h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 6px;
+    }
+    .dashboard-content p {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 0 0 10px;
+        line-height: 1.4;
+    }
+    .dashboard-meta {
+        display: flex;
+        gap: 8px;
+    }
+    .meta-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        color: var(--primary);
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+    }
+    .feature-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        transition: all 0.1s ease;
+    }
+    .feature-card:hover {
+        border-color: var(--primary);
+        background: rgba(220, 20, 60, 0.02);
+    }
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .feature-content {
+        flex: 1;
+    }
+    .feature-content h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0 0 4px;
+    }
+    .feature-content p {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 0;
+        line-height: 1.4;
+    }
+    .feature-arrow {
+        color: var(--medium-gray);
+        opacity: 0;
+        transition: opacity 0.1s ease;
+    }
+    .feature-card:hover .feature-arrow {
+        opacity: 1;
+    }
+    .info-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 16px;
+    }
+    .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .action-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        font-size: 14px;
+        transition: background 0.1s ease;
+    }
+    .action-item:hover {
+        background: var(--light-gray);
+    }
+    .action-item svg {
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .insights-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .insight-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    .insight-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .insight-icon.positive {
+        background: #D1FAE5;
+        color: #059669;
+    }
+    .insight-icon.neutral {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    .insight-content p {
+        font-size: 13px;
+        color: var(--dark-gray);
+        margin: 0;
+        line-height: 1.5;
+    }
+    .reports-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .report-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    .report-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .report-content {
+        flex: 1;
+    }
+    .report-name {
+        font-size: 13px;
+        color: var(--dark-gray);
+        margin: 0 0 4px;
+        font-weight: 500;
+    }
+    .report-date {
+        font-size: 12px;
+        color: var(--medium-gray);
+    }
+    .empty-state-small {
+        text-align: center;
+        color: var(--medium-gray);
+        font-size: 13px;
+        padding: 20px;
+    }
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+        .dashboards-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

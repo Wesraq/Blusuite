@@ -1,0 +1,176 @@
+{% extends 'ems/base_employee.html' %}
+
+{% block title %}Create Contract - EMS{% endblock %}
+{% block page_title %}Create New Contract{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Create New Contract</h1>
+        <p class="page-subtitle">Create a new employment contract for an employee</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'contracts:contracts_list' %}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Contracts
+        </a>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="card-content">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Employee Selection -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600;">Employee Information</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Employee *</label>
+                        <select name="employee_id" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <option value="">Select Employee</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}">{{ emp.get_full_name }} ({{ emp.email }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Job Title *</label>
+                        <input type="text" name="job_title" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contract Details -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600;">Contract Details</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Contract Type *</label>
+                        <select name="contract_type" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            {% for value, label in contract_type_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Status *</label>
+                        <select name="status" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Department</label>
+                        <input type="text" name="department" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Start Date *</label>
+                        <input type="date" name="start_date" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">End Date</label>
+                        <input type="date" name="end_date" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                        <small style="color: #64748b; font-size: 12px;">Leave blank for permanent contracts</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compensation -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600;">Compensation</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Salary</label>
+                        <input type="number" name="salary" step="0.01" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Currency</label>
+                        <select name="currency" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <option value="ZMW">ZMW</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Frequency</label>
+                        <select name="salary_frequency" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            {% for value, label in salary_frequency_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Details -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600;">Work Details</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Working Hours/Week</label>
+                        <input type="number" name="working_hours_per_week" step="0.01" value="40.00" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Probation Period (Months)</label>
+                        <input type="number" name="probation_period_months" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Notice Period (Days)</label>
+                        <input type="number" name="notice_period_days" value="30" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Renewal Settings -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600;">Renewal Settings</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Renewal Notice Period (Days)</label>
+                        <input type="number" name="renewal_notice_period_days" value="30" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div style="display: flex; align-items: center; padding-top: 32px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="auto_renew" style="margin-right: 8px;">
+                            <span style="font-weight: 500; color: #1e293b;">Auto-renew contract</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Upload -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600;">Contract Document</h3>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Upload Contract Document</label>
+                    <input type="file" name="contract_document" accept=".pdf,.doc,.docx" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                </div>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600;">Terms & Conditions</h3>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Terms and Conditions</label>
+                    <textarea name="terms_and_conditions" rows="4" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Special Clauses</label>
+                    <textarea name="special_clauses" rows="4" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                <a href="{% url 'contracts:contracts_list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn">Create Contract</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

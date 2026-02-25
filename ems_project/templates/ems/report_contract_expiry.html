@@ -1,0 +1,291 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+
+{% block title %}Contract Expiry Report - EMS{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.report-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.report-stat {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) - 2px);
+    padding: 20px;
+    text-align: center;
+}
+.report-stat h3 {
+    font-size: 28px;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0 0 4px;
+}
+.report-stat p {
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
+    font-weight: 500;
+}
+.report-stat .stat-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+}
+.expiry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+}
+.expiry-item {
+    text-align: center;
+    padding: 16px;
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) - 2px);
+    border-left-width: 3px;
+}
+.expiry-item h4 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+.expiry-item span {
+    font-size: 12px;
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+}
+.badge-urgent {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(225, 29, 72, 0.1);
+    color: #e11d48;
+}
+.badge-warning {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Contract Expiry Report</h2>
+        <p>Upcoming contract expirations, probation endings, and temporary assignment deadlines</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="?export=csv" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print
+        </button>
+        <a href="{% url 'reports_center' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Reports
+        </a>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="report-stats">
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(30, 41, 59, 0.08); color: #1e293b;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h3>{{ total_active }}</h3>
+        <p>Active Employees</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(225, 29, 72, 0.12); color: #e11d48;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <h3>{{ contracts_expired.count }}</h3>
+        <p>Contracts Expired</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(100, 116, 139, 0.12); color: #64748b;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <h3>{{ contracts_expiring_30.count }}</h3>
+        <p>Expiring in 30 Days</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <h3>{{ probation_ending_30.count }}</h3>
+        <p>Probation Ending (30d)</p>
+    </div>
+</div>
+
+<!-- Expiry Summary Cards -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Contract Expiry Timeline</div>
+        <div class="card-subtitle">Contracts approaching or past their end date</div>
+    </div>
+    <div class="card-content">
+        <div class="expiry-grid">
+            <div class="expiry-item" style="border-color: rgba(225,29,72,0.3);">
+                <h4 style="color: #e11d48;">{{ contracts_expired.count }}</h4>
+                <span>Already Expired</span>
+            </div>
+            <div class="expiry-item" style="border-color: rgba(100,116,139,0.3);">
+                <h4 style="color: #64748b;">{{ contracts_expiring_30.count }}</h4>
+                <span>Within 30 Days</span>
+            </div>
+            <div class="expiry-item">
+                <h4>{{ contracts_expiring_60.count }}</h4>
+                <span>30-60 Days</span>
+            </div>
+            <div class="expiry-item" style="border-color: rgba(16,185,129,0.3);">
+                <h4 style="color: #10b981;">{{ contracts_expiring_90.count }}</h4>
+                <span>60-90 Days</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Contract Expiry Overview</div>
+            <div class="card-subtitle">Distribution of upcoming expirations</div>
+        </div>
+        <div class="card-content">
+            <canvas id="expiryChart" height="220"></canvas>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Employment Type Distribution</div>
+            <div class="card-subtitle">Active employees by contract type</div>
+        </div>
+        <div class="card-content">
+            <canvas id="typeChart" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Urgent Actions Table -->
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Contracts Expiring Within 30 Days</div>
+            <div class="card-subtitle">Immediate action required</div>
+        </div>
+        <div class="card-content" style="padding: 0;">
+            <table class="attendance-table">
+                <thead><tr><th>Employee</th><th>Department</th><th>Contract End</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for emp in contracts_expiring_30 %}
+                    <tr>
+                        <td><strong>{{ emp.get_full_name }}</strong></td>
+                        <td>{{ emp.employee_profile.department|default:"-" }}</td>
+                        <td>{{ emp.employee_profile.contract_end_date|date:"M d, Y" }}</td>
+                        <td><span class="badge-urgent">Expiring Soon</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align: center; padding: 24px; color: hsl(var(--muted-foreground));">No contracts expiring within 30 days</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Probation Ending Within 30 Days</div>
+            <div class="card-subtitle">Employees completing probation period</div>
+        </div>
+        <div class="card-content" style="padding: 0;">
+            <table class="attendance-table">
+                <thead><tr><th>Employee</th><th>Department</th><th>Probation End</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for emp in probation_ending_30 %}
+                    <tr>
+                        <td><strong>{{ emp.get_full_name }}</strong></td>
+                        <td>{{ emp.employee_profile.department|default:"-" }}</td>
+                        <td>{{ emp.employee_profile.probation_end_date|date:"M d, Y" }}</td>
+                        <td><span class="badge-warning">Review Needed</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align: center; padding: 24px; color: hsl(var(--muted-foreground));">No probation periods ending within 30 days</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Expired Contracts -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Expired Contracts</div>
+        <div class="card-subtitle">Active employees with contracts past their end date</div>
+    </div>
+    <div class="card-content" style="padding: 0;">
+        <table class="attendance-table">
+            <thead><tr><th>Employee</th><th>Department</th><th>Employment Type</th><th>Contract End</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for emp in contracts_expired %}
+                <tr>
+                    <td><strong>{{ emp.get_full_name }}</strong></td>
+                    <td>{{ emp.employee_profile.department|default:"-" }}</td>
+                    <td>{{ emp.employee_profile.employment_type|default:"-" }}</td>
+                    <td>{{ emp.employee_profile.contract_end_date|date:"M d, Y" }}</td>
+                    <td><span class="badge-urgent">Expired</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align: center; padding: 24px; color: hsl(var(--muted-foreground));">No expired contracts found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chartColors = ['#e11d48','#1e293b','#64748b','#94a3b8','#cbd5e1','#f43f5e','#334155','#475569'];
+
+    new Chart(document.getElementById('expiryChart'), {
+        type: 'bar',
+        data: { labels: {{ expiry_labels|safe }}, datasets: [{ label: 'Contracts', data: {{ expiry_counts|safe }}, backgroundColor: ['#e11d48', '#64748b', '#94a3b8', '#1e293b'], borderRadius: 6 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+
+    new Chart(document.getElementById('typeChart'), {
+        type: 'doughnut',
+        data: { labels: {{ type_labels|safe }}, datasets: [{ data: {{ type_counts|safe }}, backgroundColor: chartColors }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+});
+</script>
+{% endblock %}

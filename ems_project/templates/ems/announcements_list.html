@@ -1,0 +1,105 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Announcements - BLU Suite{% endblock %}
+
+{% block extra_css %}
+<style>
+.an-page { display: flex; flex-direction: column; gap: 20px; }
+.an-header h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; color: #0f172a; }
+.an-header p { margin: 0; font-size: 14px; color: #64748b; }
+.an-alert { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; }
+.an-alert svg { color: #2563eb; flex-shrink: 0; }
+.an-alert strong { color: #1e40af; font-size: 14px; }
+.an-list { display: flex; flex-direction: column; gap: 14px; }
+.an-card { position: relative; display: flex; gap: 16px; padding: 18px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; transition: border-color .15s, box-shadow .15s; }
+.an-card:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.10); }
+.an-card.an-unread { border-color: #93c5fd; background: #f8faff; }
+.an-new-badge { position: absolute; top: 14px; right: 14px; background: #2563eb; color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+.an-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.an-icon.an-urgent { background: #fee2e2; color: #dc2626; }
+.an-icon.an-high { background: #fef3c7; color: #d97706; }
+.an-icon.an-normal { background: #dbeafe; color: #2563eb; }
+.an-body { flex: 1; min-width: 0; }
+.an-title { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: #0f172a; }
+.an-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.an-tag { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.an-tag-urgent { background: #fee2e2; color: #991b1b; }
+.an-tag-high { background: #fef3c7; color: #92400e; }
+.an-tag-audience { background: #f1f5f9; color: #64748b; }
+.an-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
+.an-meta svg { vertical-align: middle; margin-right: 2px; }
+.an-excerpt { margin: 0 0 14px; font-size: 14px; color: #475569; line-height: 1.6; }
+.an-btn-read { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; background: #e11d48; color: #fff; border-radius: 4px; font-size: 13px; font-weight: 600; text-decoration: none; transition: background .15s; }
+.an-btn-read:hover { background: #be123c; }
+.an-empty { text-align: center; padding: 60px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; }
+.an-empty svg { color: #cbd5e1; margin-bottom: 12px; }
+.an-empty h3 { margin: 0 0 6px; color: #64748b; font-size: 16px; font-weight: 600; }
+.an-empty p { margin: 0; color: #94a3b8; font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="an-page">
+    <div class="an-header">
+        <h2>Company Announcements</h2>
+        <p>Stay updated with important news</p>
+    </div>
+
+    {% if unread_count > 0 %}
+    <div class="an-alert">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <strong>You have {{ unread_count }} unread announcement{{ unread_count|pluralize }}</strong>
+    </div>
+    {% endif %}
+
+    {% if announcements %}
+    <div class="an-list">
+        {% for announcement in announcements %}
+        <div class="an-card {% if not announcement.is_read %}an-unread{% endif %}">
+            {% if not announcement.is_read %}
+            <span class="an-new-badge">NEW</span>
+            {% endif %}
+
+            <div class="an-icon {% if announcement.priority == 'URGENT' %}an-urgent{% elif announcement.priority == 'HIGH' %}an-high{% else %}an-normal{% endif %}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            </div>
+
+            <div class="an-body">
+                <h3 class="an-title">{{ announcement.title }}</h3>
+                <div class="an-tags">
+                    {% if announcement.priority == 'URGENT' or announcement.priority == 'HIGH' %}
+                    <span class="an-tag {% if announcement.priority == 'URGENT' %}an-tag-urgent{% else %}an-tag-high{% endif %}">{{ announcement.get_priority_display }}</span>
+                    {% endif %}
+                    <span class="an-tag an-tag-audience">{{ announcement.get_target_audience_display }}</span>
+                </div>
+                <div class="an-meta">
+                    <span>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        {{ announcement.published_at|date:"M d, Y g:i A" }}
+                    </span>
+                    {% if announcement.expires_at %}
+                    <span>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Expires: {{ announcement.expires_at|date:"M d, Y" }}
+                    </span>
+                    {% endif %}
+                </div>
+                <p class="an-excerpt">{{ announcement.content|truncatewords:30 }}</p>
+                <a href="{% url 'announcement_detail' announcement.id %}" class="an-btn-read">
+                    Read Full Announcement
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="an-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+        <h3>No announcements</h3>
+        <p>There are no announcements at this time</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

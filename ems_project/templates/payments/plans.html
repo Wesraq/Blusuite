@@ -1,0 +1,241 @@
+{% extends 'payments/base_payment.html' %}
+{% load static %}
+
+{% block title %}Payment Plans - EMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .plans-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-top: 32px;
+    }
+    .plan-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 32px;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    .plan-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        border-color: #008080;
+    }
+    .plan-card.featured {
+        border-color: #008080;
+        transform: scale(1.05);
+    }
+    .plan-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #008080;
+        color: white;
+        padding: 4px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .plan-name {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    .plan-price {
+        font-size: 36px;
+        font-weight: 800;
+        color: #008080;
+        margin-bottom: 4px;
+    }
+    .plan-price span {
+        font-size: 18px;
+        font-weight: 400;
+        color: #64748b;
+    }
+    .plan-description {
+        color: #64748b;
+        margin-bottom: 24px;
+        line-height: 1.6;
+    }
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 32px;
+    }
+    .plan-features li {
+        padding: 8px 0;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .plan-features li::before {
+        content: "✓";
+        color: #10b981;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    .plan-button {
+        width: 100%;
+        padding: 12px 24px;
+        background: #008080;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .plan-button:hover {
+        background: #006666;
+        transform: translateY(-2px);
+    }
+    .plan-button:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="plans-container">
+    <div style="text-align: center; margin-bottom: 48px;">
+        <h1 style="font-size: 48px; font-weight: 800; color: #1e293b; margin-bottom: 16px;">
+            Choose Your Plan
+        </h1>
+        <p style="font-size: 18px; color: #64748b; max-width: 600px; margin: 0 auto;">
+            Select the perfect plan for your organization. All plans include our core HR management features.
+        </p>
+    </div>
+
+    <div class="plans-grid">
+        {% for plan in plans %}
+        <div class="plan-card {% if forloop.counter == 2 %}featured{% endif %}">
+            {% if forloop.counter == 2 %}
+            <div class="plan-badge">Most Popular</div>
+            {% endif %}
+            
+            <div class="plan-name">{{ plan.name }}</div>
+            <div class="plan-price">
+                ${{ plan.monthly_price }}<span>/month</span>
+            </div>
+            <div class="plan-description">
+                {{ plan.description }}
+            </div>
+            
+            <ul class="plan-features">
+                {% for feature in plan.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+                <li>Up to {{ plan.max_users }} users</li>
+                <li>{{ plan.max_storage_gb }}GB storage</li>
+                <li>Email support</li>
+                <li>Basic analytics</li>
+                <li>Mobile app access</li>
+            </ul>
+            
+            <button class="plan-button" onclick="purchasePlan({{ plan.id }})" id="plan-btn-{{ plan.id }}">
+                <span class="loading-spinner" id="spinner-{{ plan.id }}"></span>
+                <span class="button-text">Get Started</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
+    
+    async function purchasePlan(planId) {
+        const button = document.getElementById(`plan-btn-${planId}`);
+        const spinner = document.getElementById(`spinner-${planId}`);
+        const buttonText = button.querySelector('.button-text');
+        
+        // Show loading state
+        button.disabled = true;
+        spinner.style.display = 'inline-block';
+        buttonText.textContent = 'Processing...';
+        
+        try {
+            const response = await fetch('/payments/create-checkout-session/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    plan_id: planId
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Redirect to Stripe Checkout
+            const result = await stripe.redirectToCheckout({
+                sessionId: data.id
+            });
+            
+            if (result.error) {
+                throw new Error(result.error.message);
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Payment processing failed: ' + error.message);
+            
+            // Reset button state
+            button.disabled = false;
+            spinner.style.display = 'none';
+            buttonText.textContent = 'Get Started';
+        }
+    }
+    
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

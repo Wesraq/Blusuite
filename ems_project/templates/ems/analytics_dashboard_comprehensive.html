@@ -1,0 +1,273 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Analytics Dashboard - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Analytics Dashboard</h2>
+        <p>Comprehensive insights and reporting for {{ company.name }}</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <select id="periodFilter" class="control-input" style="width: auto;">
+            <option value="30">Last 30 Days</option>
+            <option value="60">Last 60 Days</option>
+            <option value="90" selected>Last 90 Days</option>
+            <option value="180">Last 6 Months</option>
+            <option value="365">Last Year</option>
+        </select>
+        <button onclick="exportReport()" class="btn">Export Report</button>
+    </div>
+</div>
+
+<!-- Key Metrics Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div class="stat-details">
+            <h3>{{ stats.employees.total }}</h3>
+            <p>Total Employees</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dcfce7; color: #16a34a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+        <div class="stat-details">
+            <h3>{{ stats.attendance.attendance_rate }}%</h3>
+            <p>Attendance Rate</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fecaca; color: #dc2626;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+        <div class="stat-details">
+            <h3>{{ stats.leave.pending|add:stats.documents.pending }}</h3>
+            <p>Pending Approvals</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+        <div class="stat-details">
+            <h3>{{ stats.payroll.total_net|floatformat:0 }}</h3>
+            <p>Monthly Payroll</p>
+        </div>
+    </div>
+</div>
+
+    <!-- Charts Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <!-- Employee Distribution -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Employee Distribution</div>
+            </div>
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                {% for dept in stats.employees.by_department %}
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="font-size: 14px;">{{ dept.employee_profile__department__name|default:"No Department" }}</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #1e293b;">{{ dept.count }}</span>
+                    </div>
+                    <div style="background: hsl(var(--muted)); border-radius: 4px; height: 8px; overflow: hidden;">
+                        <div style="background: #1e293b; height: 100%; width: {{ dept.count|mul:100|div:stats.employees.total }}%; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Attendance Breakdown -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Attendance Breakdown</div>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                <div style="text-align: center; padding: 16px; background: hsl(var(--muted)); border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #16a34a; margin-bottom: 4px;">{{ stats.attendance.present }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Present</div>
+                </div>
+                <div style="text-align: center; padding: 16px; background: hsl(var(--muted)); border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #dc2626; margin-bottom: 4px;">{{ stats.attendance.absent }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Absent</div>
+                </div>
+                <div style="text-align: center; padding: 16px; background: hsl(var(--muted)); border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #f59e0b; margin-bottom: 4px;">{{ stats.attendance.late }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Late</div>
+                </div>
+                <div style="text-align: center; padding: 16px; background: hsl(var(--muted)); border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">{{ stats.attendance.half_day }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Half Day</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave & Documents Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <!-- Leave Statistics -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Leave Management</div>
+            </div>
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700;">{{ stats.leave.total }}</div>
+                        <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Total Requests</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #f59e0b;">{{ stats.leave.pending }}</div>
+                        <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Pending</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #16a34a;">{{ stats.leave.approved }}</div>
+                        <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Approved</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #dc2626;">{{ stats.leave.rejected }}</div>
+                        <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Rejected</div>
+                    </div>
+                </div>
+                <div style="border-top: 1px solid hsl(var(--border)); padding-top: 16px;">
+                    <div style="font-size: 14px; color: hsl(var(--muted-foreground)); margin-bottom: 8px;">Leave by Type</div>
+                    {% for leave_type in stats.leave.by_type %}
+                    <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                        <span style="font-size: 13px;">{{ leave_type.leave_type }}</span>
+                        <span style="font-size: 13px; font-weight: 600;">{{ leave_type.count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Statistics -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Document Management</div>
+            </div>
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700;">{{ stats.documents.total }}</div>
+                        <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Total Documents</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #f59e0b;">{{ stats.documents.pending }}</div>
+                        <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Pending</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #16a34a;">{{ stats.documents.approved }}</div>
+                        <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Approved</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #dc2626;">{{ stats.documents.rejected }}</div>
+                        <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Rejected</div>
+                    </div>
+                </div>
+                <div style="border-top: 1px solid hsl(var(--border)); padding-top: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 14px; color: hsl(var(--muted-foreground));">Total Storage Used</span>
+                        <span style="font-size: 16px; font-weight: 600;">{{ stats.documents.total_size_mb }} MB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance & Training Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <!-- Performance Reviews -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Performance Reviews</div>
+            </div>
+            <div style="padding: 20px; display: flex; justify-content: space-around;">
+                <div style="text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700;">{{ stats.performance.total }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Total Reviews</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: #16a34a;">{{ stats.performance.completed }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Completed</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: #f59e0b;">{{ stats.performance.average_rating }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Avg Rating</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Progress -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Training & Development</div>
+            </div>
+            <div style="padding: 20px; display: flex; justify-content: space-around;">
+                <div style="text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700;">{{ stats.training.total }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Enrollments</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: #16a34a;">{{ stats.training.completed }}</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Completed</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: #f59e0b;">{{ stats.training.completion_rate }}%</div>
+                    <div style="font-size: 12px; color: hsl(var(--muted-foreground));">Completion Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Trends -->
+    <div class="content-card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <div class="card-title">6-Month Trends</div>
+        </div>
+        <div style="padding: 20px; overflow-x: auto;">
+            <table class="attendance-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Month</th>
+                        <th style="text-align: center;">Employees</th>
+                        <th style="text-align: center;">Attendance Rate</th>
+                        <th style="text-align: center;">Leave Requests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trend in trends %}
+                    <tr>
+                        <td>{{ trend.month }}</td>
+                        <td style="text-align: center; font-weight: 600;">{{ trend.employee_count }}</td>
+                        <td style="text-align: center;">
+                            <span style="padding: 4px 12px; background: {% if trend.attendance_rate >= 90 %}#d1fae5{% elif trend.attendance_rate >= 75 %}#fef3c7{% else %}#fee2e2{% endif %}; color: {% if trend.attendance_rate >= 90 %}#065f46{% elif trend.attendance_rate >= 75 %}#92400e{% else %}#991b1b{% endif %}; border-radius: 12px; font-size: 13px; font-weight: 600;">
+                                {{ trend.attendance_rate }}%
+                            </span>
+                        </td>
+                        <td style="text-align: center; font-weight: 600;">{{ trend.leave_requests }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        <a href="{% url 'reports_center' %}" class="btn btn-secondary" style="display: flex; justify-content: center; padding: 14px 16px; text-decoration: none;">View All Reports</a>
+        <a href="{% url 'export_attendance_report' %}" class="btn btn-secondary" style="display: flex; justify-content: center; padding: 14px 16px; text-decoration: none;">Export Attendance</a>
+        <a href="{% url 'export_leave_report' %}" class="btn btn-secondary" style="display: flex; justify-content: center; padding: 14px 16px; text-decoration: none;">Export Leave Data</a>
+        <a href="{% url 'custom_report_builder' %}" class="btn btn-secondary" style="display: flex; justify-content: center; padding: 14px 16px; text-decoration: none;">Custom Report</a>
+    </div>
+</div>
+
+<script>
+function exportReport() {
+    window.location.href = "{% url 'reports_center' %}?export=pdf";
+}
+
+document.getElementById('periodFilter').addEventListener('change', function() {
+    const period = this.value;
+    window.location.href = window.location.pathname + '?period=' + period;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Performance Analytics Dashboard - BLU Suite{% endblock %}
+
+{% block extra_css %}
+<style>
+.analytics-page { display: flex; flex-direction: column; gap: 24px; }
+.analytics-header { display: flex; justify-content: space-between; align-items: start; }
+.analytics-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 700; color: #0f172a; }
+.analytics-header p { margin: 0; font-size: 14px; color: #64748b; }
+.analytics-filters { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; display: flex; gap: 12px; align-items: center; }
+.filter-label { font-size: 14px; font-weight: 600; color: #475569; }
+.filter-select { padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; }
+.analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+.analytics-stat { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; transition: all .15s; }
+.analytics-stat:hover { border-color: #e11d48; box-shadow: 0 4px 12px rgba(225,29,72,.1); }
+.stat-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.stat-value { font-size: 32px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+.stat-label { font-size: 13px; color: #64748b; font-weight: 500; }
+.analytics-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+.card-header { padding: 24px; border-bottom: 1px solid #e2e8f0; }
+.card-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; }
+.card-body { padding: 24px; }
+.rating-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.rating-label { min-width: 160px; font-size: 14px; font-weight: 600; color: #475569; }
+.rating-progress { flex: 1; height: 32px; background: #f1f5f9; border-radius: 8px; overflow: hidden; position: relative; }
+.rating-fill { height: 100%; background: linear-gradient(90deg, #10b981, #059669); transition: width .5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; }
+.rating-count { font-size: 12px; font-weight: 700; color: white; }
+.dept-table { width: 100%; border-collapse: collapse; }
+.dept-table th { padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; background: #f8fafc; }
+.dept-table td { padding: 14px 12px; border-top: 1px solid #f1f5f9; font-size: 14px; color: #1e293b; }
+.dept-table tbody tr:hover { background: #fef2f2; }
+.performer-item { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid #f1f5f9; border-radius: 8px; margin-bottom: 12px; transition: all .15s; }
+.performer-item:hover { border-color: #e11d48; background: #fef2f2; }
+.performer-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; }
+.performer-info { flex: 1; }
+.performer-name { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 2px; }
+.performer-dept { font-size: 12px; color: #64748b; }
+.performer-rating { padding: 4px 12px; background: #d1fae5; color: #065f46; border-radius: 12px; font-size: 12px; font-weight: 700; }
+.trend-chart { height: 300px; display: flex; align-items: flex-end; gap: 8px; padding: 20px 0; }
+.trend-bar { flex: 1; background: #e11d48; border-radius: 4px 4px 0 0; position: relative; min-height: 20px; transition: all .3s; }
+.trend-bar:hover { background: #be123c; }
+.trend-label { position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #94a3b8; white-space: nowrap; }
+.cycle-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid #f1f5f9; border-radius: 8px; margin-bottom: 12px; }
+.cycle-name { font-size: 14px; font-weight: 600; color: #0f172a; }
+.cycle-progress { font-size: 12px; color: #64748b; }
+.badge { display: inline-flex; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.badge-active { background: #dbeafe; color: #1e40af; }
+.badge-progress { background: #fef3c7; color: #92400e; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-page">
+    <!-- Header -->
+    <div class="analytics-header">
+        <div>
+            <h2>Performance Analytics Dashboard</h2>
+            <p>Comprehensive insights into organizational performance</p>
+        </div>
+        <a href="{% url 'review_cycles_list' %}" class="cycle-btn cycle-btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; text-decoration: none; font-size: 14px; font-weight: 600;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Review Cycles
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="analytics-filters">
+        <span class="filter-label">Time Period:</span>
+        <form method="get" style="display: flex; gap: 12px;">
+            <select name="period" class="filter-select" onchange="this.form.submit()">
+                <option value="all" {% if period == 'all' %}selected{% endif %}>All Time</option>
+                <option value="ytd" {% if period == 'ytd' %}selected{% endif %}>Year to Date</option>
+                <option value="last_quarter" {% if period == 'last_quarter' %}selected{% endif %}>Last Quarter</option>
+                <option value="last_year" {% if period == 'last_year' %}selected{% endif %}>Last Year</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="analytics-grid">
+        <div class="analytics-stat">
+            <div class="stat-icon" style="background: #dbeafe; color: #1e40af;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div class="stat-value">{{ total_reviews }}</div>
+            <div class="stat-label">Total Reviews</div>
+        </div>
+        
+        <div class="analytics-stat">
+            <div class="stat-icon" style="background: #d1fae5; color: #065f46;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="stat-value">{{ completed_reviews }}</div>
+            <div class="stat-label">Completed Reviews</div>
+        </div>
+        
+        <div class="analytics-stat">
+            <div class="stat-icon" style="background: #fef3c7; color: #92400e;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="stat-value">{% if avg_rating %}{{ avg_rating|floatformat:1 }}{% else %}N/A{% endif %}</div>
+            <div class="stat-label">Average Rating</div>
+        </div>
+        
+        <div class="analytics-stat">
+            <div class="stat-icon" style="background: #e0e7ff; color: #4f46e5;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="stat-value">{{ department_stats|length }}</div>
+            <div class="stat-label">Departments</div>
+        </div>
+    </div>
+
+    <!-- Rating Distribution -->
+    <div class="analytics-card">
+        <div class="card-header">
+            <h3>Rating Distribution</h3>
+        </div>
+        <div class="card-body">
+            <div class="rating-bar">
+                <div class="rating-label">Outstanding</div>
+                <div class="rating-progress">
+                    <div class="rating-fill" style="width: {{ rating_percentages.OUTSTANDING }}%;">
+                        <span class="rating-count">{{ rating_distribution.OUTSTANDING|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rating-bar">
+                <div class="rating-label">Exceeds Expectations</div>
+                <div class="rating-progress">
+                    <div class="rating-fill" style="width: {{ rating_percentages.EXCEEDS_EXPECTATIONS }}%; background: linear-gradient(90deg, #3b82f6, #2563eb);">
+                        <span class="rating-count">{{ rating_distribution.EXCEEDS_EXPECTATIONS|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rating-bar">
+                <div class="rating-label">Meets Expectations</div>
+                <div class="rating-progress">
+                    <div class="rating-fill" style="width: {{ rating_percentages.MEETS_EXPECTATIONS }}%; background: linear-gradient(90deg, #f59e0b, #d97706);">
+                        <span class="rating-count">{{ rating_distribution.MEETS_EXPECTATIONS|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rating-bar">
+                <div class="rating-label">Below Expectations</div>
+                <div class="rating-progress">
+                    <div class="rating-fill" style="width: {{ rating_percentages.BELOW_EXPECTATIONS }}%; background: linear-gradient(90deg, #ef4444, #dc2626);">
+                        <span class="rating-count">{{ rating_distribution.BELOW_EXPECTATIONS|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rating-bar">
+                <div class="rating-label">Unsatisfactory</div>
+                <div class="rating-progress">
+                    <div class="rating-fill" style="width: {{ rating_percentages.UNSATISFACTORY }}%; background: linear-gradient(90deg, #991b1b, #7f1d1d);">
+                        <span class="rating-count">{{ rating_distribution.UNSATISFACTORY|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Performance & Top Performers -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <!-- Department Performance -->
+        <div class="analytics-card">
+            <div class="card-header">
+                <h3>Department Performance</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                {% if department_stats %}
+                <table class="dept-table">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Employees</th>
+                            <th>Reviews</th>
+                            <th>Avg Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in department_stats %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ dept.name }}</td>
+                            <td>{{ dept.total_employees }}</td>
+                            <td>{{ dept.total_reviews }}</td>
+                            <td>
+                                <span style="font-weight: 700; color: #10b981;">{{ dept.avg_rating }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: #94a3b8;">No department data available</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Top Performers -->
+        <div class="analytics-card">
+            <div class="card-header">
+                <h3>Top Performers</h3>
+            </div>
+            <div class="card-body">
+                {% if top_performers %}
+                {% for review in top_performers %}
+                <div class="performer-item">
+                    <div class="performer-avatar">{{ review.employee.first_name.0 }}{{ review.employee.last_name.0 }}</div>
+                    <div class="performer-info">
+                        <div class="performer-name">{{ review.employee.get_full_name }}</div>
+                        <div class="performer-dept">
+                            {% if review.employee.employee_profile %}{{ review.employee.employee_profile.department }}{% else %}N/A{% endif %}
+                        </div>
+                    </div>
+                    <div class="performer-rating">{{ review.get_overall_rating_display }}</div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: #94a3b8;">No reviews available</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Cycles -->
+    {% if active_cycles %}
+    <div class="analytics-card">
+        <div class="card-header">
+            <h3>Active Review Cycles</h3>
+        </div>
+        <div class="card-body">
+            {% for cycle in active_cycles %}
+            <div class="cycle-item">
+                <div>
+                    <div class="cycle-name">{{ cycle.name }}</div>
+                    <div class="cycle-progress">{{ cycle.completion_percentage }}% complete ({{ cycle.completed_reviews }}/{{ cycle.total_assignments }})</div>
+                </div>
+                <span class="badge {% if cycle.status == 'ACTIVE' %}badge-active{% else %}badge-progress{% endif %}">{{ cycle.get_status_display }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

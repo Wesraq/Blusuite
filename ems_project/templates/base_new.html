@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Employee Management System{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/universal.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    
+    <!-- BLOCKING: Detect theme preference BEFORE first paint to prevent flash -->
+    <script>
+        (function() {
+            try {
+                var pref = localStorage.getItem('userThemePreference');
+                if (pref === 'light') {
+                    document.documentElement.classList.add('theme-light');
+                }
+                var sb = localStorage.getItem('sidebarCollapsed');
+                if (sb === '1') {
+                    document.documentElement.classList.add('sidebar-will-collapse');
+                }
+            } catch(e) {}
+        })();
+    </script>
+    
+    <!-- Light theme override: only active when .theme-light is on <html> -->
+    <style>
+        html.theme-light .sidebar,
+        html.theme-light .sidebar-header {
+            background: #ffffff !important;
+            border-right: 1px solid #e5e7eb !important;
+        }
+        html.theme-light .sidebar-brand,
+        html.theme-light .nav-link {
+            color: #0F172A !important;
+        }
+        html.theme-light .nav-link svg {
+            stroke: #64748B !important;
+        }
+        html.theme-light .nav-link:hover {
+            background: #F8FAFC !important;
+        }
+        html.theme-light .nav-link.active {
+            background: #0F172A !important;
+            color: white !important;
+        }
+        html.theme-light .nav-link.active svg {
+            stroke: white !important;
+        }
+    </style>
+    
+    <!-- Dynamic Company Theme Colors -->
+    {% if user.is_authenticated and user.company %}
+    <style>
+        :root {
+            --primary: {{ user.company.primary_color|default:"#DC143C" }};
+            --primary-hover: {{ user.company.primary_color|default:"#B01030" }};
+            --secondary: {{ user.company.secondary_color|default:"#0F172A" }};
+            --border: #E2E8F0;
+            --bg-light: #F8FAFC;
+            --text-primary: {{ user.company.text_color|default:"#0F172A" }};
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --sidebar-width: 260px;
+            --header-height: 60px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #F5F5F5;
+            color: var(--text-primary);
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Modern Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 100;
+            flex: 0 0 var(--sidebar-width);
+        }
+
+        .sidebar-header {
+            height: var(--header-height);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            background: white;
+        }
+        
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-toggle:hover {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+        
+        .sidebar-toggle svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            transition: transform 0.3s ease;
+        }
+        
+        body.sidebar-collapsed .sidebar-toggle svg {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: none;
+        }
+        
+        .sidebar-company-initials {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            padding: 8px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin: 2px 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: {{ user.company.button_color|default:"var(--primary)" }};
+            color: white;
+        }
+
+        .nav-link.active svg {
+            stroke: white;
+        }
+        
+        .sidebar-brand {
+            color: {{ user.company.text_color|default:"var(--text-primary)" }};
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .nav-icon svg {
+            stroke: currentColor;
+        }
+
+        .nav-badge {
+            position: absolute;
+            right: 12px;
+            background: var(--primary);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* Main Content Area */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Modern Header */
+        .top-header {
+            height: var(--header-height);
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            gap: 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .breadcrumb-item {
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-separator {
+            color: var(--text-muted);
+        }
+
+        .breadcrumb-current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon-btn {
+            position: relative;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-icon-btn:hover {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--primary);
+            color: white;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .user-menu:hover {
+            background: var(--bg-light);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.2;
+        }
+
+        .btn-sign-out {
+            padding: 8px 16px;
+            background: {{ user.company.button_color|default:"var(--primary)" }};
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-sign-out:hover {
+            background: {{ user.company.button_color|default:"var(--primary-hover)" }}dd;
+        }
+
+        /* Page Content */
+        .page-content {
+            flex: 1;
+            overflow-y: auto;
+            background: #F5F5F5;
+            padding: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+            }
+
+            body.sidebar-open .sidebar {
+                transform: translateX(0);
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .page-breadcrumb {
+                display: none;
+            }
+            
+            .page-content {
+                padding: 24px 20px;
+            }
+        }
+
+        /* Sidebar collapsed state */
+        body.sidebar-collapsed .sidebar {
+            width: 72px;
+            flex: 0 0 72px;
+        }
+
+        body.sidebar-collapsed .sidebar-brand,
+        body.sidebar-collapsed .nav-text,
+        body.sidebar-collapsed .nav-section-title {
+            display: none;
+        }
+
+        body.sidebar-collapsed .nav-link {
+            justify-content: center;
+            padding: 10px;
+        }
+
+        body.sidebar-collapsed .nav-badge {
+            right: 8px;
+            top: 6px;
+        }
+        
+        body.sidebar-collapsed .sidebar-header {
+            padding: 0 12px;
+            justify-content: center;
+        }
+        
+        body.sidebar-collapsed .sidebar-logo {
+            margin: 0;
+        }
+        
+        body.sidebar-collapsed .sidebar-company-initials {
+            display: none;
+        }
+    </style>
+    {% endif %}
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    {% if user.company.logo %}
+                        <img src="{{ user.company.logo.url }}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+                    {% else %}
+                        {{ user.company.name|default:"MFI"|slice:":2"|upper }}
+                    {% endif %}
+                </div>
+                <div class="sidebar-company-initials">{{ user.company.name|default:"MFI DOCUMENT SOLUTIONS LTD"|slice:":3"|upper }}</div>
+            </div>
+
+            {% block sidebar %}
+            {% include 'ems/partials/sidebar_employer_new.html' %}
+            {% endblock %}
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-wrapper">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="page-breadcrumb">
+                        <span class="breadcrumb-item">{{ user.company.name|default:"MFI DOCUMENT SOLUTIONS LTD" }}</span>
+                        <span class="breadcrumb-separator">·</span>
+                        <span class="breadcrumb-current">{% block page_title %}Dashboard{% endblock %}</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <!-- Messages -->
+                    <a href="{% url 'direct_messages_list' %}" class="header-icon-btn" title="Messages">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        {% if unread_messages_count > 0 %}
+                        <span class="notification-badge">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+
+                    <!-- Notifications -->
+                    <a href="{% url 'notifications_list' %}" class="header-icon-btn" title="Notifications">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        {% if unread_notifications_count > 0 %}
+                        <span class="notification-badge">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </a>
+
+                    <!-- Theme Toggle -->
+                    <button class="header-icon-btn" onclick="toggleTheme()" title="Toggle Theme">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="user-menu">
+                        <div class="user-avatar">
+                            {% if user.first_name and user.last_name %}
+                                {{ user.first_name.0 }}{{ user.last_name.0 }}
+                            {% else %}
+                                {{ user.email.0|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">{{ user.get_full_name|default:user.email }}</div>
+                            <div class="user-role">
+                                {% if user.role == 'EMPLOYEE' and user.employee_profile.employee_role != 'EMPLOYEE' %}
+                                    {{ user.employee_profile.get_employee_role_display }}
+                                {% else %}
+                                    {{ user.get_role_display }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sign Out -->
+                    <a href="{% url 'ems_logout' %}" class="btn-sign-out">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Sign Out
+                    </a>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="page-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    {% block scripts %}{% endblock %}
+
+    <script>
+        function toggleSidebar() {
+            const collapsed = document.body.classList.toggle('sidebar-collapsed');
+            try {
+                localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0');
+            } catch (e) {}
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('userThemePreference') || 'company';
+            const newTheme = currentTheme === 'company' ? 'light' : 'company';
+            localStorage.setItem('userThemePreference', newTheme);
+            
+            if (newTheme === 'light') {
+                document.documentElement.classList.add('theme-light');
+            } else {
+                document.documentElement.classList.remove('theme-light');
+            }
+        }
+
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.querySelector('.sidebar');
+                const menuToggle = document.querySelector('.menu-toggle');
+                
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
+        });
+
+        // Apply saved sidebar state (theme is handled by blocking script in <head>)
+        (function() {
+            try {
+                const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
+                if (sidebarCollapsed === '1') {
+                    document.body.classList.add('sidebar-collapsed');
+                }
+            } catch (e) {}
+        })();
+    </script>
+</body>
+</html>

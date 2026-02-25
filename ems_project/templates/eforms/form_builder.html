@@ -1,0 +1,547 @@
+{% extends 'ems/blusuite_base.html' %}
+
+{% block title %}Form Builder - {{ template.title }} - BLU Suite{% endblock %}
+
+{% block extra_head %}
+<style>
+    {% include 'eforms/partials/document_header_css.html' %}
+    /* ── Layout ── */
+    .fb-header{background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:16px 20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+    .fb-header h1{margin:0 0 2px;font-size:18px;font-weight:700;color:#0f172a}
+    .fb-header p{margin:0;font-size:12px;color:#64748b}
+    .fb-grid{display:grid;grid-template-columns:210px 1fr 340px;gap:12px;align-items:start}
+    @media(max-width:1100px){.fb-grid{grid-template-columns:200px 1fr}}
+
+    /* ── Cards ── */
+    .fb-card{background:#fff;border:1px solid #e2e8f0;border-radius:4px;overflow:hidden}
+    .fb-card-hd{padding:10px 14px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center}
+    .fb-card-hd h3{margin:0;font-size:13px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:6px}
+    .fb-card-bd{padding:14px}
+
+    /* ── Buttons ── */
+    .fb-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid;cursor:pointer;transition:all .15s;font-family:inherit;line-height:1}
+    .fb-btn-primary{background:#E11D48;color:#fff;border-color:#E11D48}.fb-btn-primary:hover{background:#BE123C}
+    .fb-btn-secondary{background:#fff;color:#0f172a;border-color:#e2e8f0}.fb-btn-secondary:hover{background:#f8fafc;border-color:#cbd5e1}
+    .fb-btn-success{background:#16A34A;color:#fff;border-color:#16A34A}.fb-btn-success:hover{background:#15803D}
+    .fb-btn-danger{background:#DC2626;color:#fff;border-color:#DC2626}.fb-btn-danger:hover{background:#B91C1C}
+    .fb-btn-xs{padding:3px 6px;font-size:10px}
+    .fb-btn-sm{padding:4px 8px;font-size:11px}
+
+    /* ── Palette items ── */
+    .fb-section-label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;padding:8px 0 4px}
+    .fb-pal-item{padding:7px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;cursor:grab;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:#0f172a;transition:all .15s;user-select:none}
+    .fb-pal-item:hover{border-color:#E11D48;background:#FFF1F2}
+    .fb-pal-item:active{cursor:grabbing}
+    .fb-pal-item svg{color:#64748b;flex-shrink:0}
+
+    /* ── Canvas ── */
+    .fb-canvas{min-height:350px;padding:12px;background:#fff;border:2px dashed #e2e8f0;border-radius:4px;transition:all .2s}
+    .fb-canvas.dragover{border-color:#E11D48;background:#FFF1F2}
+    .fb-canvas-empty{text-align:center;padding:60px 20px;color:#94a3b8}
+    .fb-canvas-empty svg{margin:0 auto 8px;display:block}
+
+    /* ── Field cards in canvas ── */
+    .fb-fc{padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;margin-bottom:8px;transition:all .15s}
+    .fb-fc:hover{border-color:#cbd5e1;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .fb-fc.selected{border-color:#E11D48;box-shadow:0 0 0 2px rgba(225,29,72,.1)}
+    .fb-fc-top{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+    .fb-fc-grip{cursor:grab;color:#94a3b8;flex-shrink:0;padding:2px}
+    .fb-fc-grip:active{cursor:grabbing}
+    .fb-fc-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#F1F5F9;color:#64748b}
+    .fb-fc-actions{margin-left:auto;display:flex;gap:3px}
+    .fb-fc-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11px;margin-top:4px}
+
+    /* ── Inputs ── */
+    .fb-input{width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:4px;font-size:12px;font-family:inherit;transition:border-color .15s}
+    .fb-input:focus{outline:none;border-color:#E11D48;box-shadow:0 0 0 2px rgba(225,29,72,.08)}
+    .fb-input-sm{padding:4px 6px;font-size:11px}
+    .fb-select{padding:4px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:11px;font-family:inherit}
+    .fb-check{width:14px;height:14px;accent-color:#E11D48;cursor:pointer}
+
+    /* ── Preview ── */
+    .fb-preview{padding:16px;background:#fff;min-height:350px}
+    .fb-pv-field{margin-bottom:14px}
+    .fb-pv-label{font-size:13px;font-weight:600;color:#0f172a;margin-bottom:4px;display:block}
+    .fb-pv-req{color:#EF4444}
+    .fb-pv-help{font-size:11px;color:#64748b;margin-bottom:4px}
+    .fb-pv-input{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:4px;font-size:13px;font-family:inherit;background:#fff}
+    .fb-pv-input:focus{outline:none;border-color:#E11D48}
+    select.fb-pv-input{cursor:pointer}
+    .fb-pv-header{font-size:18px;font-weight:700;color:#0f172a;padding:8px 0 4px;border-bottom:2px solid #E11D48;margin-bottom:8px}
+    .fb-pv-paragraph{font-size:13px;color:#475569;line-height:1.6;padding:4px 0}
+    .fb-pv-divider{border:none;border-top:1px solid #e2e8f0;margin:12px 0}
+    .fb-pv-radio,.fb-pv-checkbox-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;margin-bottom:4px;cursor:pointer;font-size:13px;color:#475569}
+    .fb-pv-sig{padding:24px;background:#f8fafc;border:1px dashed #e2e8f0;border-radius:4px;text-align:center;color:#94a3b8;font-size:12px}
+
+    /* ── Options editor ── */
+    .fb-opt-row{display:flex;gap:4px;align-items:center;margin-bottom:4px}
+    .fb-opt-row input{flex:1}
+
+    /* ── Tabs ── */
+    .fb-tabs{display:flex;gap:0;border-bottom:2px solid #e2e8f0}
+    .fb-tab{padding:8px 14px;font-size:12px;font-weight:500;color:#64748b;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;transition:all .15s}
+    .fb-tab.active{color:#E11D48;border-bottom-color:#E11D48;font-weight:600}
+    .fb-tab:hover:not(.active){color:#0f172a}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="fb-header">
+    <div>
+        <h1>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" style="vertical-align:-2px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            Form Builder: {{ template.title }}
+        </h1>
+        <p>Drag fields from the palette and drop them onto the canvas. Edit properties inline.</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+        <span id="field-count" style="font-size:12px;color:#64748b;padding:4px 10px;background:#f1f5f9;border-radius:4px">0 fields</span>
+        <a href="{% url 'form_templates_list' %}" class="fb-btn fb-btn-secondary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+        </a>
+    </div>
+</div>
+
+<form method="POST" id="builder-form" onsubmit="return handleSubmit()">
+{% csrf_token %}
+<input type="hidden" name="form_fields" id="form_fields_json">
+<input type="hidden" name="status" id="status_input" value="DRAFT">
+
+<div class="fb-grid">
+    <!-- ═══════ LEFT: Field Palette ═══════ -->
+    <div style="position:sticky;top:12px">
+        <div class="fb-card">
+            <div class="fb-card-hd"><h3>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Field Palette
+            </h3></div>
+            <div class="fb-card-bd" style="padding:8px 10px;display:flex;flex-direction:column;gap:4px">
+                <div class="fb-section-label">Layout</div>
+                <div class="fb-pal-item" data-type="HEADER" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                    Section Header
+                </div>
+                <div class="fb-pal-item" data-type="PARAGRAPH" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+                    Paragraph Text
+                </div>
+                <div class="fb-pal-item" data-type="DIVIDER" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                    Divider
+                </div>
+
+                <div class="fb-section-label">Input Fields</div>
+                <div class="fb-pal-item" data-type="TEXT" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Text Input
+                </div>
+                <div class="fb-pal-item" data-type="TEXTAREA" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Text Area
+                </div>
+                <div class="fb-pal-item" data-type="NUMBER" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+                    Number
+                </div>
+                <div class="fb-pal-item" data-type="EMAIL" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    Email
+                </div>
+                <div class="fb-pal-item" data-type="PHONE" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Phone
+                </div>
+                <div class="fb-pal-item" data-type="DATE" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Date
+                </div>
+                <div class="fb-pal-item" data-type="TIME" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Time
+                </div>
+
+                <div class="fb-section-label">Choice Fields</div>
+                <div class="fb-pal-item" data-type="SELECT" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    Dropdown
+                </div>
+                <div class="fb-pal-item" data-type="RADIO" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+                    Radio Buttons
+                </div>
+                <div class="fb-pal-item" data-type="CHECKBOX" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    Checkboxes
+                </div>
+
+                <div class="fb-section-label">Advanced</div>
+                <div class="fb-pal-item" data-type="FILE" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    File Upload
+                </div>
+                <div class="fb-pal-item" data-type="SIGNATURE" draggable="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Signature
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ CENTER: Builder Canvas ═══════ -->
+    <div class="fb-card">
+        <div class="fb-card-hd">
+            <h3>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                Builder Canvas
+            </h3>
+            <div style="display:flex;gap:6px">
+                <button type="button" onclick="addField('HEADER')" class="fb-btn fb-btn-secondary fb-btn-xs" title="Add Section Header">+ Header</button>
+                <button type="button" onclick="addField('DIVIDER')" class="fb-btn fb-btn-secondary fb-btn-xs" title="Add Divider">+ Divider</button>
+            </div>
+        </div>
+        <div class="fb-card-bd" style="padding:12px">
+            <div id="form-canvas" class="fb-canvas"></div>
+
+            <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0">
+                <button type="submit" onclick="pendingStatus='DRAFT'" class="fb-btn fb-btn-secondary">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Save Draft
+                </button>
+                <button type="submit" onclick="pendingStatus='ACTIVE'" class="fb-btn fb-btn-success">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Save & Activate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ RIGHT: Live Preview ═══════ -->
+    <div class="fb-card" style="position:sticky;top:12px">
+        <div class="fb-card-hd">
+            <h3>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Live Preview
+            </h3>
+        </div>
+        {% include 'eforms/partials/document_header.html' %}
+        <div id="live-preview" class="fb-preview"></div>
+    </div>
+</div>
+</form>
+
+<script>
+/* ══════════════════════════════════════════════
+   DATA
+   ══════════════════════════════════════════════ */
+let formFields;
+try { formFields = JSON.parse('{{ form_fields_json|escapejs }}'); } catch(e) { formFields = null; }
+if (!formFields || typeof formFields !== 'object') formFields = { fields: [] };
+if (!Array.isArray(formFields.fields)) formFields.fields = [];
+let fieldCounter = formFields.fields.length;
+let selectedFieldId = null;
+
+const LAYOUT_TYPES = ['HEADER','PARAGRAPH','DIVIDER'];
+const CHOICE_TYPES = ['SELECT','RADIO','CHECKBOX'];
+
+const TYPE_LABELS = {
+    HEADER:'Section Header', PARAGRAPH:'Paragraph', DIVIDER:'Divider',
+    TEXT:'Text Input', TEXTAREA:'Text Area', NUMBER:'Number', EMAIL:'Email',
+    PHONE:'Phone', DATE:'Date', TIME:'Time',
+    SELECT:'Dropdown', RADIO:'Radio Buttons', CHECKBOX:'Checkboxes',
+    FILE:'File Upload', SIGNATURE:'Signature'
+};
+
+/* ══════════════════════════════════════════════
+   DRAG & DROP
+   ══════════════════════════════════════════════ */
+document.querySelectorAll('.fb-pal-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('fieldType', e.target.closest('[data-type]').dataset.type);
+        e.dataTransfer.effectAllowed = 'copy';
+    });
+});
+
+const canvas = document.getElementById('form-canvas');
+canvas.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; canvas.classList.add('dragover'); });
+canvas.addEventListener('dragleave', () => canvas.classList.remove('dragover'));
+canvas.addEventListener('drop', e => {
+    e.preventDefault(); canvas.classList.remove('dragover');
+    const type = e.dataTransfer.getData('fieldType');
+    if (type) addField(type);
+});
+
+/* ══════════════════════════════════════════════
+   FIELD OPERATIONS
+   ══════════════════════════════════════════════ */
+function addField(type) {
+    fieldCounter++;
+    const id = 'field_' + Date.now() + '_' + fieldCounter;
+    const field = { id, type, label: '', placeholder: '', helpText: '', required: false, width: 'full', options: [] };
+
+    if (LAYOUT_TYPES.includes(type)) {
+        field.label = type === 'HEADER' ? 'Section Title' : type === 'PARAGRAPH' ? 'Enter descriptive text here...' : '';
+        field.required = false;
+    } else {
+        field.label = (TYPE_LABELS[type] || type) + ' ' + fieldCounter;
+    }
+
+    if (CHOICE_TYPES.includes(type)) {
+        field.options = ['Option 1', 'Option 2', 'Option 3'];
+    }
+
+    formFields.fields.push(field);
+    selectedFieldId = id;
+    renderAll();
+}
+
+function removeField(id) {
+    formFields.fields = formFields.fields.filter(f => f.id !== id);
+    if (selectedFieldId === id) selectedFieldId = null;
+    renderAll();
+}
+
+function moveField(id, dir) {
+    const idx = formFields.fields.findIndex(f => f.id === id);
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= formFields.fields.length) return;
+    const tmp = formFields.fields[idx];
+    formFields.fields[idx] = formFields.fields[newIdx];
+    formFields.fields[newIdx] = tmp;
+    renderAll();
+}
+
+function duplicateField(id) {
+    const src = formFields.fields.find(f => f.id === id);
+    if (!src) return;
+    fieldCounter++;
+    const copy = JSON.parse(JSON.stringify(src));
+    copy.id = 'field_' + Date.now() + '_' + fieldCounter;
+    copy.label = copy.label + ' (Copy)';
+    const idx = formFields.fields.findIndex(f => f.id === id);
+    formFields.fields.splice(idx + 1, 0, copy);
+    selectedFieldId = copy.id;
+    renderAll();
+}
+
+function updateField(id, prop, val) {
+    const f = formFields.fields.find(f => f.id === id);
+    if (f) { f[prop] = val; renderPreview(); }
+}
+
+function selectField(id) {
+    selectedFieldId = (selectedFieldId === id) ? null : id;
+    document.querySelectorAll('.fb-fc').forEach(el => el.classList.toggle('selected', el.dataset.id === selectedFieldId));
+}
+
+/* ── Options management ── */
+function addOption(id) {
+    const f = formFields.fields.find(f => f.id === id);
+    if (!f) return;
+    if (!f.options) f.options = [];
+    f.options.push('Option ' + (f.options.length + 1));
+    renderAll();
+}
+function removeOption(id, idx) {
+    const f = formFields.fields.find(f => f.id === id);
+    if (f && f.options) { f.options.splice(idx, 1); renderAll(); }
+}
+function updateOption(id, idx, val) {
+    const f = formFields.fields.find(f => f.id === id);
+    if (f && f.options) { f.options[idx] = val; renderPreview(); }
+}
+
+/* ══════════════════════════════════════════════
+   RENDER CANVAS (Builder side)
+   ══════════════════════════════════════════════ */
+function renderCanvas() {
+    const count = formFields.fields.length;
+    document.getElementById('field-count').textContent = count + ' field' + (count !== 1 ? 's' : '');
+
+    if (count === 0) {
+        canvas.innerHTML = `<div class="fb-canvas-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            <div style="font-size:13px;font-weight:600;color:#64748b;margin-top:4px">Drop fields here</div>
+            <div style="font-size:12px;color:#94a3b8">Drag items from the palette on the left</div>
+        </div>`;
+        return;
+    }
+
+    let html = '';
+    formFields.fields.forEach((field, idx) => {
+        const isLayout = LAYOUT_TYPES.includes(field.type);
+        const isChoice = CHOICE_TYPES.includes(field.type);
+        const sel = field.id === selectedFieldId;
+
+        html += `<div class="fb-fc ${sel?'selected':''}" data-id="${field.id}" onclick="selectField('${field.id}')">`;
+
+        // Top bar
+        html += `<div class="fb-fc-top">`;
+        html += `<span class="fb-fc-grip" title="Drag to reorder">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+        </span>`;
+        html += `<span class="fb-fc-badge">${TYPE_LABELS[field.type]||field.type}</span>`;
+        if (!isLayout && field.required) html += `<span style="color:#EF4444;font-size:10px;font-weight:700">REQUIRED</span>`;
+        html += `<div class="fb-fc-actions">`;
+        html += `<button type="button" onclick="event.stopPropagation();moveField('${field.id}',-1)" class="fb-btn fb-btn-secondary fb-btn-xs" title="Move Up" ${idx===0?'disabled':''}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg></button>`;
+        html += `<button type="button" onclick="event.stopPropagation();moveField('${field.id}',1)" class="fb-btn fb-btn-secondary fb-btn-xs" title="Move Down" ${idx===formFields.fields.length-1?'disabled':''}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+        html += `<button type="button" onclick="event.stopPropagation();duplicateField('${field.id}')" class="fb-btn fb-btn-secondary fb-btn-xs" title="Duplicate"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>`;
+        html += `<button type="button" onclick="event.stopPropagation();removeField('${field.id}')" class="fb-btn fb-btn-danger fb-btn-xs" title="Remove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
+        html += `</div></div>`;
+
+        // Label editor
+        if (field.type === 'DIVIDER') {
+            html += `<div style="border-top:1px solid #e2e8f0;margin:4px 0"></div>`;
+        } else {
+            html += `<input type="text" value="${esc(field.label)}" class="fb-input" style="font-weight:600;margin-bottom:4px"
+                onchange="updateField('${field.id}','label',this.value)" onclick="event.stopPropagation()" placeholder="Field label...">`;
+        }
+
+        // Expanded editor (when selected)
+        if (sel && field.type !== 'DIVIDER') {
+            html += `<div style="margin-top:6px;padding-top:8px;border-top:1px dashed #e2e8f0">`;
+
+            if (!isLayout) {
+                // Placeholder
+                html += `<div style="margin-bottom:6px"><label style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;display:block;margin-bottom:2px">Placeholder</label>`;
+                html += `<input type="text" value="${esc(field.placeholder||'')}" class="fb-input fb-input-sm" onchange="updateField('${field.id}','placeholder',this.value)" onclick="event.stopPropagation()"></div>`;
+
+                // Help text
+                html += `<div style="margin-bottom:6px"><label style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;display:block;margin-bottom:2px">Help Text</label>`;
+                html += `<input type="text" value="${esc(field.helpText||'')}" class="fb-input fb-input-sm" onchange="updateField('${field.id}','helpText',this.value)" onclick="event.stopPropagation()"></div>`;
+
+                // Row: required + width
+                html += `<div class="fb-fc-row">`;
+                html += `<label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#475569"><input type="checkbox" class="fb-check" ${field.required?'checked':''} onchange="updateField('${field.id}','required',this.checked)" onclick="event.stopPropagation()"> Required</label>`;
+                html += `<select class="fb-select" onchange="updateField('${field.id}','width',this.value)" onclick="event.stopPropagation()">
+                    <option value="full" ${field.width==='full'?'selected':''}>Full Width</option>
+                    <option value="half" ${field.width==='half'?'selected':''}>Half Width</option>
+                    <option value="third" ${field.width==='third'?'selected':''}>Third Width</option>
+                </select>`;
+                html += `</div>`;
+            }
+
+            // Options editor for choice fields
+            if (isChoice) {
+                html += `<div style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0">`;
+                html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><label style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase">Options</label>`;
+                html += `<button type="button" onclick="event.stopPropagation();addOption('${field.id}')" class="fb-btn fb-btn-primary fb-btn-xs">+ Add</button></div>`;
+                (field.options||[]).forEach((opt, oi) => {
+                    html += `<div class="fb-opt-row">
+                        <input type="text" value="${esc(opt)}" class="fb-input fb-input-sm" onchange="updateOption('${field.id}',${oi},this.value)" onclick="event.stopPropagation()">
+                        <button type="button" onclick="event.stopPropagation();removeOption('${field.id}',${oi})" class="fb-btn fb-btn-danger fb-btn-xs" title="Remove"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+        }
+
+        html += `</div>`;
+    });
+    canvas.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════
+   RENDER LIVE PREVIEW
+   ══════════════════════════════════════════════ */
+function renderPreview() {
+    const pv = document.getElementById('live-preview');
+    if (!formFields.fields.length) {
+        pv.innerHTML = `<div style="text-align:center;padding:48px 16px;color:#94a3b8">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin:0 auto 8px;display:block"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <div style="font-size:13px;font-weight:600">Form preview</div>
+            <div style="font-size:12px">Add fields to see a live preview</div>
+        </div>`;
+        return;
+    }
+
+    let html = '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">';
+    formFields.fields.forEach(f => {
+        const cols = f.width === 'third' ? 2 : f.width === 'half' ? 3 : 6;
+        const span = `grid-column:span ${cols}`;
+
+        if (f.type === 'HEADER') {
+            html += `<div style="${span};grid-column:1/-1"><div class="fb-pv-header">${esc(f.label)}</div></div>`;
+            return;
+        }
+        if (f.type === 'PARAGRAPH') {
+            html += `<div style="${span};grid-column:1/-1"><div class="fb-pv-paragraph">${esc(f.label)}</div></div>`;
+            return;
+        }
+        if (f.type === 'DIVIDER') {
+            html += `<div style="grid-column:1/-1"><hr class="fb-pv-divider"></div>`;
+            return;
+        }
+
+        html += `<div class="fb-pv-field" style="${span}">`;
+        html += `<label class="fb-pv-label">${esc(f.label)}${f.required?' <span class="fb-pv-req">*</span>':''}</label>`;
+        if (f.helpText) html += `<div class="fb-pv-help">${esc(f.helpText)}</div>`;
+
+        switch(f.type) {
+            case 'TEXT': case 'PHONE':
+                html += `<input type="${f.type==='PHONE'?'tel':'text'}" class="fb-pv-input" placeholder="${esc(f.placeholder||'')}" disabled>`; break;
+            case 'TEXTAREA':
+                html += `<textarea class="fb-pv-input" rows="3" placeholder="${esc(f.placeholder||'')}" style="resize:vertical" disabled></textarea>`; break;
+            case 'NUMBER':
+                html += `<input type="number" class="fb-pv-input" placeholder="${esc(f.placeholder||'')}" disabled>`; break;
+            case 'EMAIL':
+                html += `<input type="email" class="fb-pv-input" placeholder="${esc(f.placeholder||'')}" disabled>`; break;
+            case 'DATE':
+                html += `<input type="date" class="fb-pv-input" disabled>`; break;
+            case 'TIME':
+                html += `<input type="time" class="fb-pv-input" disabled>`; break;
+            case 'SELECT':
+                html += `<select class="fb-pv-input" disabled><option>Select an option</option>`;
+                (f.options||[]).forEach(o => { html += `<option>${esc(o)}</option>`; });
+                html += `</select>`; break;
+            case 'RADIO':
+                (f.options||[]).forEach(o => {
+                    html += `<div class="fb-pv-radio"><input type="radio" disabled style="width:14px;height:14px;accent-color:#E11D48"> ${esc(o)}</div>`;
+                }); break;
+            case 'CHECKBOX':
+                if (f.options && f.options.length > 0) {
+                    (f.options).forEach(o => {
+                        html += `<div class="fb-pv-checkbox-opt"><input type="checkbox" disabled style="width:14px;height:14px;accent-color:#E11D48"> ${esc(o)}</div>`;
+                    });
+                } else {
+                    html += `<div class="fb-pv-checkbox-opt"><input type="checkbox" disabled style="width:14px;height:14px;accent-color:#E11D48"> ${esc(f.placeholder||'Check this box')}</div>`;
+                } break;
+            case 'FILE':
+                html += `<div style="padding:16px;background:#f8fafc;border:1px dashed #e2e8f0;border-radius:4px;text-align:center;font-size:12px;color:#64748b">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin:0 auto 4px;display:block"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    Click or drag to upload</div>`; break;
+            case 'SIGNATURE':
+                html += `<div class="fb-pv-sig">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin:0 auto 4px;display:block"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Signature collected after submission</div>`; break;
+            default:
+                html += `<input type="text" class="fb-pv-input" placeholder="${esc(f.placeholder||'')}" disabled>`;
+        }
+        html += `</div>`;
+    });
+    html += '</div>';
+    pv.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════════ */
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function renderAll() { renderCanvas(); renderPreview(); }
+
+let pendingStatus = 'DRAFT';
+
+function handleSubmit() {
+    document.getElementById('form_fields_json').value = JSON.stringify(formFields);
+    document.getElementById('status_input').value = pendingStatus;
+    return true;
+}
+
+// Initial render
+renderAll();
+</script>
+{% endblock %}

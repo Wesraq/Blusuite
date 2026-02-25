@@ -1,0 +1,165 @@
+{% extends 'ems/base_employee.html' %}
+{% load custom_filters %}
+
+{% block title %}Edit Request - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding: 0 40px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h1 style="margin: 0 0 8px 0; color: #0f172a; font-size: 28px; font-weight: 700;">Edit Request</h1>
+        <p style="margin: 0; color: #64748b; font-size: 14px;">Update your request details</p>
+    </div>
+    <a href="{% url 'employee_request_detail' request.id %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Request
+    </a>
+</div>
+
+{% if messages %}
+<div style="margin-bottom: 20px;">
+    {% for message in messages %}
+    <div style="padding: 16px; background: {% if message.tags == 'success' %}#d1fae5{% elif message.tags == 'error' %}#fee2e2{% else %}#dbeafe{% endif %}; border: 1px solid {% if message.tags == 'success' %}#86efac{% elif message.tags == 'error' %}#fca5a5{% else %}#93c5fd{% endif %}; border-radius: 8px; color: {% if message.tags == 'success' %}#065f46{% elif message.tags == 'error' %}#991b1b{% else %}#1e40af{% endif %}; display: flex; align-items: center; gap: 12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            {% if message.tags == 'success' %}
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            {% elif message.tags == 'error' %}
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+            {% else %}
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            {% endif %}
+        </svg>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <form method="POST" enctype="multipart/form-data" id="requestForm">
+        {% csrf_token %}
+        
+        <!-- Request Type (Read-only) -->
+        <div style="margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Request Type</h3>
+            </div>
+            
+            <div style="padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; font-size: 14px;">
+                {{ request.request_type.name }} (Cannot be changed)
+            </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div style="margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Request Details</h3>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="title" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Request Title <span style="color: #dc2626;">*</span></label>
+                <input type="text" id="title" name="title" required placeholder="Brief description of your request" maxlength="200" value="{{ request.title }}" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="description" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Description <span style="color: #dc2626;">*</span></label>
+                <textarea id="description" name="description" rows="4" required placeholder="Provide detailed information about your request" maxlength="1000" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; resize: vertical; box-sizing: border-box;">{{ request.description }}</textarea>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div style="margin-bottom: 0;">
+                    <label for="amount" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Amount</label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0" placeholder="0.00" value="{{ request.amount }}" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 0;">
+                    <label for="currency" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Currency</label>
+                    <select id="currency" name="currency" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                        <option value="ZMW" {% if request.currency == 'ZMW' %}selected{% endif %}>ZMW (Kwacha)</option>
+                        <option value="USD" {% if request.currency == 'USD' %}selected{% endif %}>USD (Dollar)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div style="margin-bottom: 0;">
+                    <label for="priority" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Priority</label>
+                    <select id="priority" name="priority" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                        <option value="LOW" {% if request.priority == 'LOW' %}selected{% endif %}>Low</option>
+                        <option value="MEDIUM" {% if request.priority == 'MEDIUM' %}selected{% endif %}>Medium</option>
+                        <option value="HIGH" {% if request.priority == 'HIGH' %}selected{% endif %}>High</option>
+                        <option value="URGENT" {% if request.priority == 'URGENT' %}selected{% endif %}>Urgent</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 0;">
+                    <label for="required_by" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Required By Date</label>
+                    <input type="date" id="required_by" name="required_by" value="{{ request.required_by|date:'Y-m-d' }}" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 0;">
+                <label for="attachment" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Attachment (Optional)</label>
+                {% if request.attachment %}
+                <div style="margin-bottom: 12px; padding: 12px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #166534;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                        </svg>
+                        <span style="font-size: 13px;">Current: {{ request.attachment.name }}</span>
+                    </div>
+                    <a href="{{ request.attachment.url }}" target="_blank" style="color: #166534; font-size: 13px; text-decoration: underline;">View</a>
+                </div>
+                {% endif %}
+                <input type="file" id="attachment" name="attachment" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <small style="color: #64748b; font-size: 12px;">Upload new file to replace existing attachment</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display: flex; gap: 12px; padding-top: 24px; border-top: 2px solid #e2e8f0;">
+            <button type="submit" class="btn btn-primary" style="min-width: 140px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Changes
+            </button>
+            <a href="{% url 'employee_request_detail' request.id %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+</div>
+{% endblock %}

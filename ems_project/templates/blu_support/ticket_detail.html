@@ -1,0 +1,131 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+
+{% block title %}Ticket {{ ticket.reference|default:ticket.id }} - Support{% endblock %}
+{% block nav_support %} active{% endblock %}
+{% block page_title %}Support Ticket Detail{% endblock %}
+
+{% block content %}
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Ticket {{ ticket.reference|default:ticket.id }}</div>
+        <div class="card-subtitle">{{ ticket.subject|default:"Untitled" }}</div>
+    </div>
+    <div class="card-content" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <div>
+            <div class="muted-label">Status</div>
+            <div class="status-badge status-{{ ticket.status|lower }}">{{ ticket.get_status_display }}</div>
+        </div>
+        <div>
+            <div class="muted-label">Priority</div>
+            <div class="priority-badge priority-{{ ticket.priority|lower }}">{{ ticket.get_priority_display }}</div>
+        </div>
+        <div>
+            <div class="muted-label">Company</div>
+            <div>{{ ticket.company.name|default:"N/A" }}</div>
+        </div>
+        <div>
+            <div class="muted-label">Category</div>
+            <div>{{ ticket.category|default:"Uncategorized" }}</div>
+        </div>
+        <div>
+            <div class="muted-label">Created</div>
+            <div>{{ ticket.created_at|date:"M d, Y H:i" }}</div>
+        </div>
+        <div>
+            <div class="muted-label">Last updated</div>
+            <div>{{ ticket.updated_at|date:"M d, Y H:i" }}</div>
+        </div>
+        <div>
+            <div class="muted-label">Assigned to</div>
+            <div>{{ ticket.assigned_to.get_full_name|default:"Unassigned" }}</div>
+        </div>
+        <div>
+            <div class="muted-label">Created by</div>
+            <div>{{ ticket.created_by.get_full_name|default:ticket.created_by.email|default:"Unknown" }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Description</div>
+    </div>
+    <div class="card-content">
+        <p style="white-space: pre-wrap;">{{ ticket.description|default:"No description provided." }}</p>
+    </div>
+</div>
+
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Responses</div>
+    </div>
+    <div class="card-content">
+        {% if responses %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for response in responses %}
+            <div style="padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f8fafc;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="font-weight: 600;">{{ response.author.get_full_name|default:response.author.email|default:"System" }}</div>
+                    <div class="muted-label">{{ response.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+                <div style="font-size: 14px; white-space: pre-wrap;">{{ response.message }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="muted-label">No responses yet.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Assign Ticket</div>
+    </div>
+    <div class="card-content">
+        <form method="post" action="{% url 'support:assign_ticket' ticket.id %}" style="display: flex; gap: 12px; align-items: center;">
+            {% csrf_token %}
+            <select name="agent_id" style="padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; min-width: 240px;">
+                <option value="">Select an agent</option>
+                {% for agent in available_agents %}
+                <option value="{{ agent.user.id }}" {% if ticket.assigned_to_id == agent.user.id %}selected{% endif %}>{{ agent.user.get_full_name|default:agent.user.email }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn" style="padding: 10px 16px;">Assign</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.muted-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+}
+.priority-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.priority-urgent { background: #fee2e2; color: #dc2626; }
+.priority-high { background: #fef3c7; color: #d97706; }
+.priority-normal { background: #dbeafe; color: #1e40af; }
+.priority-low { background: #e5e7eb; color: #6b7280; }
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-open { background: #dbeafe; color: #1e40af; }
+.status-in_progress { background: #fef3c7; color: #d97706; }
+.status-resolved { background: #d1fae5; color: #065f46; }
+.status-closed { background: #e5e7eb; color: #6b7280; }
+</style>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends 'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}{{ cycle.name }} - Review Cycle{% endblock %}
+
+{% block extra_css %}
+<style>
+.cycle-detail-page { display: flex; flex-direction: column; gap: 24px; }
+.cycle-header { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px; }
+.cycle-title-row { display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; }
+.cycle-title h2 { margin: 0 0 8px; font-size: 28px; font-weight: 700; color: #0f172a; }
+.cycle-title p { margin: 0; font-size: 14px; color: #64748b; }
+.cycle-actions { display: flex; gap: 12px; }
+.cycle-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all .15s; border: none; cursor: pointer; }
+.cycle-btn-primary { background: #e11d48; color: white; }
+.cycle-btn-primary:hover { background: #be123c; }
+.cycle-btn-secondary { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.cycle-btn-secondary:hover { background: #f8fafc; }
+.cycle-btn-success { background: #10b981; color: white; }
+.cycle-btn-success:hover { background: #059669; }
+.cycle-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.cycle-info-item { }
+.cycle-info-label { font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.cycle-info-value { font-size: 16px; font-weight: 600; color: #0f172a; }
+.cycle-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 24px; }
+.cycle-stat { background: #f8fafc; border-radius: 8px; padding: 16px; }
+.cycle-stat-value { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+.cycle-stat-label { font-size: 12px; color: #64748b; }
+.cycle-progress-section { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
+.cycle-progress-bar-container { background: #f1f5f9; height: 24px; border-radius: 12px; overflow: hidden; margin-top: 12px; }
+.cycle-progress-bar { height: 100%; background: linear-gradient(90deg, #10b981, #059669); display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; transition: width .5s; }
+.cycle-progress-text { color: white; font-size: 12px; font-weight: 700; }
+.assignments-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+.assignments-header { padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.assignments-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; }
+.assignments-filters { padding: 20px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+.filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.filter-input { padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; }
+.filter-input:focus { border-color: #e11d48; }
+.assignments-table { width: 100%; border-collapse: collapse; }
+.assignments-table thead { background: #f8fafc; }
+.assignments-table th { padding: 14px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+.assignments-table td { padding: 16px 24px; border-top: 1px solid #f1f5f9; font-size: 14px; color: #1e293b; }
+.assignments-table tbody tr:hover { background: #fef2f2; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-progress { background: #dbeafe; color: #1e40af; }
+.badge-completed { background: #d1fae5; color: #065f46; }
+.badge-skipped { background: #fee2e2; color: #991b1b; }
+.empty-state { text-align: center; padding: 60px 24px; }
+.empty-state svg { color: #cbd5e1; margin-bottom: 16px; }
+.empty-state h3 { margin: 0 0 8px; color: #64748b; font-size: 18px; }
+.empty-state p { margin: 0 0 20px; color: #94a3b8; font-size: 14px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cycle-detail-page">
+    <!-- Header -->
+    <div class="cycle-header">
+        <div class="cycle-title-row">
+            <div class="cycle-title">
+                <h2>{{ cycle.name }}</h2>
+                <p>{{ cycle.description|default:"No description provided" }}</p>
+            </div>
+            <div class="cycle-actions">
+                <a href="{% url 'review_cycles_list' %}" class="cycle-btn cycle-btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back to Cycles
+                </a>
+                {% if cycle.status == 'DRAFT' or cycle.status == 'ACTIVE' %}
+                <a href="{% url 'bulk_assign_employees' cycle.id %}" class="cycle-btn cycle-btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Bulk Assign Employees
+                </a>
+                <button onclick="initiateReviews()" class="cycle-btn cycle-btn-success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Initiate Reviews
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Cycle Info -->
+        <div class="cycle-info-grid">
+            <div class="cycle-info-item">
+                <div class="cycle-info-label">Review Type</div>
+                <div class="cycle-info-value">{{ cycle.get_review_type_display }}</div>
+            </div>
+            <div class="cycle-info-item">
+                <div class="cycle-info-label">Review Period</div>
+                <div class="cycle-info-value">{{ cycle.review_period_start|date:"M d" }} - {{ cycle.review_period_end|date:"M d, Y" }}</div>
+            </div>
+            <div class="cycle-info-item">
+                <div class="cycle-info-label">Deadline</div>
+                <div class="cycle-info-value" style="{% if cycle.is_overdue %}color: #dc2626;{% endif %}">
+                    {{ cycle.deadline|date:"M d, Y" }}
+                    {% if cycle.is_overdue %}<span style="font-size: 11px; font-weight: 700;">(OVERDUE)</span>{% endif %}
+                </div>
+            </div>
+            <div class="cycle-info-item">
+                <div class="cycle-info-label">Status</div>
+                <div class="cycle-info-value">
+                    {% if cycle.status == 'DRAFT' %}
+                    <span class="badge badge-pending">Draft</span>
+                    {% elif cycle.status == 'ACTIVE' %}
+                    <span class="badge badge-progress">Active</span>
+                    {% elif cycle.status == 'IN_PROGRESS' %}
+                    <span class="badge badge-progress">In Progress</span>
+                    {% elif cycle.status == 'COMPLETED' %}
+                    <span class="badge badge-completed">Completed</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="cycle-stats">
+            <div class="cycle-stat">
+                <div class="cycle-stat-value">{{ total_assignments }}</div>
+                <div class="cycle-stat-label">Total Assignments</div>
+            </div>
+            <div class="cycle-stat">
+                <div class="cycle-stat-value">{{ pending_count }}</div>
+                <div class="cycle-stat-label">Pending</div>
+            </div>
+            <div class="cycle-stat">
+                <div class="cycle-stat-value">{{ in_progress_count }}</div>
+                <div class="cycle-stat-label">In Progress</div>
+            </div>
+            <div class="cycle-stat">
+                <div class="cycle-stat-value">{{ completed_count }}</div>
+                <div class="cycle-stat-label">Completed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="cycle-progress-section">
+        <h3 style="margin: 0 0 4px; font-size: 18px; font-weight: 700; color: #0f172a;">Overall Progress</h3>
+        <p style="margin: 0; font-size: 13px; color: #64748b;">{{ completed_count }} of {{ total_assignments }} reviews completed</p>
+        <div class="cycle-progress-bar-container">
+            <div class="cycle-progress-bar" style="width: {{ completion_percentage }}%;">
+                <span class="cycle-progress-text">{{ completion_percentage }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments -->
+    <div class="assignments-card">
+        <div class="assignments-header">
+            <h3>Employee Assignments</h3>
+        </div>
+
+        <!-- Filters -->
+        <div class="assignments-filters">
+            <form method="get" class="filter-grid">
+                <input type="text" name="search" class="filter-input" placeholder="Search employees..." value="{{ search_query }}">
+                <select name="assignment_status" class="filter-input">
+                    <option value="">All Statuses</option>
+                    {% for value, label in assignment_status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="cycle-btn cycle-btn-primary">Apply</button>
+            </form>
+        </div>
+
+        <!-- Table -->
+        {% if assignments %}
+        <table class="assignments-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Reviewer</th>
+                    <th>Status</th>
+                    <th>Review</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for assignment in assignments %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">{{ assignment.employee.get_full_name }}</div>
+                        <div style="font-size: 12px; color: #64748b;">{{ assignment.employee.email }}</div>
+                    </td>
+                    <td>
+                        {% if assignment.employee.employee_profile %}
+                        {{ assignment.employee.employee_profile.department }}
+                        {% else %}
+                        <span style="color: #94a3b8;">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if assignment.reviewer %}
+                        {{ assignment.reviewer.get_full_name }}
+                        {% else %}
+                        <span style="color: #94a3b8;">Not assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if assignment.status == 'PENDING' %}
+                        <span class="badge badge-pending">Pending</span>
+                        {% elif assignment.status == 'IN_PROGRESS' %}
+                        <span class="badge badge-progress">In Progress</span>
+                        {% elif assignment.status == 'COMPLETED' %}
+                        <span class="badge badge-completed">Completed</span>
+                        {% elif assignment.status == 'SKIPPED' %}
+                        <span class="badge badge-skipped">Skipped</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if assignment.review %}
+                        <a href="{% url 'performance_review_detail' assignment.review.id %}" style="color: #e11d48; text-decoration: none; font-weight: 600;">View Review</a>
+                        {% else %}
+                        <span style="color: #94a3b8;">Not created</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not assignment.review %}
+                        <button class="cycle-btn cycle-btn-secondary" style="padding: 6px 12px; font-size: 12px;">Create Review</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <h3>No Employees Assigned</h3>
+            <p>Start by assigning employees to this review cycle</p>
+            <a href="{% url 'bulk_assign_employees' cycle.id %}" class="cycle-btn cycle-btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Assign Employees
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function initiateReviews() {
+    if (!confirm('This will create review records for all pending assignments. Continue?')) {
+        return;
+    }
+    
+    fetch('{% url "initiate_cycle_reviews" cycle.id %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Failed to initiate reviews: ' + error);
+    });
+}
+</script>
+{% endblock %}

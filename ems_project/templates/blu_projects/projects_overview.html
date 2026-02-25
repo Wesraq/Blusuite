@@ -1,0 +1,481 @@
+{% extends 'ems/blusuite_base.html' %}
+
+{% block title %}Projects Suite · BLU Suite{% endblock %}
+
+{% block headline %}
+<h1 style="font-size: 32px; margin: 0 0 6px; color: #0f172a;">Projects Suite (PMS)</h1>
+<p style="margin: 0; color: #475569; font-size: 15px;">Orchestrate initiatives, delivery timelines and stakeholder alignment.</p>
+{% endblock %}
+
+{% block content %}
+<div class="projects-overview-layout">
+    <!-- Hero Stats Section -->
+    <section class="overview-hero">
+        <div>
+            <span class="chip">Project Management</span>
+            <h2>{{ overview.company_name }}</h2>
+            <p>{{ overview.total_projects }} total projects • {{ overview.active_projects }} active • {{ overview.completed_projects }} completed</p>
+        </div>
+        <div class="hero-stats">
+            <article class="stat-card">
+                <span class="stat-label">Total Projects</span>
+                <strong>{{ overview.total_projects|default:0 }}</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Active Projects</span>
+                <strong>{{ overview.active_projects|default:0 }}</strong>
+                <span class="stat-foot">{{ overview.on_hold }} on hold</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Total Tasks</span>
+                <strong>{{ overview.total_tasks|default:0 }}</strong>
+                <span class="stat-foot">{{ overview.completed_tasks }} completed</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Team Members</span>
+                <strong>{{ overview.team_members|default:0 }}</strong>
+            </article>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="overview-actions">
+        <header class="section-head">
+            <h2>Quick Actions</h2>
+            <p>Jump into key workflows or launch the full dashboard.</p>
+        </header>
+        <div class="action-grid single-action">
+            <a href="{% url 'blu_projects:projects_home' %}" class="action-tile primary large">
+                <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg></span>
+                <div>
+                    <h3>Launch Projects Dashboard</h3>
+                    <p>Open the full project management workspace with all tools and features</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Module Insights -->
+    <div class="overview-insights">
+        <div class="insight-column">
+            <!-- Project Status Breakdown -->
+            <section class="insight-block">
+                <header>
+                    <h3>Project Status</h3>
+                    <span class="muted">Current distribution</span>
+                </header>
+                <div class="status-breakdown">
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: {{ overview.status_percentages.planning }}%; background: #64748b;"></div>
+                        </div>
+                        <div class="status-info">
+                            <span class="status-label">Planning</span>
+                            <span class="status-count">{{ overview.status_counts.planning }}</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: {{ overview.status_percentages.active }}%; background: #1d4ed8;"></div>
+                        </div>
+                        <div class="status-info">
+                            <span class="status-label">Active</span>
+                            <span class="status-count">{{ overview.status_counts.active }}</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: {{ overview.status_percentages.on_hold }}%; background: #dc2626;"></div>
+                        </div>
+                        <div class="status-info">
+                            <span class="status-label">On Hold</span>
+                            <span class="status-count">{{ overview.status_counts.on_hold }}</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: {{ overview.status_percentages.completed }}%; background: #0f172a;"></div>
+                        </div>
+                        <div class="status-info">
+                            <span class="status-label">Completed</span>
+                            <span class="status-count">{{ overview.status_counts.completed }}</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Projects -->
+            <section class="insight-block">
+                <header>
+                    <h3>Recent Projects</h3>
+                    <span class="muted">Latest additions</span>
+                </header>
+                <ul class="insight-list">
+                    {% for project in overview.recent_projects %}
+                    <li>
+                        <span class="primary">{{ project.name }}</span>
+                        <span class="secondary">{{ project.code }} • {{ project.get_status_display }}</span>
+                        <span class="meta">Created {{ project.created_at|timesince }} ago</span>
+                    </li>
+                    {% empty %}
+                    <li class="empty">No projects yet.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+
+        <div class="insight-column">
+            <!-- Team Performance -->
+            <section class="insight-block">
+                <header>
+                    <h3>Team Overview</h3>
+                    <span class="muted">Active contributors</span>
+                </header>
+                <ul class="insight-list">
+                    {% for member in overview.top_contributors %}
+                    <li>
+                        <span class="primary">{{ member.name }}</span>
+                        <span class="secondary">{{ member.active_tasks }} active tasks</span>
+                        <span class="meta">{{ member.completed_tasks }} completed</span>
+                    </li>
+                    {% empty %}
+                    <li class="empty">No team members assigned yet.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <!-- Module Capabilities -->
+            <section class="insight-block">
+                <header>
+                    <h3>Module Capabilities</h3>
+                    <span class="muted">What you can do</span>
+                </header>
+                <ul class="capability-list">
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Project portfolio management</span>
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Task tracking & assignment</span>
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Time tracking & billing</span>
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Milestone management</span>
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Team collaboration</span>
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Budget tracking</span>
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Document management</span>
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Gantt charts & reports</span>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .projects-overview-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+    }
+    .overview-hero {
+        background: white;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        display: flex;
+        justify-content: space-between;
+        gap: 32px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .overview-hero h2 {
+        margin: 6px 0 8px;
+        font-size: 1.9rem;
+        color: #0f172a;
+    }
+    .overview-hero p {
+        margin: 0;
+        color: #475569;
+    }
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(29, 78, 216, 0.16);
+        color: #1d4ed8;
+    }
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        min-width: 320px;
+    }
+    .stat-card {
+        background: rgba(15, 23, 42, 0.92);
+        color: white;
+        border-radius: 16px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 140px;
+    }
+    .stat-card strong {
+        font-size: 24px;
+        font-weight: 700;
+    }
+    .stat-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.7;
+    }
+    .stat-foot {
+        font-size: 12px;
+        color: rgba(226, 232, 240, 0.8);
+    }
+    .section-head h2 {
+        margin: 0 0 4px;
+        font-size: 1.5rem;
+        color: #0f172a;
+    }
+    .section-head p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.95rem;
+    }
+    .overview-actions {
+        background: white;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+    }
+    .action-grid.single-action {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .action-tile {
+        display: flex;
+        gap: 16px;
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(148, 163, 184, 0.12);
+        text-decoration: none;
+        color: #0f172a;
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .action-tile:hover {
+        transform: translateY(-4px);
+        background: rgba(29, 78, 216, 0.14);
+    }
+    .action-tile.primary {
+        background: #1d4ed8;
+        color: white;
+    }
+    .action-tile.primary.large {
+        padding: 28px;
+        font-size: 1.1rem;
+    }
+    .action-tile.primary.large .icon {
+        width: 64px;
+        height: 64px;
+        font-size: 1.8rem;
+    }
+    .action-tile.primary.large h3 {
+        font-size: 1.4rem;
+    }
+    .action-tile.primary:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(29, 78, 216, 0.3);
+    }
+    .action-tile.primary .icon {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    .action-tile.primary p {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    .action-tile .icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: rgba(29, 78, 216, 0.16);
+        color: #1d4ed8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .action-tile h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    .action-tile p {
+        margin: 4px 0 0;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+    .overview-insights {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+    }
+    .insight-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .insight-block {
+        background: white;
+        border-radius: 20px;
+        padding: 22px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .insight-block header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #0f172a;
+    }
+    .insight-block header .muted {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+    .status-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .status-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .status-bar {
+        height: 8px;
+        background: rgba(148, 163, 184, 0.2);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    .status-fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.3s ease;
+    }
+    .status-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .status-label {
+        font-size: 0.9rem;
+        color: #475569;
+        font-weight: 500;
+    }
+    .status-count {
+        font-size: 0.9rem;
+        color: #0f172a;
+        font-weight: 600;
+    }
+    .insight-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .insight-list li {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(148, 163, 184, 0.12);
+        color: #0f172a;
+    }
+    .insight-list li .primary {
+        font-weight: 600;
+    }
+    .insight-list li .secondary {
+        font-size: 0.9rem;
+        color: #475569;
+    }
+    .insight-list li .meta {
+        font-size: 0.78rem;
+        color: #64748b;
+    }
+    .insight-list li.empty {
+        background: transparent;
+        border: 1px dashed rgba(148, 163, 184, 0.4);
+        color: #64748b;
+        text-align: center;
+    }
+    .capability-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .capability-list li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #475569;
+        font-size: 0.95rem;
+    }
+    .capability-list li i {
+        color: #1d4ed8;
+        font-size: 16px;
+    }
+    @media (max-width: 1100px) {
+        .overview-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .hero-stats {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

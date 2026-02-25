@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
+
+import dj_database_url
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -19,6 +22,10 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# APPS_ROOT removed to prevent import conflicts - use full paths like blu_staff.apps.performance
+# APPS_ROOT = BASE_DIR / 'blu_staff' / 'apps'
+# if APPS_ROOT.exists():
+#     sys.path.insert(0, str(APPS_ROOT))
 
 
 # Quick-start development settings - unsuitable for production
@@ -53,20 +60,32 @@ INSTALLED_APPS = [
     'health_check.cache',
     'health_check.storage',
     
-    # Local apps
-    'accounts.apps.AccountsConfig',
-    'attendance.apps.AttendanceConfig',
-    'documents.apps.DocumentsConfig',
-    'assets.apps.AssetsConfig',
-    'performance.apps.PerformanceConfig',
-    'payroll.apps.PayrollConfig',
-    'training.apps.TrainingConfig',
-    'onboarding.apps.OnboardingConfig',
-    'notifications.apps.NotificationsConfig',
-    'requests.apps.RequestsConfig',
-    'communication.apps.CommunicationConfig',
-    'eforms.apps.EformsConfig',
-    'ems_project.apps.EmsProjectConfig',  # Add this line
+    # BLU Suite core modules
+    'tenant_management.apps.TenantManagementConfig',
+    'blu_core',
+    'blu_staff',
+    'blu_assets.apps.BluAssetsConfig',  # Asset Management Suite (AMS) - Standalone
+    'blu_staff.apps.assets_old_backup.apps.AssetsConfig',  # Legacy assets app (label "assets") for migration graph
+    'blu_projects',
+    'blu_analytics',
+    'blu_billing',
+    'blu_support',
+
+    # EMS legacy apps (to be refactored under blu_staff)
+    'blu_staff.apps.accounts.apps.AccountsConfig',
+    'blu_staff.apps.attendance.apps.AttendanceConfig',
+    'blu_staff.apps.documents.apps.DocumentsConfig',
+    'blu_staff.apps.performance.apps.PerformanceConfig',
+    'blu_staff.apps.payroll.apps.PayrollConfig',
+    'blu_staff.apps.training.apps.TrainingConfig',
+    'blu_staff.apps.onboarding.apps.OnboardingConfig',
+    'blu_staff.apps.notifications.apps.NotificationsConfig',
+    'blu_staff.apps.requests.apps.RequestsConfig',
+    'blu_staff.apps.communication.apps.CommunicationConfig',
+    'blu_staff.apps.eforms.apps.EformsConfig',
+    'blu_staff.apps.contracts.apps.ContractsConfig',
+    'ems_project.apps.EmsProjectConfig',
+    'ems_project.payments.apps.PaymentsConfig',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +97,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'tenant_management.middleware.TenantContextMiddleware',
 ]
 
 ROOT_URLCONF = 'ems_project.urls'
@@ -95,6 +115,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'ems_project.context_processors.user_role_context',
                 'ems_project.context_processors.unread_counts',
+                'ems_project.context_processors.company_settings_context',
+                'ems_project.context_processors.system_settings_context',
+                'ems_project.context_processors.currency_context',
+                'tenant_management.context_processors.tenant_theme',
+                'blu_projects.context_processors.pms_context',
             ],
         },
     },
@@ -107,10 +132,10 @@ WSGI_APPLICATION = 'ems_project.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
 }
 
 
@@ -206,3 +231,22 @@ ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'emmanuelsimwanza2@gmail.com')  # Your ad
 
 # Site URL for email links
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
+
+TENANT_ROUTING_STRATEGY = os.getenv('TENANT_ROUTING_STRATEGY', 'path')
+TENANT_PATH_PREFIX = os.getenv('TENANT_PATH_PREFIX', 'workspace')
+TENANT_SESSION_KEY = 'active_tenant_id'
+TENANT_EXCLUDED_PATH_PREFIXES = tuple(
+    os.getenv('TENANT_EXCLUDED_PATHS', '/admin,/static,/media,/health').split(',')
+)
+
+# Stripe Payment Configuration
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', 'pk_test_51P9DxmAkon9QsgJlzX5kKqOlVRbp3Gq6SneGXilmMDBxUgLD8jzYjBpUS0ZO3NZStAmcR0M7SGkWGvTwISoo8kio00IMpkXdZA')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_51P9DxmAkon9QsgJlKEQilSPrYPOjdKeLPIO2oQRQjFIPPqWpczk99pkvhlVNSqaY7NOPLEasWQKngK8cxSjvnXGT00h9Vqa7Kl')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_1234567890abcdef1234567890abcdef')
+
+# Payment Plans Configuration
+DEFAULT_CURRENCY = 'USD'
+DEFAULT_PAYMENT_PLAN_PRICE = 29.99  # Default monthly price
+
+# Payment Requirements
+REQUIRE_PAYMENT_FOR_REGISTRATION = os.getenv('REQUIRE_PAYMENT_FOR_REGISTRATION', 'True').lower() == 'true'

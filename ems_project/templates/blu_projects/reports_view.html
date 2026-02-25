@@ -1,0 +1,92 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}Reports - BLU Projects{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <span style="color: #0f172a;">Reports</span>
+</div>
+
+<!-- Header -->
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+    <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+    </div>
+    <div>
+        <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">Company Reports</h2>
+        <p style="margin: 0; font-size: 13px; color: #64748b;">Overall analytics and insights</p>
+    </div>
+</div>
+
+<!-- Report Cards -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+    <!-- Project Statistics -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Project Statistics</h3>
+        </div>
+        <div style="padding: 16px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Total</div>
+                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_projects }}</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Active</div>
+                <div style="font-size: 22px; font-weight: 700; color: #1d4ed8;">{{ active_projects }}</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Completed</div>
+                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ completed_projects }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Statistics -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Task Statistics</h3>
+        </div>
+        <div style="padding: 16px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Total</div>
+                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_tasks }}</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Completed</div>
+                <div style="font-size: 22px; font-weight: 700; color: #1d4ed8;">{{ completed_tasks }}</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Rate</div>
+                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{% if total_tasks > 0 %}{% widthratio completed_tasks total_tasks 100 %}%{% else %}0%{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Tracking -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Time Tracking</h3>
+        </div>
+        <div style="padding: 16px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Total Hours</div>
+                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_hours|floatformat:1 }}h</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Billable</div>
+                <div style="font-size: 22px; font-weight: 700; color: #1d4ed8;">{{ billable_hours|floatformat:1 }}h</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Non-Billable</div>
+                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_hours|floatformat:1|add:"-"|add:billable_hours|floatformat:1 }}h</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

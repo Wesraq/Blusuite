@@ -2,6 +2,50 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
+from django.conf import settings
+
+
+def finalize_login_session(request, user):
+    """Establish a clean session for the authenticated user and persist context data."""
+
+    # Reset any prior session data before logging the user in
+    request.session.flush()
+
+    # Login and bind user to the new session
+    auth_login(request, user)
+
+    # Provide API token access when DRF authtoken is installed
+    try:
+        from rest_framework.authtoken.models import Token  # type: ignore
+    except ImportError:
+        token_key = None
+    else:
+        token, _ = Token.objects.get_or_create(user=user)
+        token_key = token.key
+        request.session['auth_token'] = token.key
+
+    # Store lightweight user context for UI usage
+    request.session['user_role'] = getattr(user, 'role', None)
+    request.session['user_id'] = user.id
+    request.session['user_email'] = user.email
+    request.session['last_login'] = str(user.last_login)
+
+    # Expire session when browser closes
+    request.session.set_expiry(0)
+
+    # Maintain tenant binding only when an active company and tenant exist
+    tenant_session_key = getattr(settings, 'TENANT_SESSION_KEY', None)
+    company = getattr(user, 'company', None)
+    tenant = None
+    if company and getattr(company, 'is_active', True):
+        tenant = getattr(company, 'tenant', None)
+
+    if tenant_session_key and tenant:
+        request.session[tenant_session_key] = tenant.pk
+    elif tenant_session_key:
+        request.session.pop(tenant_session_key, None)
+
+    return token_key
 
 
 def ems_admin_login(request):
@@ -9,6 +53,11 @@ def ems_admin_login(request):
     if request.method == 'GET':
         if request.user.is_authenticated and request.user.role == 'SUPERADMIN':
             return redirect('/dashboard/')
+        
+        # Clear any existing messages before showing login page
+        storage = messages.get_messages(request)
+        storage.used = True
+        
         return render(request, 'ems/login.html')
 
     elif request.method == 'POST':
@@ -43,6 +92,12 @@ def ems_admin_login(request):
                 # Set session to expire when browser closes for security
                 request.session.set_expiry(0)
 
+                tenant = getattr(getattr(user, 'company', None), 'tenant', None)
+                if tenant:
+                    request.session[settings.TENANT_SESSION_KEY] = tenant.pk
+                else:
+                    request.session.pop(settings.TENANT_SESSION_KEY, None)
+
                 return redirect('/dashboard/')
             else:
                 messages.error(request, 'Access denied. SuperAdmin privileges required.')
@@ -65,6 +120,10 @@ def django_admin_login(request):
 
 def ems_logout(request):
     """Logout from EMS admin - properly clear all session data"""
+    # Call Django's logout to clear authentication first
+    from django.contrib.auth import logout as auth_logout
+    auth_logout(request)
+    
     # Clear Django session data
     request.session.flush()  # This clears all session data, not just auth
 
@@ -78,12 +137,9 @@ def ems_logout(request):
         if key in request.session:
             del request.session[key]
 
-    # Call Django's logout to clear authentication
-    from django.contrib.auth import logout as auth_logout
-    auth_logout(request)
-
-    # Add a success message
-    messages.success(request, 'You have been successfully logged out.')
+    # Clear all messages to prevent them from showing on login page
+    storage = messages.get_messages(request)
+    storage.used = True
 
     return redirect('/login/')
 
@@ -115,6 +171,11 @@ def general_user_login(request):
     if request.method == 'GET':
         if request.user.is_authenticated:
             return redirect('/dashboard/')
+        
+        # Clear any existing messages before showing login page
+        storage = messages.get_messages(request)
+        storage.used = True
+        
         return render(request, 'ems/login.html')
 
     elif request.method == 'POST':
@@ -125,48 +186,20 @@ def general_user_login(request):
             messages.error(request, 'Please enter both email and password')
             return redirect('/login/')
 
-        # Check User model (unified model now handles both SuperAdmin and regular users)
-        from accounts.models import User
-        try:
-            user = User.objects.get(email=email)
-            if user.check_password(password) and user.is_active:
-                # Clear any existing session data before login
-                request.session.flush()
+        user = authenticate(request, username=email, password=password)
 
-                # Re-fetch user from database to ensure we have latest data
-                user = User.objects.get(id=user.id)
+        if not user or not user.is_active:
+            messages.error(request, 'Invalid login credentials or account is disabled.')
+            return redirect('/login/')
 
-                # Login with user
-                from django.contrib.auth import login as auth_login
-                auth_login(request, user)
+        finalize_login_session(request, user)
 
-                # Create or get authentication token for API access
-                from rest_framework.authtoken.models import Token
-                token, created = Token.objects.get_or_create(user=user)
-                # Store token in session for JavaScript access
-                request.session['auth_token'] = token.key
-
-                # Store user info in session for easy access
-                request.session['user_role'] = user.role
-                request.session['user_id'] = user.id
-                request.session['user_email'] = user.email
-                request.session['last_login'] = str(user.last_login)
-
-                # Set session to expire when browser closes for security
-                request.session.set_expiry(0)
-
-                # Redirect based on role
-                if user.role == 'ADMINISTRATOR':
-                    return redirect('/employer/')
-                elif user.role == 'EMPLOYER_ADMIN':
-                    return redirect('/employer/')
-                elif user.role == 'EMPLOYEE':
-                    return redirect('/employee/')
-                else:
-                    return redirect('/dashboard/')
-            else:
-                messages.error(request, 'Invalid login credentials or account is disabled.')
-        except User.DoesNotExist:
-            messages.error(request, 'Account not found.')
+        # Redirect based on role (includes platform roles via dashboard_redirect)
+        if user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            return redirect('/employer/')
+        if user.role == 'EMPLOYEE':
+            return redirect('/employee/')
+        # SUPERADMIN and platform_role users go to dashboard_redirect to reach their portal
+        return redirect('/dashboard/')
 
         return redirect('/login/')

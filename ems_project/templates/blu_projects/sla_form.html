@@ -1,0 +1,146 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}{% if edit_mode %}Edit{% else %}Create{% endif %} SLA{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #64748b; text-decoration: none;">{{ project.name }}</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <a href="{% url 'blu_projects:sla_view' project.id %}" style="color: #1d4ed8; text-decoration: none;">SLA</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <span style="color: #0f172a;">{% if edit_mode %}Edit{% else %}Create{% endif %}</span>
+</div>
+
+<!-- Header -->
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+    <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+    </div>
+    <div>
+        <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">{% if edit_mode %}Edit{% else %}Create{% endif %} SLA Terms</h2>
+        <p style="margin: 0; font-size: 13px; color: #64748b;">{{ project.name }}</p>
+    </div>
+</div>
+
+<form method="post" style="max-width: 800px;">
+    {% csrf_token %}
+
+    <!-- Response Times -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Response Times (hours)</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Critical</label>
+                    <input type="number" name="critical_response_time" value="{% if sla %}{{ sla.critical_response_time }}{% else %}2{% endif %}" min="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">High</label>
+                    <input type="number" name="high_response_time" value="{% if sla %}{{ sla.high_response_time }}{% else %}8{% endif %}" min="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Medium</label>
+                    <input type="number" name="medium_response_time" value="{% if sla %}{{ sla.medium_response_time }}{% else %}24{% endif %}" min="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Low</label>
+                    <input type="number" name="low_response_time" value="{% if sla %}{{ sla.low_response_time }}{% else %}48{% endif %}" min="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolution Times -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Resolution Times (hours)</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Critical</label>
+                    <input type="number" name="critical_resolution_time" value="{% if sla %}{{ sla.critical_resolution_time }}{% else %}8{% endif %}" min="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">High</label>
+                    <input type="number" name="high_resolution_time" value="{% if sla %}{{ sla.high_resolution_time }}{% else %}24{% endif %}" min="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Medium</label>
+                    <input type="number" name="medium_resolution_time" value="{% if sla %}{{ sla.medium_resolution_time }}{% else %}72{% endif %}" min="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Low</label>
+                    <input type="number" name="low_resolution_time" value="{% if sla %}{{ sla.low_resolution_time }}{% else %}120{% endif %}" min="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Contact -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Support Contact</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Support Hours</label>
+                    <input type="text" name="support_hours" value="{% if sla %}{{ sla.support_hours }}{% else %}9 AM - 5 PM, Mon-Fri{% endif %}" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Support Email</label>
+                    <input type="email" name="support_email" value="{% if sla %}{{ sla.support_email }}{% endif %}" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Support Phone</label>
+                    <input type="text" name="support_phone" value="{% if sla %}{{ sla.support_phone }}{% endif %}" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maintenance Period -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Maintenance Period</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Start Date</label>
+                    <input type="date" name="maintenance_start_date" value="{% if sla %}{{ sla.maintenance_start_date|date:'Y-m-d' }}{% endif %}" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">End Date</label>
+                    <input type="date" name="maintenance_end_date" value="{% if sla %}{{ sla.maintenance_end_date|date:'Y-m-d' }}{% endif %}" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Maintenance Terms</label>
+                <textarea name="maintenance_terms" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical;">{% if sla %}{{ sla.maintenance_terms }}{% endif %}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 8px; padding-top: 8px;">
+        <button type="submit" style="padding: 8px 20px; background: #1d4ed8; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: inherit;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            {% if edit_mode %}Update{% else %}Create{% endif %} SLA
+        </button>
+        <a href="{% url 'blu_projects:sla_view' project.id %}" style="padding: 8px 20px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center;">
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,451 @@
+{% extends 'ems/base_employee.html' %}
+{% load custom_filters %}
+
+{% block title %}New Request - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding: 0 40px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h1 style="margin: 0 0 8px 0; color: #0f172a; font-size: 28px; font-weight: 700;">Submit New Request</h1>
+        <p style="margin: 0; color: #64748b; font-size: 14px;">Create a new request for approval</p>
+    </div>
+    <a href="{% url 'employee_requests_list' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to My Requests
+    </a>
+</div>
+
+{% if messages %}
+<div style="margin-bottom: 20px;">
+    {% for message in messages %}
+    <div style="padding: 16px; background: {% if message.tags == 'success' %}#d1fae5{% elif message.tags == 'error' %}#fee2e2{% else %}#dbeafe{% endif %}; border: 1px solid {% if message.tags == 'success' %}#86efac{% elif message.tags == 'error' %}#fca5a5{% else %}#93c5fd{% endif %}; border-radius: 8px; color: {% if message.tags == 'success' %}#065f46{% elif message.tags == 'error' %}#991b1b{% else %}#1e40af{% endif %}; display: flex; align-items: center; gap: 12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            {% if message.tags == 'success' %}
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            {% elif message.tags == 'error' %}
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+            {% else %}
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            {% endif %}
+        </svg>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <form method="POST" enctype="multipart/form-data" id="requestForm">
+        {% csrf_token %}
+        
+        <!-- Request Type Selection -->
+        <div style="margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Request Type</h3>
+            </div>
+            
+            <div style="margin-bottom: 0;">
+                <label for="request_type" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Select Request Type <span style="color: #dc2626;">*</span></label>
+                <select id="request_type" name="request_type" required onchange="toggleRequestFields()" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                    <option value="">-- Select Type --</option>
+                    {% for type in request_types %}
+                    <option value="{{ type.id }}" data-code="{{ type.code }}" data-requires-amount="{{ type.requires_amount }}" data-max-amount="{{ type.max_amount }}">
+                        {{ type.name|strip_emoji }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div id="type_help" style="display: none; margin-top: 8px; padding: 8px 12px; background: #eff6ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af;"></div>
+            </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div style="margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Request Details</h3>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="title" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Request Title <span style="color: #dc2626;">*</span></label>
+                <input type="text" id="title" name="title" required placeholder="Brief description of your request" maxlength="200" oninput="updateCharCount('title', 200)" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                    <small style="color: #64748b; font-size: 12px;">Keep it concise and descriptive</small>
+                    <small id="title_count" style="color: #64748b; font-size: 12px;">0/200</small>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="description" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Description <span style="color: #dc2626;">*</span></label>
+                <textarea id="description" name="description" rows="4" required placeholder="Provide detailed information about your request" maxlength="1000" oninput="updateCharCount('description', 1000)" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; resize: vertical; box-sizing: border-box;"></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                    <small style="color: #64748b; font-size: 12px;">Include all relevant details</small>
+                    <small id="description_count" style="color: #64748b; font-size: 12px;">0/1000</small>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div style="margin-bottom: 0;">
+                    <label for="amount" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Amount <span id="amount_required" style="color: #dc2626; display: none;">*</span></label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0" placeholder="0.00" oninput="validateAmount()" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                    <small id="amount_error" style="color: #dc2626; font-size: 12px; display: none; margin-top: 4px;"></small>
+                </div>
+                
+                <div style="margin-bottom: 0;">
+                    <label for="currency" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Currency</label>
+                    <select id="currency" name="currency" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                        <option value="ZMW" selected>ZMW (Kwacha)</option>
+                        <option value="USD">USD (Dollar)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div style="margin-bottom: 0;">
+                    <label for="priority" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Priority</label>
+                    <select id="priority" name="priority" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM" selected>Medium</option>
+                        <option value="HIGH">High</option>
+                        <option value="URGENT">Urgent</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 0;">
+                    <label for="required_by" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Required By Date</label>
+                    <input type="date" id="required_by" name="required_by" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 0;">
+                <label for="attachment" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Attachment (Optional)</label>
+                <div style="position: relative;">
+                    <input type="file" id="attachment" name="attachment" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="validateFile()" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                </div>
+                <div id="file_preview" style="display: none; margin-top: 8px; padding: 8px 12px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; font-size: 12px; color: #166534; display: flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span id="file_name"></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <small style="color: #64748b; font-size: 12px;">Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max: 10MB)</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Petty Cash Specific Fields -->
+        <div id="petty_cash_fields" style="display: none; margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Petty Cash Details</h3>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="purpose" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Purpose</label>
+                <input type="text" id="purpose" name="purpose" placeholder="What will the money be used for?" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="margin-bottom: 0;">
+                    <label for="expense_category" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Expense Category</label>
+                    <select id="expense_category" name="expense_category" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                        <option value="">-- Select Category --</option>
+                        <option value="Office Supplies">Office Supplies</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Meals">Meals</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 0;">
+                    <label for="payment_method" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Payment Method</label>
+                    <select id="payment_method" name="payment_method" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                        <option value="CASH">Cash</option>
+                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                        <option value="MOBILE_MONEY">Mobile Money</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advance Specific Fields -->
+        <div id="advance_fields" style="display: none; margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Salary Advance Details</h3>
+            </div>
+            
+            {% if employee_salary > 0 %}
+            <div style="margin-bottom: 20px; padding: 16px; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <strong style="color: #1e40af; font-size: 14px;">Your Salary Advance Eligibility</strong>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 13px; color: #1e40af;">
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 2px;">Monthly Salary</div>
+                        <div style="font-weight: 700; font-size: 16px;">{{ currency_symbol }} {{ employee_salary|floatformat:2 }}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 2px;">Max Advance ({{ advance_percentage }}%)</div>
+                        <div style="font-weight: 700; font-size: 16px;">{{ currency_symbol }} {{ max_advance_amount|floatformat:2 }}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 2px;">Available</div>
+                        <div style="font-weight: 700; font-size: 16px; color: #10b981;">{{ currency_symbol }} {{ max_advance_amount|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div style="margin-bottom: 20px;">
+                <label for="reason" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Reason for Advance</label>
+                <textarea id="reason" name="reason" rows="3" placeholder="Explain why you need this advance" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; resize: vertical; box-sizing: border-box;"></textarea>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="repayment_plan" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Repayment Plan</label>
+                <textarea id="repayment_plan" name="repayment_plan" rows="2" placeholder="How do you plan to repay this advance?" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; resize: vertical; box-sizing: border-box;"></textarea>
+            </div>
+            
+            <div style="margin-bottom: 0;">
+                <label for="installments" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Number of Installments (Months)</label>
+                <input type="number" id="installments" name="installments" min="1" max="12" value="1" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                <small style="color: #64748b; font-size: 12px; display: block; margin-top: 4px;">Maximum 12 months</small>
+            </div>
+        </div>
+
+        <!-- Reimbursement Specific Fields -->
+        <div id="reimbursement_fields" style="display: none; margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Reimbursement Details</h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div style="margin-bottom: 0;">
+                    <label for="expense_date" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Expense Date</label>
+                    <input type="date" id="expense_date" name="expense_date" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 0;">
+                    <label for="reimbursement_category" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Expense Category</label>
+                    <select id="reimbursement_category" name="expense_category" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                        <option value="">-- Select Category --</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Accommodation">Accommodation</option>
+                        <option value="Meals">Meals</option>
+                        <option value="Fuel">Fuel</option>
+                        <option value="Communication">Communication</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 0;">
+                <label for="vendor_name" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Vendor/Supplier Name</label>
+                <input type="text" id="vendor_name" name="vendor_name" placeholder="Where did you make the purchase?" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display: flex; gap: 12px; padding-top: 24px; border-top: 2px solid #e2e8f0;">
+            <button type="submit" class="btn btn-primary" style="min-width: 140px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                Submit Request
+            </button>
+            <a href="{% url 'employee_requests_list' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+// Salary advance settings from backend
+const employeeSalary = {{ employee_salary|default:0 }};
+const maxAdvanceAmount = {{ max_advance_amount|default:0 }};
+const advancePercentage = {{ advance_percentage|default:40 }};
+
+function toggleRequestFields() {
+    const select = document.getElementById('request_type');
+    const selectedOption = select.options[select.selectedIndex];
+    const code = selectedOption.getAttribute('data-code');
+    const requiresAmount = selectedOption.getAttribute('data-requires-amount') === 'True';
+    const maxAmount = selectedOption.getAttribute('data-max-amount');
+    
+    // Hide all specific fields
+    document.getElementById('petty_cash_fields').style.display = 'none';
+    document.getElementById('advance_fields').style.display = 'none';
+    document.getElementById('reimbursement_fields').style.display = 'none';
+    document.getElementById('type_help').style.display = 'none';
+    
+    // Handle amount field requirement
+    const amountField = document.getElementById('amount');
+    const amountRequired = document.getElementById('amount_required');
+    
+    // Special handling for salary advance
+    if (code === 'ADVANCE' && maxAdvanceAmount > 0) {
+        amountField.required = true;
+        amountRequired.style.display = 'inline';
+        amountField.max = maxAdvanceAmount;
+        document.getElementById('type_help').innerHTML = `Maximum advance: {{ currency_symbol }} ${maxAdvanceAmount.toFixed(2)} (${advancePercentage}% of your salary)`;
+        document.getElementById('type_help').style.display = 'block';
+    } else if (requiresAmount) {
+        amountField.required = true;
+        amountRequired.style.display = 'inline';
+        if (maxAmount && maxAmount !== 'None') {
+            amountField.max = maxAmount;
+            document.getElementById('type_help').innerHTML = `Maximum amount: ${maxAmount}`;
+            document.getElementById('type_help').style.display = 'block';
+        }
+    } else {
+        amountField.required = false;
+        amountRequired.style.display = 'none';
+        amountField.max = '';
+    }
+    
+    // Show relevant fields based on type
+    if (code === 'PETTY_CASH') {
+        document.getElementById('petty_cash_fields').style.display = 'block';
+    } else if (code === 'ADVANCE') {
+        document.getElementById('advance_fields').style.display = 'block';
+    } else if (code === 'REIMBURSEMENT') {
+        document.getElementById('reimbursement_fields').style.display = 'block';
+    }
+}
+
+function updateCharCount(fieldId, maxLength) {
+    const field = document.getElementById(fieldId);
+    const counter = document.getElementById(fieldId + '_count');
+    const currentLength = field.value.length;
+    counter.textContent = currentLength + '/' + maxLength;
+    
+    // Change color when approaching limit
+    if (currentLength > maxLength * 0.9) {
+        counter.style.color = '#dc2626';
+    } else if (currentLength > maxLength * 0.7) {
+        counter.style.color = '#f59e0b';
+    } else {
+        counter.style.color = '#64748b';
+    }
+}
+
+function validateAmount() {
+    const amountField = document.getElementById('amount');
+    const amountError = document.getElementById('amount_error');
+    const amount = parseFloat(amountField.value);
+    const max = parseFloat(amountField.max);
+    
+    if (amountField.max && amount > max) {
+        amountError.textContent = `Amount cannot exceed ${max}`;
+        amountError.style.display = 'block';
+        amountField.style.borderColor = '#dc2626';
+    } else if (amount < 0) {
+        amountError.textContent = 'Amount cannot be negative';
+        amountError.style.display = 'block';
+        amountField.style.borderColor = '#dc2626';
+    } else {
+        amountError.style.display = 'none';
+        amountField.style.borderColor = '#e2e8f0';
+    }
+}
+
+function validateFile() {
+    const fileInput = document.getElementById('attachment');
+    const filePreview = document.getElementById('file_preview');
+    const fileName = document.getElementById('file_name');
+    const file = fileInput.files[0];
+    
+    if (file) {
+        // Check file size (10MB = 10485760 bytes)
+        if (file.size > 10485760) {
+            alert('File size must be less than 10MB');
+            fileInput.value = '';
+            filePreview.style.display = 'none';
+            return;
+        }
+        
+        // Show file preview
+        fileName.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+        filePreview.style.display = 'flex';
+    } else {
+        filePreview.style.display = 'none';
+    }
+}
+
+// Form validation before submit
+document.getElementById('requestForm').addEventListener('submit', function(e) {
+    const amountField = document.getElementById('amount');
+    const amountError = document.getElementById('amount_error');
+    
+    // Check if amount validation failed
+    if (amountError.style.display === 'block') {
+        e.preventDefault();
+        alert('Please fix the amount error before submitting');
+        amountField.focus();
+        return false;
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10"></circle></svg> Submitting...';
+});
+</script>
+
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}

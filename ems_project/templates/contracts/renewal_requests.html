@@ -1,0 +1,177 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Contract Renewal Requests - EMS{% endblock %}
+{% block page_title %}Contract Renewal Requests{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Contract Renewal Requests</h1>
+        <p class="page-subtitle">Review and approve contract renewals</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'contracts:expiring_contracts' %}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Expiring Contracts
+        </a>
+        <a href="{% url 'contracts:contracts_list' %}" class="btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            All Contracts
+        </a>
+    </div>
+</div>
+
+<!-- Status Filter Tabs -->
+<div style="margin-bottom: 24px;">
+    <div style="display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0;">
+        <a href="?status=PENDING" class="tab-btn {% if status_filter == 'PENDING' %}active{% endif %}" style="padding: 12px 24px; border: none; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-weight: 600; text-decoration: none; color: #64748b;">
+            Pending ({{ pending_renewals.count }})
+        </a>
+        <a href="?status=APPROVED" class="tab-btn {% if status_filter == 'APPROVED' %}active{% endif %}" style="padding: 12px 24px; border: none; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-weight: 600; text-decoration: none; color: #64748b;">
+            Approved
+        </a>
+        <a href="?status=REJECTED" class="tab-btn {% if status_filter == 'REJECTED' %}active{% endif %}" style="padding: 12px 24px; border: none; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-weight: 600; text-decoration: none; color: #64748b;">
+            Rejected
+        </a>
+        <a href="?status=COMPLETED" class="tab-btn {% if status_filter == 'COMPLETED' %}active{% endif %}" style="padding: 12px 24px; border: none; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-weight: 600; text-decoration: none; color: #64748b;">
+            Completed
+        </a>
+        <a href="?status=ALL" class="tab-btn {% if status_filter == 'ALL' %}active{% endif %}" style="padding: 12px 24px; border: none; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-weight: 600; text-decoration: none; color: #64748b;">
+            All
+        </a>
+    </div>
+</div>
+
+<style>
+    .tab-btn.active {
+        color: #2563eb !important;
+        border-bottom-color: #2563eb !important;
+    }
+    .tab-btn:hover {
+        color: #1e40af !important;
+    }
+</style>
+
+<!-- Renewal Requests List -->
+<div class="content-card">
+    <div class="card-header">
+        <h3>Renewal Requests</h3>
+        <span style="color: #64748b; font-size: 14px;">{{ renewals.count }} request(s)</span>
+    </div>
+    <div class="card-content" style="padding: 0;">
+        {% if renewals %}
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Job Title</th>
+                        <th>Current End Date</th>
+                        <th>Proposed Start</th>
+                        <th>Proposed End</th>
+                        <th>Requested By</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for renewal in renewals %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600; color: #1e293b;">{{ renewal.original_contract.employee.get_full_name }}</div>
+                            <div style="font-size: 12px; color: #64748b;">{{ renewal.original_contract.contract_number }}</div>
+                        </td>
+                        <td>{{ renewal.original_contract.job_title }}</td>
+                        <td>
+                            <span style="color: #dc2626; font-weight: 600;">{{ renewal.original_contract.end_date|date:"M j, Y" }}</span>
+                        </td>
+                        <td>{{ renewal.proposed_start_date|date:"M j, Y" }}</td>
+                        <td>
+                            {% if renewal.proposed_end_date %}
+                                {{ renewal.proposed_end_date|date:"M j, Y" }}
+                            {% else %}
+                                <span style="color: #059669;">Permanent</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="font-size: 13px;">{{ renewal.requested_by.get_full_name }}</div>
+                            <div style="font-size: 11px; color: #64748b;">{{ renewal.requested_at|date:"M j, Y" }}</div>
+                        </td>
+                        <td>
+                            {% if renewal.status == 'PENDING' %}
+                                <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #fef3c7; color: #92400e;">Pending</span>
+                            {% elif renewal.status == 'APPROVED' %}
+                                <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #065f46;">Approved</span>
+                            {% elif renewal.status == 'REJECTED' %}
+                                <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #fee2e2; color: #991b1b;">Rejected</span>
+                            {% elif renewal.status == 'COMPLETED' %}
+                                <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #dbeafe; color: #1e40af;">Completed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                {% if renewal.status == 'PENDING' and is_admin %}
+                                    <a href="{% url 'contracts:approve_renewal' renewal.id %}" class="btn btn-success" style="padding: 6px 12px; font-size: 13px;" onclick="return confirm('Approve this renewal request?')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Approve
+                                    </a>
+                                    <a href="{% url 'contracts:reject_renewal' renewal.id %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 13px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                        Reject
+                                    </a>
+                                {% elif renewal.status == 'COMPLETED' and renewal.new_contract %}
+                                    <a href="{% url 'contracts:contract_detail' renewal.new_contract.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">
+                                        View Contract
+                                    </a>
+                                {% else %}
+                                    <span style="color: #64748b; font-size: 13px;">
+                                        {% if renewal.reviewed_by %}
+                                            by {{ renewal.reviewed_by.get_full_name }}
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% if renewal.renewal_notes %}
+                    <tr>
+                        <td colspan="8" style="background: #f8fafc; padding: 12px; border-top: none;">
+                            <strong style="color: #64748b; font-size: 12px;">Notes:</strong>
+                            <span style="color: #1e293b; font-size: 13px;">{{ renewal.renewal_notes }}</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% if renewal.rejection_reason %}
+                    <tr>
+                        <td colspan="8" style="background: #fef2f2; padding: 12px; border-top: none;">
+                            <strong style="color: #dc2626; font-size: 12px;">Rejection Reason:</strong>
+                            <span style="color: #991b1b; font-size: 13px;">{{ renewal.rejection_reason }}</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div style="padding: 48px; text-align: center;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="margin: 0 auto 16px;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <p style="color: #64748b; font-size: 16px; margin: 0;">No renewal requests found</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

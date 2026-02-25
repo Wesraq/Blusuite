@@ -1,0 +1,435 @@
+{% extends 'ems/blusuite_base.html' %}
+{% load static %}
+
+{% block title %}Integrations Hub - BluSuite{% endblock %}
+
+{% block headline %}
+<h1 style="font-size:28px; margin:0 0 8px; color:var(--dark); font-weight:700;">Integrations Hub</h1>
+<p style="margin:0; color:var(--medium-gray); font-size:14px;">Connect third-party services, manage API credentials, and monitor connections</p>
+{% endblock %}
+
+{% block content %}
+<div style="display:flex; flex-direction:column; gap:24px;">
+
+    <!-- Stats -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;">
+        <div style="background:white; border:1px solid var(--border-color); border-radius:4px; padding:20px; display:flex; align-items:center; gap:16px;">
+            <div style="width:44px; height:44px; border-radius:4px; background:rgba(220,20,60,0.08); display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </div>
+            <div><span style="font-size:12px; color:var(--medium-gray); font-weight:500;">Available</span><br><strong style="font-size:22px; color:var(--dark);">{{ total_count }}</strong></div>
+        </div>
+        <div style="background:white; border:1px solid var(--border-color); border-radius:4px; padding:20px; display:flex; align-items:center; gap:16px;">
+            <div style="width:44px; height:44px; border-radius:4px; background:#d1fae5; display:flex; align-items:center; justify-content:center; color:#059669; flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div><span style="font-size:12px; color:var(--medium-gray); font-weight:500;">Connected</span><br><strong style="font-size:22px; color:var(--dark);">{{ active_count }}</strong></div>
+        </div>
+        <div style="background:white; border:1px solid var(--border-color); border-radius:4px; padding:20px; display:flex; align-items:center; gap:16px;">
+            <div style="width:44px; height:44px; border-radius:4px; background:{% if error_count > 0 %}#fee2e2{% else %}#f3f4f6{% endif %}; display:flex; align-items:center; justify-content:center; color:{% if error_count > 0 %}#dc2626{% else %}var(--medium-gray){% endif %}; flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div><span style="font-size:12px; color:var(--medium-gray); font-weight:500;">Errors</span><br><strong style="font-size:22px; color:var(--dark);">{{ error_count }}</strong></div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div style="display:grid; grid-template-columns:1fr 340px; gap:24px;">
+
+        <!-- Left: Integration Cards -->
+        <div>
+            <div style="background:white; border:1px solid var(--border-color); border-radius:4px; padding:24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="font-size:18px; font-weight:700; color:var(--dark); margin:0;">All Integrations</h2>
+                    <span style="font-size:13px; color:var(--medium-gray);">{{ total_count }} available</span>
+                </div>
+
+                <!-- Filter tabs by category -->
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;" id="categoryFilters">
+                    <button type="button" class="cat-filter active" data-cat="all" onclick="filterCategory('all')">All</button>
+                    {% for cat_name, cat_items in categories.items %}
+                    <button type="button" class="cat-filter" data-cat="{{ cat_name }}" onclick="filterCategory('{{ cat_name }}')">{{ cat_name }} ({{ cat_items|length }})</button>
+                    {% endfor %}
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px;" id="integrationsGrid">
+                    {% for integ in integrations %}
+                    <div class="integ-card" data-category="{{ integ.type }}" style="background:white; border:1px solid {% if integ.connected %}#059669{% elif integ.status == 'ERROR' %}#dc2626{% else %}var(--border-color){% endif %}; border-radius:4px; padding:20px; display:flex; flex-direction:column; gap:10px; transition:border-color 0.15s;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <h3 style="font-size:15px; font-weight:700; color:var(--dark); margin:0 0 2px;">{{ integ.name }}</h3>
+                                <span style="font-size:11px; color:var(--medium-gray); font-weight:500; text-transform:uppercase; letter-spacing:0.5px;">{{ integ.type }}</span>
+                            </div>
+                            {% if integ.connected %}
+                            <span style="padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600; background:#d1fae5; color:#065f46;">CONNECTED</span>
+                            {% elif integ.status == 'ERROR' %}
+                            <span style="padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600; background:#fee2e2; color:#991b1b;">ERROR</span>
+                            {% elif integ.status == 'PENDING' %}
+                            <span style="padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600; background:#fef3c7; color:#92400e;">PENDING</span>
+                            {% else %}
+                            <span style="padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600; background:#f3f4f6; color:#6b7280;">AVAILABLE</span>
+                            {% endif %}
+                        </div>
+
+                        <p style="font-size:13px; color:var(--medium-gray); margin:0; line-height:1.5; flex:1;">{{ integ.description }}</p>
+
+                        {% if integ.connected %}
+                        <div style="font-size:12px; color:var(--medium-gray); display:flex; flex-direction:column; gap:2px;">
+                            {% if integ.connected_at %}<span>Connected: {{ integ.connected_at|timesince }} ago</span>{% endif %}
+                            {% if integ.last_synced_at %}<span>Last tested: {{ integ.last_synced_at|timesince }} ago</span>{% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if integ.last_error %}
+                        <div style="font-size:12px; color:#dc2626; background:#fef2f2; padding:6px 8px; border-radius:4px;">{{ integ.last_error|truncatechars:80 }}</div>
+                        {% endif %}
+
+                        <div style="display:flex; gap:8px; padding-top:10px; border-top:1px solid var(--border-color); flex-wrap:wrap;">
+                            {% if integ.connected %}
+                            <!-- Configure -->
+                            <button type="button" onclick="openModal('configure-{{ integ.id }}')" style="padding:7px 14px; background:var(--light-gray); color:var(--dark); border:1px solid var(--border-color); border-radius:4px; font-size:12px; font-weight:600; cursor:pointer;">Configure</button>
+                            <!-- Test -->
+                            <form method="post" style="display:inline;">{% csrf_token %}<input type="hidden" name="action" value="test"><input type="hidden" name="integration_id" value="{{ integ.id }}"><button type="submit" style="padding:7px 14px; background:#f0fdf4; color:#059669; border:1px solid #bbf7d0; border-radius:4px; font-size:12px; font-weight:600; cursor:pointer;">Test</button></form>
+                            <!-- Disconnect -->
+                            <form method="post" style="display:inline;" onsubmit="return confirm('Disconnect {{ integ.name }}?')">{% csrf_token %}<input type="hidden" name="action" value="disconnect"><input type="hidden" name="integration_id" value="{{ integ.id }}"><button type="submit" style="padding:7px 14px; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; border-radius:4px; font-size:12px; font-weight:600; cursor:pointer;">Disconnect</button></form>
+                            {% else %}
+                            <!-- Connect -->
+                            <button type="button" onclick="openModal('connect-{{ integ.id }}')" style="padding:7px 14px; background:var(--primary); color:white; border:none; border-radius:4px; font-size:12px; font-weight:600; cursor:pointer;">Connect</button>
+                            {% if integ.documentation_url %}
+                            <a href="{{ integ.documentation_url }}" target="_blank" style="padding:7px 14px; color:var(--primary); font-size:12px; font-weight:600; text-decoration:none;">Docs</a>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Connect Modal -->
+                    <div id="connect-{{ integ.id }}" class="integ-modal" style="display:none;">
+                        <div class="integ-modal-content">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                                <h3 style="font-size:16px; font-weight:700; margin:0;">Connect {{ integ.name }}</h3>
+                                <button type="button" onclick="closeModal('connect-{{ integ.id }}')" style="background:none; border:none; cursor:pointer; font-size:20px; color:var(--medium-gray);">&times;</button>
+                            </div>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="connect">
+                                <input type="hidden" name="integration_id" value="{{ integ.id }}">
+
+                                {% if integ.type_key == 'SLACK' %}
+                                <p class="modal-hint">Create a Slack App at <a href="https://api.slack.com/apps" target="_blank">api.slack.com/apps</a>, enable OAuth, and copy your credentials.</p>
+                                <div class="modal-field"><label>Client ID <span class="req">*</span></label><input type="text" name="client_id" required placeholder="e.g. 123456789.987654321"></div>
+                                <div class="modal-field"><label>Client Secret <span class="req">*</span></label><input type="password" name="client_secret" required placeholder="Slack Client Secret"></div>
+                                <div class="modal-field"><label>Bot User OAuth Token <span class="req">*</span></label><input type="text" name="config_bot_token" required placeholder="xoxb-..."><p class="field-hint">Found under OAuth & Permissions in your Slack App</p></div>
+
+                                {% elif integ.type_key == 'MICROSOFT_TEAMS' or integ.name == 'Microsoft 365' %}
+                                <p class="modal-hint">Register an app in <a href="https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps" target="_blank">Azure Active Directory</a> and grant the required API permissions.</p>
+                                <div class="modal-field"><label>Application (Client) ID <span class="req">*</span></label><input type="text" name="client_id" required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+                                <div class="modal-field"><label>Client Secret <span class="req">*</span></label><input type="password" name="client_secret" required placeholder="Azure Client Secret"></div>
+                                <div class="modal-field"><label>Tenant ID <span class="req">*</span></label><input type="text" name="config_tenant_id" required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"><p class="field-hint">Found in Azure AD > App registrations > Overview</p></div>
+
+                                {% elif integ.type_key == 'GOOGLE_CALENDAR' %}
+                                <p class="modal-hint">Create OAuth credentials in the <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a>.</p>
+                                <div class="modal-field"><label>Client ID <span class="req">*</span></label><input type="text" name="client_id" required placeholder="xxxx.apps.googleusercontent.com"></div>
+                                <div class="modal-field"><label>Client Secret <span class="req">*</span></label><input type="password" name="client_secret" required placeholder="Google Client Secret"></div>
+
+                                {% elif integ.type_key == 'ZOOM' %}
+                                <p class="modal-hint">Create a Server-to-Server OAuth app in the <a href="https://marketplace.zoom.us/develop/create" target="_blank">Zoom Marketplace</a>.</p>
+                                <div class="modal-field"><label>Client ID <span class="req">*</span></label><input type="text" name="client_id" required placeholder="Zoom Client ID"></div>
+                                <div class="modal-field"><label>Client Secret <span class="req">*</span></label><input type="password" name="client_secret" required placeholder="Zoom Client Secret"></div>
+                                <div class="modal-field"><label>Account ID <span class="req">*</span></label><input type="text" name="config_account_id" required placeholder="Zoom Account ID"><p class="field-hint">Found in your Server-to-Server OAuth app settings</p></div>
+
+                                {% elif integ.name == 'QuickBooks' %}
+                                <p class="modal-hint">Create an app at <a href="https://developer.intuit.com/app/developer/myapps" target="_blank">Intuit Developer</a> and get your OAuth keys.</p>
+                                <div class="modal-field"><label>Client ID <span class="req">*</span></label><input type="text" name="client_id" required placeholder="QuickBooks Client ID"></div>
+                                <div class="modal-field"><label>Client Secret <span class="req">*</span></label><input type="password" name="client_secret" required placeholder="QuickBooks Client Secret"></div>
+                                <div class="modal-field"><label>Realm ID (Company ID) <span class="req">*</span></label><input type="text" name="config_realm_id" required placeholder="e.g. 4620816365213515820"><p class="field-hint">Found in your QuickBooks company URL</p></div>
+
+                                {% elif integ.name == 'Xero' %}
+                                <p class="modal-hint">Create an app at <a href="https://developer.xero.com/app/manage" target="_blank">Xero Developer</a>.</p>
+                                <div class="modal-field"><label>Client ID <span class="req">*</span></label><input type="text" name="client_id" required placeholder="Xero Client ID"></div>
+                                <div class="modal-field"><label>Client Secret <span class="req">*</span></label><input type="password" name="client_secret" required placeholder="Xero Client Secret"></div>
+
+                                {% elif integ.name == 'Sage' %}
+                                <p class="modal-hint">Get your API credentials from <a href="https://developer.sage.com/" target="_blank">Sage Developer Portal</a>.</p>
+                                <div class="modal-field"><label>API Key <span class="req">*</span></label><input type="text" name="api_key" required placeholder="Sage API Key"></div>
+                                <div class="modal-field"><label>Company ID <span class="req">*</span></label><input type="text" name="config_company_id" required placeholder="Sage Company ID"></div>
+
+                                {% elif integ.name == 'Okta' %}
+                                <p class="modal-hint">Generate an API token in your <a href="https://developer.okta.com/docs/guides/create-an-api-token/" target="_blank">Okta Admin Console</a> under Security > API > Tokens.</p>
+                                <div class="modal-field"><label>Okta Domain <span class="req">*</span></label><input type="text" name="config_okta_domain" required placeholder="https://your-org.okta.com"><p class="field-hint">Your Okta organization URL</p></div>
+                                <div class="modal-field"><label>API Token <span class="req">*</span></label><input type="password" name="api_key" required placeholder="00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
+
+                                {% elif integ.name == 'SMS Gateway (Twilio)' %}
+                                <p class="modal-hint">Find your credentials in the <a href="https://console.twilio.com/" target="_blank">Twilio Console</a> dashboard.</p>
+                                <div class="modal-field"><label>Account SID <span class="req">*</span></label><input type="text" name="api_key" required placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
+                                <div class="modal-field"><label>Auth Token <span class="req">*</span></label><input type="password" name="api_secret" required placeholder="Twilio Auth Token"></div>
+                                <div class="modal-field"><label>From Phone Number <span class="req">*</span></label><input type="text" name="config_from_number" required placeholder="+260971234567"><p class="field-hint">Your Twilio phone number with SMS capability</p></div>
+
+                                {% elif integ.name == 'SendGrid' %}
+                                <p class="modal-hint">Create an API key in <a href="https://app.sendgrid.com/settings/api_keys" target="_blank">SendGrid Settings</a> with Mail Send permissions.</p>
+                                <div class="modal-field"><label>API Key <span class="req">*</span></label><input type="password" name="api_key" required placeholder="SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
+                                <div class="modal-field"><label>From Email <span class="req">*</span></label><input type="email" name="config_from_email" required placeholder="noreply@yourcompany.com"><p class="field-hint">Must be a verified sender in SendGrid</p></div>
+                                <div class="modal-field"><label>From Name</label><input type="text" name="config_from_name" placeholder="BluSuite Notifications"></div>
+
+                                {% elif integ.name == 'WhatsApp Business' %}
+                                <p class="modal-hint">Set up WhatsApp Business API via <a href="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started" target="_blank">Meta for Developers</a>.</p>
+                                <div class="modal-field"><label>Permanent Access Token <span class="req">*</span></label><input type="password" name="api_key" required placeholder="EAAxxxxxxxxxxxxxxxxxxxxxxx"></div>
+                                <div class="modal-field"><label>Phone Number ID <span class="req">*</span></label><input type="text" name="config_phone_number_id" required placeholder="e.g. 100234567890123"></div>
+                                <div class="modal-field"><label>Business Account ID <span class="req">*</span></label><input type="text" name="config_waba_id" required placeholder="e.g. 109876543210987"><p class="field-hint">Found in Meta Business Suite > WhatsApp Manager</p></div>
+
+                                {% else %}
+                                <p class="modal-hint">Enter your credentials for {{ integ.name }}.</p>
+                                <div class="modal-field"><label>API Key <span class="req">*</span></label><input type="text" name="api_key" required placeholder="API Key"></div>
+                                <div class="modal-field"><label>API Secret</label><input type="password" name="api_secret" placeholder="API Secret (optional)"></div>
+                                {% endif %}
+
+                                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                                    <button type="button" onclick="closeModal('connect-{{ integ.id }}')" style="padding:10px 20px; background:var(--light-gray); color:var(--dark); border:1px solid var(--border-color); border-radius:4px; font-size:14px; cursor:pointer;">Cancel</button>
+                                    <button type="submit" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:4px; font-size:14px; font-weight:600; cursor:pointer;">Connect</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    {% if integ.connected %}
+                    <!-- Configure Modal -->
+                    <div id="configure-{{ integ.id }}" class="integ-modal" style="display:none;">
+                        <div class="integ-modal-content">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                                <h3 style="font-size:16px; font-weight:700; margin:0;">Configure {{ integ.name }}</h3>
+                                <button type="button" onclick="closeModal('configure-{{ integ.id }}')" style="background:none; border:none; cursor:pointer; font-size:20px; color:var(--medium-gray);">&times;</button>
+                            </div>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="configure">
+                                <input type="hidden" name="integration_id" value="{{ integ.id }}">
+
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">Webhook URL</label>
+                                    <input type="url" name="webhook_url" value="{{ integ.webhook_url }}" placeholder="https://your-webhook-endpoint.com/hook" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px; box-sizing:border-box;">
+                                </div>
+
+                                {% if integ.type_key == 'SLACK' or integ.type_key == 'MICROSOFT_TEAMS' %}
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">Default Channel</label>
+                                    <input type="text" name="config_default_channel" value="{{ integ.config.default_channel|default:'' }}" placeholder="#general" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px; box-sizing:border-box;">
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">Notification Events</label>
+                                    <select name="config_notify_events" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                        <option value="all" {% if integ.config.notify_events == 'all' %}selected{% endif %}>All Events</option>
+                                        <option value="leave" {% if integ.config.notify_events == 'leave' %}selected{% endif %}>Leave Requests Only</option>
+                                        <option value="payroll" {% if integ.config.notify_events == 'payroll' %}selected{% endif %}>Payroll Only</option>
+                                        <option value="attendance" {% if integ.config.notify_events == 'attendance' %}selected{% endif %}>Attendance Only</option>
+                                    </select>
+                                </div>
+                                {% endif %}
+
+                                {% if integ.type_key == 'ACCOUNTING' %}
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">Sync Frequency</label>
+                                    <select name="config_sync_frequency" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                        <option value="realtime" {% if integ.config.sync_frequency == 'realtime' %}selected{% endif %}>Real-time</option>
+                                        <option value="hourly" {% if integ.config.sync_frequency == 'hourly' %}selected{% endif %}>Hourly</option>
+                                        <option value="daily" {% if integ.config.sync_frequency == 'daily' %}selected{% endif %}>Daily</option>
+                                        <option value="weekly" {% if integ.config.sync_frequency == 'weekly' %}selected{% endif %}>Weekly</option>
+                                    </select>
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">Sync Payroll Data</label>
+                                    <select name="config_sync_payroll" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                        <option value="yes" {% if integ.config.sync_payroll == 'yes' %}selected{% endif %}>Yes</option>
+                                        <option value="no" {% if integ.config.sync_payroll == 'no' %}selected{% endif %}>No</option>
+                                    </select>
+                                </div>
+                                {% endif %}
+
+                                {% if integ.type_key == 'SMS_GATEWAY' %}
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">Sender ID / From Number</label>
+                                    <input type="text" name="config_sender_id" value="{{ integ.config.sender_id|default:'' }}" placeholder="+260..." style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px; box-sizing:border-box;">
+                                </div>
+                                {% endif %}
+
+                                {% if integ.type_key == 'EMAIL_SERVICE' %}
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">From Email</label>
+                                    <input type="email" name="config_from_email" value="{{ integ.config.from_email|default:'' }}" placeholder="noreply@company.com" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px; box-sizing:border-box;">
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">From Name</label>
+                                    <input type="text" name="config_from_name" value="{{ integ.config.from_name|default:'' }}" placeholder="BluSuite Notifications" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px; box-sizing:border-box;">
+                                </div>
+                                {% endif %}
+
+                                {% if integ.type_key == 'ZOOM' or integ.type_key == 'GOOGLE_CALENDAR' %}
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:13px; font-weight:500; display:block; margin-bottom:4px;">Auto-create meetings for</label>
+                                    <select name="config_auto_meetings" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
+                                        <option value="none" {% if integ.config.auto_meetings == 'none' %}selected{% endif %}>Disabled</option>
+                                        <option value="interviews" {% if integ.config.auto_meetings == 'interviews' %}selected{% endif %}>Interviews</option>
+                                        <option value="reviews" {% if integ.config.auto_meetings == 'reviews' %}selected{% endif %}>Performance Reviews</option>
+                                        <option value="all" {% if integ.config.auto_meetings == 'all' %}selected{% endif %}>All Events</option>
+                                    </select>
+                                </div>
+                                {% endif %}
+
+                                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                                    <button type="button" onclick="closeModal('configure-{{ integ.id }}')" style="padding:10px 20px; background:var(--light-gray); color:var(--dark); border:1px solid var(--border-color); border-radius:4px; font-size:14px; cursor:pointer;">Cancel</button>
+                                    <button type="submit" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:4px; font-size:14px; font-weight:600; cursor:pointer;">Save Configuration</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div>
+            <!-- Active Connections -->
+            <div style="background:white; border:1px solid var(--border-color); border-radius:4px; padding:20px; margin-bottom:16px;">
+                <h3 style="font-size:15px; font-weight:700; color:var(--dark); margin:0 0 16px;">Active Connections</h3>
+                {% for integ in integrations %}
+                {% if integ.connected %}
+                <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border-color);">
+                    <div style="width:8px; height:8px; border-radius:50%; background:#059669; flex-shrink:0;"></div>
+                    <div style="flex:1;">
+                        <p style="font-size:13px; font-weight:500; color:var(--dark); margin:0;">{{ integ.name }}</p>
+                        <span style="font-size:11px; color:var(--medium-gray);">{% if integ.last_synced_at %}Tested {{ integ.last_synced_at|timesince }} ago{% else %}Connected{% endif %}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% if active_count == 0 %}
+                <p style="text-align:center; color:var(--medium-gray); font-size:13px; padding:16px 0;">No active connections yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Recent Activity -->
+            <div style="background:white; border:1px solid var(--border-color); border-radius:4px; padding:20px; margin-bottom:16px;">
+                <h3 style="font-size:15px; font-weight:700; color:var(--dark); margin:0 0 16px;">Recent Activity</h3>
+                {% for log in recent_logs %}
+                <div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border-color);">
+                    <div style="width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0; background:{% if log.success %}#059669{% else %}#dc2626{% endif %};"></div>
+                    <div style="flex:1;">
+                        <p style="font-size:12px; color:var(--dark-gray); margin:0;">{{ log.company_integration.integration.name }} - {{ log.get_action_display }}</p>
+                        <span style="font-size:11px; color:var(--medium-gray);">{{ log.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="text-align:center; color:var(--medium-gray); font-size:13px; padding:16px 0;">No activity yet</p>
+                {% endfor %}
+            </div>
+
+            <!-- Categories -->
+            <div style="background:white; border:1px solid var(--border-color); border-radius:4px; padding:20px;">
+                <h3 style="font-size:15px; font-weight:700; color:var(--dark); margin:0 0 16px;">Categories</h3>
+                {% for cat_name, cat_items in categories.items %}
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color); cursor:pointer;" onclick="filterCategory('{{ cat_name }}')">
+                    <span style="font-size:13px; color:var(--dark-gray); font-weight:500;">{{ cat_name }}</span>
+                    <span style="font-size:12px; color:var(--medium-gray); background:var(--light-gray); padding:2px 8px; border-radius:4px;">{{ cat_items|length }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal overlay styles and JS -->
+<style>
+    .integ-modal {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .integ-modal-content {
+        background: white;
+        border-radius: 4px;
+        padding: 28px;
+        width: 480px;
+        max-width: 90vw;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .modal-hint {
+        font-size: 13px; color: var(--medium-gray); margin: 0 0 16px; line-height: 1.5;
+    }
+    .modal-hint a { color: var(--primary); text-decoration: underline; }
+    .modal-field {
+        margin-bottom: 12px;
+    }
+    .modal-field label {
+        font-size: 13px; font-weight: 500; display: block; margin-bottom: 4px; color: var(--dark-gray);
+    }
+    .modal-field .req { color: #dc2626; }
+    .modal-field input, .modal-field select {
+        width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;
+        font-size: 14px; box-sizing: border-box;
+    }
+    .modal-field input:focus, .modal-field select:focus {
+        outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(220,20,60,0.1);
+    }
+    .field-hint {
+        font-size: 11px; color: var(--medium-gray); margin: 4px 0 0; line-height: 1.4;
+    }
+    .cat-filter {
+        padding: 6px 14px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: white;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--dark-gray);
+        cursor: pointer;
+        transition: all 0.1s;
+    }
+    .cat-filter.active, .cat-filter:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+    @media (max-width: 1024px) {
+        div[style*="grid-template-columns:1fr 340px"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<script>
+function openModal(id) {
+    document.getElementById(id).style.display = 'flex';
+}
+function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+}
+// Close modal on backdrop click
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('integ-modal')) {
+        e.target.style.display = 'none';
+    }
+});
+// Close modal on Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.integ-modal').forEach(function(m) { m.style.display = 'none'; });
+    }
+});
+function filterCategory(cat) {
+    document.querySelectorAll('.cat-filter').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.cat === cat);
+    });
+    document.querySelectorAll('.integ-card').forEach(function(c) {
+        if (cat === 'all') { c.style.display = ''; }
+        else { c.style.display = c.dataset.category === cat ? '' : 'none'; }
+    });
+}
+</script>
+{% endblock %}

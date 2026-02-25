@@ -1,0 +1,156 @@
+{% extends 'blu_assets/base_assets.html' %}
+{% load static %}
+
+{% block title %}Asset Requests{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .ar-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .ar-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .ar-card-title { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+    .ar-card-body { padding: 20px; }
+    .ar-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 14px; border-radius: 4px; font-size: 12px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .ar-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .ar-btn-primary:hover { background: #be123c; border-color: #be123c; }
+    .ar-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .ar-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .ar-btn-sm { padding: 4px 10px; font-size: 11px; }
+    .ar-badge { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .ar-table { width: 100%; border-collapse: collapse; }
+    .ar-table thead { background: #f8fafc; }
+    .ar-table th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; }
+    .ar-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .ar-table tbody tr:hover { background: #fafbfc; }
+    .ar-tabs { display: flex; gap: 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 16px; }
+    .ar-tab {
+        padding: 10px 16px; text-decoration: none; font-weight: 500; font-size: 13px;
+        color: #64748b; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+    }
+    .ar-tab:hover { color: #0f172a; }
+    .ar-tab-active { color: #e11d48; border-bottom-color: #e11d48; }
+</style>
+{% endblock page_content %}
+
+{% block page_content %}
+<!-- Back Link -->
+<div style="margin-bottom: 12px;">
+    <a href="{% url 'assets:asset_list' %}" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 500;" onmouseover="this.style.color='#e11d48'" onmouseout="this.style.color='#64748b'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Assets
+    </a>
+</div>
+
+<!-- Page Header -->
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">Asset Requests</h1>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">Review and manage asset requests from departments</p>
+        </div>
+        {% if user.role in 'DEPARTMENT_MANAGER,SUPERVISOR' %}
+        <a href="{% url 'assets:asset_request_create' %}" class="ar-btn ar-btn-primary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Request
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="ar-tabs">
+    <a href="?status=" class="ar-tab {% if not status_filter %}ar-tab-active{% endif %}">All</a>
+    <a href="?status=PENDING" class="ar-tab {% if status_filter == 'PENDING' %}ar-tab-active{% endif %}">Pending</a>
+    <a href="?status=APPROVED" class="ar-tab {% if status_filter == 'APPROVED' %}ar-tab-active{% endif %}">Approved</a>
+    <a href="?status=REJECTED" class="ar-tab {% if status_filter == 'REJECTED' %}ar-tab-active{% endif %}">Rejected</a>
+    <a href="?status=FULFILLED" class="ar-tab {% if status_filter == 'FULFILLED' %}ar-tab-active{% endif %}">Fulfilled</a>
+</div>
+
+<!-- Requests Table -->
+{% if requests %}
+<div class="ar-card">
+    <div style="overflow-x: auto;">
+        <table class="ar-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Department</th>
+                    <th>Asset</th>
+                    <th>Qty</th>
+                    <th>Priority</th>
+                    <th>Requested By</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    {% if can_approve %}<th>Actions</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in requests %}
+                <tr>
+                    <td style="font-weight: 700; color: #e11d48;">#{{ request.id }}</td>
+                    <td><span class="ar-badge" style="background: #e0e7ff; color: #3730a3;">{{ request.department.name }}</span></td>
+                    <td>
+                        <div style="font-weight: 600; color: #0f172a;">{{ request.asset_name }}</div>
+                        <div style="font-size: 12px; color: #64748b;">{{ request.get_asset_type_display }}</div>
+                    </td>
+                    <td style="font-weight: 700;">{{ request.quantity }}</td>
+                    <td>
+                        {% if request.priority == 'URGENT' %}
+                        <span class="ar-badge" style="background: #fee2e2; color: #991b1b;">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            Urgent
+                        </span>
+                        {% elif request.priority == 'HIGH' %}
+                        <span class="ar-badge" style="background: #fed7aa; color: #92400e;">High</span>
+                        {% elif request.priority == 'MEDIUM' %}
+                        <span class="ar-badge" style="background: #fef3c7; color: #78350f;">Medium</span>
+                        {% else %}
+                        <span class="ar-badge" style="background: #f1f5f9; color: #475569;">Low</span>
+                        {% endif %}
+                    </td>
+                    <td style="color: #0f172a; font-weight: 500;">{{ request.requested_by.get_full_name }}</td>
+                    <td style="color: #64748b; white-space: nowrap;">{{ request.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        {% if request.status == 'PENDING' %}
+                        <span class="ar-badge" style="background: #fef3c7; color: #92400e;">Pending</span>
+                        {% elif request.status == 'APPROVED' %}
+                        <span class="ar-badge" style="background: #d1fae5; color: #065f46;">Approved</span>
+                        {% elif request.status == 'REJECTED' %}
+                        <span class="ar-badge" style="background: #fee2e2; color: #991b1b;">Rejected</span>
+                        {% elif request.status == 'FULFILLED' %}
+                        <span class="ar-badge" style="background: #ede9fe; color: #6b21a8;">Fulfilled</span>
+                        {% endif %}
+                    </td>
+                    {% if can_approve %}
+                    <td>
+                        {% if request.status == 'PENDING' %}
+                        <a href="{% url 'assets:asset_request_approve' request.id %}" class="ar-btn ar-btn-primary ar-btn-sm">Review</a>
+                        {% else %}
+                        <span style="color: #94a3b8;">&mdash;</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="ar-card">
+    <div class="ar-card-body" style="text-align: center; padding: 60px 20px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px; display: block;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <p style="margin: 0 0 4px; font-size: 15px; font-weight: 600; color: #64748b;">No Requests Found</p>
+        <p style="margin: 0 0 16px; font-size: 13px; color: #94a3b8;">There are no asset requests matching your criteria.</p>
+        {% if user.role in 'DEPARTMENT_MANAGER,SUPERVISOR' %}
+        <a href="{% url 'assets:asset_request_create' %}" class="ar-btn ar-btn-primary">Create New Request</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock page_content %}

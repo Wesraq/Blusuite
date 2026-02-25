@@ -1,0 +1,233 @@
+{% extends 'assets/base_ams.html' %}
+{% load static %}
+
+{% block title %}Asset Requests{% endblock %}
+{% block page_title %}Asset Requests{% endblock %}
+
+{% block ams_page_css %}
+<style>
+    .rq-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .rq-card-h { padding: 12px 18px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .rq-card-t { margin: 0; font-size: 13px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+    .rq-card-t svg { width: 15px; height: 15px; stroke: #64748b; }
+    .rq-card-b { padding: 16px 18px; }
+    .rq-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: 500; text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .rq-btn-primary { background: #E11D48; color: #fff; border-color: #E11D48; }
+    .rq-btn-primary:hover { background: #BE123C; border-color: #BE123C; }
+    .rq-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .rq-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .rq-btn-approve { background: #059669; color: #fff; border-color: #059669; }
+    .rq-btn-approve:hover { background: #047857; border-color: #047857; }
+    .rq-badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .rq-input { padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; transition: border-color 0.15s; }
+    .rq-input:focus { outline: none; border-color: #E11D48; box-shadow: 0 0 0 2px rgba(225,29,72,0.08); }
+    select.rq-input { background: #fff; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e"); background-position: right 8px center; background-repeat: no-repeat; background-size: 14px; padding-right: 28px; }
+    .rq-table { width: 100%; border-collapse: collapse; }
+    .rq-table thead { background: #f8fafc; }
+    .rq-table th { padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; }
+    .rq-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .rq-table tbody tr:hover { background: #fafbfc; }
+    .rq-table tbody tr.rq-row-mine { background: #fffbeb; }
+    .rq-table tbody tr.rq-row-mine:hover { background: #fef3c7; }
+    .rq-link { color: #E11D48; text-decoration: none; font-weight: 600; }
+    .rq-link:hover { text-decoration: underline; }
+    .rq-tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 16px; background: #fff; border-radius: 4px 4px 0 0; overflow-x: auto; }
+    .rq-tab { padding: 10px 16px; text-decoration: none; font-weight: 500; font-size: 13px; color: #64748b; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+    .rq-tab:hover { color: #0f172a; }
+    .rq-tab-active { color: #E11D48; border-bottom-color: #E11D48; }
+    .rq-tab-count { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; background: #f1f5f9; color: #64748b; }
+    .rq-tab-active .rq-tab-count { background: #fce4ec; color: #E11D48; }
+    .rq-stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 14px; text-align: center; }
+    .rq-stat-val { font-size: 24px; font-weight: 700; color: #0f172a; }
+    .rq-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-top: 2px; }
+    @media (max-width: 768px) { .rq-table th, .rq-table td { padding: 8px 10px; font-size: 12px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2>Asset Requests</h2>
+        <p>{% if view_scope == 'personal' %}Your asset requests{% elif view_scope == 'department' %}Department asset requests{% else %}Review and manage asset requests{% endif %}</p>
+    </div>
+    <a href="{% url 'assets:asset_request_create' %}" class="rq-btn rq-btn-primary" style="padding: 7px 14px; font-size: 12px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Request
+    </a>
+</div>
+
+<!-- Stats Pipeline -->
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px;">
+    <div class="rq-stat" style="border-left: 3px solid #64748b;">
+        <div class="rq-stat-val">{{ total_count }}</div>
+        <div class="rq-stat-label">Total</div>
+    </div>
+    <div class="rq-stat" style="border-left: 3px solid #d97706;">
+        <div class="rq-stat-val" style="color: #d97706;">{{ pending_count }}</div>
+        <div class="rq-stat-label">Pending</div>
+    </div>
+    <div class="rq-stat" style="border-left: 3px solid #059669;">
+        <div class="rq-stat-val" style="color: #059669;">{{ approved_count }}</div>
+        <div class="rq-stat-label">Approved</div>
+    </div>
+    <div class="rq-stat" style="border-left: 3px solid #dc2626;">
+        <div class="rq-stat-val" style="color: #dc2626;">{{ rejected_count }}</div>
+        <div class="rq-stat-label">Rejected</div>
+    </div>
+    <div class="rq-stat" style="border-left: 3px solid #7c3aed;">
+        <div class="rq-stat-val" style="color: #7c3aed;">{{ fulfilled_count }}</div>
+        <div class="rq-stat-label">Fulfilled</div>
+    </div>
+</div>
+
+<!-- Filters + Search -->
+<div class="rq-card">
+    <div class="rq-card-b" style="padding: 12px 18px;">
+        <form method="get" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search asset, requester, department..." class="rq-input" style="width: 260px;">
+            {% if priorities %}
+            <select name="priority" class="rq-input">
+                <option value="">All Priorities</option>
+                {% for val, label in priorities %}
+                <option value="{{ val }}" {% if priority_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+            <button type="submit" class="rq-btn rq-btn-primary">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                Filter
+            </button>
+            {% if search or priority_filter %}
+            <a href="{% url 'assets:asset_request_list' %}{% if status_filter %}?status={{ status_filter }}{% endif %}" class="rq-btn rq-btn-secondary">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Status Tabs -->
+<div class="rq-tabs">
+    <a href="?search={{ search }}&priority={{ priority_filter }}" class="rq-tab {% if not status_filter %}rq-tab-active{% endif %}">All <span class="rq-tab-count">{{ total_count }}</span></a>
+    <a href="?status=PENDING&search={{ search }}&priority={{ priority_filter }}" class="rq-tab {% if status_filter == 'PENDING' %}rq-tab-active{% endif %}">Pending <span class="rq-tab-count">{{ pending_count }}</span></a>
+    <a href="?status=APPROVED&search={{ search }}&priority={{ priority_filter }}" class="rq-tab {% if status_filter == 'APPROVED' %}rq-tab-active{% endif %}">Approved <span class="rq-tab-count">{{ approved_count }}</span></a>
+    <a href="?status=REJECTED&search={{ search }}&priority={{ priority_filter }}" class="rq-tab {% if status_filter == 'REJECTED' %}rq-tab-active{% endif %}">Rejected <span class="rq-tab-count">{{ rejected_count }}</span></a>
+    <a href="?status=FULFILLED&search={{ search }}&priority={{ priority_filter }}" class="rq-tab {% if status_filter == 'FULFILLED' %}rq-tab-active{% endif %}">Fulfilled <span class="rq-tab-count">{{ fulfilled_count }}</span></a>
+</div>
+
+<!-- Requests Table -->
+{% if requests %}
+<div class="rq-card" style="border-top: none; border-radius: 0 0 4px 4px;">
+    <div style="overflow-x: auto;">
+        <table class="rq-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Asset Requested</th>
+                    <th>Department</th>
+                    <th>Qty</th>
+                    <th>Priority</th>
+                    <th>Requested By</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr {% if req.id in pending_my_approval %}class="rq-row-mine"{% endif %}>
+                    <td><a href="{% url 'assets:asset_request_detail' req.id %}" class="rq-link">#{{ req.id }}</a></td>
+                    <td>
+                        <div style="font-weight: 600; color: #0f172a;">{{ req.asset_name }}</div>
+                        <div style="font-size: 11px; color: #94a3b8;">{{ req.get_asset_type_display }}</div>
+                    </td>
+                    <td><span class="rq-badge" style="background: #e0e7ff; color: #3730a3;">{{ req.department.name }}</span></td>
+                    <td style="font-weight: 700;">{{ req.quantity }}</td>
+                    <td>
+                        {% if req.priority == 'URGENT' %}
+                        <span class="rq-badge" style="background: #fee2e2; color: #991b1b;">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            Urgent
+                        </span>
+                        {% elif req.priority == 'HIGH' %}
+                        <span class="rq-badge" style="background: #fed7aa; color: #92400e;">High</span>
+                        {% elif req.priority == 'MEDIUM' %}
+                        <span class="rq-badge" style="background: #fef3c7; color: #78350f;">Medium</span>
+                        {% else %}
+                        <span class="rq-badge" style="background: #f1f5f9; color: #475569;">Low</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #4f46e5; flex-shrink: 0;">{{ req.requested_by.first_name|slice:":1" }}{{ req.requested_by.last_name|slice:":1" }}</div>
+                            <span style="font-weight: 500; font-size: 12px;">{{ req.requested_by.get_full_name }}</span>
+                        </div>
+                    </td>
+                    <td style="color: #64748b; white-space: nowrap; font-size: 12px;">{{ req.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        {% if req.status == 'PENDING' %}
+                        <span class="rq-badge" style="background: #fef3c7; color: #92400e;">Pending</span>
+                        {% elif req.status == 'APPROVED' %}
+                        <span class="rq-badge" style="background: #d1fae5; color: #065f46;">Approved</span>
+                        {% elif req.status == 'REJECTED' %}
+                        <span class="rq-badge" style="background: #fee2e2; color: #991b1b;">Rejected</span>
+                        {% elif req.status == 'FULFILLED' %}
+                        <span class="rq-badge" style="background: #ede9fe; color: #6b21a8;">Fulfilled</span>
+                        {% else %}
+                        <span class="rq-badge" style="background: #f1f5f9; color: #475569;">{{ req.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 4px;">
+                            <a href="{% url 'assets:asset_request_detail' req.id %}" class="rq-btn rq-btn-secondary">View</a>
+                            {% if req.id in pending_my_approval %}
+                            <a href="{% url 'assets:asset_request_approve' req.id %}" class="rq-btn rq-btn-approve">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Review
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #64748b;">
+    <div>Page {{ page_obj.number }} of {{ paginator.num_pages }}</div>
+    <div style="display: flex; gap: 6px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}&search={{ search }}&priority={{ priority_filter }}" class="rq-btn rq-btn-secondary">Prev</a>
+        {% else %}
+        <span class="rq-btn rq-btn-secondary" style="opacity: 0.4; pointer-events: none;">Prev</span>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}&search={{ search }}&priority={{ priority_filter }}" class="rq-btn rq-btn-secondary">Next</a>
+        {% else %}
+        <span class="rq-btn rq-btn-secondary" style="opacity: 0.4; pointer-events: none;">Next</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty State -->
+<div class="rq-card">
+    <div class="rq-card-b" style="text-align: center; padding: 60px 20px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px; display: block;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <p style="margin: 0 0 4px; font-size: 15px; font-weight: 600; color: #64748b;">No Requests Found</p>
+        <p style="margin: 0 0 16px; font-size: 13px; color: #94a3b8;">{% if search or priority_filter or status_filter %}No requests match your filters.{% else %}There are no asset requests yet.{% endif %}</p>
+        {% if search or priority_filter or status_filter %}
+        <a href="{% url 'assets:asset_request_list' %}" class="rq-btn rq-btn-secondary" style="margin-right: 8px;">Clear Filters</a>
+        {% endif %}
+        <a href="{% url 'assets:asset_request_create' %}" class="rq-btn rq-btn-primary" style="padding: 7px 14px; font-size: 12px;">Create New Request</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

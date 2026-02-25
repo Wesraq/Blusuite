@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <title>{{ company.name }} - Company Profile - EMS</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/universal.css' %}">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">System Owner</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">{{ user.get_full_name|default:user.email }}</div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'superadmin_dashboard' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg></span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'company_list' %}" class="nav-link active">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg></span>
+                            Companies
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'user_management' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg></span>
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'system_health' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            </svg></span>
+                            System Health
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'superadmin_dashboard' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg></span>
+                            Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'superadmin_settings' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6m0 6v6m0-12l-4 4m8 0l-4-4m-4 16l4-4m8 0l-4 4"></path>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"></path>
+                            </svg></span>
+                            Settings
+                        </a>
+                    </li>
+
+                    <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0;">Communication</li>
+                    <li class="nav-item">
+                        <a href="{% url 'direct_messages_list' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg></span>
+                            Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'chat_groups_list' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg></span>
+                            Groups
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'announcements_list' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 11l18-5v12L3 14v-3z"></path>
+                                <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+                            </svg></span>
+                            Announcements
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'notifications_list' %}" class="nav-link">
+                            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg></span>
+                            Notifications
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="page-title">
+                    <h1>{{ company.name }} - Company Profile</h1>
+                </div>
+                <div class="user-info">
+                    <span class="welcome-text">
+                        Welcome, {{ user.get_full_name|default:user.email }} ({{ user.role|title }})
+                    </span>
+                    <a href="{% url 'ems_logout' %}" class="logout-btn">Sign Out</a>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <a href="{% url 'company_list' %}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 14px; margin-bottom: 16px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Companies</a>
+
+                <!-- Enhanced Statistics Dashboard -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #dbeafe; display: flex; align-items: center; justify-content: center; font-size: 20px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg></div>
+                            <div style="font-size: 14px; color: #6b7280;">Total Users</div>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ total_users }}</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ active_users }} active</div>
+                    </div>
+                    
+                    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; font-size: 20px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></div>
+                            <div style="font-size: 14px; color: #6b7280;">Present Today</div>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ present_today }}</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ absent_today }} absent</div>
+                    </div>
+                    
+                    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 20px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg></div>
+                            <div style="font-size: 14px; color: #6b7280;">Pending Leaves</div>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ pending_leaves }}</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ approved_leaves_this_month }} this month</div>
+                    </div>
+                    
+                    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-size: 20px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg></div>
+                            <div style="font-size: 14px; color: #6b7280;">Documents</div>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ total_documents }}</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ pending_documents }} pending</div>
+                    </div>
+                    
+                    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #fce7f3; display: flex; align-items: center; justify-content: center; font-size: 20px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg></div>
+                            <div style="font-size: 14px; color: #6b7280;">Performance</div>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ avg_rating }}</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ total_reviews }} reviews</div>
+                    </div>
+                    
+                    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #ddd6fe; display: flex; align-items: center; justify-content: center; font-size: 20px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 9L12 5 2 9l10 4 10-4z"></path>
+                            <path d="M6 10v6a6 6 0 0 0 12 0v-6"></path>
+                        </svg></div>
+                            <div style="font-size: 14px; color: #6b7280;">Training</div>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ total_trainings }}</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ completed_trainings }} completed</div>
+                    </div>
+                </div>
+
+                <!-- Filters and Export -->
+                <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg> Search Users</label>
+                            <input type="text" name="search" value="{{ search_query }}" placeholder="Name, email..." style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Role</label>
+                            <select name="role" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                <option value="">All Roles</option>
+                                {% for value, label in role_choices %}
+                                    <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Status</label>
+                            <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                <option value="">All</option>
+                                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="submit" class="btn">Apply</button>
+                            <a href="?" class="btn btn-secondary">Reset</a>
+                        </div>
+                    </form>
+                    <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+                        <a href="?export=users" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export Users</a>
+                        <a href="?export=summary" class="btn btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export Summary</a>
+                    </div>
+                </div>
+
+                <!-- Company Profile Header -->
+                <div class="content-card" style="max-width: 100%; margin-bottom: 24px;">
+                    <div class="card-header">
+                        <div class="card-title">{{ company.name }}</div>
+                        <div class="card-subtitle">Company Profile & Management Dashboard</div>
+                    </div>
+                    <div class="card-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <div style="display: flex; gap: 16px; align-items: center;">
+                                <div style="width: 80px; height: 80px; border-radius: 12px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: white;">
+                                    {{ company.name|slice:":2"|upper }}
+                                </div>
+                                <div>
+                                    <h2 style="font-size: 24px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">{{ company.name }}</h2>
+                                    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 4px;">
+                                        <span class="status approved">Active</span>
+                                        <span style="color: #64748b; font-size: 14px;">Approved: {{ company.approved_at|date:"M j, Y g:i A" }}</span>
+                                    </div>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <span style="color: #64748b; font-size: 13px; font-weight: 500;">Company ID:</span>
+                                        <span style="color: #1e293b; font-size: 13px; font-weight: 600; font-family: monospace; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">{{ company.company_id|default:company.id }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end;">
+                                <a href="{% url 'company_edit' company.id %}" class="btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"></path>
+                                    </svg>
+                                    Edit Company
+                                </a>
+                                <form method="POST" action="{% url 'approve_existing_company' company.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 6px;"
+                                            onclick="return confirm('Resend login credentials for {{ company.name }}?');">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="16 17 21 12 16 7"></polyline>
+                                            <polyline points="8 7 3 12 8 17"></polyline>
+                                            <line x1="21" y1="12" x2="3" y2="12"></line>
+                                        </svg>
+                                        Resend Credentials
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                    <button class="tab-btn" onclick="showTab('users')">Users ({{ total_users }})</button>
+                    <button class="tab-btn" onclick="showTab('branches')">Branches ({{ branches_count }})</button>
+                    <button class="tab-btn" onclick="showTab('settings')">Settings</button>
+                    <button class="tab-btn" onclick="showTab('activity')">Activity Log</button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="overview" class="tab-content active">
+                    <div class="content-grid" style="grid-template-columns: 1fr; gap: 16px;">
+                        <!-- Company Information -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title">Company Information</div>
+                                <div class="card-subtitle">Basic company details and contact information</div>
+                            </div>
+                            <div class="card-content">
+                                <div style="margin-bottom: 16px;">
+                                    <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                        <span style="font-weight: 500; color: #64748b; min-width: 120px;">Company Name:</span>
+                                        <span style="color: #1e293b; font-weight: 500;">{{ company.name }}</span>
+                                    </div>
+                                    <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                        <span style="font-weight: 500; color: #64748b; min-width: 120px;">Email:</span>
+                                        <span style="color: #1e293b;">{{ company.email }}</span>
+                                    </div>
+                                    {% if company.phone %}
+                                        <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                            <span style="font-weight: 500; color: #64748b; min-width: 120px;">Phone:</span>
+                                            <span style="color: #1e293b;">{{ company.phone }}</span>
+                                        </div>
+                                    {% endif %}
+                                    {% if company.website %}
+                                        <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                            <span style="font-weight: 500; color: #64748b; min-width: 120px;">Website:</span>
+                                            <span style="color: #1e293b;"><a href="{{ company.website }}" target="_blank" style="color: #3b82f6; text-decoration: none;">{{ company.website }}</a></span>
+                                        </div>
+                                    {% endif %}
+                                    {% if company.tax_id %}
+                                        <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                            <span style="font-weight: 500; color: #64748b; min-width: 120px;">Tax ID:</span>
+                                            <span style="color: #1e293b;">{{ company.tax_id }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                        <span style="font-weight: 500; color: #64748b; min-width: 120px;">Status:</span>
+                                        <span class="status approved">Active</span>
+                                    </div>
+                                    <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                        <span style="font-weight: 500; color: #64748b; min-width: 120px;">Approved:</span>
+                                        <span style="color: #1e293b;">{{ company.approved_at|date:"M j, Y g:i A" }}</span>
+                                    </div>
+                                    {% if company.subscription_plan %}
+                                        <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                            <span style="font-weight: 500; color: #64748b; min-width: 120px;">Subscription Plan:</span>
+                                            <span style="color: #1e293b;">{{ company.get_subscription_plan_display }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                        <span style="font-weight: 500; color: #64748b; min-width: 120px;">Billing Preference:</span>
+                                        <span style="color: #1e293b;">
+                                            {% if company.registration_request %}
+                                                {{ company.registration_request.get_billing_preference_display }}
+                                            {% else %}
+                                                Not set
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div style="display: flex; margin-bottom: 12px; font-size: 14px; align-items: flex-start;">
+                                        <span style="font-weight: 500; color: #64748b; min-width: 120px;">License:</span>
+                                        <span style="color: #1e293b;">
+                                            {% if license_status == 'expired' %}
+                                                <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#fee2e2; color:#b91c1c; font-size: 11px; font-weight:600; text-transform:uppercase;">{{ license_status_label }}</span>
+                                            {% elif license_status == 'expiring_30' %}
+                                                <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#fef3c7; color:#92400e; font-size: 11px; font-weight:600; text-transform:uppercase;">{{ license_status_label }}</span>
+                                            {% elif license_status == 'trial' %}
+                                                <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#dbeafe; color:#1d4ed8; font-size: 11px; font-weight:600; text-transform:uppercase;">{{ license_status_label }}</span>
+                                            {% else %}
+                                                <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#dcfce7; color:#166534; font-size: 11px; font-weight:600; text-transform:uppercase;">{{ license_status_label }}</span>
+                                            {% endif %}
+                                            {% if license_days_remaining is not None and license_status != 'expired' %}
+                                                <span style="font-size: 12px; color:#64748b; margin-left: 6px;">({{ license_days_remaining }} days remaining)</span>
+                                            {% endif %}
+                                            <div style="font-size: 12px; color:#64748b; margin-top: 4px;">
+                                                {% if company.is_trial and company.trial_ends_at %}
+                                                    Trial until {{ company.trial_ends_at|date:"M j, Y" }}
+                                                {% elif company.license_expiry %}
+                                                    Active until {{ company.license_expiry|date:"M j, Y" }}
+                                                {% else %}
+                                                    Active (no expiry date)
+                                                {% endif %}
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Information -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title">Address Information</div>
+                                <div class="card-subtitle">Company location and mailing address</div>
+                            </div>
+                            <div class="card-content">
+                                <div style="margin-bottom: 16px;">
+                                    <div style="font-size: 14px; line-height: 1.6; color: #1e293b; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                        {{ company.address|linebreaksbr }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statistics -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title">Company Statistics</div>
+                                <div class="card-subtitle">Key metrics and user engagement</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="stats-grid">
+                                    <div class="stat-card">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                                            <div>
+                                                <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Total Users</h3>
+                                                <p style="font-size: 12px; color: #64748b;">All registered users</p>
+                                            </div>
+                                            <div style="font-size: 24px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg></div>
+                                        </div>
+                                        <h3 style="font-size: 2em; color: #1e293b; margin-bottom: 8px; font-weight: 600;">{{ total_users }}</h3>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                                            <div>
+                                                <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Active Users</h3>
+                                                <p style="font-size: 12px; color: #64748b;">Currently active</p>
+                                            </div>
+                                            <div style="font-size: 24px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></div>
+                                        </div>
+                                        <h3 style="font-size: 2em; color: #1e293b; margin-bottom: 8px; font-weight: 600;">{{ active_users }}</h3>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                                            <div>
+                                                <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Branches</h3>
+                                                <p style="font-size: 12px; color: #64748b;">Sub-companies</p>
+                                            </div>
+                                            <div style="font-size: 24px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg></div>
+                                        </div>
+                                        <h3 style="font-size: 2em; color: #1e293b; margin-bottom: 8px; font-weight: 600;">{{ branches_count }}</h3>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                                            <div>
+                                                <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Departments</h3>
+                                                <p style="font-size: 12px; color: #64748b;">Organizational units</p>
+                                            </div>
+                                            <div style="font-size: 24px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg></div>
+                                        </div>
+                                        <h3 style="font-size: 2em; color: #1e293b; margin-bottom: 8px; font-weight: 600;">{{ departments_count }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="content-card" style="max-width: 100%;">
+                            <div class="card-header">
+                                <div class="card-title">Recent Activity</div>
+                                <div class="card-subtitle">Latest company activity and updates</div>
+                            </div>
+                            <div class="card-content">
+                                <div style="margin-bottom: 16px;">
+                                    {% for activity in recent_activities %}
+                                        <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
+                                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #f8fafc; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                                                {% if activity.type == 'login' %}
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                        <circle cx="9" cy="7" r="4"></circle>
+                                                    </svg>
+                                                {% elif activity.type == 'user' %}
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                        <circle cx="9" cy="7" r="4"></circle>
+                                                        <line x1="19" y1="8" x2="19" y2="14"></line>
+                                                        <line x1="16" y1="11" x2="22" y2="11"></line>
+                                                    </svg>
+                                                {% elif activity.type == 'document' %}
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                                    </svg>
+                                                {% elif activity.type == 'leave' %}
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                                    </svg>
+                                                {% else %}
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="3" y="3" width="7" height="7"></rect>
+                                                        <rect x="14" y="3" width="7" height="7"></rect>
+                                                        <rect x="14" y="14" width="7" height="7"></rect>
+                                                        <rect x="3" y="14" width="7" height="7"></rect>
+                                                    </svg>
+                                                {% endif %}
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <h4 style="color: #1e293b; margin-bottom: 4px; font-size: 14px; font-weight: 600;">{{ activity.title }}</h4>
+                                                <p style="color: #64748b; font-size: 12px; margin: 0;">{{ activity.description }}</p>
+                                                <p style="color: #9ca3af; font-size: 11px; margin: 4px 0 0 0;">{{ activity.timestamp|date:"M j, Y g:i A" }}</p>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <div style="text-align: center; padding: 40px 20px; color: #9ca3af;">
+                                            <div style="font-size: 48px; margin-bottom: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg></div>
+                                            <h4 style="font-size: 16px; font-weight: 600; color: #6b7280; margin-bottom: 8px;">No Recent Activity</h4>
+                                            <p style="font-size: 14px; color: #9ca3af;">Company activity will appear here</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="users" class="tab-content">
+                    <div class="content-card" style="max-width: 100%;">
+                        <div class="card-header">
+                            <div class="card-title">Company Users</div>
+                            <div class="card-subtitle">Manage all users associated with this company</div>
+                        </div>
+                        <div class="card-content">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <div></div>
+                                <div style="display: flex; gap: 12px;">
+                                    <button class="btn btn-success" onclick="bulkActivateUsers()">Activate Selected</button>
+                                    <button class="btn btn-warning" onclick="bulkDeactivateUsers()">Deactivate Selected</button>
+                                    <a href="/companies/{{ company.id }}/create-user/" class="btn">+ Add User</a>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="attendance-table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" id="selectAllUsers" onchange="toggleSelectAllUsers()">
+                                            </th>
+                                            <th>User</th>
+                                            <th>Role</th>
+                                            <th>Contact</th>
+                                            <th>Status</th>
+                                            <th>Last Login</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        {% for user in company_users %}
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" class="user-checkbox" value="{{ user.id }}">
+                                                </td>
+                                                <td>
+                                                    <div style="display: flex; align-items: center;">
+                                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; color: #374151; margin-right: 12px;">
+                                                            {{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+                                                        </div>
+                                                        <div>
+                                                            <div style="font-weight: 500; color: #1e293b;">{{ user.get_full_name|default:user.email }}</div>
+                                                            <div style="font-size: 12px; color: #64748b;">ID: {{ user.id }}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; background: {{ get_role_badge_color|default:'#f1f5f9' }}; color: {{ get_role_badge_text_color|default:'#374151' }};">
+                                                        {{ user.role|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div style="font-size: 12px; color: #1e293b;">{{ user.email }}</div>
+                                                    {% if user.phone_number %}
+                                                        <div style="font-size: 12px; color: #64748b;">{{ user.phone_number }}</div>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; background: {{ user.is_active|yesno:'#dcfce7,#fecaca' }}; color: {{ user.is_active|yesno:'#166534,#991b1b' }};">
+                                                        {{ user.is_active|yesno:'Active,Inactive' }}
+                                                    </span>
+                                                </td>
+                                                <td style="color: #1e293b;">
+                                                    {% if user.last_login %}
+                                                        {{ user.last_login|date:"M j, Y g:i A" }}
+                                                    {% else %}
+                                                        Never
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <div style="display: flex; gap: 8px;">
+                                                        <button class="btn btn-secondary" onclick="viewUser({{ user.id }})">View</button>
+                                                        <button class="btn" onclick="editUser({{ user.id }})">Edit</button>
+                                                        {% if user.is_active %}
+                                                            <button class="btn btn-warning" onclick="toggleUserStatus({{ user.id }}, false)">Deactivate</button>
+                                                        {% else %}
+                                                            <button class="btn btn-success" onclick="toggleUserStatus({{ user.id }}, true)">Activate</button>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="7" style="text-align: center; padding: 24px; color: #64748b;">
+                                                    No users found for this company
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Branches Tab -->
+                <div id="branches" class="tab-content">
+                    <div class="content-card" style="max-width: 100%;">
+                        <div class="card-header">
+                            <div class="card-title">Company Branches</div>
+                            <div class="card-subtitle">Manage sub-companies and branch offices</div>
+                        </div>
+                        <div class="card-content">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <div></div>
+                                <a href="/companies/{{ company.id }}/create-branch/" class="btn">+ Add Branch</a>
+                            </div>
+
+                            {% if branches %}
+                                <div class="content-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+                                    {% for branch in branches %}
+                                        <div class="content-card">
+                                            <div class="card-header">
+                                                <div class="card-title">{{ branch.name }}</div>
+                                                <span class="status approved">Active</span>
+                                            </div>
+                                            <div class="card-content">
+                                                <div style="margin-bottom: 16px; color: #1e293b; font-size: 14px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                                    {{ branch.address|truncatechars:120 }}
+                                                </div>
+
+                                                <div style="margin-bottom: 16px;">
+                                                    <div style="display: flex; margin-bottom: 8px; font-size: 14px;">
+                                                        <span style="font-weight: 500; color: #64748b; min-width: 80px;">Users:</span>
+                                                        <span style="color: #1e293b;">{{ branch.users.count }} users</span>
+                                                    </div>
+                                                    <div style="display: flex; margin-bottom: 8px; font-size: 14px;">
+                                                        <span style="font-weight: 500; color: #64748b; min-width: 80px;">Created:</span>
+                                                        <span style="color: #1e293b;">{{ branch.created_at|date:"M j, Y" }}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                                    <button class="btn btn-secondary" onclick="viewBranch({{ branch.id }})">View</button>
+                                                    <button class="btn" onclick="editBranch({{ branch.id }})">Edit</button>
+                                                    <button class="btn btn-warning" onclick="manageBranchUsers({{ branch.id }})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg> Users</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div style="text-align: center; padding: 60px 20px; color: #64748b;">
+                                    <h3 style="font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">No Branches</h3>
+                                    <p style="font-size: 16px; color: #64748b; margin-bottom: 24px;">This company doesn't have any branches yet. Add branches to organize your workforce.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings" class="tab-content">
+                    <div class="content-card" style="max-width: 100%;">
+                        <div class="card-header">
+                            <div class="card-title">Company Settings</div>
+                            <div class="card-subtitle">Configure company-specific settings and preferences</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="content-grid">
+                                <div class="content-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Subscription & License</div>
+                                        <div class="card-subtitle">Current subscription plan and license details</div>
+                                    </div>
+                                    <div class="card-content">
+                                        <div style="margin-bottom: 16px;">
+                                            <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                                <span style="font-weight: 500; color: #64748b; min-width: 120px;">Plan:</span>
+                                                <span style="color: #1e293b; font-weight: 500;">{{ company.subscription_plan|title }}</span>
+                                            </div>
+                                            <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                                <span style="font-weight: 500; color: #64748b; min-width: 120px;">License Key:</span>
+                                                <span style="color: #1e293b; font-family: monospace;">{{ company.license_key }}</span>
+                                            </div>
+                                            <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                                <span style="font-weight: 500; color: #64748b; min-width: 120px;">Max Users:</span>
+                                                <span style="color: #1e293b;">{{ company.max_employees }}</span>
+                                            </div>
+                                            <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                                <span style="font-weight: 500; color: #64748b; min-width: 120px;">Expires:</span>
+                                                <span style="color: #1e293b;">{{ company.license_expiry|date:"M j, Y" }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="content-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Security Settings</div>
+                                        <div class="card-subtitle">Company security and access configuration</div>
+                                    </div>
+                                    <div class="card-content">
+                                        <div style="margin-bottom: 16px;">
+                                            <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                                <span style="font-weight: 500; color: #64748b; min-width: 120px;">2FA Required:</span>
+                                                <span class="status {{ company.require_2fa|yesno:'approved,pending' }}">{{ company.require_2fa|yesno:'Required,Optional' }}</span>
+                                            </div>
+                                            <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                                <span style="font-weight: 500; color: #64748b; min-width: 120px;">Password Policy:</span>
+                                                <span style="color: #1e293b;">{{ company.password_policy|default:'Standard' }}</span>
+                                            </div>
+                                            <div style="display: flex; margin-bottom: 12px; font-size: 14px;">
+                                                <span style="font-weight: 500; color: #64748b; min-width: 120px;">Session Timeout:</span>
+                                                <span style="color: #1e293b;">{{ company.session_timeout|default:'30' }} minutes</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Log Tab -->
+                <div id="activity" class="tab-content">
+                    <div class="content-card" style="max-width: 100%;">
+                        <div class="card-header">
+                            <div class="card-title">Company Activity Log</div>
+                            <div class="card-subtitle">Complete audit trail of company activities</div>
+                        </div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 16px;">
+                                {% for log in activity_logs %}
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
+                                        <div>
+                                            <h4 style="color: #1e293b; margin-bottom: 4px;">{{ log.title }}</h4>
+                                            <p style="color: #64748b; font-size: 12px;">{{ log.description }}</p>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span style="color: #64748b; font-size: 12px;">{{ log.timestamp|date:"M j, Y g:i A" }}</span>
+                                            <div style="font-size: 12px; color: #64748b;">{{ log.type|title }}</div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <div style="text-align: center; padding: 40px 20px; color: #64748b;">
+                                        <h4 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">No Activity Yet</h4>
+                                        <p style="font-size: 16px; color: #64748b;">Activity logs will appear here as users interact with the system.</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).style.display = 'block';
+
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+
+        function exportCompanyData() {
+            alert('Company data export functionality would be implemented here');
+        }
+
+        function toggleSelectAllUsers() {
+            const selectAll = document.getElementById('selectAllUsers');
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
+
+        function bulkActivateUsers() {
+            const selected = getSelectedUsers();
+            if (selected.length === 0) {
+                alert('Please select users to activate');
+                return;
+            }
+
+            if (confirm(`Activate ${selected.length} user(s)?`)) {
+                selected.forEach(id => toggleUserStatus(id, true));
+            }
+        }
+
+        function bulkDeactivateUsers() {
+            const selected = getSelectedUsers();
+            if (selected.length === 0) {
+                alert('Please select users to deactivate');
+                return;
+            }
+
+            if (confirm(`Deactivate ${selected.length} user(s)?`)) {
+                selected.forEach(id => toggleUserStatus(id, false));
+            }
+        }
+
+        function getSelectedUsers() {
+            const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+            return Array.from(checkboxes).map(cb => parseInt(cb.value));
+        }
+
+        function toggleUserStatus(userId, activate) {
+            alert(`Toggle user status functionality for user ${userId} would be implemented here`);
+        }
+
+        function viewUser(userId) {
+            alert(`View user functionality for user ${userId} would be implemented here`);
+        }
+
+        function editUser(userId) {
+            alert(`Edit user functionality for user ${userId} would be implemented here`);
+        }
+
+        function viewBranch(branchId) {
+            alert(`View branch functionality for branch ${branchId} would be implemented here`);
+        }
+
+        function editBranch(branchId) {
+            alert(`Edit branch functionality for branch ${branchId} would be implemented here`);
+        }
+
+        function manageBranchUsers(branchId) {
+            alert(`Manage branch users functionality for branch ${branchId} would be implemented here`);
+        }
+
+        // Navigation functions
+        function setActiveNav(element) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        function showContent(contentType) {
+            console.log('Showing content for:', contentType);
+        }
+    </script>
+</body>
+</html>

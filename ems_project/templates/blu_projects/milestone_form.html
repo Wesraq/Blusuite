@@ -1,0 +1,76 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}{% if edit_mode %}Edit{% else %}Create{% endif %} Milestone - {{ project.name }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #1d4ed8; text-decoration: none;">{{ project.name }}</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <span style="color: #0f172a;">{% if edit_mode %}Edit Milestone{% else %}New Milestone{% endif %}</span>
+</div>
+
+<!-- Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: 4px; background: #fef3c7; display: flex; align-items: center; justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+        </div>
+        <div>
+            <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">{% if edit_mode %}Edit Milestone{% else %}Create Milestone{% endif %}</h2>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">{{ project.name }}</p>
+        </div>
+    </div>
+    <a href="{% url 'blu_projects:project_detail' project.id %}" style="padding: 7px 14px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Back to Project
+    </a>
+</div>
+
+<form method="post" style="max-width: 600px;">
+    {% csrf_token %}
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Milestone Details</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="grid-column: span 2;">
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Milestone Name <span style="color: #dc2626;">*</span></label>
+                    <input type="text" name="name" value="{{ milestone.name|default:'' }}" required placeholder="Enter milestone name" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Due Date</label>
+                    <input type="date" name="due_date" value="{{ milestone.due_date|date:'Y-m-d'|default:'' }}" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Status</label>
+                    <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; cursor: pointer;">
+                        <option value="PENDING" {% if milestone.status == 'PENDING' or not milestone %}selected{% endif %}>Pending</option>
+                        <option value="IN_PROGRESS" {% if milestone.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                        <option value="COMPLETED" {% if milestone.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                    </select>
+                </div>
+                <div style="grid-column: span 2;">
+                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Description</label>
+                    <textarea name="description" rows="3" placeholder="Describe this milestone..." style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical;">{{ milestone.description|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 8px; padding-top: 8px;">
+        <button type="submit" style="padding: 8px 20px; background: #1d4ed8; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: inherit;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            {% if edit_mode %}Update Milestone{% else %}Create Milestone{% endif %}
+        </button>
+        <a href="{% url 'blu_projects:project_detail' project.id %}" style="padding: 8px 20px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center;">
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

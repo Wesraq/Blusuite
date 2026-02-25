@@ -1,0 +1,200 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}My Performance Reviews{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="padding: 24px; background: #f8fafc;">
+    <!-- Header Section -->
+    <div style="margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">
+                    My Performance Reviews
+                </h1>
+                <p style="color: #64748b; margin: 0; font-size: 14px;">Track your performance evaluations and self-assessments</p>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="padding: 16px 24px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #3b82f6; margin-bottom: 4px;">{{ total_reviews }}</div>
+                        <div style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Total Reviews</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #f59e0b;">
+                <div style="color: #64748b; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Pending</div>
+                <div style="color: #0f172a; font-size: 32px; font-weight: 700;">{{ draft_count }}</div>
+                <div style="color: #64748b; font-size: 13px; margin-top: 4px;">Awaiting submission</div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #3b82f6;">
+                <div style="color: #64748b; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Submitted</div>
+                <div style="color: #0f172a; font-size: 32px; font-weight: 700;">{{ reviews|length|add:"-"|add:draft_count|add:"-"|add:completed_count }}</div>
+                <div style="color: #64748b; font-size: 13px; margin-top: 4px;">Under review</div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
+                <div style="color: #64748b; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Completed</div>
+                <div style="color: #0f172a; font-size: 32px; font-weight: 700;">{{ completed_count }}</div>
+                <div style="color: #64748b; font-size: 13px; margin-top: 4px;">Finalized reviews</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews List -->
+    {% if reviews %}
+        <div style="display: grid; gap: 20px;">
+            {% for review in reviews %}
+            <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; border: 1px solid #e2e8f0;" 
+                 onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.borderColor='#3b82f6';" 
+                 onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'; this.style.borderColor='#e2e8f0';">
+                
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <h3 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a;">
+                                {{ review.title|default:"Performance Review" }}
+                            </h3>
+                            {% if review.status == 'DRAFT' %}
+                                <span style="padding: 6px 14px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #fbbf24;">
+                                    ACTION REQUIRED
+                                </span>
+                            {% elif review.status == 'SUBMITTED' %}
+                                <span style="padding: 6px 14px; background: #dbeafe; color: #1e40af; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #3b82f6;">
+                                    UNDER REVIEW
+                                </span>
+                            {% elif review.status == 'COMPLETED' %}
+                                <span style="padding: 6px 14px; background: #d1fae5; color: #065f46; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #10b981;">
+                                    ✓ COMPLETED
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div style="display: flex; gap: 24px; flex-wrap: wrap; margin-top: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span style="color: #64748b; font-size: 14px;">{{ review.review_date|date:"M d, Y" }}</span>
+                            </div>
+                            
+                            {% if review.reviewer %}
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <span style="color: #64748b; font-size: 14px;">Reviewer: <strong style="color: #0f172a;">{{ review.reviewer.get_full_name }}</strong></span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if review.cycle %}
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span style="color: #64748b; font-size: 14px;">{{ review.cycle.name }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if review.overall_rating %}
+                    <div style="text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px; min-width: 100px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 28px; font-weight: 700; color: #3b82f6; margin-bottom: 4px;">
+                            {% if review.overall_rating == 'EXCELLENT' %}5.0
+                            {% elif review.overall_rating == 'GOOD' %}4.0
+                            {% elif review.overall_rating == 'SATISFACTORY' %}3.0
+                            {% elif review.overall_rating == 'NEEDS_IMPROVEMENT' %}2.0
+                            {% else %}N/A{% endif %}
+                        </div>
+                        <div style="font-size: 11px; color: #64748b; font-weight: 600;">RATING</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Review Details -->
+                {% if review.employee_comments %}
+                <div style="padding: 16px; background: #f8fafc; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #3b82f6;">
+                    <div style="font-size: 12px; font-weight: 700; color: #3b82f6; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">My Self-Assessment</div>
+                    <p style="margin: 0; color: #475569; font-size: 14px; line-height: 1.6;">{{ review.employee_comments|truncatewords:30 }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    {% if review.status == 'DRAFT' %}
+                        <a href="/api/v1/performance/review/{{ review.id }}/employee/" 
+                           style="flex: 1; padding: 12px 20px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px;"
+                           onmouseover="this.style.background='#2563eb';"
+                           onmouseout="this.style.background='#3b82f6';">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Complete Self-Assessment
+                        </a>
+                    {% elif review.status == 'SUBMITTED' %}
+                        <a href="/api/v1/performance/review/{{ review.id }}/view/" 
+                           style="flex: 1; padding: 12px 20px; background: white; color: #3b82f6; text-decoration: none; border-radius: 6px; font-weight: 600; text-align: center; border: 2px solid #3b82f6; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px;"
+                           onmouseover="this.style.background='#3b82f6'; this.style.color='white';"
+                           onmouseout="this.style.background='white'; this.style.color='#3b82f6';">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            View Submitted Review
+                        </a>
+                    {% else %}
+                        <a href="/api/v1/performance/review/{{ review.id }}/view/" 
+                           style="flex: 1; padding: 12px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px;"
+                           onmouseover="this.style.background='#059669';"
+                           onmouseout="this.style.background='#10b981';">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            View Completed Review
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+            <div style="width: 120px; height: 120px; margin: 0 auto 24px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+            </div>
+            <h3 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0 0 12px 0;">No Performance Reviews Yet</h3>
+            <p style="color: #64748b; font-size: 16px; margin: 0 0 24px 0; max-width: 500px; margin-left: auto; margin-right: auto;">
+                You don't have any performance reviews assigned at the moment. Your manager will notify you when a new review is available.
+            </p>
+            <div style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: #f8fafc; border-radius: 8px; color: #64748b; font-size: 14px; border: 1px solid #e2e8f0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Check your notifications for updates
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

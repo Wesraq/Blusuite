@@ -1,0 +1,77 @@
+{% load static %}
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            {% if user.company.logo %}
+            <img src="{{ user.company.logo.url }}" alt="Logo" style="max-height: 32px; max-width: 120px;">
+            {% else %}
+            <span class="sidebar-logo placeholder">E-Forms</span>
+            {% endif %}
+        </div>
+        <div style="padding: 8px 16px 12px; font-size: 13px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">E-Forms Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+        <ul class="nav-list">
+            <!-- Dashboard / Templates List -->
+            <li class="nav-item">
+                <a href="{% url 'eforms_list' %}" class="nav-link {% if request.resolver_match.url_name == 'eforms_list' or request.resolver_match.url_name == 'form_templates_list' %}active{% endif %}">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Form Templates</span>
+                </a>
+            </li>
+
+            <!-- My Submissions -->
+            <li class="nav-item">
+                <a href="{% url 'form_submissions_list' %}" class="nav-link {% if request.resolver_match.url_name == 'form_submissions_list' %}active{% endif %}">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                    </span>
+                    <span class="nav-text">My Submissions</span>
+                </a>
+            </li>
+
+            {% if user.role in 'SUPERADMIN,ADMINISTRATOR,EMPLOYER_ADMIN' or user.employee_profile.employee_role|default:'' == 'HR' %}
+            <!-- Approvals -->
+            <li class="nav-item">
+                <a href="{% url 'form_approvals_list' %}" class="nav-link {% if request.resolver_match.url_name == 'form_approvals_list' %}active{% endif %}">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Approvals</span>
+                </a>
+            </li>
+
+            <!-- Administration Section -->
+            <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0;">Administration</li>
+
+            <!-- Create Template -->
+            <li class="nav-item">
+                <a href="{% url 'form_template_create' %}" class="nav-link {% if request.resolver_match.url_name == 'form_template_create' %}active{% endif %}">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Create Template</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</aside>

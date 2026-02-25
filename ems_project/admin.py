@@ -5,10 +5,10 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
 
-from accounts.models import User, EmployeeProfile, EmployerProfile
-from attendance.models import Attendance, LeaveRequest
-from documents.models import EmployeeDocument
-from performance.models import PerformanceReview
+from blu_staff.apps.accounts.models import User, EmployeeProfile, EmployerProfile
+from blu_staff.apps.attendance.models import Attendance, LeaveRequest
+from blu_staff.apps.documents.models import EmployeeDocument
+from blu_staff.apps.performance.models import PerformanceReview
 
 
 class DashboardAdminSite(admin.AdminSite):
@@ -27,8 +27,9 @@ class DashboardAdminSite(admin.AdminSite):
         # Get statistics
         user_count = User.objects.count()
         employee_count = User.objects.filter(role='EMPLOYEE').count()
-        employer_count = User.objects.filter(role='EMPLOYER').count()
-        admin_count = User.objects.filter(role='ADMIN').count()
+        employer_count = User.objects.filter(role='EMPLOYER_ADMIN').count()
+        admin_count = User.objects.filter(role='ADMINISTRATOR').count()
+        superadmin_count = User.objects.filter(role='SUPERADMIN').count()
 
         # Attendance stats
         attendance_count = Attendance.objects.count()
@@ -64,6 +65,7 @@ class DashboardAdminSite(admin.AdminSite):
             'employee_count': employee_count,
             'employer_count': employer_count,
             'admin_count': admin_count,
+            'superadmin_count': superadmin_count,
             'attendance_count': attendance_count,
             'today_attendance': today_attendance,
             'present_today': present_today,

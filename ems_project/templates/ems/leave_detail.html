@@ -1,0 +1,24 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% block title %}Leave Request Details{% endblock %}
+{% block page_title %}Leave Details{% endblock %}
+{% block content %}
+<div class="content-card" style="padding:20px; margin-top:16px;">
+    <h3 style="margin-top:0;">Leave Request</h3>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:12px;">
+        <div><strong>Employee:</strong> {{ leave.employee.get_full_name }}</div>
+        <div><strong>Type:</strong> {{ leave.get_leave_type_display }}</div>
+        <div><strong>Status:</strong> {{ leave.get_status_display }}</div>
+        <div><strong>Total Days:</strong> {{ leave.total_days }}</div>
+        <div><strong>Start Date:</strong> {{ leave.start_date|date:"M d, Y" }}</div>
+        <div><strong>End Date:</strong> {{ leave.end_date|date:"M d, Y" }}</div>
+        <div><strong>Submitted:</strong> {{ leave.created_at|date:"M d, Y H:i" }}</div>
+    </div>
+    <div style="margin-top:12px;"><strong>Reason:</strong><br>{{ leave.reason|default:"—" }}</div>
+    {% if leave.supporting_document %}
+    <div style="margin-top:12px;"><strong>Attachment:</strong> <a href="{{ leave.supporting_document.url }}" target="_blank">View document</a></div>
+    {% endif %}
+    <div style="margin-top:12px; display:flex; gap:10px;">
+        <a href="{% url 'approval_center' %}" class="btn btn-secondary">Back to Approvals</a>
+    </div>
+</div>
+{% endblock %}

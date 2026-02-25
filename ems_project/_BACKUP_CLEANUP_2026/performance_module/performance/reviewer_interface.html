@@ -1,0 +1,372 @@
+{% extends 'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Review Employee Performance{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="padding: 24px;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Performance Review</h1>
+            <p style="color: #64748b; margin: 0;">Reviewing: <strong>{{ review.employee.get_full_name }}</strong></p>
+        </div>
+        <a href="{% url 'performance_reviews_list' %}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Reviews
+        </a>
+    </div>
+
+    <!-- Review Info Card -->
+    <div class="content-card" style="padding: 20px; margin-bottom: 24px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div>
+                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">Employee</div>
+                <div style="font-size: 16px; font-weight: 600;">{{ review.employee.get_full_name }}</div>
+                <div style="font-size: 13px; opacity: 0.8;">{{ review.employee.employee_profile.position|default:"N/A" }}</div>
+            </div>
+            <div>
+                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">Review Period</div>
+                <div style="font-size: 16px; font-weight: 600;">{{ review.review_period_start|date:"M d, Y" }} - {{ review.review_period_end|date:"M d, Y" }}</div>
+            </div>
+            <div>
+                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">Status</div>
+                <div style="font-size: 16px; font-weight: 600;">
+                    {% if review.status == 'DRAFT' %}
+                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">📝 Draft</span>
+                    {% elif review.status == 'SUBMITTED' %}
+                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">⏳ Awaiting Review</span>
+                    {% elif review.status == 'COMPLETED' %}
+                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">✅ Completed</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if review.cycle.deadline %}
+            <div>
+                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">Deadline</div>
+                <div style="font-size: 16px; font-weight: 600;">{{ review.cycle.deadline|date:"M d, Y" }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not can_edit %}
+    <div class="alert alert-info" style="margin-bottom: 24px;">
+        <strong>ℹ️ This review has been completed.</strong>
+        <a href="{% url 'review_view_only' review.id %}" style="color: #2563eb; text-decoration: underline;">View completed review</a>
+    </div>
+    {% endif %}
+
+    <!-- Employee Self-Assessment (Read-Only) -->
+    <div class="content-card" style="padding: 24px; margin-bottom: 24px; background: #f8fafc;">
+        <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Employee Self-Assessment
+        </h2>
+
+        {% if review.employee_submitted_at %}
+        <div style="background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+            ✅ Employee submitted their self-assessment on {{ review.employee_submitted_at|date:"M d, Y" }}
+        </div>
+        {% else %}
+        <div style="background: #fef3c7; color: #92400e; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+            ⏳ Employee has not yet submitted their self-assessment
+        </div>
+        {% endif %}
+
+        <div style="display: grid; gap: 16px;">
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Self-Rating</div>
+                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    {{ review.get_self_rating_display|default:"Not provided" }}
+                </div>
+            </div>
+
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Key Achievements</div>
+                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; white-space: pre-wrap;">{{ review.achievements|default:"Not provided" }}</div>
+            </div>
+
+            {% if review.challenges_faced %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Challenges Faced</div>
+                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; white-space: pre-wrap;">{{ review.challenges_faced }}</div>
+            </div>
+            {% endif %}
+
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Employee Comments</div>
+                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; white-space: pre-wrap;">{{ review.employee_comments|default:"Not provided" }}</div>
+            </div>
+
+            {% if review.goals_next_period %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Goals for Next Period</div>
+                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; white-space: pre-wrap;">{{ review.goals_next_period }}</div>
+            </div>
+            {% endif %}
+
+            {% if review.training_needs %}
+            <div>
+                <div style="font-weight: 600; color: #0f172a; margin-bottom: 8px;">Training Needs</div>
+                <div style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; white-space: pre-wrap;">{{ review.training_needs }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="post" id="reviewForm">
+        {% csrf_token %}
+        
+        <!-- Reviewer Feedback -->
+        <div class="content-card" style="padding: 24px; margin-bottom: 24px;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Your Review & Feedback
+            </h2>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Overall Rating <span style="color: #ef4444;">*</span>
+                </label>
+                <select name="overall_rating" class="form-control" {% if not can_edit %}disabled{% endif %} required>
+                    <option value="">Select overall rating...</option>
+                    {% for value, label in rating_choices %}
+                    <option value="{{ value }}" {% if review.overall_rating == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Strengths
+                </label>
+                <textarea name="strengths" class="form-control" rows="3" {% if not can_edit %}disabled{% endif %} placeholder="What are the employee's key strengths?">{{ review.strengths }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Areas for Improvement
+                </label>
+                <textarea name="areas_for_improvement" class="form-control" rows="3" {% if not can_edit %}disabled{% endif %} placeholder="What areas need improvement?">{{ review.areas_for_improvement }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Development Plan
+                </label>
+                <textarea name="development_plan" class="form-control" rows="3" {% if not can_edit %}disabled{% endif %} placeholder="What development activities do you recommend?">{{ review.development_plan }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Recommended Actions
+                </label>
+                <textarea name="recommended_actions" class="form-control" rows="3" {% if not can_edit %}disabled{% endif %} placeholder="What specific actions should the employee take?">{{ review.recommended_actions }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Overall Comments <span style="color: #ef4444;">*</span>
+                </label>
+                <textarea name="reviewer_comments" class="form-control" rows="4" {% if not can_edit %}disabled{% endif %} required placeholder="Provide your overall feedback on the employee's performance...">{{ review.reviewer_comments }}</textarea>
+            </div>
+        </div>
+
+        <!-- Competency Ratings -->
+        {% if competencies %}
+        <div class="content-card" style="padding: 24px; margin-bottom: 24px;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                Competency Ratings
+            </h2>
+            
+            <div style="display: grid; gap: 16px;">
+                {% for comp in competencies %}
+                <div style="padding: 16px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">{{ comp.name }}</div>
+                    <div style="font-size: 14px; color: #64748b; margin-bottom: 12px;">{{ comp.description }}</div>
+                    
+                    {% if comp.existing_rating %}
+                    <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Current Rating:</div>
+                        <div style="font-weight: 600; color: #0f172a;">{{ comp.existing_rating.get_rating_display }}</div>
+                        {% if comp.existing_rating.comments %}
+                        <div style="font-size: 13px; color: #64748b; margin-top: 8px;">{{ comp.existing_rating.comments }}</div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div style="background: #fef3c7; color: #92400e; padding: 8px 12px; border-radius: 6px; font-size: 13px;">
+                        ⚠️ Not yet rated
+                    </div>
+                    {% endif %}
+                    
+                    {% if can_edit %}
+                    <button type="button" class="btn btn-sm btn-secondary" style="margin-top: 12px;" onclick="openCompetencyModal({{ comp.id }}, '{{ comp.name }}', {% if comp.existing_rating %}'{{ comp.existing_rating.rating }}', '{{ comp.existing_rating.comments|escapejs }}'{% else %}null, null{% endif %})">
+                        {% if comp.existing_rating %}Update Rating{% else %}Add Rating{% endif %}
+                    </button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        {% if can_edit %}
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="submit" name="action" value="save_draft" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Draft
+            </button>
+            <button type="submit" name="action" value="complete" class="btn btn-primary" onclick="return confirm('Are you sure you want to complete this review? The employee will be notified.');">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                Complete Review
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Competency Rating Modal -->
+<div id="competencyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%;">
+        <h3 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700;" id="modalTitle">Rate Competency</h3>
+        <form method="post" id="competencyForm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="rate_competency">
+            <input type="hidden" name="competency_id" id="modalCompetencyId">
+            
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Rating</label>
+                <select name="rating" id="modalRating" class="form-control" required>
+                    <option value="">Select rating...</option>
+                    {% for value, label in competency_rating_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Comments</label>
+                <textarea name="competency_comments" id="modalComments" class="form-control" rows="3" placeholder="Provide specific feedback..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeCompetencyModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Rating</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-control:disabled {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+}
+
+.alert {
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-info {
+    background: #dbeafe;
+    border-color: #2563eb;
+    color: #1e40af;
+}
+</style>
+
+<script>
+function openCompetencyModal(id, name, currentRating, currentComments) {
+    document.getElementById('modalTitle').textContent = 'Rate: ' + name;
+    document.getElementById('modalCompetencyId').value = id;
+    document.getElementById('modalRating').value = currentRating || '';
+    document.getElementById('modalComments').value = currentComments || '';
+    document.getElementById('competencyModal').style.display = 'flex';
+}
+
+function closeCompetencyModal() {
+    document.getElementById('competencyModal').style.display = 'none';
+}
+
+// Close modal on outside click
+document.getElementById('competencyModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCompetencyModal();
+    }
+});
+</script>
+{% endblock %}

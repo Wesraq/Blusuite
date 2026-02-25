@@ -1,0 +1,176 @@
+{% extends 'ems/blusuite_base.html' %}
+
+{% block title %}Signature Audit Trail - BLU Suite{% endblock %}
+
+{% block extra_head %}
+<style>
+    .sa-header { background:#fff; border:1px solid #e2e8f0; border-radius:4px; padding:20px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+    .sa-header h1 { margin:0 0 4px; font-size:20px; font-weight:700; color:#0f172a; }
+    .sa-header p { margin:0; font-size:13px; color:#64748b; }
+    .sa-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:1px solid; cursor:pointer; transition:all .15s; font-family:inherit; }
+    .sa-btn-secondary { background:#fff; color:#0f172a; border-color:#e2e8f0; }
+    .sa-btn-secondary:hover { background:#f8fafc; border-color:#cbd5e1; }
+    .sa-card { background:#fff; border:1px solid #e2e8f0; border-radius:4px; overflow:hidden; margin-bottom:16px; }
+    .sa-card-head { padding:14px 20px; border-bottom:1px solid #f1f5f9; font-size:14px; font-weight:600; color:#0f172a; display:flex; align-items:center; gap:8px; }
+    .sa-card-body { padding:20px; }
+    .sa-meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
+    .sa-meta-item label { font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:3px; }
+    .sa-meta-item .val { font-size:14px; font-weight:600; color:#0f172a; }
+    .sa-meta-item .sub { font-size:12px; color:#64748b; margin-top:1px; }
+    .sa-tl { position:relative; padding-left:40px; }
+    .sa-tl::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:#e2e8f0; }
+    .sa-tl-item { position:relative; padding-bottom:20px; }
+    .sa-tl-item:last-child { padding-bottom:0; }
+    .sa-tl-dot { position:absolute; left:-36px; top:2px; width:14px; height:14px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 2px #e2e8f0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sa-header">
+    <div>
+        <h1>Signature Audit Trail</h1>
+        <p>Complete verification and audit history</p>
+    </div>
+    <a href="{% url 'form_submission_detail' signature.submission.id %}" class="sa-btn sa-btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Submission
+    </a>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 300px; gap:16px;">
+    <!-- Main Content -->
+    <div>
+        <!-- Signature Details -->
+        <div class="sa-card">
+            <div class="sa-card-head">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Signature Information
+            </div>
+            <div class="sa-card-body">
+                <div class="sa-meta">
+                    <div class="sa-meta-item">
+                        <label>Signer</label>
+                        <div class="val">{{ signature.signer.get_full_name }}</div>
+                        <div class="sub">{{ signature.signer.email }}</div>
+                    </div>
+                    <div class="sa-meta-item">
+                        <label>Signed At</label>
+                        <div class="val">{{ signature.signed_at|date:"M d, Y H:i" }}</div>
+                        <div class="sub">{{ signature.signed_at|timesince }} ago</div>
+                    </div>
+                    <div class="sa-meta-item">
+                        <label>IP Address</label>
+                        <div class="val">{{ signature.ip_address|default:"Not recorded" }}</div>
+                    </div>
+                    <div class="sa-meta-item">
+                        <label>User Agent</label>
+                        <div class="sub" style="word-break:break-all;">{{ signature.user_agent|default:"Not recorded"|truncatewords:8 }}</div>
+                    </div>
+                </div>
+
+                {% if signature.signature_data %}
+                <div style="margin-top:16px; padding-top:16px; border-top:1px solid #f1f5f9;">
+                    <label style="font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:8px;">Digital Signature</label>
+                    <div style="padding:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px;">
+                        {% if signature.signature_type == 'TYPED' %}
+                        <div style="text-align:center; font-family:'Brush Script MT',cursive; font-size:28px; color:#0f172a; padding:12px;">{{ signature.signature_data }}</div>
+                        {% else %}
+                        <img src="{{ signature.signature_data }}" alt="Signature" style="max-width:360px; max-height:120px; display:block;">
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Audit Logs -->
+        <div class="sa-card">
+            <div class="sa-card-head">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Audit Trail
+                <span style="margin-left:auto; font-size:12px; font-weight:400; color:#94a3b8;">{{ audit_logs|length }} events</span>
+            </div>
+            <div class="sa-card-body">
+                {% if audit_logs %}
+                <div class="sa-tl">
+                    {% for log in audit_logs %}
+                    <div class="sa-tl-item">
+                        <div class="sa-tl-dot" style="background:{% if log.action == 'SIGNED' %}#22C55E{% elif log.action == 'VIEWED' %}#3B82F6{% elif log.action == 'VERIFIED' %}#8B5CF6{% else %}#94A3B8{% endif %};"></div>
+                        <div style="padding:12px; background:#f8fafc; border-radius:4px; border-left:3px solid {% if log.action == 'SIGNED' %}#22C55E{% elif log.action == 'VIEWED' %}#3B82F6{% elif log.action == 'VERIFIED' %}#8B5CF6{% else %}#94A3B8{% endif %};">
+                            <div style="display:flex; justify-content:space-between; align-items:start;">
+                                <div>
+                                    <div style="font-weight:600; color:#0f172a; font-size:13px; margin-bottom:2px;">
+                                        {% if log.action == 'SIGNED' %}Signature Applied
+                                        {% elif log.action == 'VIEWED' %}Document Viewed
+                                        {% elif log.action == 'VERIFIED' %}Signature Verified
+                                        {% elif log.action == 'DOWNLOADED' %}Document Downloaded
+                                        {% else %}{{ log.get_action_display }}{% endif %}
+                                    </div>
+                                    <div style="font-size:12px; color:#64748b;">{{ log.description|default:"No additional details" }}</div>
+                                </div>
+                                <div style="text-align:right; white-space:nowrap;">
+                                    <div style="font-size:12px; color:#64748b;">{{ log.timestamp|date:"M d, Y" }}</div>
+                                    <div style="font-size:11px; color:#94a3b8;">{{ log.timestamp|date:"H:i" }}</div>
+                                </div>
+                            </div>
+                            {% if log.ip_address or log.user_agent %}
+                            <div style="display:flex; gap:16px; margin-top:8px; padding-top:8px; border-top:1px solid #e2e8f0; font-size:11px;">
+                                {% if log.ip_address %}
+                                <span><strong style="color:#94a3b8; text-transform:uppercase;">IP:</strong> <span style="color:#64748b;">{{ log.ip_address }}</span></span>
+                                {% endif %}
+                                {% if log.user_agent %}
+                                <span><strong style="color:#94a3b8; text-transform:uppercase;">Device:</strong> <span style="color:#64748b;">{{ log.user_agent|truncatewords:6 }}</span></span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="text-align:center; padding:32px; color:#94a3b8;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin:0 auto 8px; display:block;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <div style="font-size:13px;">No audit logs available</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <!-- Verification Badge -->
+        <div class="sa-card" style="border-color:#86EFAC;">
+            <div class="sa-card-head" style="background:#ECFDF5; color:#065F46;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#065F46" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Verified
+            </div>
+            <div class="sa-card-body">
+                <div style="font-size:12px; color:#166534; line-height:1.6;">
+                    This signature has been verified and recorded with a complete audit trail.
+                    Timestamp, IP address, and device information are permanently stored.
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Info -->
+        <div class="sa-card">
+            <div class="sa-card-head">Form Details</div>
+            <div class="sa-card-body">
+                <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:12px;">
+                    <span style="color:#64748b;">Form</span>
+                    <span style="font-weight:600; color:#0f172a;">{{ signature.submission.template.title }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:12px;">
+                    <span style="color:#64748b;">Type</span>
+                    <span style="font-weight:600; color:#0f172a;">{{ signature.get_signature_type_display }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:12px;">
+                    <span style="color:#64748b;">Status</span>
+                    <span style="padding:2px 8px; background:#D1FAE5; color:#065F46; border-radius:4px; font-size:11px; font-weight:600;">Valid</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

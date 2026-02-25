@@ -1,0 +1,53 @@
+{% extends 'ems/base_platform.html' %}
+{% block title %}Account Manager Portal{% endblock %}
+{% block page_title %}Account Manager Portal{% endblock %}
+{% block content %}
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Tenant Accounts</div>
+        <div class="card-subtitle">System-owner account management workspace</div>
+    </div>
+    <div class="card-content" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+        <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value">{{ summary.active }}</div></div>
+        <div class="stat-card"><div class="stat-label">Inactive</div><div class="stat-value">{{ summary.inactive }}</div></div>
+        <div class="stat-card"><div class="stat-label">Approved</div><div class="stat-value">{{ summary.approved }}</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Approval</div><div class="stat-value">{{ summary.pending_approval }}</div></div>
+    </div>
+</div>
+
+<div class="content-card" style="margin-top:16px;">
+    <div class="card-header">
+        <div class="card-title">Tenant Accounts</div>
+        <div class="card-subtitle">First 20 companies</div>
+    </div>
+    <div class="card-content">
+        {% if companies %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead><tr><th>Name</th><th>Status</th><th>Approved</th><th>Plan</th></tr></thead>
+                <tbody>
+                    {% for c in companies %}
+                    <tr>
+                        <td>{{ c.name }}</td>
+                        <td>{{ c.is_active|yesno:"Active,Inactive" }}</td>
+                        <td>{{ c.is_approved|yesno:"Yes,No" }}</td>
+                        <td>{{ c.get_subscription_plan_display|default:"N/A" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No companies found.</p>
+        {% endif %}
+    </div>
+</div>
+<style>
+.stat-card{background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:12px}
+.stat-label{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.stat-value{font-size:20px;font-weight:700;color:#0f172a;margin-top:4px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th,.data-table td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}
+.data-table th{background:#f8fafc;font-weight:700;color:#475569;text-transform:uppercase;font-size:12px;letter-spacing:.04em}
+</style>
+{% endblock %}

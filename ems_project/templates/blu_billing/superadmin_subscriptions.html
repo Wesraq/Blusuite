@@ -1,0 +1,304 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Subscriptions - BLU Suite Admin{% endblock %}
+{% block nav_subscriptions %} active{% endblock %}
+{% block page_title %}Subscription Management{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Filters</div>
+        <div class="card-subtitle">Filter subscriptions</div>
+    </div>
+    <div class="card-content">
+        <form method="get" style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 500; margin-bottom: 4px; color: #374151;">Status</label>
+                <select name="status" style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; min-width: 150px;">
+                    <option value="">All Status</option>
+                    {% for choice in status_choices %}
+                        <option value="{{ choice.0 }}" {% if status_filter == choice.0 %}selected{% endif %}>
+                            {{ choice.1 }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 500; margin-bottom: 4px; color: #374151;">Plan</label>
+                <select name="plan" style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; min-width: 150px;">
+                    <option value="">All Plans</option>
+                    {% for plan in plans %}
+                        <option value="{{ plan.id }}" {% if plan_filter == plan.id|stringformat:"s" %}selected{% endif %}>
+                            {{ plan.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 500; margin-bottom: 4px; color: #374151;">Search</label>
+                <input type="text" name="search" placeholder="Search company..." value="{{ search_query }}" 
+                       style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; min-width: 200px;">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="{% url 'superadmin_subscriptions' %}" class="btn btn-secondary">Clear</a>
+        </form>
+    </div>
+</div>
+
+<!-- Subscriptions List -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">All Subscriptions</div>
+        <div class="card-subtitle">{{ subscriptions|length }} subscriptions found</div>
+    </div>
+    <div class="card-content">
+        {% if subscriptions %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th>Billing Cycle</th>
+                            <th>Current Period</th>
+                            <th>Usage</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subscription in subscriptions %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 500;">{{ subscription.company.name }}</div>
+                                <div style="font-size: 12px; color: #64748b;">{{ subscription.company.industry|default:"Not specified" }}</div>
+                            </td>
+                            <td>
+                                <div>{{ subscription.plan.name }}</div>
+                                <div style="font-size: 12px; color: #64748b;">${{ subscription.plan.get_price_for_cycle(subscription.billing_cycle) }}/{{ subscription.billing_cycle|lower }}</div>
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ subscription.status|lower }}">
+                                    {{ subscription.get_status_display }}
+                                </span>
+                                {% if subscription.is_trial_active %}
+                                    <div style="font-size: 11px; color: #059669; margin-top: 2px;">
+                                        Trial: {{ subscription.days_until_expiry }} days left
+                                    </div>
+                                {% elif subscription.is_active %}
+                                    <div style="font-size: 11px; color: #059669; margin-top: 2px;">
+                                        Active: {{ subscription.days_until_expiry }} days left
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>{{ subscription.get_billing_cycle_display }}</td>
+                            <td>
+                                {% if subscription.current_period_start %}
+                                    <div style="font-size: 12px;">
+                                        {{ subscription.current_period_start|date:"M d, Y" }}
+                                    </div>
+                                    <div style="font-size: 11px; color: #64748b;">
+                                        to {{ subscription.current_period_end|date:"M d, Y" }}
+                                    </div>
+                                {% else %}
+                                    <span style="color: #64748b;">Not started</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="font-size: 12px;">
+                                    <strong>{{ subscription.current_users }}</strong>/{{ subscription.plan.max_users }} users
+                                </div>
+                                <div style="font-size: 11px; color: #64748b;">
+                                    {{ subscription.usage_percentage|floatformat:1 }}% used
+                                </div>
+                                <div class="usage-bar">
+                                    {% if subscription.usage_percentage > 80 %}
+                                        <div class="usage-fill usage-high" data-width="{{ subscription.usage_percentage }}"></div>
+                                    {% elif subscription.usage_percentage > 60 %}
+                                        <div class="usage-fill usage-medium" data-width="{{ subscription.usage_percentage }}"></div>
+                                    {% else %}
+                                        <div class="usage-fill usage-low" data-width="{{ subscription.usage_percentage }}"></div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="{% url 'subscription_detail' subscription.id %}" class="btn btn-sm btn-primary">View</a>
+                                    <a href="{% url 'generate_invoice' subscription.id %}" class="btn btn-sm btn-secondary">Invoice</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <div style="display: flex; justify-content: between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <div style="font-size: 14px; color: #64748b;">
+                        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if plan_filter %}&plan={{ plan_filter }}{% endif %}" class="btn btn-sm btn-secondary">Previous</a>
+                        {% endif %}
+                        
+                        <span style="padding: 8px 12px; background: #f8fafc; border-radius: 4px; font-size: 14px;">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if plan_filter %}&plan={{ plan_filter }}{% endif %}" class="btn btn-sm btn-secondary">Next</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                <div style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">No subscriptions found</div>
+                <div style="font-size: 14px; color: #64748b;">Try adjusting your filters or check back later</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-trial {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-suspended {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.badge-expired {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.badge-cancelled {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: #f8fafc;
+    padding: 12px;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+    vertical-align: top;
+}
+
+.data-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #E11D48;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #BE123C;
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #374151;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.usage-bar {
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    margin-top: 4px;
+}
+
+.usage-fill {
+    height: 100%;
+    border-radius: 2px;
+}
+
+.usage-low {
+    background: #10b981;
+}
+
+.usage-medium {
+    background: #f59e0b;
+}
+
+.usage-high {
+    background: #ef4444;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set usage bar widths from data attributes
+    const usageFills = document.querySelectorAll('.usage-fill');
+    usageFills.forEach(function(element) {
+        const width = element.getAttribute('data-width');
+        if (width) {
+            element.style.width = width + '%';
+        }
+    });
+});
+</script>
+{% endblock %}

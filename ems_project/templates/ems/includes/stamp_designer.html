@@ -1,0 +1,686 @@
+<!-- Stamp Designer - Exact copy from EMS company_form_employer.html -->
+<div style="margin-bottom:16px;">
+  <div style="display:flex; gap:8px; margin-bottom:12px;">
+    <button type="button" onclick="showStampDesigner()" class="btn-primary" style="flex:1; padding:10px; border:none; border-radius:4px; cursor:pointer; font-size:14px; font-weight:500; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle;">
+        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+        <path d="M2 2l7.586 7.586"></path>
+        <circle cx="11" cy="11" r="2"></circle>
+      </svg>
+      Design Stamp
+    </button>
+    <button type="button" onclick="showStampUpload()" style="flex:1; padding:10px; background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; border-radius:4px; cursor:pointer; font-size:14px; font-weight:500; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle;">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      Upload Image
+    </button>
+  </div>
+  
+  <!-- Stamp Designer Tool -->
+  <div id="stampDesigner" style="display:none; background:white; padding:20px; border-radius:4px; border:1px solid #e2e8f0;">
+    <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="13.5" cy="6.5" r=".5"></circle>
+        <circle cx="17.5" cy="10.5" r=".5"></circle>
+        <circle cx="8.5" cy="7.5" r=".5"></circle>
+        <circle cx="6.5" cy="12.5" r=".5"></circle>
+        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
+      </svg>
+      Advanced Stamp Designer
+    </h4>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+      <!-- Left Column - Design Options -->
+      <div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Top Text (Curved)</label>
+          <input type="text" id="stampTopText" placeholder="e.g., COMPANY NAME" value="{{ company.name|upper }}" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+          <p style="font-size:11px; color:#64748b; margin-top:4px;">Text that curves along the top</p>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Middle Text</label>
+          <textarea id="stampMiddleText" placeholder="e.g., Tel: 0211 123456, Fax: 0211 654321&#10;zambia@eicsomtech.com" rows="3" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
+          <p style="font-size:11px; color:#64748b; margin-top:4px;">Center text (contact info, email, etc.) - Press Enter for new line</p>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Bottom Text (Curved)</label>
+          <input type="text" id="stampBottomText" placeholder="e.g., P.O.Box 56789 Lusaka Zambia" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+          <p style="font-size:11px; color:#64748b; margin-top:4px;">Text that curves along the bottom</p>
+        </div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Shape</label>
+            <select id="stampShape" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+              <option value="oval" selected>Oval (Recommended)</option>
+              <option value="circle">Circle</option>
+              <option value="square">Square</option>
+              <option value="rectangle">Rectangle</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Size</label>
+            <select id="stampSize" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+              <option value="small">Small</option>
+              <option value="medium" selected>Medium</option>
+              <option value="large">Large</option>
+            </select>
+          </div>
+        </div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Border Style</label>
+            <select id="stampBorder" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+              <option value="solid">Solid</option>
+              <option value="double">Double</option>
+              <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+              <option value="thick">Thick</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Border Width</label>
+            <input type="range" id="stampBorderWidth" min="2" max="8" value="4" style="width:100%;">
+            <span id="borderWidthValue" style="font-size:12px; color:#64748b;">4px</span>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:12px;" id="textPlacementContainer" style="display:none;">
+          <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Text Placement (Double Border)</label>
+          <select id="stampTextPlacement" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+            <option value="between">Between Borders</option>
+            <option value="inside">Inside Inner Border</option>
+          </select>
+          <p style="font-size:11px; color:#64748b; margin-top:4px;">Choose where text appears with double border</p>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Font Style</label>
+          <select id="stampFontStyle" onchange="updateStampPreview()" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Impact">Impact</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Font Size</label>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <input type="range" id="stampFontSize" min="8" max="16" value="10" step="1" style="flex:1;">
+            <span id="fontSizeValue" style="font-size:13px; font-weight:600; color:#1e293b; min-width:40px;">10px</span>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Stamp Color</label>
+          <div style="display:flex; gap:8px; margin-bottom:8px;">
+            <button type="button" onclick="setStampColor('#dc2626')" style="width:30px; height:30px; background:#dc2626; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+            <button type="button" onclick="setStampColor('#0369a1')" style="width:30px; height:30px; background:#0369a1; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+            <button type="button" onclick="setStampColor('#059669')" style="width:30px; height:30px; background:#059669; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+            <button type="button" onclick="setStampColor('#7c3aed')" style="width:30px; height:30px; background:#7c3aed; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+            <button type="button" onclick="setStampColor('#000000')" style="width:30px; height:30px; background:#000000; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="color" id="stampColor" value="#dc2626" style="width:50px; height:40px; border:none; border-radius:4px; cursor:pointer;">
+            <input type="text" id="stampColorText" value="#dc2626" style="flex:1; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-family:monospace;">
+          </div>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">
+            <input type="checkbox" id="stampAddDate" style="margin-right:6px;">
+            Add Date Stamp
+          </label>
+          <div id="dateStampOptions" style="display:none; margin-top:8px; padding:12px; background:#f8fafc; border-radius:4px; border:1px solid #e2e8f0;">
+            <div style="margin-bottom:8px;">
+              <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Format</label>
+              <select id="stampDateFormat" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;">
+                <option value="DD MMM YYYY">14 JAN 2026</option>
+                <option value="DD/MM/YYYY">14/01/2026</option>
+                <option value="MM/DD/YYYY">01/14/2026</option>
+                <option value="YYYY-MM-DD">2026-01-14</option>
+              </select>
+            </div>
+            <div style="margin-bottom:8px;">
+              <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Size</label>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="range" id="stampDateSize" min="8" max="14" value="11" step="1" style="flex:1;">
+                <span id="dateSizeValue" style="font-size:12px; font-weight:600; color:#1e293b; min-width:35px;">11px</span>
+              </div>
+            </div>
+            <div style="margin-bottom:8px;">
+              <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Color</label>
+              <div style="display:flex; gap:6px;">
+                <button type="button" onclick="setDateColor('#dc2626')" style="width:24px; height:24px; background:#dc2626; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                <button type="button" onclick="setDateColor('#0369a1')" style="width:24px; height:24px; background:#0369a1; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                <button type="button" onclick="setDateColor('#059669')" style="width:24px; height:24px; background:#059669; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                <input type="color" id="stampDateColor" value="#dc2626" style="width:30px; height:24px; border:1px solid #d1d5db; border-radius:4px; cursor:pointer;">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">
+                <input type="checkbox" id="stampDateBorder" checked style="margin-right:4px;">
+                Show Border Around Date
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column - Preview -->
+      <div>
+        <div style="margin-bottom:16px; padding:20px; background:#f8fafc; border-radius:4px; text-align:center; min-height:350px; display:flex; flex-direction:column; justify-content:center;">
+          <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Live Preview:</p>
+          <canvas id="stampCanvas" width="400" height="300" style="max-width:100%; border:1px solid #e2e8f0; background:white; margin:0 auto;"></canvas>
+        </div>
+        
+        <div style="background:#fef3c7; padding:12px; border-radius:4px; margin-bottom:12px;">
+          <p style="font-size:12px; color:#92400e; margin:0; display:flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <strong>Tip:</strong> Adjust settings and watch the preview update in real-time!
+          </p>
+        </div>
+        
+        <button type="button" onclick="generateStamp()" class="btn-primary" style="width:100%; padding:12px; font-size:15px; border:none; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle;">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          Generate & Save Stamp
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Upload Option -->
+  <div id="stampUpload">
+    {% if company.company_stamp %}
+    <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #e2e8f0; border-radius:4px; text-align:center;">
+      <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Current Stamp:</p>
+      <img src="{{ company.company_stamp.url }}" alt="Stamp" style="max-height:100px; max-width:100%; object-fit:contain;">
+    </div>
+    {% endif %}
+    <input type="file" name="company_stamp" accept="image/*" style="width:100%; padding:12px; border:2px dashed #d1d5db; border-radius:4px; font-size:14px; background:white;">
+    <p style="font-size:12px; color:#64748b; margin-top:8px;">PNG with transparency recommended</p>
+  </div>
+</div>
+
+<script>
+// ===== STAMP DESIGNER FUNCTIONS =====
+function showStampDesigner() {
+  document.getElementById('stampDesigner').style.display = 'block';
+  document.getElementById('stampUpload').style.display = 'none';
+  // Trigger initial preview render
+  setTimeout(updateStampPreview, 100);
+}
+
+function showStampUpload() {
+  document.getElementById('stampDesigner').style.display = 'none';
+  document.getElementById('stampUpload').style.display = 'block';
+}
+
+function updateStampPreview() {
+  const canvas = document.getElementById('stampCanvas');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  const topText = document.getElementById('stampTopText').value || 'EISCOMTECH LIMITED';
+  const middleText = document.getElementById('stampMiddleText').value || 'Tel: 0211 123456, Fax: 0211 654321\nzambia@eiscomtech.com';
+  const bottomText = document.getElementById('stampBottomText').value || 'P.O.Box 56879 Lusaka Zambia';
+  const shape = document.getElementById('stampShape').value;
+  const size = document.getElementById('stampSize').value;
+  const borderStyle = document.getElementById('stampBorder').value;
+  const borderWidth = parseInt(document.getElementById('stampBorderWidth').value) || 3;
+  const color = document.getElementById('stampColor').value || '#0066CC';
+  const addDate = document.getElementById('stampAddDate').checked;
+  const dateFormat = document.getElementById('stampDateFormat') ? document.getElementById('stampDateFormat').value : 'DD MMM YYYY';
+  const dateColor = document.getElementById('stampDateColor') ? document.getElementById('stampDateColor').value : '#dc2626';
+  const dateBorder = document.getElementById('stampDateBorder') ? document.getElementById('stampDateBorder').checked : true;
+  const textPlacement = document.getElementById('stampTextPlacement') ? document.getElementById('stampTextPlacement').value : 'between';
+  const fontStyle = document.getElementById('stampFontStyle') ? document.getElementById('stampFontStyle').value : 'Arial';
+  const fontSize = document.getElementById('stampFontSize') ? parseInt(document.getElementById('stampFontSize').value) : 10;
+  const dateSize = document.getElementById('stampDateSize') ? parseInt(document.getElementById('stampDateSize').value) : 11;
+  
+  // Update font size display
+  const fontSizeDisplay = document.getElementById('fontSizeValue');
+  if (fontSizeDisplay) {
+    fontSizeDisplay.textContent = fontSize + 'px';
+  }
+  
+  // Update date size display
+  const dateSizeDisplay = document.getElementById('dateSizeValue');
+  if (dateSizeDisplay) {
+    dateSizeDisplay.textContent = dateSize + 'px';
+  }
+  
+  // Update border width display
+  const borderWidthDisplay = document.getElementById('borderWidthValue');
+  if (borderWidthDisplay) {
+    borderWidthDisplay.textContent = borderWidth + 'px';
+  }
+  
+  // Clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Set styles
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = borderWidth;
+  
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const sizeMultiplier = size === 'small' ? 0.8 : size === 'large' ? 1.2 : 1;
+  const radiusX = 160 * sizeMultiplier;
+  const radiusY = 100 * sizeMultiplier;
+  
+  // Different inner border sizes for different shapes
+  let innerRadiusX, innerRadiusY;
+  if (shape === 'oval' || shape === 'circle') {
+    innerRadiusX = radiusX - 27;
+    innerRadiusY = radiusY - 27;
+  } else {
+    // Rectangle and square need smaller inner border for text spacing
+    innerRadiusX = radiusX - 25;
+    innerRadiusY = radiusY - 25;
+  }
+  
+  // Draw shape with proper border style support
+  ctx.beginPath();
+  if (shape === 'oval') {
+    // Outer border
+    ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+    
+    if (borderStyle === 'dashed') {
+      ctx.setLineDash([8, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else if (borderStyle === 'dotted') {
+      ctx.setLineDash([2, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      ctx.stroke();
+    }
+    
+    // Inner border for double style
+    if (borderStyle === 'double') {
+      ctx.beginPath();
+      ctx.ellipse(centerX, centerY, innerRadiusX, innerRadiusY, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  } else if (shape === 'circle') {
+    ctx.arc(centerX, centerY, radiusY, 0, Math.PI * 2);
+    
+    if (borderStyle === 'dashed') {
+      ctx.setLineDash([8, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else if (borderStyle === 'dotted') {
+      ctx.setLineDash([2, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      ctx.stroke();
+    }
+    
+    if (borderStyle === 'double') {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, innerRadiusY, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  } else if (shape === 'square') {
+    ctx.rect(centerX - radiusY, centerY - radiusY, radiusY * 2, radiusY * 2);
+    
+    if (borderStyle === 'dashed') {
+      ctx.setLineDash([8, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else if (borderStyle === 'dotted') {
+      ctx.setLineDash([2, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      ctx.stroke();
+    }
+    
+    if (borderStyle === 'double') {
+      ctx.beginPath();
+      ctx.rect(centerX - innerRadiusY, centerY - innerRadiusY, innerRadiusY * 2, innerRadiusY * 2);
+      ctx.stroke();
+    }
+  } else if (shape === 'rectangle') {
+    ctx.rect(centerX - radiusX, centerY - radiusY, radiusX * 2, radiusY * 2);
+    
+    if (borderStyle === 'dashed') {
+      ctx.setLineDash([8, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else if (borderStyle === 'dotted') {
+      ctx.setLineDash([2, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      ctx.stroke();
+    }
+    
+    if (borderStyle === 'double') {
+      ctx.beginPath();
+      ctx.rect(centerX - innerRadiusX, centerY - innerRadiusY, innerRadiusX * 2, innerRadiusY * 2);
+      ctx.stroke();
+    }
+  }
+  
+  // Draw text
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // Calculate text radius - ALWAYS between borders for double border style
+  let textRadiusY, textRadiusX;
+  if (borderStyle === 'double') {
+    // For double border, ALWAYS position text exactly between the two borders
+    textRadiusY = (radiusY + innerRadiusY) / 2;
+    textRadiusX = (radiusX + innerRadiusX) / 2;
+  } else {
+    // For single border, position text inside with spacing
+    textRadiusY = radiusY - 18;
+    textRadiusX = radiusX - 18;
+  }
+  
+  // Top text - curved for oval/circle
+  if (topText) {
+    if (shape === 'oval') {
+      ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+      const text = topText.toUpperCase();
+      const chars = text.split('');
+      const charSpacing = 0.09;
+      const totalAngle = chars.length * charSpacing;
+      const startAngle = -Math.PI/2 - totalAngle/2;
+      
+      for (let i = 0; i < chars.length; i++) {
+        const angle = startAngle + i * charSpacing;
+        const x = centerX + Math.cos(angle) * textRadiusX;
+        const y = centerY + Math.sin(angle) * textRadiusY;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle + Math.PI/2);
+        ctx.fillText(chars[i], 0, 0);
+        ctx.restore();
+      }
+    } else if (shape === 'circle') {
+      ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+      const text = topText.toUpperCase();
+      const chars = text.split('');
+      const charSpacing = 0.09;
+      const totalAngle = chars.length * charSpacing;
+      const startAngle = -Math.PI/2 - totalAngle/2;
+      
+      for (let i = 0; i < chars.length; i++) {
+        const angle = startAngle + i * charSpacing;
+        const x = centerX + Math.cos(angle) * textRadiusY;
+        const y = centerY + Math.sin(angle) * textRadiusY;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle + Math.PI/2);
+        ctx.fillText(chars[i], 0, 0);
+        ctx.restore();
+      }
+    } else if (shape === 'square' || shape === 'rectangle') {
+      ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+      const textY = borderStyle === 'double' ? centerY - radiusY + 18 : centerY - radiusY + 15;
+      ctx.fillText(topText.toUpperCase(), centerX, textY);
+    }
+  }
+  
+  // Middle text - centered (with smart date positioning)
+  if (middleText && !addDate) {
+    ctx.save();
+    ctx.font = `${(fontSize * 0.7) * sizeMultiplier}px ${fontStyle}`;
+    ctx.textAlign = 'center';
+    const lines = middleText.split(/\n/);
+    const lineHeight = 11 * sizeMultiplier;
+    const startY = centerY - 5 - ((lines.length - 1) * lineHeight) / 2;
+    lines.forEach((line, i) => {
+      ctx.fillText(line, centerX, startY + i * lineHeight);
+    });
+    ctx.restore();
+  }
+  
+  // Bottom text - curved for oval/circle (left to right, right-side-up)
+  if (bottomText) {
+    if (shape === 'oval') {
+      ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+      const text = bottomText.toUpperCase();
+      const chars = text.split('');
+      const charSpacing = 0.09;
+      const totalAngle = chars.length * charSpacing;
+      const startAngle = Math.PI/2 + totalAngle/2;
+      
+      for (let i = 0; i < chars.length; i++) {
+        const angle = startAngle - i * charSpacing;
+        const x = centerX + Math.cos(angle) * textRadiusX;
+        const y = centerY + Math.sin(angle) * textRadiusY;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle - Math.PI/2);
+        ctx.fillText(chars[i], 0, 0);
+        ctx.restore();
+      }
+    } else if (shape === 'circle') {
+      ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+      const text = bottomText.toUpperCase();
+      const chars = text.split('');
+      const charSpacing = 0.09;
+      const totalAngle = chars.length * charSpacing;
+      const startAngle = Math.PI/2 + totalAngle/2;
+      
+      for (let i = 0; i < chars.length; i++) {
+        const angle = startAngle - i * charSpacing;
+        const x = centerX + Math.cos(angle) * textRadiusY;
+        const y = centerY + Math.sin(angle) * textRadiusY;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle - Math.PI/2);
+        ctx.fillText(chars[i], 0, 0);
+        ctx.restore();
+      }
+    } else if (shape === 'square' || shape === 'rectangle') {
+      ctx.font = `bold ${fontSize * sizeMultiplier}px ${fontStyle}`;
+      const textY = borderStyle === 'double' ? centerY + radiusY - 18 : centerY + radiusY - 15;
+      ctx.fillText(bottomText.toUpperCase(), centerX, textY);
+    }
+  }
+  
+  // Date stamp with smart middle text layout
+  if (addDate) {
+    const today = new Date();
+    let dateText = '';
+    if (dateFormat === 'DD MMM YYYY') {
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      dateText = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+    } else if (dateFormat === 'DD/MM/YYYY') {
+      dateText = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+    } else if (dateFormat === 'MM/DD/YYYY') {
+      dateText = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+    } else if (dateFormat === 'YYYY-MM-DD') {
+      dateText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
+    
+    // Render middle text split around date if multiple lines
+    if (middleText) {
+      ctx.save();
+      ctx.font = `${(fontSize * 0.8) * sizeMultiplier}px ${fontStyle}`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = color;
+      const lines = middleText.split(/\n/);
+      const lineHeight = 11 * sizeMultiplier;
+      
+      if (lines.length >= 2) {
+        const boxHeight = 25 * sizeMultiplier;
+        const spacing = 9 * sizeMultiplier;
+        
+        ctx.fillText(lines[0], centerX, centerY - boxHeight/2 - spacing);
+        
+        const remainingLines = lines.slice(1);
+        const remainingStartY = centerY + boxHeight/2 + spacing + 5;
+        remainingLines.forEach((line, i) => {
+          ctx.fillText(line, centerX, remainingStartY + i * lineHeight);
+        });
+      } else {
+        ctx.fillText(lines[0], centerX, centerY - 20 * sizeMultiplier);
+      }
+      ctx.restore();
+    }
+    
+    // Draw date box
+    ctx.save();
+    
+    ctx.fillStyle = 'white';
+    const boxWidth = 110 * sizeMultiplier;
+    const boxHeight = 28 * sizeMultiplier;
+    const boxX = centerX - boxWidth / 2;
+    const boxY = centerY - boxHeight / 2;
+    ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+    
+    ctx.strokeStyle = dateColor || '#dc2626';
+    ctx.lineWidth = 2;
+    if (dateBorder) {
+      ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+    }
+    
+    ctx.fillStyle = dateColor || '#dc2626';
+    ctx.font = `bold ${dateSize * sizeMultiplier}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(dateText, centerX, centerY);
+    
+    ctx.restore();
+  }
+}
+
+function setStampColor(color) {
+  document.getElementById('stampColor').value = color;
+  document.getElementById('stampColorText').value = color;
+  updateStampPreview();
+}
+
+function generateStamp() {
+  const canvas = document.getElementById('stampCanvas');
+  if (!canvas) {
+    alert('Please configure your stamp first');
+    return;
+  }
+  
+  canvas.toBlob(function(blob) {
+    const formData = new FormData();
+    formData.append('company_stamp', blob, 'company_stamp.png');
+    formData.append('action', 'stamp_upload');
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    fetch(window.location.pathname, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (response.ok || response.redirected) {
+        if (typeof showSettingsToast === 'function') {
+          showSettingsToast('Stamp generated and saved successfully!', 'success');
+        } else {
+          alert('Stamp generated and saved successfully!');
+        }
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        if (typeof showSettingsToast === 'function') {
+          showSettingsToast('Failed to save stamp. Please try again.', 'error');
+        } else {
+          alert('Failed to save stamp. Please try again.');
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      if (typeof showSettingsToast === 'function') {
+        showSettingsToast('An error occurred while saving the stamp', 'error');
+      } else {
+        alert('An error occurred while saving the stamp');
+      }
+    });
+  });
+}
+
+// Stamp designer live preview
+const stampInputs = ['stampTopText', 'stampMiddleText', 'stampBottomText', 'stampShape', 'stampSize', 
+                     'stampBorder', 'stampBorderWidth', 'stampFontStyle', 'stampFontSize', 'stampColor', 'stampTextPlacement',
+                     'stampDateFormat', 'stampDateColor', 'stampDateSize'];
+stampInputs.forEach(id => {
+  const element = document.getElementById(id);
+  if (element) {
+    element.addEventListener('input', updateStampPreview);
+    element.addEventListener('change', updateStampPreview);
+  }
+});
+
+// Border style change - show/hide text placement option
+const stampBorderSelect = document.getElementById('stampBorder');
+const textPlacementContainer = document.getElementById('textPlacementContainer');
+if (stampBorderSelect && textPlacementContainer) {
+  stampBorderSelect.addEventListener('change', function() {
+    textPlacementContainer.style.display = this.value === 'double' ? 'block' : 'none';
+  });
+}
+
+// Date stamp checkbox toggle
+const stampAddDateCheckbox = document.getElementById('stampAddDate');
+const dateStampOptions = document.getElementById('dateStampOptions');
+if (stampAddDateCheckbox && dateStampOptions) {
+  stampAddDateCheckbox.addEventListener('change', function() {
+    dateStampOptions.style.display = this.checked ? 'block' : 'none';
+    updateStampPreview();
+  });
+}
+
+// Date border checkbox
+const stampDateBorderCheckbox = document.getElementById('stampDateBorder');
+if (stampDateBorderCheckbox) {
+  stampDateBorderCheckbox.addEventListener('change', updateStampPreview);
+}
+
+// Stamp color sync
+const stampColorInput = document.getElementById('stampColor');
+const stampColorText = document.getElementById('stampColorText');
+if (stampColorInput && stampColorText) {
+  stampColorInput.addEventListener('input', () => {
+    stampColorText.value = stampColorInput.value;
+    updateStampPreview();
+  });
+  stampColorText.addEventListener('input', () => {
+    stampColorInput.value = stampColorText.value;
+    updateStampPreview();
+  });
+}
+
+// Helper function for date color
+function setDateColor(color) {
+  const dateColorInput = document.getElementById('stampDateColor');
+  if (dateColorInput) {
+    dateColorInput.value = color;
+    updateStampPreview();
+  }
+}
+</script>

@@ -1,0 +1,198 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Support Analytics - BLU Suite Admin{% endblock %}
+{% block nav_support %} active{% endblock %}
+{% block page_title %}Support Analytics Dashboard{% endblock %}
+
+{% block content %}
+<!-- Analytics Overview -->
+<div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Total Tickets</div>
+        </div>
+        <div class="card-content">
+            <div style="font-size: 24px; font-weight: 600; color: #1A1A1A;">
+                {{ total_created }}
+            </div>
+            <div style="font-size: 14px; color: #64748b;">Last 30 days</div>
+        </div>
+    </div>
+    
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Resolved Tickets</div>
+        </div>
+        <div class="card-content">
+            <div style="font-size: 24px; font-weight: 600; color: #1A1A1A;">
+                {{ total_resolved }}
+            </div>
+            <div style="font-size: 14px; color: #64748b;">Last 30 days</div>
+        </div>
+    </div>
+    
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Resolution Rate</div>
+        </div>
+        <div class="card-content">
+            <div style="font-size: 24px; font-weight: 600; color: #1A1A1A;">
+                {{ resolution_rate|floatformat:1 }}%
+            </div>
+            <div style="font-size: 14px; color: #64748b;">Last 30 days</div>
+        </div>
+    </div>
+    
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Avg Response Time</div>
+        </div>
+        <div class="card-content">
+            <div style="font-size: 24px; font-weight: 600; color: #1A1A1A;">
+                {% if response_times.avg_response %}
+                    {{ response_times.avg_response|floatformat:1 }}h
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div style="font-size: 14px; color: #64748b;">Average time to respond</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="content-grid" style="grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px;">
+    <!-- Ticket Trends -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Ticket Trends (Last 30 Days)</div>
+            <div class="card-subtitle">Daily ticket creation and resolution</div>
+        </div>
+        <div class="card-content">
+            <div style="height: 300px; display: flex; align-items: end; gap: 2px; padding: 20px 0;">
+                {% for trend in ticket_trends|slice:":30" %}
+                <div style="flex: 1; background: #E11D48; height: {{ trend.height_percent|floatformat:1 }}%; min-height: 2px; position: relative;" title="{{ trend.date }}: {{ trend.created }} created">
+                </div>
+                {% endfor %}
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #64748b;">
+                <span>30 days ago</span>
+                <span>Today</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Priority Distribution -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Priority Distribution</div>
+            <div class="card-subtitle">Tickets by priority level</div>
+        </div>
+        <div class="card-content">
+            {% for stat in priority_stats %}
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="font-size: 14px; font-weight: 500;">{{ stat.get_priority_display }}</span>
+                    <span style="font-size: 14px; font-weight: 600;">{{ stat.count }}</span>
+                </div>
+                <div style="height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden;">
+                    <div style="height: 100%; background: {% if stat.priority == 'URGENT' %}#dc2626{% elif stat.priority == 'HIGH' %}#d97706{% elif stat.priority == 'NORMAL' %}#1e40af{% else %}#6b7280{% endif %}; width: {{ stat.percentage|floatformat:1 }}%;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Category and Team Performance -->
+<div class="content-grid" style="grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+    <!-- Category Breakdown -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Category Breakdown</div>
+            <div class="card-subtitle">Tickets by category</div>
+        </div>
+        <div class="card-content">
+            {% for stat in category_stats|slice:":10" %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+                <div>
+                    <div style="font-weight: 500;">{{ stat.category|default:"Uncategorized" }}</div>
+                    <div style="font-size: 12px; color: #64748b;">Category</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">{{ stat.count }}</div>
+                    <div style="font-size: 12px; color: #64748b;">tickets</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Team Performance -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Team Performance</div>
+            <div class="card-subtitle">Top performers</div>
+        </div>
+        <div class="card-content">
+            {% for member in team_performance|slice:":10" %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+                <div>
+                    <div style="font-weight: 500;">{{ member.user.get_full_name }}</div>
+                    <div style="font-size: 12px; color: #64748b;">{{ member.get_role_display }}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">{{ member.resolved_tickets }}</div>
+                    <div style="font-size: 12px; color: #64748b;">resolved</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: #f8fafc;
+    padding: 12px;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+.data-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    background: #E11D48;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+</style>
+{% endblock %}

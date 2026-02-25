@@ -1,0 +1,427 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Company Management - EMS{% endblock %}
+{% block nav_companies %} active{% endblock %}
+{% block page_title %}Company Management{% endblock %}
+
+{% block content %}
+    <a href="{% url 'superadmin_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-size: 14px; margin-bottom: 16px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard</a>
+
+                <!-- Page Header -->
+                <div class="content-card" style="max-width: 100%; margin-bottom: 16px;">
+                    <div class="card-header">
+                        <div class="card-title">Company Management</div>
+                        <div class="card-subtitle">Manage company requests and approved companies</div>
+                    </div>
+                    <div class="card-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                            <div style="display: flex; gap: 24px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #1e293b;">{{ total_pending }}</div>
+                                    <div style="font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Pending Requests</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #1e293b;">{{ total_approved }}</div>
+                                    <div style="font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Approved Companies</div>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="?export=companies" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="16 17 21 12 16 7"></polyline>
+                                        <line x1="4" y1="12" x2="21" y2="12"></line>
+                                    </svg>
+                                    Export Companies
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="content-card" style="max-width: 100%; margin-bottom: 24px;">
+                    <div class="card-content">
+                        <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+                            <div>
+                                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Search</label>
+                                <input type="text" name="search" value="{{ search_query }}" placeholder="Company name, email or website" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Plan</label>
+                                <select name="plan" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                    <option value="">All plans</option>
+                                    {% for value, label in plan_choices %}
+                                        <option value="{{ value }}" {% if plan_filter == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Billing</label>
+                                <select name="billing" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                    <option value="">All billing</option>
+                                    {% for value, label in billing_choices %}
+                                        <option value="{{ value }}" {% if billing_filter == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">License</label>
+                                <select name="license" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                    <option value="">All</option>
+                                    <option value="trial" {% if license_filter == 'trial' %}selected{% endif %}>Trial</option>
+                                    <option value="expiring_30" {% if license_filter == 'expiring_30' %}selected{% endif %}>Expiring in 30 days</option>
+                                    <option value="active" {% if license_filter == 'active' %}selected{% endif %}>Active</option>
+                                    <option value="expired" {% if license_filter == 'expired' %}selected{% endif %}>Expired</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="submit" class="btn">Apply</button>
+                                <a href="{% url 'company_list' %}" class="btn btn-secondary">Reset</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    <div style="margin-bottom: 24px;">
+                        {% for message in messages %}
+                            <div style="padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; background: {% if message.tags == 'error' %}#fecaca{% elif message.tags == 'success' %}#dcfce7{% elif message.tags == 'warning' %}#fef3c7{% else %}#dbeafe{% endif %}; color: {% if message.tags == 'error' %}#991b1b{% elif message.tags == 'success' %}#166534{% elif message.tags == 'warning' %}#92400e{% else %}#1e40af{% endif %}; border: 1px solid {% if message.tags == 'error' %}#fca5a5{% elif message.tags == 'success' %}#bbf7d0{% elif message.tags == 'warning' %}#fcd34d{% else %}#bfdbfe{% endif %};">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="showTab('pending')">Pending Requests ({{ total_pending }})</button>
+                    <button class="tab-btn" onclick="showTab('approved')">Approved Companies ({{ total_approved }})</button>
+                    <button class="tab-btn" onclick="showTab('rejected')">Rejected ({{ rejected_companies|length }})</button>
+                </div>
+
+                <!-- Pending Requests Tab -->
+                <div id="pending" class="tab-content active">
+                    {% if pending_companies %}
+                        <div class="content-card" style="max-width: 100%;">
+                            <div class="card-content">
+                                <div class="table-responsive">
+                                    <table class="data-table company-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Request #</th>
+                                                <th>Company Name</th>
+                                                <th>Contact Email</th>
+                                                <th>Phone</th>
+                                                <th>Website</th>
+                                                <th>Subscription Plan</th>
+                                                <th>Billing</th>
+                                                <th>Employees</th>
+                                                <th>Requested</th>
+                                                <th style="width: 140px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for company in pending_companies %}
+                                                <tr>
+                                                    <td>#{{ company.id }}</td>
+                                                    <td>{{ company.company_name }}</td>
+                                                    <td>{{ company.contact_email }}</td>
+                                                    <td>{{ company.company_phone|default:'-' }}</td>
+                                                    <td>{{ company.company_website|default:'-' }}</td>
+                                                    <td>{{ company.subscription_plan }}</td>
+                                                    <td>{{ company.get_billing_preference_display }}</td>
+                                                    <td>{{ company.number_of_employees }}</td>
+                                                    <td>{{ company.created_at|date:"M j, Y g:i A" }}</td>
+                                                    <td>
+                                                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                                            <a href="{% url 'approve_company_registration' company.id %}" class="btn btn-success" style="padding: 4px 8px; font-size: 12px;">Approve</a>
+                                                            <a href="{% url 'reject_company_registration' company.id %}" class="btn btn-destructive" style="padding: 4px 8px; font-size: 12px;">Reject</a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="content-card" style="max-width: 100%; text-align: center; padding: 60px 20px;">
+                            <h3 style="font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">No Pending Requests</h3>
+                            <p style="font-size: 16px; color: #64748b; margin-bottom: 24px;">All company requests have been processed. New requests will appear here when submitted.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Approved Companies Tab -->
+                <div id="approved" class="tab-content">
+                    {% if approved_companies %}
+                        <div class="content-card" style="max-width: 100%;">
+                            <div class="card-content">
+                                <div class="table-responsive">
+                                    <table class="data-table company-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Company</th>
+                                                <th>Email</th>
+                                                <th>Phone</th>
+                                                <th>Users</th>
+                                                <th>Branches</th>
+                                                <th>Plan</th>
+                                                <th>Billing</th>
+                                                <th>License</th>
+                                                <th>Approved</th>
+                                                <th style="width: 200px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for company in approved_companies %}
+                                                <tr class="
+                                                    {% if company.id in expired_ids %}license-row-danger{% elif company.id in expiring_soon_ids %}license-row-warning{% endif %}">
+                                                    <td>{{ company.name }}</td>
+                                                    <td>{{ company.email }}</td>
+                                                    <td>{{ company.phone|default:'-' }}</td>
+                                                    <td>{{ company.users.count }}</td>
+                                                    <td>{{ company.sub_companies.count }}</td>
+                                                    <td>{% if company.subscription_plan %}{{ company.get_subscription_plan_display }}{% else %}-{% endif %}</td>
+                                                    <td>
+                                                        {% if company.registration_request %}
+                                                            {{ company.registration_request.get_billing_preference_display }}
+                                                        {% else %}
+                                                            Not set
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if company.id in expired_ids %}
+                                                            <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#fee2e2; color:#b91c1c; font-size: 11px; font-weight:600; text-transform:uppercase;">Expired</span>
+                                                        {% elif company.id in expiring_soon_ids %}
+                                                            <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#fef3c7; color:#92400e; font-size: 11px; font-weight:600; text-transform:uppercase;">Expiring soon</span>
+                                                        {% elif company.id in trial_ids %}
+                                                            <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#dbeafe; color:#1d4ed8; font-size: 11px; font-weight:600; text-transform:uppercase;">Trial</span>
+                                                        {% else %}
+                                                            <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#dcfce7; color:#166534; font-size: 11px; font-weight:600; text-transform:uppercase;">Active</span>
+                                                        {% endif %}
+                                                        <div style="font-size: 12px; color:#64748b; margin-top:4px;">
+                                                            {% if company.is_trial and company.trial_ends_at %}
+                                                                Trial until {{ company.trial_ends_at|date:"M j, Y" }}
+                                                            {% elif company.license_expiry %}
+                                                                Active until {{ company.license_expiry|date:"M j, Y" }}
+                                                            {% else %}
+                                                                Active (no expiry date)
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ company.approved_at|date:"M j, Y g:i A" }}</td>
+                                                    <td>
+                                                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                                            <a href="{% url 'company_edit' company.id %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Profile</a>
+                                                            <a href="{% url 'company_edit' company.id %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Edit</a>
+                                                            <form method="POST" action="{% url 'approve_existing_company' company.id %}" style="display: inline;">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;"
+                                                                        onclick="return confirm('Resend login credentials for {{ company.name }}?')">
+                                                                    Resend
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="content-card" style="max-width: 100%; text-align: center; padding: 60px 20px;">
+                            <h3 style="font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">No Approved Companies</h3>
+                            <p style="font-size: 16px; color: #64748b; margin-bottom: 24px;">No companies have been approved yet. Approve pending requests to see them here.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Rejected Companies Tab -->
+                <div id="rejected" class="tab-content">
+                    {% if rejected_companies %}
+                        <div style="padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
+                            <strong>Note:</strong> Rejected companies are shown for today only. They will be automatically cleaned up after 24 hours.
+                        </div>
+                        <div class="content-card" style="max-width: 100%;">
+                            <div class="card-content">
+                                <div class="table-responsive">
+                                    <table class="data-table company-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Company</th>
+                                                <th>Email</th>
+                                                <th>Created</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for company in rejected_companies %}
+                                                <tr>
+                                                    <td>{{ company.name }}</td>
+                                                    <td>{{ company.email }}</td>
+                                                    <td>{{ company.created_at|date:"M j, Y g:i A" }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="content-card" style="max-width: 100%; text-align: center; padding: 60px 20px;">
+                            <h3 style="font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">No Rejected Companies</h3>
+                            <p style="font-size: 16px; color: #64748b; margin-bottom: 24px;">No companies have been rejected today.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .company-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .company-table thead th {
+            padding: 10px 14px;
+            background: #f8fafc;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .company-table tbody td {
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #1f2933;
+            border-top: 1px solid #e2e8f0;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .company-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .company-table tbody tr.license-row-warning {
+            background: #fffbeb;
+        }
+
+        .company-table tbody tr.license-row-danger {
+            background: #fef2f2;
+        }
+
+        .company-table tbody tr.license-row-warning:hover {
+            background: #fef3c7;
+        }
+
+        .company-table tbody tr.license-row-danger:hover {
+            background: #fee2e2;
+        }
+
+        .company-table td.numeric {
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).style.display = 'block';
+
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+
+        function handleApproval(form) {
+            // Disable the button to prevent double submission
+            const button = form.querySelector('button');
+            const originalText = button.textContent;
+            button.textContent = 'Approving...';
+            button.disabled = true;
+            button.style.opacity = '0.6';
+
+            // Add loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.innerHTML = '<div style="color: #10b981; font-size: 14px; margin-top: 10px;">Processing approval...</div>';
+            form.parentNode.insertBefore(loadingDiv, form.nextSibling);
+
+            // Submit the form
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+
+            return false; // Prevent default form submission
+        }
+
+        function handleRejection(form) {
+            // Disable the button to prevent double submission
+            const button = form.querySelector('button');
+            const originalText = button.textContent;
+            button.textContent = 'Rejecting...';
+            button.disabled = true;
+            button.style.opacity = '0.6';
+
+            // Add loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.innerHTML = '<div style="color: #ef4444; font-size: 14px; margin-top: 10px;">Processing rejection...</div>';
+            form.parentNode.insertBefore(loadingDiv, form.nextSibling);
+
+            // Submit the form
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+
+            return false; // Prevent default form submission
+        }
+
+        // Check for success/error messages and refresh page if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            // Look for any alert messages
+            const alerts = document.querySelectorAll('.alert-success, .alert-info, .alert-warning, .alert-error');
+
+            if (alerts.length > 0) {
+                // Only refresh once - check if we haven't already refreshed
+                if (!sessionStorage.getItem('companyListRefreshed')) {
+                    sessionStorage.setItem('companyListRefreshed', 'true');
+
+                    // If there are messages, refresh the page after 2 seconds to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                }
+            }
+
+            // Also check for URL parameters that indicate successful operations
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('approved') || urlParams.has('rejected')) {
+                // Remove the parameters and refresh to show clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                // Clear the refresh flag so next time it can refresh again
+                sessionStorage.removeItem('companyListRefreshed');
+            }
+        });
+    </script>
+{% endblock %}
+</body>
+</html>

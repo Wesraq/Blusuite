@@ -1,0 +1,231 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Reject Company Registration - EMS{% endblock %}
+{% block page_title %}Reject Company Registration{% endblock %}
+
+{% block extra_css %}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .reject-container {
+            max-width: 800px;
+            margin: 24px auto;
+            padding: 0 20px 24px;
+        }
+
+        .rejection-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .company-info {
+            background: #f9fafb;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #dc2626;
+        }
+
+        .company-info h3 {
+            color: #111827;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-group h4 {
+            color: #6b7280;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .info-group p {
+            color: #111827;
+            margin: 5px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #d1d5db;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #9ca3af;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .warning-icon {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .required {
+            color: #dc2626;
+            margin-left: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="reject-container">
+        <div class="rejection-card">
+            <div class="company-info">
+                <h3>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Company Information
+                </h3>
+                <div class="info-grid">
+                    <div class="info-group">
+                        <h4>Company Details</h4>
+                        <p><strong>Name:</strong> {{ registration_request.company_name }}</p>
+                        <p><strong>Email:</strong> {{ registration_request.company_email }}</p>
+                        <p><strong>Phone:</strong> {{ registration_request.company_phone }}</p>
+                    </div>
+
+                    <div class="info-group">
+                        <h4>Contact Person</h4>
+                        <p><strong>Name:</strong> {{ registration_request.contact_first_name }} {{ registration_request.contact_last_name }}</p>
+                        <p><strong>Email:</strong> {{ registration_request.contact_email }}</p>
+                        <p><strong>Phone:</strong> {{ registration_request.contact_phone }}</p>
+                    </div>
+
+                    <div class="info-group">
+                        <h4>Request Details</h4>
+                        <p><strong>Plan:</strong> {{ registration_request.get_subscription_plan_display }}</p>
+                        <p><strong>Employees:</strong> {{ registration_request.number_of_employees }}</p>
+                        <p><strong>Submitted:</strong> {{ registration_request.created_at|date:"M j, Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning">
+                <div class="warning-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h4>Important</h4>
+                    <p>Once rejected, the system will:</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Send a rejection email to {{ registration_request.contact_email }}</li>
+                        <li>Include the reason for rejection in the email</li>
+                        <li>Mark the request as permanently rejected</li>
+                        <li>Allow the company to submit a new registration request</li>
+                    </ul>
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="rejection_reason">Reason for Rejection <span class="required">*</span></label>
+                    <textarea name="rejection_reason" id="rejection_reason" rows="6" placeholder="Please provide a clear reason for rejecting this registration request. This will be included in the email sent to the applicant." required></textarea>
+                </div>
+
+                <div class="actions">
+                    <a href="{% url 'company_registration_list' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Reject Registration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

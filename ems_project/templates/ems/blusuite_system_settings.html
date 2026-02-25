@@ -1,0 +1,511 @@
+<!-- Global System Settings - BluSuite Style -->
+<div class="settings-layout">
+    <!-- Settings Navigation -->
+    <div class="settings-nav">
+        <a href="#platform" class="nav-item active">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
+            </svg>
+            <span>Platform Configuration</span>
+        </a>
+        <a href="#registration" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            <span>Registration & Access</span>
+        </a>
+        <a href="#billing" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            <span>Billing & Subscriptions</span>
+        </a>
+        <a href="#email" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <span>Email & Communications</span>
+        </a>
+        <a href="#security" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Security & Compliance</span>
+        </a>
+        <a href="#modules" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Module Management</span>
+        </a>
+        <a href="#performance" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+            <span>Performance & System</span>
+        </a>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="settings-content">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Platform Configuration -->
+            <div id="platform" class="settings-section active">
+                <div class="section-header">
+                    <h2>Platform Configuration</h2>
+                    <p>Core platform settings and system-wide policies</p>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">General Settings</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Public Company Registration</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.allow_public_company_registration }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Allow new companies to register without invitation</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Require Company Approval</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.require_company_approval }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">New companies must be approved by administrators</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Maintenance Mode</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.maintenance_mode }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Temporarily disable platform access for users</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Maintenance Message</label>
+                        {{ system_settings_form.maintenance_message }}
+                        <p class="help-text">Message displayed to users during maintenance</p>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Platform Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration & Access Control -->
+            <div id="registration" class="settings-section">
+                <div class="section-header">
+                    <h2>Registration & Access Control</h2>
+                    <p>User registration policies and access management</p>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Registration Settings</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Employee Self-Registration</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_employee_self_registration }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Allow employees to register themselves</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Verification Required</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.require_email_verification }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Verify email addresses before activation</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Max Companies per Admin</label>
+                            {{ system_settings_form.max_companies_per_admin }}
+                            <p class="help-text">Limit companies an administrator can manage</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Default User Role</label>
+                            {{ system_settings_form.default_user_role }}
+                            <p class="help-text">Role assigned to new users by default</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Registration Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing & Subscriptions -->
+            <div id="billing" class="settings-section">
+                <div class="section-header">
+                    <h2>Billing & Subscriptions</h2>
+                    <p>Payment processing and subscription management</p>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Billing Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Enable Billing Module</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_billing_module }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Activate subscription and payment features</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Default Subscription Plan</label>
+                            {{ system_settings_form.default_subscription_plan }}
+                            <p class="help-text">Plan assigned to new companies</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Trial Period (Days)</label>
+                            {{ system_settings_form.trial_period_days }}
+                            <p class="help-text">Free trial duration for new companies</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Auto-Renew Subscriptions</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.auto_renew_subscriptions }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Automatically renew active subscriptions</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Grace Period (Days)</label>
+                            {{ system_settings_form.grace_period_days }}
+                            <p class="help-text">Days after expiry before suspension</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Billing Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email & Communications -->
+            <div id="email" class="settings-section">
+                <div class="section-header">
+                    <h2>Email & Communications</h2>
+                    <p>System notifications and email configuration</p>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Email Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>System Email Address</label>
+                            {{ system_settings_form.system_email }}
+                            <p class="help-text">From address for system notifications</p>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Registration Admin Email</label>
+                            {{ system_settings_form.registration_admin_email }}
+                            <p class="help-text">Email for new company registration notifications</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Enable Email Notifications</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_email_notifications }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Send system alerts via email</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Welcome Emails</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_welcome_emails }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Send welcome emails to new users</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Weekly Digest Emails</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_digest_emails }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Send weekly activity summaries</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Email Settings</button>
+                        <button type="button" class="btn-secondary" onclick="testEmailSettings()">Test Email</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security & Compliance -->
+            <div id="security" class="settings-section">
+                <div class="section-header">
+                    <h2>Security & Compliance</h2>
+                    <p>Authentication, data protection, and compliance settings</p>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Security Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Two-Factor Authentication</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.require_two_factor_auth }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Enforce 2FA for all administrators</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Session Timeout (Minutes)</label>
+                            {{ system_settings_form.session_timeout_minutes }}
+                            <p class="help-text">Auto-logout after inactivity period</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum Password Length</label>
+                            {{ system_settings_form.password_min_length }}
+                            <p class="help-text">Required characters for passwords</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Audit Logging</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_audit_logging }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Track all system changes and access</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Retention (Days)</label>
+                            {{ system_settings_form.data_retention_days }}
+                            <p class="help-text">Days to keep system logs and records</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Security Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module Management -->
+            <div id="modules" class="settings-section">
+                <div class="section-header">
+                    <h2>Module Management</h2>
+                    <p>Enable/disable platform modules and features</p>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">Available Modules</h3>
+                    <div class="modules-list">
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>Support Module</h4>
+                                    <p>Ticket and support management system</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_support_module }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>Analytics Module</h4>
+                                    <p>Reports and business intelligence</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_analytics_module }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                        <polyline points="15 3 21 3 21 9"></polyline>
+                                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>API Access</h4>
+                                    <p>Enable REST API for integrations</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_api_access }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="module-item">
+                            <div class="module-info">
+                                <div class="module-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>Mobile App Support</h4>
+                                    <p>Enable mobile application features</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_mobile_app }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Module Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance & System -->
+            <div id="performance" class="settings-section">
+                <div class="section-header">
+                    <h2>Performance & System</h2>
+                    <p>System performance tuning and optimization settings</p>
+                </div>
+
+                <div class="settings-card">
+                    <h3 class="card-title">System Performance</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>System Caching</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_caching }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Enable Redis/Memcached caching</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Cache Timeout (Minutes)</label>
+                            {{ system_settings_form.cache_timeout_minutes }}
+                            <p class="help-text">Cache expiration duration</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Background Tasks</label>
+                            <div class="toggle-switch">
+                                {{ system_settings_form.enable_background_tasks }}
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <p class="help-text">Enable asynchronous job processing</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Max File Upload Size (MB)</label>
+                            {{ system_settings_form.max_file_upload_size }}
+                            <p class="help-text">Maximum file size for uploads</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button type="submit" class="btn-primary">Save Performance Settings</button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+// BluSuite Settings Navigation
+document.addEventListener('DOMContentLoaded', function() {
+    const settingsNav = document.querySelector('.settings-nav');
+    if (!settingsNav) return;
+    
+    const navItems = settingsNav.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.settings-section');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href').substring(1);
+            
+            // Update active nav
+            navItems.forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show target section
+            sections.forEach(section => section.classList.remove('active'));
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+        });
+    });
+    
+    // Handle hash changes
+    if (window.location.hash) {
+        const targetId = window.location.hash.substring(1);
+        const targetNav = settingsNav.querySelector(`[href="#${targetId}"]`);
+        if (targetNav) {
+            targetNav.click();
+        }
+    }
+});
+
+function testEmailSettings() {
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'Testing...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+        showSettingsToast('Test email sent successfully', 'success');
+    }, 2000);
+}
+
+function showSettingsToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `settings-toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+</script>

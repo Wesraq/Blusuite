@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Employee Management System{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/universal.css' %}">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <!-- Global border-radius override for inline styles -->
+    <style>
+        /* Universal 4px border-radius on all page content elements */
+        .page-content div,
+        .page-content span,
+        .page-content a,
+        .page-content button,
+        .page-content input,
+        .page-content select,
+        .page-content textarea,
+        .page-content table,
+        .page-content th,
+        .page-content td,
+        .page-content form,
+        .page-content .modal-content,
+        .page-content .content-card,
+        .page-content .stat-card,
+        .page-content .section-card,
+        .page-content .welcome-card,
+        .page-content .filters-card {
+            border-radius: 4px !important;
+        }
+        .page-content [style*="border-radius: 50%"],
+        .page-content [style*="border-radius:50%"] {
+            border-radius: 50% !important;
+        }
+        .page-content [style*="border-radius: 999px"],
+        .page-content [style*="border-radius:999px"] {
+            border-radius: 999px !important;
+        }
+        .page-content [style*="border-radius: 50px"],
+        .page-content [style*="border-radius:50px"] {
+            border-radius: 50px !important;
+        }
+        .page-content [style*="border-radius: 10px"],
+        .page-content [style*="border-radius:10px"] {
+            border-radius: 10px !important;
+        }
+        .page-content .progress-track,
+        .page-content .progress-fill,
+        .page-content [class*="progress-"] {
+            border-radius: 8px !important;
+        }
+        /* Force Rose Red on inline-styled action buttons */
+        .page-content a[style*="background: #3b82f6"],
+        .page-content a[style*="background:#3b82f6"],
+        .page-content button[style*="background: #3b82f6"],
+        .page-content button[style*="background:#3b82f6"],
+        .page-content a[style*="background: #2563eb"],
+        .page-content button[style*="background: #2563eb"],
+        .page-content a[style*="background: #1d4ed8"],
+        .page-content button[style*="background: #1d4ed8"],
+        .page-content a[style*="background: #1e293b"],
+        .page-content a[style*="background:#1e293b"],
+        .page-content button[style*="background: #1e293b"],
+        .page-content button[style*="background:#1e293b"],
+        .page-content a[style*="background: #0f172a"],
+        .page-content button[style*="background: #0f172a"],
+        .page-content a[style*="background: #1d4ed8"],
+        .page-content a[style*="background:#1d4ed8"],
+        .page-content button[style*="background: #1d4ed8"],
+        .page-content button[style*="background:#1d4ed8"],
+        .page-content a[style*="background: linear-gradient(135deg, #1d4ed8"],
+        .page-content button[style*="background: linear-gradient(135deg, #1d4ed8"] {
+            background: #E11D48 !important;
+            border-color: #E11D48 !important;
+        }
+        .page-content a[style*="background: #3b82f6"]:hover,
+        .page-content button[style*="background: #3b82f6"]:hover,
+        .page-content a[style*="background: #1d4ed8"]:hover,
+        .page-content button[style*="background: #1d4ed8"]:hover,
+        .page-content a[style*="background: #1e293b"]:hover,
+        .page-content button[style*="background: #1e293b"]:hover,
+        .page-content a[style*="background: #0f172a"]:hover,
+        .page-content button[style*="background: #0f172a"]:hover {
+            background: #BE123C !important;
+            border-color: #BE123C !important;
+        }
+        /* Rose Red for .btn class */
+        .page-content .btn:not(.btn-secondary):not(.btn-destructive):not(.btn-warning):not(.btn-success):not(.btn-danger) {
+            background: #E11D48 !important;
+            border-color: #E11D48 !important;
+        }
+        .page-content .btn:not(.btn-secondary):not(.btn-destructive):not(.btn-warning):not(.btn-success):not(.btn-danger):hover {
+            background: #BE123C !important;
+            border-color: #BE123C !important;
+        }
+        /* Crimson hover on all inline-bordered cards */
+        .page-content [style*="border: 1px solid #e2e8f0"],
+        .page-content [style*="border:1px solid #e2e8f0"],
+        .page-content [style*="border: 1px solid #e5e7eb"],
+        .page-content [style*="border:1px solid #e5e7eb"] {
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .page-content [style*="border: 1px solid #e2e8f0"]:hover,
+        .page-content [style*="border:1px solid #e2e8f0"]:hover,
+        .page-content [style*="border: 1px solid #e5e7eb"]:hover,
+        .page-content [style*="border:1px solid #e5e7eb"]:hover {
+            border-color: #DC143C !important;
+            box-shadow: 0 2px 8px rgba(220, 20, 60, 0.10);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    {% if user.role == 'SUPERADMIN' %}
+                        System Owner
+                    {% elif user.role == 'ADMINISTRATOR' %}
+                        {{ user.employerprofile.company_name|default:user.company.name|default:"Company Admin" }}
+                    {% elif user.role == 'EMPLOYER_ADMIN' %}
+                        Company Admin
+                    {% else %}
+                        {{ user.get_full_name|default:user.email }}
+                    {% endif %}
+                </div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+                    {{ user.get_role_display|default:"Dashboard" }}
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <!-- SuperAdmin Navigation -->
+                    {% if user.is_superadmin %}
+                    <li class="nav-item">
+                        <a href="{% url 'superadmin_dashboard' %}" class="nav-link{% block nav_dashboard %}{% endblock %}">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'superadmin_tenants' %}" class="nav-link{% if 'tenants' in request.path %} active{% endif %}">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                </svg>
+                            </span>
+                            Tenants
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'user_management' %}" class="nav-link{% block nav_users %}{% endblock %}">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </span>
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/system-health/" class="nav-link{% if 'system-health' in request.path %} active{% endif %}">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                                </svg>
+                            </span>
+                            System Health
+                        </a>
+                    </li>
+                    
+                    <!-- Platform Administration Section (Superadmin modules) -->
+                    {% if user.is_superadmin %}
+                    <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0;">Platform Administration</li>
+                    <li class="nav-item">
+                        <a href="{% url 'superadmin_billing_overview' %}" class="nav-link{% if 'billing' in request.path %} active{% endif %}">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                                    <path d="M7 15h.01M12 15h.01M17 15h.01"></path>
+                                </svg>
+                            </span>
+                            Billing & Subscriptions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'support:superadmin_support_center' %}" class="nav-link{% if 'support' in request.path %} active{% endif %}">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    <line x1="8" y1="9" x2="16" y2="9"></line>
+                                    <line x1="8" y1="13" x2="14" y2="13"></line>
+                                </svg>
+                            </span>
+                            Support Center
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_superadmin %}
+                    <li class="nav-item">
+                        <a href="{% url 'superadmin_settings' %}" class="nav-link{% if request.path == '/superadmin/settings/' %} active{% endif %}">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12 1v6m0 6v6m0-12l-4 4m8 0l-4-4m-4 16l4-4m8 0l-4 4"></path>
+                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"></path>
+                                </svg>
+                            </span>
+                            System Settings
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    
+                                        {% endif %}
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="page-title">
+                    <h1>{% block page_title %}Employee Management System{% endblock %}</h1>
+                </div>
+                <div class="user-info">
+                    <span class="welcome-text">
+                        Welcome, {{ user.get_full_name|default:user.email }}
+                        {% if user.platform_role %}
+                            ({{ user.get_platform_role_display|default:user.platform_role }})
+                        {% elif user.role == 'SUPERADMIN' %}
+                            (System Administrator)
+                        {% elif user.role == 'ADMINISTRATOR' %}
+                            ({{ user.employerprofile.company_name|default:user.company.name|default:"Company" }} Administrator)
+                        {% elif user.role == 'EMPLOYER_ADMIN' %}
+                            (Company Admin)
+                        {% else %}
+                            (Employee)
+                        {% endif %}
+                    </span>
+                    <a href="{% url 'ems_logout' %}" class="logout-btn">Sign Out</a>
+                </div>
+            </header>
+
+            {% if maintenance_mode %}
+            <div style="margin: 16px 24px 0; padding: 10px 14px; border-radius: 8px; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b;">
+                <strong>Maintenance mode:</strong> {{ maintenance_message }}
+            </div>
+            {% endif %}
+
+            <!-- Page Content -->
+            <div class="page-content">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,202 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+
+{% block title %}Payroll Report - EMS{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.report-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.report-stat {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) - 2px);
+    padding: 20px;
+    text-align: center;
+}
+.report-stat h3 {
+    font-size: 28px;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0 0 4px;
+}
+.report-stat p {
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
+    font-weight: 500;
+}
+.report-stat .stat-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Payroll Report</h2>
+        <p>Salary analytics - total payroll costs, department breakdown, status distribution, and monthly trends</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="?export=csv" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print
+        </button>
+        <a href="{% url 'reports_center' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Reports
+        </a>
+    </div>
+</div>
+
+{% if error %}
+<div class="content-card">
+    <div class="card-content" style="padding: 40px; text-align: center;">
+        <p style="color: hsl(var(--muted-foreground));">{{ error }}</p>
+    </div>
+</div>
+{% else %}
+
+<!-- Summary Stats -->
+<div class="report-stats">
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(30, 41, 59, 0.08); color: #1e293b;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </div>
+        <h3>{{ total_records }}</h3>
+        <p>Total Payroll Records</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <h3>{{ paid_count }}</h3>
+        <p>Paid</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(100, 116, 139, 0.12); color: #64748b;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        </div>
+        <h3>{{ total_net|floatformat:0 }}</h3>
+        <p>Total Net Pay</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(225, 29, 72, 0.08); color: #e11d48;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <h3>{{ total_deductions|floatformat:0 }}</h3>
+        <p>Total Deductions</p>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Monthly Payroll Trend</div>
+            <div class="card-subtitle">Net pay disbursed over the last 6 months</div>
+        </div>
+        <div class="card-content">
+            <canvas id="monthChart" height="220"></canvas>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Payroll Status Distribution</div>
+            <div class="card-subtitle">Breakdown by current status</div>
+        </div>
+        <div class="card-content">
+            <canvas id="statusChart" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Department Payroll Costs</div>
+            <div class="card-subtitle">Net pay by department (approved/paid)</div>
+        </div>
+        <div class="card-content">
+            {% if dept_breakdown %}
+            <canvas id="deptChart" height="220"></canvas>
+            {% else %}
+            <p style="text-align: center; color: hsl(var(--muted-foreground)); padding: 40px 0;">No department data available</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Top Earners</div>
+            <div class="card-subtitle">Highest total net pay (approved/paid)</div>
+        </div>
+        <div class="card-content" style="padding: 0;">
+            <table class="attendance-table">
+                <thead><tr><th>Employee</th><th>Department</th><th style="text-align: right;">Total Net Pay</th></tr></thead>
+                <tbody>
+                    {% for e in top_earners %}
+                    <tr>
+                        <td><strong>{{ e.employee__first_name }} {{ e.employee__last_name }}</strong></td>
+                        <td>{{ e.employee__employee_profile__department|default:"-" }}</td>
+                        <td style="text-align: right;">{{ e.total_earned|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align: center; padding: 24px; color: hsl(var(--muted-foreground));">No payroll data</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chartColors = ['#e11d48','#1e293b','#64748b','#94a3b8','#cbd5e1','#f43f5e','#334155','#475569'];
+
+    new Chart(document.getElementById('monthChart'), {
+        type: 'bar',
+        data: { labels: {{ month_labels|safe }}, datasets: [{ label: 'Net Pay', data: {{ month_data|safe }}, backgroundColor: '#1e293b', borderRadius: 6 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: { labels: {{ status_labels|safe }}, datasets: [{ data: {{ status_counts|safe }}, backgroundColor: chartColors }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    {% if dept_breakdown %}
+    new Chart(document.getElementById('deptChart'), {
+        type: 'bar',
+        data: { labels: {{ dept_labels|safe }}, datasets: [{ label: 'Net Pay', data: {{ dept_totals|safe }}, backgroundColor: chartColors, borderRadius: 6 }] },
+        options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

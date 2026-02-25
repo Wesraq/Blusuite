@@ -1,0 +1,105 @@
+{% extends 'blu_assets/base_assets.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Asset{% else %}Create Asset{% endif %}{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .af-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; }
+    .af-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+    .af-card-title { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+    .af-card-body { padding: 20px; }
+    .af-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 14px; border-radius: 4px; font-size: 12px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .af-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .af-btn-primary:hover { background: #be123c; border-color: #be123c; }
+    .af-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .af-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .af-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px 20px;
+    }
+    .af-group label {
+        display: block; font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 4px;
+    }
+    .af-group input,
+    .af-group select,
+    .af-group textarea {
+        width: 100%; border: 1px solid #e2e8f0; border-radius: 4px;
+        padding: 8px 12px; font-size: 13px; color: #0f172a; font-family: inherit;
+        background: #fff; transition: border-color 0.15s;
+    }
+    .af-group input:focus,
+    .af-group select:focus,
+    .af-group textarea:focus {
+        outline: none; border-color: #e11d48; box-shadow: 0 0 0 2px rgba(225,29,72,0.08);
+    }
+    .af-group textarea { min-height: 100px; resize: vertical; }
+    .af-span-2 { grid-column: span 2; }
+    .af-errors { background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 10px 14px; margin-bottom: 14px; color: #991b1b; font-size: 13px; }
+    @media (max-width: 720px) { .af-span-2 { grid-column: span 1; } }
+</style>
+{% endblock page_content %}
+
+{% block page_content %}
+<!-- Back Link -->
+<div style="margin-bottom: 12px;">
+    <a href="{% url 'assets:asset_list' %}" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 500;" onmouseover="this.style.color='#e11d48'" onmouseout="this.style.color='#64748b'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Assets
+    </a>
+</div>
+
+<div class="af-card" style="max-width: 1100px;">
+    <div class="af-card-header">
+        <h3 class="af-card-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 4px;">
+                {% if is_edit %}
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                {% else %}
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                {% endif %}
+            </svg>
+            {% if is_edit %}Edit Asset{% else %}Create Asset{% endif %}
+        </h3>
+    </div>
+    <div class="af-card-body">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="af-errors">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="af-grid">
+                <div class="af-group">{{ form.asset_tag.label_tag }}{{ form.asset_tag }}</div>
+                <div class="af-group">{{ form.name.label_tag }}{{ form.name }}</div>
+                <div class="af-group">{{ form.asset_type.label_tag }}{{ form.asset_type }}</div>
+                <div class="af-group">{{ form.department.label_tag }}{{ form.department }}</div>
+                <div class="af-group">{{ form.custodian.label_tag }}{{ form.custodian }}</div>
+                <div class="af-group">{{ form.category.label_tag }}{{ form.category }}</div>
+                <div class="af-group">{{ form.location.label_tag }}{{ form.location }}</div>
+                <div class="af-group">{{ form.brand.label_tag }}{{ form.brand }}</div>
+                <div class="af-group">{{ form.model.label_tag }}{{ form.model }}</div>
+                <div class="af-group">{{ form.serial_number.label_tag }}{{ form.serial_number }}</div>
+                <div class="af-group">{{ form.condition.label_tag }}{{ form.condition }}</div>
+                <div class="af-group">{{ form.purchase_date.label_tag }}{{ form.purchase_date }}</div>
+                <div class="af-group">{{ form.purchase_price.label_tag }}{{ form.purchase_price }}</div>
+                <div class="af-group">{{ form.warranty_expiry.label_tag }}{{ form.warranty_expiry }}</div>
+                <div class="af-group">{{ form.employee.label_tag }}{{ form.employee }}</div>
+                <div class="af-group af-span-2">{{ form.description.label_tag }}{{ form.description }}</div>
+                <div class="af-group af-span-2">{{ form.notes.label_tag }}{{ form.notes }}</div>
+                <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; padding-top: 14px; border-top: 1px solid #e2e8f0;">
+                    <a href="{% url 'assets:asset_list' %}" class="af-btn af-btn-secondary">Cancel</a>
+                    <button type="submit" class="af-btn af-btn-primary">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock page_content %}

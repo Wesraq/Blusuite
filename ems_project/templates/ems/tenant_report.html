@@ -1,0 +1,227 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}{{ company.name }} - Tenant Report{% endblock %}
+{% block nav_companies %} active{% endblock %}
+{% block page_title %}{{ company.name }} - Report{% endblock %}
+
+{% block content %}
+<style>
+    .report-header {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .report-section {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .metric-item {
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 4px;
+        text-align: center;
+    }
+    
+    .metric-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #E11D48;
+        margin-bottom: 4px;
+    }
+    
+    .metric-label {
+        font-size: 12px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .data-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: #E11D48;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #BE123C;
+    }
+    
+    .btn-secondary {
+        background: white;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+        border-color: #E11D48;
+        color: #E11D48;
+    }
+</style>
+
+<!-- Report Header -->
+<div class="report-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 style="font-size: 24px; font-weight: 700; color: #111827; margin: 0 0 8px 0;">
+                {{ company.name }} - Comprehensive Report
+            </h1>
+            <p style="color: #64748b; margin: 0;">
+                Generated on {% now "F d, Y H:i" %}
+            </p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a href="{% url 'tenant_detail' company.id %}" class="btn btn-secondary">Back to Details</a>
+            <button class="btn btn-primary" onclick="window.print()">Print Report</button>
+        </div>
+    </div>
+</div>
+
+<!-- Company Overview -->
+<div class="report-section">
+    <h2 class="section-title">Company Overview</h2>
+    <div class="metric-grid">
+        <div class="metric-item">
+            <div class="metric-value">{{ company.name }}</div>
+            <div class="metric-label">Company Name</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{{ company.industry|default:"Not specified" }}</div>
+            <div class="metric-label">Industry</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{{ company.get_subscription_plan_display|default:"Free" }}</div>
+            <div class="metric-label">Subscription Plan</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{{ company.created_at|date:"M d, Y" }}</div>
+            <div class="metric-label">Created Date</div>
+        </div>
+    </div>
+</div>
+
+<!-- User Statistics -->
+<div class="report-section">
+    <h2 class="section-title">User Statistics</h2>
+    <div class="metric-grid">
+        <div class="metric-item">
+            <div class="metric-value">{{ company.total_users|default:0 }}</div>
+            <div class="metric-label">Total Users</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{{ company.total_employees|default:0 }}</div>
+            <div class="metric-label">Employees</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{{ company.active_users|default:0 }}</div>
+            <div class="metric-label">Active Users</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{{ company.total_users|default:0|subtract:company.active_users|default:0 }}</div>
+            <div class="metric-label">Inactive Users</div>
+        </div>
+    </div>
+</div>
+
+<!-- System Usage -->
+<div class="report-section">
+    <h2 class="section-title">System Usage</h2>
+    <div class="metric-grid">
+        <div class="metric-item">
+            <div class="metric-value">{{ company.storage_used|default:0 }}GB</div>
+            <div class="metric-label">Storage Used</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{{ company.api_calls|default:0 }}</div>
+            <div class="metric-label">API Calls</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">99.9%</div>
+            <div class="metric-label">Uptime</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">${{ company.monthly_revenue|default:0 }}</div>
+            <div class="metric-label">Monthly Revenue</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="report-section">
+    <h2 class="section-title">Recent Activity Summary</h2>
+    <p style="color: #64748b; margin-bottom: 16px;">
+        Recent activity for {{ company.name }} including user registrations, logins, and system usage.
+    </p>
+    <div style="background: #f8fafc; padding: 16px; border-radius: 4px; text-align: center; color: #64748b;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 8px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <p>Detailed activity logs will be available in the next update.</p>
+    </div>
+</div>
+
+<!-- Notes -->
+<div class="report-section">
+    <h2 class="section-title">Administrative Notes</h2>
+    <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 4px; padding: 16px;">
+        <p style="margin: 0; color: #92400e;">
+            <strong>Note:</strong> This is a basic report. Enhanced reporting features including detailed analytics, 
+            export capabilities, and historical data tracking will be available in future updates.
+        </p>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,677 @@
+{% extends 'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Add Employee - {{ company.name|default:"Company" }} - EMS{% endblock %}
+{% block page_title %}Add New Employee{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .ae-form-control {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+    background-color: #fff;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+  }
+  .ae-form-control:focus {
+    outline: none;
+    border-color: #e11d48;
+    box-shadow: 0 0 0 2px rgba(225,29,72,0.08);
+  }
+  .ae-form-control:hover:not(:focus) { border-color: #cbd5e1; }
+  select.ae-form-control {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 14px;
+    padding-right: 36px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  textarea.ae-form-control { min-height: 72px; resize: vertical; }
+  input[type="file"].ae-form-control { padding: 7px 10px; background: #f8fafc; }
+
+  .ae-form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 5px;
+  }
+  .ae-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .ae-form-section {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .ae-section-title {
+    margin: 0 0 16px 0;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ae-section-title svg { color: #64748b; }
+
+  /* Tabs */
+  .ae-tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  .ae-tab-btn {
+    padding: 11px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .ae-tab-btn:hover { color: #0f172a; background: #f8fafc; }
+  .ae-tab-btn.active {
+    color: #e11d48;
+    border-bottom-color: #e11d48;
+    font-weight: 600;
+  }
+
+  /* Progress */
+  .ae-progress {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+  }
+  .ae-progress-bar-track {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .ae-progress-bar-fill {
+    height: 100%;
+    background: #e11d48;
+    transition: width 0.3s;
+    border-radius: 3px;
+  }
+
+  /* Buttons */
+  .ae-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .ae-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+  .ae-btn-primary:hover { background: #be123c; border-color: #be123c; }
+  .ae-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+  .ae-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+  .ae-btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  .ae-field-help {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 768px) {
+    .ae-form-row { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 20px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">Add New Employee</h1>
+      <p style="margin: 0; font-size: 13px; color: #64748b;">{{ company.name|default:"Company" }} &middot; Fill in the details below</p>
+    </div>
+    <a href="{% url 'employer_employee_management' %}" class="ae-btn ae-btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to List
+    </a>
+  </div>
+</div>
+
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; max-width: 960px;">
+  <!-- Progress -->
+  <div class="ae-progress">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <span style="font-size: 12px; font-weight: 600; color: #64748b;">Step <span id="current-step">1</span> of 5</span>
+      <span style="font-size: 12px; color: #64748b;"><span id="progress-percent">20</span>%</span>
+    </div>
+    <div class="ae-progress-bar-track">
+      <div id="progress-bar" class="ae-progress-bar-fill" style="width: 20%;"></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="ae-tab-bar" id="add-emp-tabs">
+    <button class="ae-tab-btn tab-btn active" data-tab="personal" data-step="1" type="button">1. Personal</button>
+    <button class="ae-tab-btn tab-btn" data-tab="employment" data-step="2" type="button">2. Employment</button>
+    <button class="ae-tab-btn tab-btn" data-tab="financial" data-step="3" type="button">3. Financial</button>
+    <button class="ae-tab-btn tab-btn" data-tab="emergency" data-step="4" type="button">4. Emergency</button>
+    <button class="ae-tab-btn tab-btn" data-tab="documents" data-step="5" type="button">5. Documents</button>
+  </div>
+
+  <div style="padding: 0 24px 24px;">
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Personal -->
+      <div id="personal" class="tab-content active">
+        <div class="ae-form-section">
+          <h3 class="ae-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Basic Information
+          </h3>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">First Name *</label>
+              <input type="text" name="first_name" class="ae-form-control" required>
+            </div>
+            <div>
+              <label class="ae-form-label">Last Name *</label>
+              <input type="text" name="last_name" class="ae-form-control" required>
+            </div>
+          </div>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Email *</label>
+              <input type="email" name="email" class="ae-form-control" required>
+            </div>
+            <div>
+              <label class="ae-form-label">Phone</label>
+              <input type="tel" name="phone" class="ae-form-control">
+            </div>
+          </div>
+          <div class="ae-form-row" style="grid-template-columns: 1fr 1fr;">
+            <div>
+              <label class="ae-form-label">Employee Role</label>
+              <select name="employee_role" class="ae-form-control">
+                {% for value, label in employee_role_choices %}
+                <option value="{{ value }}" {% if value == default_employee_role %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="ae-form-label">Supervisor</label>
+              <select name="supervisor" class="ae-form-control">
+                <option value="">No Supervisor</option>
+                {% for supervisor in available_supervisors %}
+                <option value="{{ supervisor.id }}">
+                  {{ supervisor.get_full_name }} - {{ supervisor.employee_profile.job_title|default:"Supervisor" }}
+                </option>
+                {% endfor %}
+              </select>
+              <div class="ae-field-help">Select the direct supervisor for this employee</div>
+            </div>
+          </div>
+        </div>
+        <div class="ae-form-section">
+          <h3 class="ae-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Account Credentials
+          </h3>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Password *</label>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input type="password" name="password" id="addemp_password" class="ae-form-control" required>
+                <button type="button" class="ae-btn ae-btn-secondary ae-btn-sm" id="btn-gen-pass">Generate</button>
+                <button type="button" class="ae-btn ae-btn-secondary ae-btn-sm" id="btn-toggle-pass">Show</button>
+              </div>
+            </div>
+            <div>
+              <label class="ae-form-label">Confirm Password *</label>
+              <input type="password" name="confirm_password" id="addemp_confirm_password" class="ae-form-control" required>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment -->
+      <div id="employment" class="tab-content">
+        <div class="ae-form-section">
+          <h3 class="ae-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Employment Details
+          </h3>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Employee ID</label>
+              <input type="text" name="employee_id" id="employee_id_field" class="ae-form-control" required value="{{ employee_id_suggestion }}">
+              <input type="hidden" name="employee_id_autofilled" id="employee_id_autofilled" value="{% if employee_id_suggestion %}1{% else %}0{% endif %}">
+            </div>
+            <div>
+              <label class="ae-form-label">Department</label>
+              <select name="department" id="department_field" class="ae-form-control">
+                <option value="">Select department</option>
+                {% for dept in company_departments %}
+                <option value="{{ dept.name }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Position</label>
+              <select name="position" id="position_field" class="ae-form-control" required>
+                <option value="">Select position</option>
+                {% for pos in company_positions %}
+                <option value="{{ pos.name }}" data-department="{{ pos.department.name|default_if_none:'' }}">{{ pos.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="ae-form-label">Hire Date</label>
+              <input type="date" name="hire_date" class="ae-form-control" required>
+            </div>
+          </div>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Employment Type</label>
+              <select name="employment_type" id="employment_type_field" class="ae-form-control">
+                <option value="">Select employment type</option>
+                {% for value, label in employment_type_choices %}
+                  <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="display: flex; align-items: center; padding-top: 22px;">
+              <label style="display:flex; align-items:center; gap:8px; font-weight:600; color:#0f172a; font-size: 13px; cursor: pointer;">
+                <input type="checkbox" name="on_payroll" value="on" checked>
+                Add to payroll
+              </label>
+              <div class="ae-field-help" style="margin-left: 8px;">Payroll eligible</div>
+            </div>
+          </div>
+          <div id="probation_dates" style="display:none; margin-top: 4px;">
+            <div class="ae-form-row">
+              <div>
+                <label class="ae-form-label">Probation Start Date</label>
+                <input type="date" name="probation_start_date" class="ae-form-control">
+              </div>
+              <div>
+                <label class="ae-form-label">Probation End Date</label>
+                <input type="date" name="probation_end_date" class="ae-form-control">
+              </div>
+            </div>
+          </div>
+          <div id="contract_dates" style="display:none; margin-top: 4px;">
+            <div class="ae-form-row">
+              <div>
+                <label class="ae-form-label">Contract Start Date</label>
+                <input type="date" name="contract_start_date" class="ae-form-control">
+              </div>
+              <div>
+                <label class="ae-form-label">Contract End Date</label>
+                <input type="date" name="contract_end_date" class="ae-form-control">
+              </div>
+            </div>
+          </div>
+          <div id="temporary_dates" style="display:none; margin-top: 4px;">
+            <div class="ae-form-row">
+              <div>
+                <label class="ae-form-label">Temporary Start Date</label>
+                <input type="date" name="temporary_start_date" class="ae-form-control">
+              </div>
+              <div>
+                <label class="ae-form-label">Temporary End Date</label>
+                <input type="date" name="temporary_end_date" class="ae-form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial -->
+      <div id="financial" class="tab-content">
+        <div class="ae-form-section">
+          <h3 class="ae-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Compensation
+          </h3>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Annual Salary</label>
+              <input type="number" step="0.01" name="salary" class="ae-form-control">
+            </div>
+            <div>
+              <label class="ae-form-label">Pay Grade</label>
+              <select name="pay_grade" id="pay_grade_field" class="ae-form-control">
+                <option value="">Select pay grade</option>
+                {% for grade in company_pay_grades %}
+                <option value="{{ grade.name }}">{{ grade.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency -->
+      <div id="emergency" class="tab-content">
+        <div class="ae-form-section">
+          <h3 class="ae-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Emergency Contact
+          </h3>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Contact Name</label>
+              <input type="text" name="emergency_contact_name" class="ae-form-control">
+            </div>
+            <div>
+              <label class="ae-form-label">Relationship</label>
+              <input type="text" name="emergency_contact_relationship" class="ae-form-control">
+            </div>
+          </div>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Phone</label>
+              <input type="tel" name="emergency_contact_phone" class="ae-form-control">
+            </div>
+            <div>
+              <label class="ae-form-label">Email</label>
+              <input type="email" name="emergency_contact_email" class="ae-form-control">
+            </div>
+          </div>
+          <div class="ae-form-row" style="grid-template-columns: 1fr;">
+            <div>
+              <label class="ae-form-label">Address</label>
+              <input type="text" name="emergency_contact_address" class="ae-form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div id="documents" class="tab-content">
+        <div class="ae-form-section">
+          <h3 class="ae-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Document Uploads
+          </h3>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">Profile Picture</label>
+              <input type="file" name="profile_picture" class="ae-form-control" accept="image/*">
+            </div>
+            <div>
+              <label class="ae-form-label">Resume/CV</label>
+              <input type="file" name="resume" class="ae-form-control" accept=".pdf,.doc,.docx">
+            </div>
+          </div>
+          <div class="ae-form-row">
+            <div>
+              <label class="ae-form-label">ID Document</label>
+              <input type="file" name="id_document" class="ae-form-control" accept="image/*,.pdf">
+            </div>
+            <div>
+              <label class="ae-form-label">Employment Contract</label>
+              <input type="file" name="contract" class="ae-form-control" accept=".pdf,.doc,.docx">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 8px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+        <a href="{% url 'employer_employee_management' %}" class="ae-btn ae-btn-secondary">Cancel</a>
+        <button type="submit" class="ae-btn ae-btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Employee
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function() {
+    const tabNav = document.getElementById('add-emp-tabs');
+    const tabs = document.querySelectorAll('.tab-content');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+
+    function showTab(name) {
+      tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.id === name);
+      });
+      tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === name);
+      });
+    }
+
+    if (tabNav) {
+      tabNav.addEventListener('click', function(e) {
+        const btn = e.target.closest('.tab-btn');
+        if (!btn) return;
+        e.preventDefault();
+        const target = btn.getAttribute('data-tab');
+        if (target) {
+          showTab(target);
+        }
+      });
+    }
+    showTab('personal');
+
+    // Password helpers
+    const passField = document.getElementById('addemp_password');
+    const confirmField = document.getElementById('addemp_confirm_password');
+    const genBtn = document.getElementById('btn-gen-pass');
+    const toggleBtn = document.getElementById('btn-toggle-pass');
+    let show = false;
+
+    function generatePassword() {
+      const length = 12;
+      const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const lower = 'abcdefghijklmnopqrstuvwxyz';
+      const digits = '0123456789';
+      const special = '!@#$%^&*';
+      const all = upper + lower + digits + special;
+      let pwd = '';
+      pwd += upper[Math.floor(Math.random() * upper.length)];
+      pwd += lower[Math.floor(Math.random() * lower.length)];
+      pwd += digits[Math.floor(Math.random() * digits.length)];
+      pwd += special[Math.floor(Math.random() * special.length)];
+      for (let i = 4; i < length; i++) {
+        pwd += all[Math.floor(Math.random() * all.length)];
+      }
+      pwd = pwd.split('').sort(() => Math.random() - 0.5).join('');
+      return pwd;
+    }
+
+    if (genBtn && passField && confirmField) {
+      genBtn.addEventListener('click', function() {
+        const pwd = generatePassword();
+        passField.value = pwd;
+        confirmField.value = pwd;
+        if (show) {
+          passField.type = 'text';
+          confirmField.type = 'text';
+        }
+      });
+    }
+
+    if (toggleBtn && passField && confirmField) {
+      toggleBtn.addEventListener('click', function() {
+        show = !show;
+        passField.type = show ? 'text' : 'password';
+        confirmField.type = show ? 'text' : 'password';
+        toggleBtn.textContent = show ? 'Hide' : 'Show';
+      });
+    }
+
+    // Employment type specific dates
+    const employmentTypeField = document.getElementById('employment_type_field');
+    const probationDates = document.getElementById('probation_dates');
+    const contractDates = document.getElementById('contract_dates');
+    const temporaryDates = document.getElementById('temporary_dates');
+
+    function toggleEmploymentDateSections(type) {
+      if (!probationDates || !contractDates || !temporaryDates) return;
+      probationDates.style.display = 'none';
+      contractDates.style.display = 'none';
+      temporaryDates.style.display = 'none';
+
+      if (type === 'PROBATION') {
+        probationDates.style.display = 'block';
+      } else if (type === 'CONTRACT') {
+        contractDates.style.display = 'block';
+      } else if (type === 'TEMPORARY') {
+        temporaryDates.style.display = 'block';
+      }
+    }
+
+    if (employmentTypeField) {
+      employmentTypeField.addEventListener('change', function() {
+        toggleEmploymentDateSections(this.value);
+      });
+      toggleEmploymentDateSections(employmentTypeField.value);
+    }
+
+    // Department/position filtering
+    const departmentSelect = document.getElementById('department_field');
+    const positionSelect = document.getElementById('position_field');
+    const originalOptions = positionSelect ? Array.from(positionSelect.options) : [];
+
+    function filterPositions() {
+      if (!positionSelect) return;
+      const selectedDept = departmentSelect ? departmentSelect.value : '';
+      const currentValue = positionSelect.value;
+      positionSelect.innerHTML = '';
+      originalOptions.forEach(opt => {
+        if (!opt.value) {
+          positionSelect.appendChild(opt.cloneNode(true));
+          return;
+        }
+        const dept = opt.getAttribute('data-department') || '';
+        if (!selectedDept || !dept || dept === selectedDept) {
+          positionSelect.appendChild(opt.cloneNode(true));
+        }
+      });
+      const match = Array.from(positionSelect.options).some(opt => opt.value === currentValue);
+      if (match) {
+        positionSelect.value = currentValue;
+      } else {
+        positionSelect.selectedIndex = 0;
+      }
+    }
+
+    if (departmentSelect && positionSelect) {
+      departmentSelect.addEventListener('change', filterPositions);
+      filterPositions();
+    }
+  })();
+
+  // Tab switching functionality
+  (function() {
+    'use strict';
+
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(function(tab) {
+        tab.style.display = 'none';
+        tab.classList.remove('active');
+      });
+
+      // Show target tab
+      var targetTab = document.getElementById(tabName);
+      if (targetTab) {
+        targetTab.style.display = 'block';
+        targetTab.classList.add('active');
+      }
+    }
+
+    function updateProgress(step) {
+      var totalSteps = 5;
+      var percent = (step / totalSteps) * 100;
+      
+      document.getElementById('current-step').textContent = step;
+      document.getElementById('progress-percent').textContent = Math.round(percent);
+      document.getElementById('progress-bar').style.width = percent + '%';
+    }
+
+    // Initialize tabs
+    document.querySelectorAll('.tab-content').forEach(function(tab, index) {
+      if (index !== 0) {
+        tab.style.display = 'none';
+      }
+    });
+
+    // Add click handlers to tab buttons
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        var tabName = this.getAttribute('data-tab');
+        var step = parseInt(this.getAttribute('data-step')) || 1;
+        
+        if (tabName) {
+          // Switch tab
+          switchTab(tabName);
+          
+          // Update button styles
+          document.querySelectorAll('.tab-btn').forEach(function(b) {
+            b.classList.remove('active');
+          });
+          
+          this.classList.add('active');
+          
+          // Update progress
+          updateProgress(step);
+          
+          // Scroll to top
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Helper function for navigation buttons
+    window.switchToTab = function(tabName) {
+      var targetBtn = document.querySelector('.tab-btn[data-tab="' + tabName + '"]');
+      if (targetBtn) {
+        targetBtn.click();
+      }
+    };
+  })();
+</script>
+{% endblock %}

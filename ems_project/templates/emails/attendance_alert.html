@@ -1,0 +1,30 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Attendance Alert{% endblock %}
+
+{% block header %}Attendance Alert{% endblock %}
+
+{% block content %}
+<p>Hello {{ employee.first_name }},</p>
+
+<p>This is an attendance alert regarding your attendance record.</p>
+
+<div class="info-box">
+    <div class="info-row">
+        <span class="info-label">Alert Type:</span>
+        <span class="info-value">{{ alert_type }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Date:</span>
+        <span class="info-value">{{ date|date:"F d, Y" }}</span>
+    </div>
+</div>
+
+<p style="background-color: #fef3c7; padding: 15px; border-radius: 4px; color: #92400e;">
+    {{ message }}
+</p>
+
+<p style="text-align: center;">
+    <a href="{{ base_url }}/attendance/" class="btn">View My Attendance</a>
+</p>
+{% endblock %}

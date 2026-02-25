@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request New Company - EMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.15s;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #E11D48;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #BE123C;
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #374151;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .error-message {
+            background: #fecaca;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            border: 1px solid #fca5a5;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .info-message {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            border: 1px solid #c7d2fe;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Request New Company</h1>
+            <p>Submit a request to create a new company in the Employee Management System</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}error-message{% elif message.tags == 'success' %}success-message{% else %}info-message{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">
+                    Company Name <span class="required">*</span>
+                </label>
+                <input type="text" name="name" class="form-input" required
+                       placeholder="Enter your company name" value="{{ request.POST.name }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Company Address <span class="required">*</span>
+                </label>
+                <textarea name="address" class="form-textarea" required
+                          placeholder="Enter complete company address">{{ request.POST.address }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Phone Number
+                </label>
+                <input type="tel" name="phone" class="form-input"
+                       placeholder="Enter phone number" value="{{ request.POST.phone }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Email Address <span class="required">*</span>
+                </label>
+                <input type="email" name="email" class="form-input" required
+                       placeholder="Enter email address" value="{{ request.POST.email }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Website
+                </label>
+                <input type="url" name="website" class="form-input"
+                       placeholder="https://example.com" value="{{ request.POST.website }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Tax ID / Registration Number
+                </label>
+                <input type="text" name="tax_id" class="form-input"
+                       placeholder="Enter tax ID or registration number" value="{{ request.POST.tax_id }}">
+            </div>
+
+            <div class="btn-group">
+                <a href="/" class="btn btn-secondary">Back to Home</a>
+                <button type="submit" class="btn btn-primary">Submit Request</button>
+            </div>
+        </form>
+
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0; text-align: center;">
+            <p style="font-size: 14px; color: #64748b;">
+                <strong>What happens next?</strong><br>
+                1. Your request will be reviewed by our administrators<br>
+                2. You'll receive an email notification when approved<br>
+                3. An Employer Superuser account will be created for you<br>
+                4. You can then configure your company and invite team members
+            </p>
+        </div>
+    </div>
+</body>
+</html>

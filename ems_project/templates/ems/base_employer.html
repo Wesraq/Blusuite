@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if request.resolver_match.url_name == 'employer_dashboard' %}
+    Dashboard
+{% elif request.resolver_match.url_name == 'employer_employee_management' %}
+    Employee Management
+{% elif request.resolver_match.url_name == 'attendance_dashboard' %}
+    Attendance Management
+{% elif request.resolver_match.url_name == 'leave_management' %}
+    Leave Management
+{% elif request.resolver_match.url_name == 'documents_list' %}
+    Documents
+{# PERFORMANCE MODULE DISABLED #}
+{# {% elif request.resolver_match.url_name == 'performance_reviews_list' %} #}
+{#     Performance Reviews #}
+{% elif request.resolver_match.url_name == 'onboarding_list' %}
+    Onboarding
+{% elif request.resolver_match.url_name == 'training_list' %}
+    Training
+{% elif request.resolver_match.url_name == 'payroll_list' %}
+    Payroll
+{% elif request.resolver_match.url_name == 'benefits_list' %}
+    Benefits
+{% elif request.resolver_match.url_name == 'employee_requests_list' %}
+    Requests
+{% elif request.resolver_match.url_name == 'branches_list' %}
+    Branches
+{% elif 'asset' in request.resolver_match.url_name %}
+    Assets
+{% elif request.resolver_match.url_name == 'reports_center' %}
+    Reports
+{% elif request.resolver_match.url_name == 'analytics_dashboard_view' %}
+    Analytics
+{% elif request.resolver_match.url_name == 'direct_messages_list' %}
+    Messages
+{% elif request.resolver_match.url_name == 'announcements_list' %}
+    Announcements
+{% elif request.resolver_match.url_name == 'company_settings' %}
+    Settings
+{% else %}
+    EMS
+{% endif %} - {{ user.company.name }}
+{% endblock %}
+
+{% block sidebar %}
+{% include 'ems/partials/sidebar_employer.html' %}
+{% endblock %}

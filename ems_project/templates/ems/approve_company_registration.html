@@ -1,0 +1,461 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+
+{% block title %}Approve Company Registration - EMS{% endblock %}
+{% block page_title %}Approve Company Registration{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 24px auto;
+            padding: 0 24px;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #6c757d;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            padding: 24px;
+            border-bottom: 1px solid #e9ecef;
+            background: #f8f9fa;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .card-content {
+            padding: 24px;
+        }
+
+        /* Company Info */
+        .company-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .info-group h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 12px;
+        }
+
+        .info-group p {
+            font-size: 14px;
+            color: #333;
+            margin: 6px 0;
+            line-height: 1.4;
+        }
+
+        .info-group strong {
+            color: #495057;
+            font-weight: 500;
+        }
+
+        /* Alert Box */
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        .alert h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .alert p {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .alert ul {
+            color: #856404;
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .alert li {
+            margin-bottom: 4px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.15s ease-in-out;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: #6c757d;
+            font-size: 16px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
+        }
+
+        .password-toggle:hover {
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .password-input {
+            padding-right: 45px !important;
+        }
+
+        /* Helper text */
+        .helper-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 8px;
+        }
+
+        /* Button Container */
+        .button-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #E11D48;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #BE123C;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #ced4da;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e6ea;
+            border-color: #adb5bd;
+        }
+
+        .btn-small {
+            padding: 8px 14px;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 16px;
+            }
+
+            .user-info {
+                font-size: 12px;
+            }
+
+            .container {
+                padding: 0 16px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">Approve Company Registration</div>
+            <div class="page-subtitle">Review and approve company registration request</div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Company Information</div>
+                <div class="card-subtitle">Review the company details before approval</div>
+            </div>
+
+            <div class="card-content">
+                <!-- Company Info -->
+                <div class="company-info">
+                    <div class="info-grid">
+                        <div class="info-group">
+                            <h4>Company Details</h4>
+                            <p><strong>Name:</strong> {{ registration_request.company_name }}</p>
+                            <p><strong>Email:</strong> {{ registration_request.company_email }}</p>
+                            <p><strong>Phone:</strong> {{ registration_request.company_phone }}</p>
+                            {% if registration_request.company_website %}
+                                <p><strong>Website:</strong> {{ registration_request.company_website }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="info-group">
+                            <h4>Contact Person</h4>
+                            <p><strong>Name:</strong> {{ registration_request.contact_first_name }} {{ registration_request.contact_last_name }}</p>
+                            <p><strong>Email:</strong> {{ registration_request.contact_email }}</p>
+                            <p><strong>Phone:</strong> {{ registration_request.contact_phone }}</p>
+                            {% if registration_request.contact_position %}
+                                <p><strong>Position:</strong> {{ registration_request.contact_position }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="info-group">
+                            <h4>Subscription Request</h4>
+                            <p><strong>Plan:</strong> {{ registration_request.get_subscription_plan_display }}</p>
+                            <p><strong>Employees:</strong> {{ registration_request.number_of_employees }}</p>
+                            {% if registration_request.business_type %}
+                                <p><strong>Business Type:</strong> {{ registration_request.business_type }}</p>
+                            {% endif %}
+                            {% if registration_request.company_size %}
+                                <p><strong>Company Size:</strong> {{ registration_request.company_size }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert -->
+                <div class="alert">
+                    <h4>Important</h4>
+                    <p>Once approved, the system will:</p>
+                    <ul>
+                        <li>Create a company profile with license information</li>
+                        <li>Generate employer user account with your specified password (or auto-generated if not set)</li>
+                        <li>Send login credentials via email to {{ registration_request.contact_email }}</li>
+                        <li>Require password change on first login for security</li>
+                    </ul>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="admin_password">Set Login Password</label>
+                        <div class="input-container">
+                            <input type="password" name="admin_password" id="admin_password" class="password-input" placeholder="Enter custom password or generate one" />
+                            <button type="button" id="togglePassword" class="password-toggle" title="Show password">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button type="button" class="btn btn-secondary btn-small" id="generatePasswordBtn">
+                                Generate Password
+                            </button>
+                            <span class="helper-text">Click "Generate Password" to create a secure random password, or enter your own custom password.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="review_notes">Review Notes (Optional)</label>
+                        <textarea name="review_notes" id="review_notes" placeholder="Add any internal notes about this approval..."></textarea>
+                    </div>
+
+                    <div class="button-container">
+                        <a href="{% url 'company_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            Approve with Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generatePassword() {
+            const password = generateSecurePassword();
+            const passwordField = document.getElementById('admin_password');
+            passwordField.value = password;
+
+            // Show a brief success message
+            const originalPlaceholder = passwordField.placeholder;
+            passwordField.placeholder = 'Password generated successfully!';
+
+            setTimeout(() => {
+                passwordField.placeholder = originalPlaceholder;
+            }, 2000);
+        }
+
+        function togglePassword() {
+            const passwordField = document.getElementById('admin_password');
+            const toggleButton = document.getElementById('togglePassword');
+
+            if (passwordField.type === 'password') {
+                // Show password
+                passwordField.type = 'text';
+                toggleButton.title = 'Hide password';
+            } else {
+                // Hide password
+                passwordField.type = 'password';
+                toggleButton.title = 'Show password';
+            }
+        }
+
+        function generateSecurePassword() {
+            const length = 12;
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let password = '';
+
+            // Ensure at least one of each type of character
+            password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]; // Uppercase
+            password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]; // Lowercase
+            password += '0123456789'[Math.floor(Math.random() * 10)]; // Number
+            password += '!@#$%^&*'[Math.floor(Math.random() * 8)]; // Special character
+
+            // Fill the rest randomly
+            for (let i = 4; i < length; i++) {
+                password += charset[Math.floor(Math.random() * charset.length)];
+            }
+
+            // Shuffle the password
+            return password.split('').sort(() => Math.random() - 0.5).join('');
+        }
+
+        // Add event listeners when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.getElementById('togglePassword');
+            if (toggleButton) {
+                toggleButton.addEventListener('click', togglePassword);
+            }
+
+            const generateButton = document.getElementById('generatePasswordBtn');
+            if (generateButton) {
+                generateButton.addEventListener('click', generatePassword);
+            }
+        });
+    </script>
+{% endblock %}

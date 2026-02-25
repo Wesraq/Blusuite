@@ -1,0 +1,239 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+
+{% block title %}Documents Report - EMS{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.report-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.report-stat {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) - 2px);
+    padding: 20px;
+    text-align: center;
+}
+.report-stat h3 {
+    font-size: 28px;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0 0 4px;
+}
+.report-stat p {
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
+    font-weight: 500;
+}
+.report-stat .stat-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.expiry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.expiry-item {
+    padding: 16px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid hsl(var(--border));
+    text-align: center;
+    background: hsl(var(--card));
+}
+.expiry-item h4 {
+    font-size: 24px;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0 0 4px;
+}
+.expiry-item span {
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Documents Report</h2>
+        <p>Document compliance analytics - approval rates, expiry tracking, type distribution, and coverage gaps</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'export_documents_report' %}" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print
+        </button>
+        <a href="{% url 'reports_center' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Reports
+        </a>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="report-stats">
+    <div class="report-stat">
+        <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        </div>
+        <h3>{{ total }}</h3>
+        <p>Total Documents</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <h3>{{ compliance_rate }}%</h3>
+        <p>Compliance Rate</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(100, 116, 139, 0.12); color: #64748b;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <h3>{{ pending }}</h3>
+        <p>Pending Review</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(225, 29, 72, 0.12); color: #e11d48;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <h3>{{ already_expired }}</h3>
+        <p>Expired</p>
+    </div>
+</div>
+
+<!-- Expiry Alert Cards -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Document Expiry Overview</div>
+        <div class="card-subtitle">Documents approaching or past their expiry date</div>
+    </div>
+    <div class="card-content">
+        <div class="expiry-grid">
+            <div class="expiry-item" style="border-color: rgba(225,29,72,0.3);">
+                <h4 style="color: #e11d48;">{{ already_expired }}</h4>
+                <span>Already Expired</span>
+            </div>
+            <div class="expiry-item" style="border-color: rgba(100,116,139,0.3);">
+                <h4 style="color: #64748b;">{{ expiring_30 }}</h4>
+                <span>Expiring in 30 Days</span>
+            </div>
+            <div class="expiry-item">
+                <h4>{{ expiring_60 }}</h4>
+                <span>Expiring in 60 Days</span>
+            </div>
+            <div class="expiry-item" style="border-color: rgba(16,185,129,0.3);">
+                <h4 style="color: #10b981;">{{ expiring_90 }}</h4>
+                <span>Expiring in 90 Days</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Document Type Distribution</div>
+            <div class="card-subtitle">Horizontal breakdown by document category</div>
+        </div>
+        <div class="card-content"><canvas id="typeChart" height="220"></canvas></div>
+    </div>
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Status Breakdown</div>
+            <div class="card-subtitle">Approved, pending, and rejected</div>
+        </div>
+        <div class="card-content"><canvas id="statusChart" height="220"></canvas></div>
+    </div>
+</div>
+
+<!-- Tables Row -->
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Documents by Type</div>
+            <div class="card-subtitle">Count and percentage per document category</div>
+        </div>
+        <div class="card-content" style="padding: 0;">
+            <table class="attendance-table">
+                <thead><tr><th>Document Type</th><th style="text-align: right;">Count</th><th style="text-align: right;">% of Total</th></tr></thead>
+                <tbody>
+                    {% for t in type_breakdown %}
+                    <tr>
+                        <td><strong>{{ t.name }}</strong></td>
+                        <td style="text-align: right;">{{ t.count }}</td>
+                        <td style="text-align: right;">{% widthratio t.count total 100 %}%</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align: center; padding: 24px; color: hsl(var(--muted-foreground));">No document type data</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Expiring Soon (Next 30 Days)</div>
+            <div class="card-subtitle">Documents requiring immediate attention</div>
+        </div>
+        <div class="card-content" style="padding: 0;">
+            <div style="padding: 12px 20px; border-bottom: 1px solid hsl(var(--border)); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; color: hsl(var(--muted-foreground));">Employees without any documents</span>
+                <span class="badge badge-warning">{{ employees_no_docs }} of {{ total_employees }}</span>
+            </div>
+            <table class="attendance-table">
+                <thead><tr><th>Employee</th><th>Document</th><th>Expiry Date</th></tr></thead>
+                <tbody>
+                    {% for doc in expiring_soon %}
+                    <tr>
+                        <td><strong>{{ doc.employee.get_full_name }}</strong></td>
+                        <td>{{ doc.title|default:doc.get_document_type_display }}</td>
+                        <td><span class="badge badge-danger">{{ doc.expiry_date|date:"M d, Y" }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align: center; padding: 24px; color: hsl(var(--muted-foreground));">No documents expiring soon</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chartColors = ['#e11d48','#1e293b','#64748b','#94a3b8','#cbd5e1','#f43f5e','#334155','#475569'];
+
+    new Chart(document.getElementById('typeChart'), {
+        type: 'bar',
+        data: { labels: {{ type_labels|safe }}, datasets: [{ label: 'Documents', data: {{ type_counts|safe }}, backgroundColor: chartColors, borderRadius: 6 }] },
+        options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: { labels: {{ status_labels|safe }}, datasets: [{ data: {{ status_counts|safe }}, backgroundColor: ['#1e293b', '#64748b', '#e11d48', '#94a3b8'] }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+});
+</script>
+{% endblock %}

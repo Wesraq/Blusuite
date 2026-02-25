@@ -1,0 +1,53 @@
+{% extends 'ems/base_platform.html' %}
+{% block title %}Registration Portal{% endblock %}
+{% block page_title %}Registration Portal{% endblock %}
+{% block content %}
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Registration Queue</div>
+        <div class="card-subtitle">Manage incoming company applications</div>
+    </div>
+    <div class="card-content" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+        <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value">{{ counts.pending }}</div></div>
+        <div class="stat-card"><div class="stat-label">Approved</div><div class="stat-value">{{ counts.approved }}</div></div>
+        <div class="stat-card"><div class="stat-label">Rejected</div><div class="stat-value">{{ counts.rejected }}</div></div>
+    </div>
+</div>
+
+<div class="content-card" style="margin-top:16px;">
+    <div class="card-header">
+        <div class="card-title">Pending Applications</div>
+        <div class="card-subtitle">Latest 10 pending requests</div>
+    </div>
+    <div class="card-content">
+        {% if pending %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead><tr><th>Company</th><th>Contact</th><th>Plan</th><th>Status</th><th>Submitted</th></tr></thead>
+                <tbody>
+                    {% for req in pending %}
+                    <tr>
+                        <td>{{ req.company_name }}</td>
+                        <td>{{ req.contact_first_name }} {{ req.contact_last_name }} ({{ req.contact_email }})</td>
+                        <td>{{ req.get_subscription_plan_display }}</td>
+                        <td>{{ req.get_status_display }}</td>
+                        <td>{{ req.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No pending applications.</p>
+        {% endif %}
+    </div>
+</div>
+<style>
+.stat-card{background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:12px}
+.stat-label{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.stat-value{font-size:20px;font-weight:700;color:#0f172a;margin-top:4px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th,.data-table td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}
+.data-table th{background:#f8fafc;font-weight:700;color:#475569;text-transform:uppercase;font-size:12px;letter-spacing:.04em}
+</style>
+{% endblock %}

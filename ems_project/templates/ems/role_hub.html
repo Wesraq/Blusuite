@@ -1,0 +1,34 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Role Hub{% endblock %}
+{% block page_title %}Role Hub{% endblock %}
+
+{% block content %}
+<div class="content-card" style="padding:24px; margin-top:16px;">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap; margin-bottom:16px;">
+        <div>
+            <div class="card-title" style="font-size:18px;font-weight:700;color:#0f172a;">{{ role_title|default:"Role Hub" }}</div>
+            <div class="card-subtitle" style="font-size:13px;color:#64748b;">{{ role_description|default:"All modules available for your role" }}</div>
+        </div>
+        <a href="{% url 'employee_dashboard' %}" class="btn btn-light" style="padding:10px 14px;border-radius:8px;border:1px solid #e2e8f0;color:#0f172a;text-decoration:none;font-weight:600;font-size:13px;">Back to Dashboard</a>
+    </div>
+
+    {% if modules %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;">
+        {% for m in modules %}
+        <a href="{{ m.url }}" class="hover-card" style="display:block;padding:16px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;text-decoration:none;color:#0f172a;box-shadow:0 8px 24px rgba(15,23,42,0.06);transition:transform 0.1s, box-shadow 0.1s;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <span style="font-weight:700;font-size:15px;">{{ m.title }}</span>
+                <span style="width:10px;height:10px;border-radius:50%;background:{{ m.color|default:'#2563eb' }};"></span>
+            </div>
+            <p style="margin:0 0 10px;font-size:13px;color:#475569;">{{ m.description }}</p>
+            <span style="font-size:12px;font-weight:600;color:{{ m.color|default:'#2563eb' }};">Open</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="padding:16px;border:1px dashed #e2e8f0;border-radius:12px;background:#f8fafc;color:#475569;font-size:14px;">No modules configured for your role.</div>
+    {% endif %}
+</div>
+{% endblock %}

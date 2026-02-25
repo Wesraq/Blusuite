@@ -1,0 +1,212 @@
+{% extends 'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Performance Review Cycles - BLU Suite{% endblock %}
+
+{% block extra_css %}
+<style>
+.perf-page { display: flex; flex-direction: column; gap: 24px; }
+.perf-header { display: flex; justify-content: space-between; align-items: start; }
+.perf-header h2 { margin: 0 0 4px; font-size: 24px; font-weight: 700; color: #0f172a; }
+.perf-header p { margin: 0; font-size: 14px; color: #64748b; }
+.perf-actions { display: flex; gap: 12px; }
+.perf-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all .15s; border: none; cursor: pointer; }
+.perf-btn-primary { background: #e11d48; color: white; }
+.perf-btn-primary:hover { background: #be123c; }
+.perf-btn-secondary { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.perf-btn-secondary:hover { background: #f8fafc; }
+.perf-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.perf-stat { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; transition: all .15s; }
+.perf-stat:hover { border-color: #e11d48; box-shadow: 0 4px 12px rgba(225,29,72,.1); }
+.perf-stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.perf-stat-value { font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+.perf-stat-label { font-size: 13px; color: #64748b; }
+.perf-filters { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; }
+.perf-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end; }
+.perf-filter-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+.perf-filter-input { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; transition: border-color .15s; }
+.perf-filter-input:focus { border-color: #e11d48; }
+.perf-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+.perf-card-header { padding: 20px; border-bottom: 1px solid #e2e8f0; }
+.perf-card-header h3 { margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; }
+.perf-card-body { padding: 0; }
+.perf-table { width: 100%; border-collapse: collapse; }
+.perf-table thead { background: #f8fafc; }
+.perf-table th { padding: 14px 20px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.perf-table td { padding: 16px 20px; border-top: 1px solid #f1f5f9; color: #1e293b; font-size: 14px; }
+.perf-table tbody tr:hover { background: #fef2f2; }
+.perf-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.perf-badge-draft { background: #f1f5f9; color: #64748b; }
+.perf-badge-active { background: #dbeafe; color: #1e40af; }
+.perf-badge-progress { background: #fef3c7; color: #92400e; }
+.perf-badge-completed { background: #d1fae5; color: #065f46; }
+.perf-badge-cancelled { background: #fee2e2; color: #991b1b; }
+.perf-progress { width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.perf-progress-bar { height: 100%; background: #10b981; transition: width .3s; }
+.perf-empty { text-align: center; padding: 60px 20px; }
+.perf-empty svg { color: #cbd5e1; margin-bottom: 16px; }
+.perf-empty h3 { margin: 0 0 8px; color: #64748b; font-size: 18px; }
+.perf-empty p { margin: 0; color: #94a3b8; font-size: 14px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="perf-page">
+    <!-- Header -->
+    <div class="perf-header">
+        <div>
+            <h2>Performance Review Cycles</h2>
+            <p>Manage company-wide performance review periods and campaigns</p>
+        </div>
+        <div class="perf-actions">
+            <a href="{% url 'performance_analytics_dashboard' %}" class="perf-btn perf-btn-secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Analytics Dashboard
+            </a>
+            <a href="{% url 'review_cycle_create' %}" class="perf-btn perf-btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Create Review Cycle
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="perf-stats">
+        <div class="perf-stat">
+            <div class="perf-stat-icon" style="background: #dbeafe; color: #1e40af;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="perf-stat-value">{{ total_cycles }}</div>
+            <div class="perf-stat-label">Total Cycles</div>
+        </div>
+        <div class="perf-stat">
+            <div class="perf-stat-icon" style="background: #d1fae5; color: #065f46;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="perf-stat-value">{{ active_cycles }}</div>
+            <div class="perf-stat-label">Active Cycles</div>
+        </div>
+        <div class="perf-stat">
+            <div class="perf-stat-icon" style="background: #fef3c7; color: #92400e;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="perf-stat-value">{{ in_progress_cycles }}</div>
+            <div class="perf-stat-label">In Progress</div>
+        </div>
+        <div class="perf-stat">
+            <div class="perf-stat-icon" style="background: #e0e7ff; color: #4f46e5;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="perf-stat-value">{{ completed_cycles }}</div>
+            <div class="perf-stat-label">Completed</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="perf-filters">
+        <form method="get" class="perf-filter-grid">
+            <div>
+                <label class="perf-filter-label">Search</label>
+                <input type="text" name="search" class="perf-filter-input" placeholder="Search cycles..." value="{{ search_query }}">
+            </div>
+            <div>
+                <label class="perf-filter-label">Status</label>
+                <select name="status" class="perf-filter-input">
+                    <option value="">All Statuses</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button type="submit" class="perf-btn perf-btn-primary" style="flex: 1;">Apply Filters</button>
+                <a href="{% url 'review_cycles_list' %}" class="perf-btn perf-btn-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Cycles List -->
+    <div class="perf-card">
+        <div class="perf-card-header">
+            <h3>Review Cycles</h3>
+        </div>
+        <div class="perf-card-body">
+            {% if cycles %}
+            <table class="perf-table">
+                <thead>
+                    <tr>
+                        <th>Cycle Name</th>
+                        <th>Type</th>
+                        <th>Period</th>
+                        <th>Deadline</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cycle in cycles %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600;">{{ cycle.name }}</div>
+                            {% if cycle.description %}
+                            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ cycle.description|truncatewords:10 }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ cycle.get_review_type_display }}</td>
+                        <td>
+                            <div style="font-size: 13px;">{{ cycle.review_period_start|date:"M d, Y" }}</div>
+                            <div style="font-size: 12px; color: #64748b;">to {{ cycle.review_period_end|date:"M d, Y" }}</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 13px;">{{ cycle.deadline|date:"M d, Y" }}</div>
+                            {% if cycle.is_overdue %}
+                            <div style="font-size: 11px; color: #dc2626; font-weight: 600;">OVERDUE</div>
+                            {% endif %}
+                        </td>
+                        <td style="min-width: 150px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="perf-progress" style="flex: 1;">
+                                    <div class="perf-progress-bar" style="width: {{ cycle.completion_percentage }}%;"></div>
+                                </div>
+                                <span style="font-size: 12px; font-weight: 600; color: #64748b;">{{ cycle.completion_percentage }}%</span>
+                            </div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">{{ cycle.completed_reviews }}/{{ cycle.total_assignments }}</div>
+                        </td>
+                        <td>
+                            {% if cycle.status == 'DRAFT' %}
+                            <span class="perf-badge perf-badge-draft">Draft</span>
+                            {% elif cycle.status == 'ACTIVE' %}
+                            <span class="perf-badge perf-badge-active">Active</span>
+                            {% elif cycle.status == 'IN_PROGRESS' %}
+                            <span class="perf-badge perf-badge-progress">In Progress</span>
+                            {% elif cycle.status == 'COMPLETED' %}
+                            <span class="perf-badge perf-badge-completed">Completed</span>
+                            {% elif cycle.status == 'CANCELLED' %}
+                            <span class="perf-badge perf-badge-cancelled">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'review_cycle_detail' cycle.id %}" class="perf-btn perf-btn-secondary" style="padding: 6px 12px; font-size: 13px;">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="perf-empty">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <h3>No Review Cycles Found</h3>
+                <p>Create your first review cycle to start managing performance reviews</p>
+                <a href="{% url 'review_cycle_create' %}" class="perf-btn perf-btn-primary" style="margin-top: 16px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Create Review Cycle
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

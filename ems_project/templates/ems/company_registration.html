@@ -1,0 +1,858 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Registration - Eiscomtech EMS</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #DC143C;
+            --primary-dark: #B01030;
+            --dark: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #666666;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+            --border-color: #E0E0E0;
+            --shadow-sm: 0 1.6px 3.6px rgba(0, 0, 0, 0.13);
+            --shadow-md: 0 3.2px 7.2px rgba(0, 0, 0, 0.13);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .registration-card {
+            background: white;
+            border-radius: 4px;
+            box-shadow: var(--shadow-md);
+            padding: 32px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 15px;
+            color: var(--medium-gray);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background: var(--border-color);
+            z-index: 0;
+        }
+
+        .progress-step:last-child::before {
+            display: none;
+        }
+
+        .progress-step.active::before {
+            background: var(--primary);
+        }
+
+        .progress-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            border: 2px solid var(--border-color);
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--medium-gray);
+            position: relative;
+            z-index: 1;
+            transition: all 0.2s;
+        }
+
+        .progress-step.active .progress-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--medium-gray);
+            font-weight: 500;
+        }
+
+        .progress-step.active .progress-label {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        /* Form Sections */
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .form-group label .required {
+            color: var(--primary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--dark);
+            background-color: white;
+            transition: all 0.1s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .form-group input.error,
+        .form-group select.error {
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: var(--medium-gray);
+            margin-top: 4px;
+        }
+
+        .field-error {
+            color: var(--primary);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .field-error.show {
+            display: block;
+        }
+
+        .error-message {
+            background: #FDE7E9;
+            color: #A4262C;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--primary);
+            font-size: 13px;
+        }
+
+        .error-message ul {
+            margin: 8px 0 0 20px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            border: 1px solid transparent;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn:disabled {
+            background: var(--medium-gray);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .back-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            .registration-card {
+                padding: 24px 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-bar {
+                flex-wrap: wrap;
+            }
+
+            .progress-step {
+                flex-basis: 50%;
+                margin-bottom: 20px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="registration-card">
+            <div class="header">
+                <div class="logo">Eiscomtech</div>
+                <h1>Company Registration</h1>
+                <p>Join Eiscomtech EMS and transform your HR operations</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="error-message">
+                <strong>Please correct the following errors:</strong>
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-step active" data-step="1">
+                    <div class="progress-circle">1</div>
+                    <div class="progress-label">Company Info</div>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="progress-circle">2</div>
+                    <div class="progress-label">Contact Person</div>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="progress-circle">3</div>
+                    <div class="progress-label">Subscription</div>
+                </div>
+            </div>
+
+            <form method="post" id="registrationForm" novalidate>
+                {% csrf_token %}
+
+                <!-- Step 1: Company Information -->
+                <div class="form-section active" data-section="1">
+                    <h2 class="section-title">Company Information</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.company_name.id_for_label }}">Company Name <span class="required">*</span></label>
+                            {{ form.company_name }}
+                            <div class="field-error" id="error-company_name"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.company_phone.id_for_label }}">Phone Number</label>
+                            {{ form.company_phone }}
+                            <div class="help-text">Include country code (e.g., +260 XXX XXX XXX)</div>
+                            <div class="field-error" id="error-company_phone"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="{{ form.company_address.id_for_label }}">Company Address <span class="required">*</span></label>
+                        {{ form.company_address }}
+                        <div class="field-error" id="error-company_address"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.company_email.id_for_label }}">Company Email <span class="required">*</span></label>
+                            {{ form.company_email }}
+                            <div class="field-error" id="error-company_email"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.company_website.id_for_label }}">Website</label>
+                            {{ form.company_website }}
+                            <div class="help-text">Optional: https://www.example.com</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.country.id_for_label }}">Country</label>
+                            {{ form.country }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.city.id_for_label }}">City</label>
+                            {{ form.city }}
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <a href="/" class="btn btn-secondary">← Back to Home</a>
+                        <button type="button" class="btn btn-primary" onclick="nextStep(1)">Next Step →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Contact Person -->
+                <div class="form-section" data-section="2">
+                    <h2 class="section-title">Contact Person Information</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.contact_first_name.id_for_label }}">First Name <span class="required">*</span></label>
+                            {{ form.contact_first_name }}
+                            <div class="field-error" id="error-contact_first_name"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.contact_last_name.id_for_label }}">Last Name <span class="required">*</span></label>
+                            {{ form.contact_last_name }}
+                            <div class="field-error" id="error-contact_last_name"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.contact_email.id_for_label }}">Email Address <span class="required">*</span></label>
+                            {{ form.contact_email }}
+                            <div class="help-text">Login credentials will be sent here</div>
+                            <div class="field-error" id="error-contact_email"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.contact_phone.id_for_label }}">Phone Number <span class="required">*</span></label>
+                            {{ form.contact_phone }}
+                            <div class="help-text">Include country code</div>
+                            <div class="field-error" id="error-contact_phone"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.contact_position.id_for_label }}">Position/Title</label>
+                        {{ form.contact_position }}
+                        <div class="help-text">e.g., CEO, HR Manager, Operations Director</div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(2)">← Previous</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep(2)">Next Step →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Subscription Details -->
+                <div class="form-section" data-section="3">
+                    <h2 class="section-title">Subscription Details</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.subscription_plan.id_for_label }}">Subscription Plan <span class="required">*</span></label>
+                            {{ form.subscription_plan }}
+                            <div class="help-text">Choose based on your company size</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.number_of_employees.id_for_label }}">Number of Employees <span class="required">*</span></label>
+                            {{ form.number_of_employees }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.billing_preference.id_for_label }}">Billing Preference</label>
+                        {{ form.billing_preference }}
+                        <div class="help-text">Select Trial, Monthly, or Yearly subscription</div>
+                    </div>
+
+                    <!-- Price Summary -->
+                    <div id="price-summary" style="display: none; background: var(--light-gray); padding: 20px; border-radius: 4px; margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Price Summary</h3>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Plan:</span>
+                            <strong id="summary-plan">-</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Employees:</span>
+                            <strong id="summary-employees">-</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Billing:</span>
+                            <strong id="summary-billing">-</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border-color); font-size: 20px;">
+                            <span style="font-weight: 700;">Total Amount:</span>
+                            <strong style="color: var(--primary);" id="summary-total">ZMW 0</strong>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.business_type.id_for_label }}">Business Type</label>
+                            {{ form.business_type }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.company_size.id_for_label }}">Company Size</label>
+                            {{ form.company_size }}
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(3)">← Previous</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Submit Registration</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="back-link">
+                <a href="/">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        // Pricing configuration (base prices in ZMW)
+        const pricingConfig = {
+            'BASIC': { name: 'Basic', basePrice: 29.99, maxEmployees: 25 },
+            'STANDARD': { name: 'Standard', basePrice: 49.99, maxEmployees: 100 },
+            'PROFESSIONAL': { name: 'Professional', basePrice: 79.99, maxEmployees: 500 },
+            'ENTERPRISE': { name: 'Enterprise', basePrice: 199.99, maxEmployees: 99999 }
+        };
+
+        // Currency detection
+        const currencyMap = {
+            'ZM': { code: 'ZMW', symbol: 'ZMW', rate: 1 },
+            'MW': { code: 'MWK', symbol: 'MWK', rate: 25 },
+            'KE': { code: 'KES', symbol: 'KES', rate: 4 },
+            'TZ': { code: 'TZS', symbol: 'TZS', rate: 80 },
+            'UG': { code: 'UGX', symbol: 'UGX', rate: 120 },
+            'ZA': { code: 'ZAR', symbol: 'ZAR', rate: 0.6 },
+            'NG': { code: 'NGN', symbol: 'NGN', rate: 50 },
+            'GH': { code: 'GHS', symbol: 'GHS', rate: 0.4 },
+            'BW': { code: 'BWP', symbol: 'BWP', rate: 0.4 },
+            'MZ': { code: 'MZN', symbol: 'MZN', rate: 2 },
+            'ZW': { code: 'ZWL', symbol: 'ZWL', rate: 10 },
+            'US': { code: 'USD', symbol: '$', rate: 0.033 },
+            'GB': { code: 'GBP', symbol: 'GBP', rate: 0.026 },
+        };
+        let detectedCurrency = { code: 'ZMW', symbol: 'ZMW', rate: 1 };
+
+        // Auto-fill form from URL parameters
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan');
+            const employees = urlParams.get('employees');
+
+            if (plan) {
+                const planSelect = document.querySelector('select[name="subscription_plan"]');
+                if (planSelect) {
+                    planSelect.value = plan;
+                }
+            }
+
+            if (employees && employees !== 'unlimited') {
+                const employeesInput = document.querySelector('input[name="number_of_employees"]');
+                if (employeesInput) {
+                    employeesInput.value = employees;
+                }
+            }
+
+            // Detect currency from location
+            fetch('https://ipapi.co/json/')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var c = currencyMap[data.country_code];
+                    if (c) detectedCurrency = c;
+                    // Auto-fill country field if empty
+                    var countryInput = document.querySelector('input[name="country"]');
+                    if (countryInput && !countryInput.value && data.country_name) {
+                        countryInput.value = data.country_name;
+                    }
+                    var cityInput = document.querySelector('input[name="city"]');
+                    if (cityInput && !cityInput.value && data.city) {
+                        cityInput.value = data.city;
+                    }
+                    calculatePrice();
+                })
+                .catch(function() { calculatePrice(); });
+
+            // Add event listeners for price recalculation
+            var billingSelect = document.querySelector('select[name="billing_preference"]');
+            if (billingSelect) billingSelect.addEventListener('change', calculatePrice);
+
+            var planSelect = document.querySelector('select[name="subscription_plan"]');
+            if (planSelect) planSelect.addEventListener('change', function() {
+                // Auto-set employee count based on plan limit
+                var config = pricingConfig[this.value];
+                if (config) {
+                    var empInput = document.querySelector('input[name="number_of_employees"]');
+                    if (empInput && (!empInput.value || parseInt(empInput.value) < 1)) {
+                        empInput.value = Math.min(config.maxEmployees, 10);
+                    }
+                }
+                calculatePrice();
+            });
+
+            var employeesInput = document.querySelector('input[name="number_of_employees"]');
+            if (employeesInput) employeesInput.addEventListener('input', calculatePrice);
+
+            // Trigger initial calculation
+            calculatePrice();
+        });
+
+        function calculatePrice() {
+            var planSelect = document.querySelector('select[name="subscription_plan"]');
+            var employeesInput = document.querySelector('input[name="number_of_employees"]');
+            var billingSelect = document.querySelector('select[name="billing_preference"]');
+            var priceSummary = document.getElementById('price-summary');
+
+            var plan = planSelect ? planSelect.value : '';
+            var employees = employeesInput ? parseInt(employeesInput.value) || 0 : 0;
+            var billing = billingSelect ? billingSelect.value : '';
+
+            if (plan && employees > 0 && billing) {
+                var planConfig = pricingConfig[plan];
+                if (planConfig) {
+                    var perUserMonthly = +(planConfig.basePrice * detectedCurrency.rate).toFixed(2);
+                    var totalPrice = 0;
+                    var billingText = '';
+                    var periodText = '/month';
+
+                    if (billing === 'TRIAL') {
+                        totalPrice = 0;
+                        billingText = '30-day Free Trial';
+                        periodText = '';
+                    } else if (billing === 'MONTHLY') {
+                        totalPrice = +(perUserMonthly * employees).toFixed(2);
+                        billingText = 'Monthly';
+                        periodText = '/month';
+                    } else if (billing === 'YEARLY') {
+                        var perUserYearly = +(perUserMonthly * 0.8).toFixed(2);
+                        totalPrice = +(perUserYearly * employees * 12).toFixed(2);
+                        billingText = 'Yearly (20% off)';
+                        periodText = '/year';
+                    }
+
+                    document.getElementById('summary-plan').textContent = planConfig.name;
+                    document.getElementById('summary-employees').textContent = employees + ' users \u00d7 ' + detectedCurrency.symbol + ' ' + perUserMonthly + '/user/mo';
+                    document.getElementById('summary-billing').textContent = billingText;
+                    document.getElementById('summary-total').textContent = detectedCurrency.symbol + ' ' + totalPrice.toLocaleString() + periodText;
+
+                    priceSummary.style.display = 'block';
+                } else {
+                    priceSummary.style.display = 'none';
+                }
+            } else {
+                priceSummary.style.display = 'none';
+            }
+        }
+
+        function nextStep(step) {
+            if (validateStep(step)) {
+                currentStep = step + 1;
+                updateStepDisplay();
+            }
+        }
+
+        function prevStep(step) {
+            currentStep = step - 1;
+            updateStepDisplay();
+        }
+
+        function updateStepDisplay() {
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${currentStep}"]`).classList.add('active');
+
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                if (index < currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function validateStep(step) {
+            let isValid = true;
+            const section = document.querySelector(`[data-section="${step}"]`);
+            const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
+
+            inputs.forEach(input => {
+                const errorDiv = document.getElementById(`error-${input.name}`);
+                if (errorDiv) {
+                    errorDiv.classList.remove('show');
+                }
+                input.classList.remove('error');
+
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('error');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'This field is required';
+                        errorDiv.classList.add('show');
+                    }
+                } else if (input.type === 'email' && !validateEmail(input.value)) {
+                    isValid = false;
+                    input.classList.add('error');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Please enter a valid email address';
+                        errorDiv.classList.add('show');
+                    }
+                } else if (input.name.includes('phone') && input.value && !validatePhone(input.value)) {
+                    isValid = false;
+                    input.classList.add('error');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Please enter a valid phone number with country code';
+                        errorDiv.classList.add('show');
+                    }
+                }
+            });
+
+            return isValid;
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePhone(phone) {
+            const cleaned = phone.replace(/[\s\-\(\)\.]/g, '');
+            const internationalFormat = /^\+[1-9]\d{9,14}$/;
+            const localFormat = /^0\d{8,11}$/;
+            return internationalFormat.test(cleaned) || localFormat.test(cleaned);
+        }
+
+        // Real-time validation
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            input.addEventListener('blur', function() {
+                const errorDiv = document.getElementById(`error-${this.name}`);
+                if (errorDiv) {
+                    errorDiv.classList.remove('show');
+                }
+                this.classList.remove('error');
+
+                if (this.hasAttribute('required') && !this.value.trim()) {
+                    this.classList.add('error');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'This field is required';
+                        errorDiv.classList.add('show');
+                    }
+                } else if (this.type === 'email' && this.value && !validateEmail(this.value)) {
+                    this.classList.add('error');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Please enter a valid email address';
+                        errorDiv.classList.add('show');
+                    }
+                } else if (this.name.includes('phone') && this.value && !validatePhone(this.value)) {
+                    this.classList.add('error');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Please enter a valid phone number';
+                        errorDiv.classList.add('show');
+                    }
+                }
+            });
+        });
+
+        // Form submission
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            if (!validateStep(3)) {
+                e.preventDefault();
+                return false;
+            }
+            
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').textContent = 'Submitting...';
+        });
+
+        // Phone number formatting
+        document.querySelectorAll('input[name*="phone"]').forEach(input => {
+            input.addEventListener('input', function(e) {
+                let value = e.target.value;
+                value = value.replace(/[^\d\s\+\-\(\)\.]/g, '');
+                if (value.indexOf('+') > 0) {
+                    value = value.replace(/\+/g, '');
+                }
+                if (value.replace(/\D/g, '').length > 15) {
+                    value = value.substring(0, value.length - 1);
+                }
+                e.target.value = value;
+            });
+        });
+    </script>
+</body>
+</html>

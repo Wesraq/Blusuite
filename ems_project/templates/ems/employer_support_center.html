@@ -1,0 +1,211 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Support Center - EMS{% endblock %}
+{% block page_title %}Support Center{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <!-- Header -->
+    <div class="content-card" style="margin-bottom: 20px; max-width: 100%;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+            <div>
+                <h3 class="card-title" style="display:flex; align-items:center; gap:8px;">
+                    <span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:999px; background:#eff6ff; color:#2563eb;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h1"></path>
+                            <path d="M12 7a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-1"></path>
+                            <path d="M12 17v1"></path>
+                        </svg>
+                    </span>
+                    <span>Support Center</span>
+                </h3>
+                <div class="card-subtitle">Support tickets for {{ company.company_name|default:company.name|default:"your company" }}</div>
+            </div>
+            <div>
+                <a href="{% url 'employer_support_ticket_create' %}" class="btn" style="display:inline-flex; align-items:center; gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14"></path>
+                        <path d="M5 12h14"></path>
+                    </svg>
+                    <span>New ticket</span>
+                </a>
+            </div>
+        </div>
+        <div class="card-content">
+            <p style="margin: 0; font-size: 14px; color:#64748b;">
+                Review support tickets raised by your organisation. Use filters to focus on open or high-priority
+                items. Knowledge Base articles remain available in the sidebar for self-service help.
+            </p>
+        </div>
+    </div>
+
+    <!-- Metrics row -->
+    <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Total Tickets</div>
+                <div class="card-subtitle">All time</div>
+            </div>
+            <div class="card-content">
+                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ total_tickets|default:'0' }}</div>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Open</div>
+                <div class="card-subtitle">Awaiting response</div>
+            </div>
+            <div class="card-content">
+                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ open_count|default:'0' }}</div>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">In Progress</div>
+                <div class="card-subtitle">Being worked on</div>
+            </div>
+            <div class="card-content">
+                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ in_progress_count|default:'0' }}</div>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Resolved / Closed</div>
+                <div class="card-subtitle">Completed tickets</div>
+            </div>
+            <div class="card-content">
+                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ resolved_count|add:closed_count|default:'0' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="content-card" style="margin-bottom: 24px; max-width: 100%;">
+        <div class="card-content">
+            <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px;">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Subject, reference or description" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px;">Status</label>
+                    <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <option value="">All</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px;">Priority</label>
+                    <select name="priority" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <option value="">All</option>
+                        {% for value, label in priority_choices %}
+                            <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn">Apply</button>
+                    <a href="{% url 'employer_support_center' %}" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tickets table -->
+    <div class="content-card" style="max-width: 100%;">
+        <div class="card-header">
+            <div class="card-title">Support Tickets</div>
+            <div class="card-subtitle">Most recent first</div>
+        </div>
+        <div class="card-content">
+            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; font-size:12px; color:#6b7280;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:600; text-transform:uppercase;">Urgent</span>
+                    <span>Urgent priority</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">High</span>
+                    <span>High priority</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Normal</span>
+                    <span>Normal priority</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e0f2fe; color:#1d4ed8; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
+                    <span>Low priority</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:600; text-transform:uppercase;">Open</span>
+                    <span>Open status</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">In progress</span>
+                    <span>Work in progress</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#dcfce7; color:#166534; font-size:11px; font-weight:600; text-transform:uppercase;">Resolved</span>
+                    <span>Resolved by support</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Closed</span>
+                    <span>Closed / archived</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table company-table">
+                    <thead>
+                        <tr>
+                            <th>Ref</th>
+                            <th>Created</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Raised By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td>{{ ticket.reference }}</td>
+                            <td>{{ ticket.created_at|date:"M j, Y g:i A" }}</td>
+                            <td>{{ ticket.subject }}</td>
+                            <td>
+                                {% if ticket.priority == 'URGENT' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:600; text-transform:uppercase;">Urgent</span>
+                                {% elif ticket.priority == 'HIGH' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">High</span>
+                                {% elif ticket.priority == 'LOW' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e0f2fe; color:#1d4ed8; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
+                                {% else %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Normal</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ticket.status == 'OPEN' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:600; text-transform:uppercase;">Open</span>
+                                {% elif ticket.status == 'IN_PROGRESS' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">In progress</span>
+                                {% elif ticket.status == 'RESOLVED' %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#dcfce7; color:#166534; font-size:11px; font-weight:600; text-transform:uppercase;">Resolved</span>
+                                {% else %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Closed</span>
+                                {% endif %}
+                            </td>
+                            <td>{% if ticket.created_by %}{{ ticket.created_by.get_full_name|default:ticket.created_by.email }}{% else %}-{% endif %}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No support tickets found for this company yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

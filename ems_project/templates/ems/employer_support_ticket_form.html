@@ -1,0 +1,73 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}New Support Ticket - EMS{% endblock %}
+{% block page_title %}New Support Ticket{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="content-card" style="max-width: 720px;">
+        <div class="card-header">
+            <div class="card-title" style="display:flex; align-items:center; gap:8px;">
+                <span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:999px; background:#eff6ff; color:#2563eb;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14"></path>
+                        <path d="M5 12h14"></path>
+                    </svg>
+                </span>
+                <span>Create Support Ticket</span>
+            </div>
+            <div class="card-subtitle">Raise an issue on behalf of {{ company.company_name|default:company.name|default:"your company" }}.</div>
+        </div>
+        <div class="card-content">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div style="display:grid; grid-template-columns:1fr; gap:16px;">
+                    <div>
+                        <label for="id_subject" style="display:block; font-size:14px; font-weight:500; color:#374151; margin-bottom:6px;">Subject</label>
+                        {{ form.subject }}
+                        {{ form.subject.errors }}
+                    </div>
+                    <div>
+                        <label for="id_category" style="display:block; font-size:14px; font-weight:500; color:#374151; margin-bottom:6px;">Category</label>
+                        {{ form.category }}
+                        <small style="display:block; margin-top:4px; font-size:12px; color:#6b7280;">For example: Payroll, Attendance, Access, Integrations.</small>
+                        {{ form.category.errors }}
+                    </div>
+                    <div>
+                        <label for="id_priority" style="display:block; font-size:14px; font-weight:500; color:#374151; margin-bottom:6px;">Priority</label>
+                        {{ form.priority }}
+                        {{ form.priority.errors }}
+                    </div>
+                    <div>
+                        <label for="id_contact_email" style="display:block; font-size:14px; font-weight:500; color:#374151; margin-bottom:6px;">Contact email</label>
+                        {{ form.contact_email }}
+                        {{ form.contact_email.errors }}
+                    </div>
+                    <div>
+                        <label for="id_description" style="display:block; font-size:14px; font-weight:500; color:#374151; margin-bottom:6px;">Description</label>
+                        {{ form.description }}
+                        <small style="display:block; margin-top:4px; font-size:12px; color:#6b7280;">Include steps taken, expected behaviour and impact.</small>
+                        {{ form.description.errors }}
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:20px;">
+                    <button type="submit" class="btn" style="display:inline-flex; align-items:center; gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        <span>Submit ticket</span>
+                    </button>
+                    <a href="{% url 'employer_support_center' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

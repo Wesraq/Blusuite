@@ -1,0 +1,1175 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}{{ company.company_name|default:company.name }} Dashboard - EMS{% endblock %}
+{% block page_title %}Company Dashboard{% endblock %}
+
+{% block content %}
+<div class="ems-dashboard">
+    <!-- Page Header -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h1>Company Overview</h1>
+                <p class="subtitle">Manage your organization, monitor employee performance, and oversee all HR activities.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="overview">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            Overview
+        </button>
+        <button class="tab-btn" data-tab="employees">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Employees
+        </button>
+        <button class="tab-btn" data-tab="company">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Company
+        </button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div class="tab-content active" id="overview-tab">
+        <!-- Statistics Dashboard -->
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #E3F2FD; color: #1976D2;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ total_employees }}</div>
+                    <div class="stat-label">Total Employees</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #E8F5E9; color: #388E3C;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ present_today }}</div>
+                    <div class="stat-label">Present Today</div>
+                    <div class="stat-change">{{ attendance_rate }}% attendance rate</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #FFF3E0; color: #F57C00;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ pending_leaves }}</div>
+                    <div class="stat-label">Pending Leave Requests</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #FCE4EC; color: #C2185B;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ recent_docs|length }}</div>
+                    <div class="stat-label">Recent Documents</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access Cards -->
+        <div class="module-grid">
+            <div class="module-card">
+                <div class="module-header" style="background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <h3>Leave Management</h3>
+                </div>
+                <div class="module-content">
+                    <p class="module-description">Manage employee leave requests</p>
+                    <div class="module-stat">
+                        {% if pending_leaves > 0 %}
+                            <span class="stat-highlight">{{ pending_leaves }}</span> request{{ pending_leaves|pluralize }} awaiting approval
+                        {% else %}
+                            All leave requests are up to date
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'leave_management' %}" class="btn-module">
+                        Review Leave Requests
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <div class="module-header" style="background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <h3>Employee Management</h3>
+                </div>
+                <div class="module-content">
+                    <p class="module-description">Manage employee profiles and roles</p>
+                    <div class="module-stat">
+                        View and manage all employees in your organization
+                    </div>
+                    <a href="{% url 'employer_employee_management' %}" class="btn-module">
+                        Manage Employees
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <div class="module-header" style="background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    <h3>Performance Reviews</h3>
+                </div>
+                <div class="module-content">
+                    <p class="module-description">Track employee performance</p>
+                    <div class="module-stat">
+                        Monitor and manage employee performance reviews
+                    </div>
+                    {% comment "PERFORMANCE MODULE - Will be added in future version" %}
+                    <a href="{% url 'performance_reviews_list' %}" class="btn-module">
+                        View Reviews
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                    {% endcomment %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees Tab -->
+    <div class="tab-content" id="employees-tab">
+        <div class="content-section">
+            <div class="section-header">
+                <div>
+                    <h2>Employee Management</h2>
+                    <p class="section-subtitle">Manage your team members</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{% url 'employer_employee_management' %}" class="btn-primary">View All Employees</a>
+                    <a href="{% url 'employer_add_employee' %}" class="btn-secondary">Add New Employee</a>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats-grid">
+                <div class="quick-stat">
+                    <div class="stat-label">New hires (30d)</div>
+                    <div class="stat-value">{{ new_hires_month|default:"0" }}</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-label">On leave today</div>
+                    <div class="stat-value">{{ on_leave_today|default:"0" }}</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-label">Attrition YTD</div>
+                    <div class="stat-value">{{ attrition_rate|default:"0" }}{% if attrition_rate %}%{% endif %}</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-label">Open roles</div>
+                    <div class="stat-value">{{ open_roles|default:"0" }}</div>
+                </div>
+            </div>
+
+            <!-- HR Inbox & Quick Actions -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>HR Inbox</h3>
+                    <ul class="info-list">
+                        <li><strong>{{ pending_leaves|default:"0" }}</strong> pending leave requests</li>
+                        <li><strong>{{ attendance_exceptions|default:"0" }}</strong> attendance exceptions today</li>
+                        <li><strong>{{ probation_reviews|default:"0" }}</strong> probation/contract reviews this week</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons">
+                        <a href="{% url 'employer_employee_management' %}" class="btn-action">Employee Directory</a>
+                        <a href="{% url 'attendance_dashboard' %}" class="btn-action">Attendance</a>
+                        {% comment "PERFORMANCE MODULE - Will be added in future version" %}
+                        <a href="{% url 'performance_reviews_list' %}" class="btn-action">Performance</a>
+                        {% endcomment %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Grid -->
+            <div class="alerts-grid">
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <h4>Work Anniversaries</h4>
+                        <span class="badge badge-info">People</span>
+                    </div>
+                    {% if work_anniversaries %}
+                        <ul class="info-list">
+                        {% for ann in work_anniversaries %}
+                            <li><strong>{{ ann.employee.get_full_name }}</strong> — {{ ann.years }} year{{ ann.years|pluralize }} ({{ ann.date|date:"M j" }})</li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="alert-content">No work anniversaries this month.</p>
+                    {% endif %}
+                </div>
+
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <h4>On Leave Today</h4>
+                        <span class="badge badge-success">Status</span>
+                    </div>
+                    <p class="alert-content">{{ on_leave_today|default:"0" }} employee{{ on_leave_today|pluralize }} on approved leave today.</p>
+                </div>
+
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <h4>Contracts & Probation</h4>
+                        <span class="badge badge-warning">Watchlist</span>
+                    </div>
+                    {% if contract_expiry_alerts %}
+                        <ul class="info-list">
+                        {% for alert in contract_expiry_alerts %}
+                            <li>{% if alert.is_critical %}<strong style="color:#dc2626;">{% endif %}{{ alert.employee.get_full_name }} — {{ alert.type }} expires in {{ alert.days_until }} day{{ alert.days_until|pluralize }}{% if alert.is_critical %}</strong>{% endif %}</li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="alert-content">No expiring contracts or probation reviews.</p>
+                    {% endif %}
+                </div>
+
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <h4>Performance Follow-ups</h4>
+                        <span class="badge badge-purple">Reviews</span>
+                    </div>
+                    {% if recent_reviews %}
+                        <ul class="info-list">
+                        {% for review in recent_reviews|slice:":3" %}
+                            <li><strong>{{ review.employee.get_full_name }}</strong> — {{ review.get_status_display }} ({{ review.review_date|date:"M j" }})</li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="alert-content">No recent performance reviews.</p>
+                    {% endif %}
+                </div>
+
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <h4>Expiring Documents</h4>
+                        <span class="badge badge-danger">Compliance</span>
+                    </div>
+                    <p class="alert-content">{{ expiring_docs|default:"0" }} employee docs nearing expiry.</p>
+                </div>
+
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <h4>Benefits Enrollment</h4>
+                        <span class="badge badge-success">Benefits</span>
+                    </div>
+                    <p class="alert-content">{{ pending_benefits|default:"0" }} pending enrollments awaiting approval.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Tab -->
+    <div class="tab-content" id="company-tab">
+        <div class="content-section">
+            <div class="section-header">
+                <div>
+                    <h2>Company Information</h2>
+                    <p class="section-subtitle">Manage your company details</p>
+                </div>
+            </div>
+
+            {% if company %}
+            <!-- Company Profile Card -->
+            <div class="company-profile-card">
+                <div class="company-profile-main">
+                    <div class="company-logo">
+                        {% if company.logo %}
+                            <img src="{{ company.logo.url }}" alt="Company Logo">
+                        {% else %}
+                            <div class="logo-placeholder">{{ company.name|default:"--"|slice:":2"|upper }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="company-info">
+                        <h3>{{ company.company_name|default:company.name }}</h3>
+                        <p class="company-address">{{ company.company_address|default:company.address }}</p>
+                        <div class="company-badges">
+                            <span class="badge {% if company.is_active %}badge-success{% else %}badge-inactive{% endif %}">
+                                {{ company.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                            <span class="badge {% if company.is_approved %}badge-info{% else %}badge-warning{% endif %}">
+                                {{ company.is_approved|yesno:"Approved,Pending" }}
+                            </span>
+                            {% if company.is_trial %}
+                                <span class="badge badge-warning">
+                                    Trial - ends {{ company.trial_ends_at|date:"M j, Y" }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="company-actions">
+                    {% if company.id %}
+                        <a href="{% url 'company_edit' company.id %}" class="btn-primary">Edit Company Info</a>
+                    {% endif %}
+                    <a href="{% url 'attendance_dashboard' %}" class="btn-secondary">View Attendance</a>
+                    <a href="{% url 'blu_settings_home' %}" class="btn-secondary">Settings</a>
+                </div>
+            </div>
+
+            <!-- Company Details Grid -->
+            <div class="company-details-grid">
+                <div class="detail-card">
+                    <h4>Contact & Basics</h4>
+                    <dl class="detail-list">
+                        <dt>Phone:</dt>
+                        <dd>{{ company.phone|default:"—" }}</dd>
+                        <dt>Email:</dt>
+                        <dd>{{ company.company_email|default:company.email|default:"—" }}</dd>
+                        <dt>Website:</dt>
+                        <dd>{% if company.website %}<a href="{{ company.website }}" target="_blank">{{ company.website }}</a>{% else %}—{% endif %}</dd>
+                        <dt>Address:</dt>
+                        <dd>{{ company.company_address|default:company.address|default:"—" }}</dd>
+                        <dt>City/Country:</dt>
+                        <dd>{{ company.city|default:"—" }}, {{ company.country|default:"—" }}</dd>
+                    </dl>
+                </div>
+
+                <div class="detail-card">
+                    <h4>Business Profile</h4>
+                    <dl class="detail-list">
+                        <dt>Tax ID:</dt>
+                        <dd>{{ company.tax_id|default:"—" }}</dd>
+                        <dt>License Key:</dt>
+                        <dd>
+                            {% if company.license_key %}
+                                <span id="license-key">••••••••••••••••</span>
+                                <button type="button" class="btn-icon-small" onclick="toggleLicenseKey()" title="Show/Hide">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </dd>
+                        <dt>License Expires:</dt>
+                        <dd>{{ company.license_expiry|date:"M j, Y"|default:"—" }}</dd>
+                        <dt>Subscription:</dt>
+                        <dd>{{ company.subscription_plan|default:"—" }}</dd>
+                        <dt>Max Employees:</dt>
+                        <dd>{{ company.max_employees|default:"—" }}</dd>
+                    </dl>
+                </div>
+
+                <div class="detail-card">
+                    <h4>Compliance Documents</h4>
+                    <ul class="document-list">
+                        <li>
+                            <span>Tax Certificate</span>
+                            {% if company.tax_certificate %}
+                                <span class="badge badge-success">On file</span>
+                            {% else %}
+                                <span class="badge badge-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <span>Business Registration</span>
+                            {% if company.business_registration %}
+                                <span class="badge badge-success">On file</span>
+                            {% else %}
+                                <span class="badge badge-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <span>Trade License</span>
+                            {% if company.trade_license %}
+                                <span class="badge badge-success">On file</span>
+                            {% else %}
+                                <span class="badge badge-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <span>NAPSA Certificate</span>
+                            {% if company.napsa_certificate %}
+                                <span class="badge badge-success">On file</span>
+                            {% else %}
+                                <span class="badge badge-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <span>NHIMA Certificate</span>
+                            {% if company.nhima_certificate %}
+                                <span class="badge badge-success">On file</span>
+                            {% else %}
+                                <span class="badge badge-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <span>Workers Compensation</span>
+                            {% if company.workers_compensation %}
+                                <span class="badge badge-success">On file</span>
+                            {% else %}
+                                <span class="badge badge-danger">Missing</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="detail-card">
+                    <h4>Branding</h4>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="swatch-color" style="background-color: {{ company.primary_color|default:'#DC143C' }};"></div>
+                            <span class="swatch-label">Primary</span>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-color" style="background-color: {{ company.secondary_color|default:'#0F172A' }};"></div>
+                            <span class="swatch-label">Secondary</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Tab switching functionality
+document.querySelectorAll('.tab-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+        
+        // Remove active class from all tabs and buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding content
+        this.classList.add('active');
+        document.getElementById(tabName + '-tab').classList.add('active');
+    });
+});
+
+// License key toggle
+let licenseKeyVisible = false;
+const fullLicenseKey = '{{ company.license_key|default:"" }}';
+
+function toggleLicenseKey() {
+    const keyElement = document.getElementById('license-key');
+    if (!keyElement) return;
+    
+    licenseKeyVisible = !licenseKeyVisible;
+    keyElement.textContent = licenseKeyVisible ? fullLicenseKey : '••••••••••••••••';
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #DC143C;
+        --primary-hover: #B01030;
+        --secondary: #0F172A;
+        --success: #10B981;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --info: #3B82F6;
+        --purple: #7C3AED;
+        --border: #E2E8F0;
+        --bg-light: #F8FAFC;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+    }
+
+    .ems-dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 24px;
+    }
+
+    .dashboard-header {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .header-text h1 {
+        margin: 0 0 4px 0;
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .tab-navigation {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 4px;
+        margin-bottom: 24px;
+        display: flex;
+        gap: 4px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: none;
+        background: transparent;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+        background: var(--bg-light);
+        color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .tab-btn svg {
+        flex-shrink: 0;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .stats-dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 20px;
+        display: flex;
+        gap: 16px;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .stat-change {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .module-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .module-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .module-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .module-header {
+        padding: 24px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .module-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .module-content {
+        padding: 20px;
+    }
+
+    .module-description {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .module-stat {
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: var(--text-primary);
+    }
+
+    .stat-highlight {
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .btn-module {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: var(--bg-light);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-module:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .content-section {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 24px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 {
+        margin: 0 0 4px 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .section-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--text-primary);
+        border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-light);
+    }
+
+    .quick-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .quick-stat {
+        background: var(--bg-light);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 16px;
+    }
+
+    .quick-stat .stat-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+    }
+
+    .quick-stat .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .info-card {
+        background: var(--bg-light);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 20px;
+    }
+
+    .info-card h3 {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .info-list li {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 10px 16px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-primary);
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .alerts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .alert-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 16px;
+    }
+
+    .alert-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .alert-header h4 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .alert-content {
+        margin: 0;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .badge-success {
+        background: #DCFCE7;
+        color: #166534;
+    }
+
+    .badge-info {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+
+    .badge-warning {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+
+    .badge-danger {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .badge-purple {
+        background: #EDE9FE;
+        color: #5B21B6;
+    }
+
+    .badge-inactive {
+        background: #F1F5F9;
+        color: #475569;
+    }
+
+    .company-profile-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    .company-profile-main {
+        display: flex;
+        gap: 20px;
+        flex: 1;
+    }
+
+    .company-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 4px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .company-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .logo-placeholder {
+        width: 100%;
+        height: 100%;
+        background: var(--bg-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-secondary);
+    }
+
+    .company-info h3 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .company-address {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .company-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .company-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .company-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .detail-card {
+        background: var(--bg-light);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 20px;
+    }
+
+    .detail-card h4 {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .detail-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .detail-list dt {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+    }
+
+    .detail-list dd {
+        font-size: 14px;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .document-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .document-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        color: var(--text-primary);
+    }
+
+    .color-swatches {
+        display: flex;
+        gap: 16px;
+    }
+
+    .color-swatch {
+        flex: 1;
+    }
+
+    .swatch-color {
+        height: 48px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+
+    .swatch-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    .btn-icon-small {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: white;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-icon-small:hover {
+        background: var(--bg-light);
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+        .ems-dashboard {
+            padding: 16px;
+        }
+
+        .tab-btn {
+            font-size: 13px;
+            padding: 10px 12px;
+        }
+
+        .tab-btn span {
+            display: none;
+        }
+
+        .stats-dashboard,
+        .module-grid,
+        .quick-stats-grid,
+        .info-grid,
+        .alerts-grid,
+        .company-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .company-profile-card {
+            flex-direction: column;
+        }
+
+        .company-actions {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

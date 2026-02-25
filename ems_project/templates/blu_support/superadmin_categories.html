@@ -1,0 +1,239 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Support Categories - BLU Suite Admin{% endblock %}
+{% block nav_support %} active{% endblock %}
+{% block page_title %}Support Categories Management{% endblock %}
+
+{% block content %}
+<!-- Categories Overview -->
+<div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Total Categories</div>
+        </div>
+        <div class="card-content">
+            <div style="font-size: 24px; font-weight: 600; color: #1A1A1A;">{{ categories|length }}</div>
+            <div style="font-size: 14px; color: #64748b;">Active categories</div>
+        </div>
+    </div>
+    
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Total Tickets</div>
+        </div>
+        <div class="card-content">
+            <div style="font-size: 24px; font-weight: 600; color: #1A1A1A;">{{ total_tickets }}</div>
+            <div style="font-size: 14px; color: #64748b;">Tickets across all categories</div>
+        </div>
+    </div>
+    
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Most Popular</div>
+        </div>
+        <div class="card-content">
+            <div style="font-size: 24px; font-weight: 600; color: #1A1A1A;">
+                {% if most_popular %}
+                    {{ most_popular.name }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div style="font-size: 14px; color: #64748b;">Most used category</div>
+        </div>
+    </div>
+</div>
+
+<!-- Categories List -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Support Categories</div>
+        <div class="card-subtitle">Manage ticket categories and organization</div>
+        <div style="margin-top: 12px;">
+            <button class="btn" onclick="showAddCategoryForm()">Add Category</button>
+        </div>
+    </div>
+    <div class="card-content">
+        {% if categories %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Tickets</th>
+                        <th>Color</th>
+                        <th>Sort Order</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                {% if category.icon %}
+                                <div style="width: 32px; height: 32px; border-radius: 4px; background: {{ category.color }}20; display: flex; align-items: center; justify-content: center; color: {{ category.color }};">
+                                    {{ category.icon }}
+                                </div>
+                                {% else %}
+                                <div style="width: 32px; height: 32px; border-radius: 4px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #64748b;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                                <div style="font-weight: 500; color: #1A1A1A;">{{ category.name }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-size: 14px; color: #64748b;">{{ category.description|truncatechars:50|default:"No description" }}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: #1A1A1A;">{{ category.ticket_count }}</div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 16px; height: 16px; border-radius: 2px; background: {{ category.color }};"></div>
+                                <span style="font-size: 12px; color: #64748b;">{{ category.color }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 500;">{{ category.sort_order }}</div>
+                        </td>
+                        <td>
+                            {% if category.is_active %}
+                                <span class="status-badge status-active">Active</span>
+                            {% else %}
+                                <span class="status-badge status-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 12px; margin-right: 4px;">Edit</button>
+                            <button class="btn" style="padding: 4px 8px; font-size: 12px; background: #dc2626;">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 16px; color: #64748b;">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <div style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">No categories found</div>
+            <div style="font-size: 14px; color: #64748b;">Create categories to organize support tickets</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Category Form (Hidden by default) -->
+<div id="addCategoryForm" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; padding: 20px;">
+    <div style="max-width: 500px; margin: 50px auto; background: white; border-radius: 8px; padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Add New Category</h3>
+            <button onclick="hideAddCategoryForm()" style="background: none; border: none; font-size: 20px; cursor: pointer;">×</button>
+        </div>
+        <form style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Category Name</label>
+                <input type="text" placeholder="Enter category name" style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 4px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Description</label>
+                <textarea placeholder="Enter description" rows="3" style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 4px;"></textarea>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Color</label>
+                    <input type="color" value="#E11D48" style="width: 100%; height: 36px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500;">Sort Order</label>
+                    <input type="number" value="0" style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" onclick="hideAddCategoryForm()" class="btn" style="background: #f3f4f6; color: #374151;">Cancel</button>
+                <button type="submit" class="btn">Create Category</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: #f8fafc;
+    padding: 12px;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+.data-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    background: #E11D48;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+</style>
+
+<script>
+function showAddCategoryForm() {
+    document.getElementById('addCategoryForm').style.display = 'block';
+}
+
+function hideAddCategoryForm() {
+    document.getElementById('addCategoryForm').style.display = 'none';
+}
+</script>
+{% endblock %}

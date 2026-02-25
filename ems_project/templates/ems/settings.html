@@ -1,0 +1,227 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Settings & Configuration - EMS{% endblock %}
+
+{% block nav_settings %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.form-group {
+    margin-bottom: 16px;
+}
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin-bottom: 6px;
+}
+.form-hint {
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 8px;
+}
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.checkbox-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+}
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid hsl(var(--border));
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>System Settings</h2>
+        <p>Configure system-wide settings and preferences</p>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<div style="border-bottom: 2px solid hsl(var(--border)); margin-bottom: 24px;">
+    <div style="display: flex; gap: 8px;">
+        <button class="tab-btn active" onclick="showTab('general', this)">General</button>
+        <button class="tab-btn" onclick="showTab('security', this)">Security</button>
+        <button class="tab-btn" onclick="showTab('notifications', this)">Notifications</button>
+        <button class="tab-btn" onclick="showTab('integrations', this)">Integrations</button>
+        <button class="tab-btn" onclick="showTab('maintenance', this)">Maintenance</button>
+    </div>
+</div>
+
+<!-- General Settings Tab -->
+<div id="general" class="tab-content" style="display: block;">
+    <div class="content-grid">
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">System Information</div>
+                <div class="card-subtitle">Basic system configuration</div>
+            </div>
+            <div class="card-content" style="padding: 20px;">
+                <div class="form-group">
+                    <label for="systemName">System Name</label>
+                    <div class="form-hint">The name of your EMS instance</div>
+                    <input type="text" id="systemName" class="control-input" value="Employee Management System" placeholder="Enter system name">
+                </div>
+                <div class="form-group">
+                    <label for="orgName">Organization Name</label>
+                    <div class="form-hint">Your organization or company name</div>
+                    <input type="text" id="orgName" class="control-input" value="" placeholder="Enter organization name">
+                </div>
+                <div class="form-group">
+                    <label for="defaultTimezone">Default Timezone</label>
+                    <div class="form-hint">Set the default timezone for the system</div>
+                    <select id="defaultTimezone" class="control-input">
+                        <option value="UTC">UTC</option>
+                        <option value="America/New_York" selected>America/New_York</option>
+                        <option value="Europe/London">Europe/London</option>
+                        <option value="Asia/Tokyo">Asia/Tokyo</option>
+                        <option value="Australia/Sydney">Australia/Sydney</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Business Hours</div>
+                <div class="card-subtitle">Configure working hours and days</div>
+            </div>
+            <div class="card-content" style="padding: 20px;">
+                <div class="form-group">
+                    <label>Work Days</label>
+                    <div class="form-hint">Select which days are considered work days</div>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" checked> Monday</label>
+                        <label><input type="checkbox" checked> Tuesday</label>
+                        <label><input type="checkbox" checked> Wednesday</label>
+                        <label><input type="checkbox" checked> Thursday</label>
+                        <label><input type="checkbox" checked> Friday</label>
+                        <label><input type="checkbox"> Saturday</label>
+                        <label><input type="checkbox"> Sunday</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="workStart">Work Start Time</label>
+                    <input type="time" id="workStart" class="control-input" value="09:00">
+                </div>
+                <div class="form-group">
+                    <label for="workEnd">Work End Time</label>
+                    <input type="time" id="workEnd" class="control-input" value="17:00">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn-secondary" onclick="resetGeneralSettings()">Reset to Defaults</button>
+        <button class="btn" onclick="saveGeneralSettings()">Save Changes</button>
+    </div>
+</div>
+
+<!-- Other tabs -->
+<div id="security" class="tab-content" style="display: none;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Security Settings</div>
+            <div class="card-subtitle">Configure security policies</div>
+        </div>
+        <div class="card-content" style="padding: 20px;">
+            <p style="color: hsl(var(--muted-foreground));">Security settings will be available here.</p>
+        </div>
+    </div>
+</div>
+
+<div id="notifications" class="tab-content" style="display: none;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Notification Settings</div>
+            <div class="card-subtitle">Configure notification preferences</div>
+        </div>
+        <div class="card-content" style="padding: 20px;">
+            <p style="color: hsl(var(--muted-foreground));">Notification settings will be available here.</p>
+        </div>
+    </div>
+</div>
+
+<div id="integrations" class="tab-content" style="display: none;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Integration Settings</div>
+            <div class="card-subtitle">Manage third-party integrations</div>
+        </div>
+        <div class="card-content" style="padding: 20px;">
+            <p style="color: hsl(var(--muted-foreground));">Integration settings will be available here.</p>
+        </div>
+    </div>
+</div>
+
+<div id="maintenance" class="tab-content" style="display: none;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Maintenance Settings</div>
+            <div class="card-subtitle">System maintenance and cleanup</div>
+        </div>
+        <div class="card-content" style="padding: 20px;">
+            <p style="color: hsl(var(--muted-foreground));">Maintenance settings will be available here.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab navigation
+    function showTab(tabName, btn) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+        document.getElementById(tabName).style.display = 'block';
+        if (btn) btn.classList.add('active');
+    }
+
+    // General settings functions
+    function saveGeneralSettings() {
+        // Add your save logic here
+        alert('Settings saved successfully!');
+    }
+
+    function resetGeneralSettings() {
+        // Add your reset logic here
+        if (confirm('Are you sure you want to reset to default settings?')) {
+            // Reset form fields
+            document.getElementById('systemName').value = 'Employee Management System';
+            document.getElementById('orgName').value = '';
+            // Add more field resets as needed
+        }
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Any initialization code can go here
+    });
+</script>
+{% endblock %}

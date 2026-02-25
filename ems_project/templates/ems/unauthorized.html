@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unauthorized Access - EMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fafb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: #111827;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            overflow: hidden;
+            width: 100%;
+            max-width: 640px;
+            text-align: center;
+        }
+
+        .header {
+            background: #ffffff;
+            color: #111827;
+            padding: 32px 32px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .header .icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 1.75em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.95em;
+            opacity: 0.85;
+        }
+
+        .content {
+            padding: 32px;
+            color: #374151;
+        }
+
+        .content h2 {
+            margin-bottom: 12px;
+            color: #111827;
+            font-size: 1.25em;
+        }
+
+        .content p {
+            margin-bottom: 24px;
+            line-height: 1.6;
+            color: #4b5563;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .btn-primary {
+            background: #E11D48;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #BE123C;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(225, 29, 72, 0.18);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></div>
+            {% if maintenance_mode %}
+            <h1>System Maintenance</h1>
+            <p>The system is currently under maintenance.</p>
+            {% else %}
+            <h1>Access Denied</h1>
+            <p>You don't have permission to access this page</p>
+            {% endif %}
+        </div>
+
+        <div class="content">
+            {% if messages %}
+                {% for message in messages %}
+                <div style="margin-bottom: 16px; padding: 10px 14px; border-radius: 8px; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; text-align: left;">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if maintenance_mode %}
+            <h2>Temporarily Unavailable</h2>
+            <p>{{ maintenance_message|default:"The system is currently under maintenance. Please try again later." }}</p>
+            {% else %}
+            <h2>Unauthorized Access</h2>
+            <p>This page is restricted based on your user role. You need appropriate permissions to access this section of the Employee Management System.</p>
+            {% endif %}
+
+            <div class="actions">
+                <a href="/" class="btn btn-primary">Go to Homepage</a>
+            </div>
+
+            <p style="margin-top: 30px; font-size: 0.9em; color: #718096;">
+                <strong>Need access?</strong> Please contact your system administrator to request the appropriate permissions for your role.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 Employee Management System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

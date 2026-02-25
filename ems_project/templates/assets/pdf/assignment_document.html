@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: A4;
+        margin: 20mm 18mm 25mm 18mm;
+        @bottom-center {
+            content: "Page " counter(page) " of " counter(pages);
+            font-size: 8px;
+            color: #94a3b8;
+        }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #1e293b; line-height: 1.5; }
+
+    /* Header */
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 2px solid #E11D48; margin-bottom: 16px; }
+    .doc-header-left { display: flex; align-items: center; gap: 12px; }
+    .doc-logo { max-height: 48px; max-width: 140px; }
+    .doc-company-name { font-size: 16px; font-weight: 700; color: #0f172a; }
+    .doc-company-details { font-size: 9px; color: #64748b; line-height: 1.4; }
+    .doc-header-right { text-align: right; }
+    .doc-title { font-size: 14px; font-weight: 700; color: #E11D48; text-transform: uppercase; letter-spacing: 1px; }
+    .doc-subtitle { font-size: 9px; color: #64748b; margin-top: 2px; }
+    .doc-ref { font-size: 10px; color: #475569; margin-top: 6px; font-family: 'Courier New', monospace; }
+
+    /* Section */
+    .section { margin-bottom: 16px; }
+    .section-title { font-size: 10px; font-weight: 700; color: #E11D48; text-transform: uppercase; letter-spacing: 0.8px; padding-bottom: 4px; border-bottom: 1px solid #e2e8f0; margin-bottom: 8px; }
+
+    /* Info Grid */
+    .info-grid { display: table; width: 100%; border-collapse: collapse; }
+    .info-row { display: table-row; }
+    .info-label { display: table-cell; width: 140px; padding: 4px 8px; font-size: 9px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; vertical-align: top; }
+    .info-value { display: table-cell; padding: 4px 8px; font-size: 11px; color: #0f172a; vertical-align: top; }
+
+    /* Asset Table */
+    .asset-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    .asset-table th { padding: 6px 8px; text-align: left; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
+    .asset-table td { padding: 8px 8px; border-bottom: 1px solid #f1f5f9; font-size: 11px; }
+    .asset-table .tag { font-family: 'Courier New', monospace; font-size: 10px; font-weight: 600; color: #E11D48; }
+
+    /* Terms */
+    .terms { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 14px; margin-top: 8px; }
+    .terms-title { font-size: 9px; font-weight: 700; color: #0f172a; text-transform: uppercase; margin-bottom: 6px; }
+    .terms ol { padding-left: 16px; }
+    .terms li { font-size: 9px; color: #475569; line-height: 1.6; margin-bottom: 2px; }
+
+    /* Signatures */
+    .sig-grid { display: table; width: 100%; margin-top: 24px; }
+    .sig-col { display: table-cell; width: 50%; padding: 0 12px; vertical-align: top; }
+    .sig-col:first-child { padding-left: 0; }
+    .sig-col:last-child { padding-right: 0; }
+    .sig-label { font-size: 9px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+    .sig-name { font-size: 11px; font-weight: 600; color: #0f172a; margin-bottom: 2px; }
+    .sig-role { font-size: 9px; color: #94a3b8; margin-bottom: 16px; }
+    .sig-line { border-bottom: 1px solid #1e293b; height: 32px; margin-bottom: 4px; }
+    .sig-date-label { font-size: 8px; color: #94a3b8; }
+
+    /* Footer */
+    .doc-footer { margin-top: 20px; padding-top: 10px; border-top: 1px solid #e2e8f0; text-align: center; }
+    .doc-footer p { font-size: 8px; color: #94a3b8; }
+
+    /* Status badge */
+    .status-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 600; }
+    .status-assigned { background: #dbeafe; color: #1e40af; }
+    .condition-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 600; background: #d1fae5; color: #065f46; }
+</style>
+</head>
+<body>
+
+<!-- Document Header -->
+<div class="doc-header">
+    <div class="doc-header-left">
+        {% if logo_b64 %}
+        <img src="{{ logo_b64 }}" class="doc-logo" alt="Company Logo">
+        {% endif %}
+        <div>
+            <div class="doc-company-name">{% if company %}{{ company.name }}{% else %}Company{% endif %}</div>
+            <div class="doc-company-details">
+                {% if company.address %}{{ company.address }}<br>{% endif %}
+                {% if company.phone %}Tel: {{ company.phone }}{% endif %}
+                {% if company.email %} | {{ company.email }}{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="doc-header-right">
+        <div class="doc-title">Asset Assignment Form</div>
+        <div class="doc-subtitle">Inventory Custody Document</div>
+        <div class="doc-ref">Ref: AAF-{{ asset.asset_tag }}-{{ today|date:"Ymd" }}</div>
+    </div>
+</div>
+
+<!-- Assignment Details -->
+<div class="section">
+    <div class="section-title">Assignment Details</div>
+    <div class="info-grid">
+        <div class="info-row">
+            <div class="info-label">Assignment Date</div>
+            <div class="info-value">{{ asset.assigned_date|date:"F d, Y"|default:"--" }}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Expected Return</div>
+            <div class="info-value">{{ asset.return_date|date:"F d, Y"|default:"Until further notice" }}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Assigned By</div>
+            <div class="info-value">{% if assigned_by %}{{ assigned_by.get_full_name }}{% else %}System{% endif %}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Document Date</div>
+            <div class="info-value">{{ today|date:"F d, Y" }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee / Assignee Information -->
+<div class="section">
+    <div class="section-title">Assignee Information</div>
+    <div class="info-grid">
+        <div class="info-row">
+            <div class="info-label">Full Name</div>
+            <div class="info-value" style="font-weight: 600;">{{ employee.get_full_name }}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Employee ID</div>
+            <div class="info-value">{% if emp_profile and emp_profile.employee_id %}{{ emp_profile.employee_id }}{% else %}--{% endif %}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Department</div>
+            <div class="info-value">{% if asset.department %}{{ asset.department.name }}{% elif emp_profile and emp_profile.department %}{{ emp_profile.department.name }}{% else %}--{% endif %}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Position</div>
+            <div class="info-value">{% if emp_profile and emp_profile.position %}{{ emp_profile.position }}{% else %}--{% endif %}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ employee.email|default:"--" }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Asset Details -->
+<div class="section">
+    <div class="section-title">Asset Details</div>
+    <table class="asset-table">
+        <thead>
+            <tr>
+                <th>Asset Tag</th>
+                <th>Description</th>
+                <th>Serial No.</th>
+                <th>Condition</th>
+                <th>Value ({{ currency_symbol }})</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="tag">{{ asset.asset_tag }}</td>
+                <td>
+                    <strong>{{ asset.name }}</strong><br>
+                    <span style="font-size: 9px; color: #64748b;">
+                        {{ asset.get_asset_type_display }}
+                        {% if asset.brand %} | {{ asset.brand }}{% endif %}
+                        {% if asset.model %} {{ asset.model }}{% endif %}
+                    </span>
+                </td>
+                <td style="font-family: 'Courier New', monospace; font-size: 10px;">{{ asset.serial_number|default:"N/A" }}</td>
+                <td><span class="condition-badge">{{ asset.get_condition_display }}</span></td>
+                <td style="font-weight: 600;">{% if asset.purchase_price %}{{ currency_symbol }}{{ asset.purchase_price|floatformat:2 }}{% else %}--{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% if asset.location or asset.notes %}
+    <div class="info-grid" style="margin-top: 8px;">
+        {% if asset.location %}
+        <div class="info-row">
+            <div class="info-label">Location</div>
+            <div class="info-value">{{ asset.location }}</div>
+        </div>
+        {% endif %}
+        {% if asset.notes %}
+        <div class="info-row">
+            <div class="info-label">Notes</div>
+            <div class="info-value">{{ asset.notes }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if custodian %}
+<!-- Custodian Information -->
+<div class="section">
+    <div class="section-title">Department Custodian</div>
+    <div class="info-grid">
+        <div class="info-row">
+            <div class="info-label">Custodian Name</div>
+            <div class="info-value" style="font-weight: 600;">{{ custodian.get_full_name }}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ custodian.email|default:"--" }}</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Terms & Conditions -->
+<div class="section">
+    <div class="terms">
+        <div class="terms-title">Terms of Asset Custody</div>
+        <ol>
+            <li>The assignee acknowledges receipt of the above-listed asset(s) in the condition described.</li>
+            <li>The assignee agrees to use the asset(s) solely for official company business purposes.</li>
+            <li>The assignee is responsible for the safekeeping, proper use, and maintenance of the asset(s).</li>
+            <li>Any damage, loss, or theft must be reported immediately to the department custodian or IT administrator.</li>
+            <li>The asset(s) must be returned in acceptable condition upon request, transfer, or termination of employment.</li>
+            <li>Unauthorized modification, lending, or disposal of the asset(s) is strictly prohibited.</li>
+            <li>The company reserves the right to inspect, recall, or reassign the asset(s) at any time.</li>
+        </ol>
+    </div>
+</div>
+
+<!-- Signatures -->
+<div class="section">
+    <div class="section-title">Acknowledgement & Signatures</div>
+    <p style="font-size: 10px; color: #475569; margin-bottom: 16px;">
+        By signing below, both parties confirm that the asset described above has been handed over and received in the stated condition.
+    </p>
+
+    <div class="sig-grid">
+        <div class="sig-col">
+            <div class="sig-label">Assignee / Recipient</div>
+            <div class="sig-name">{{ employee.get_full_name }}</div>
+            <div class="sig-role">{% if emp_profile and emp_profile.position %}{{ emp_profile.position }}{% else %}Employee{% endif %}</div>
+            <div class="sig-line"></div>
+            <div class="sig-date-label">Signature &amp; Date</div>
+        </div>
+        <div class="sig-col">
+            <div class="sig-label">{% if custodian %}Custodian / Issuer{% else %}Authorized By{% endif %}</div>
+            <div class="sig-name">{% if custodian %}{{ custodian.get_full_name }}{% elif assigned_by %}{{ assigned_by.get_full_name }}{% else %}________________{% endif %}</div>
+            <div class="sig-role">{% if custodian %}Department Custodian{% elif assigned_by %}Administrator{% else %}Authorized Representative{% endif %}</div>
+            <div class="sig-line"></div>
+            <div class="sig-date-label">Signature &amp; Date</div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div class="doc-footer">
+    <p>This document was generated on {{ now|date:"F d, Y \a\t H:i" }} | Ref: AAF-{{ asset.asset_tag }}-{{ today|date:"Ymd" }}</p>
+    <p>{% if company %}{{ company.name }} Asset Management System{% else %}Asset Management System{% endif %}</p>
+</div>
+
+</body>
+</html>

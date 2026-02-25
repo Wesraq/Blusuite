@@ -1,0 +1,459 @@
+{% extends 'ems/blusuite_base.html' %}
+{% load static %}
+
+{% block title %}Staff Suite (EMS) - BluSuite{% endblock %}
+
+{% block headline %}
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h1 style="font-size: 28px; margin: 0 0 8px; color: var(--dark); font-weight: 700;">Staff Suite (EMS)</h1>
+        <p style="margin: 0; color: var(--medium-gray); font-size: 14px;">Complete HR, payroll and workforce management</p>
+    </div>
+    <a href="{% url 'employer_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 4px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.1s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary)'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        Launch EMS
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="suite-layout">
+    <!-- Quick Stats -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Total Employees</span>
+                <strong class="stat-value">{{ stats.total_employees|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Present Today</span>
+                <strong class="stat-value">{{ stats.present_today|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">On Leave</span>
+                <strong class="stat-value">{{ stats.on_leave|default:0 }}</strong>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Pending Requests</span>
+                <strong class="stat-value">{{ stats.pending_requests|default:0 }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Left Column - Main Features -->
+        <div class="main-column">
+            <div class="feature-section">
+                <h2 class="section-title">Core Modules</h2>
+                <div class="feature-grid">
+                    <a href="{% url 'employer_employee_management' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Employee Management</h3>
+                            <p>Manage employee records, profiles and organizational structure</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'attendance_dashboard' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Attendance Tracking</h3>
+                            <p>Monitor employee attendance, clock-ins and work hours</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'leave_management' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Leave Management</h3>
+                            <p>Handle leave requests, approvals and balance tracking</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'payroll_list' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Payroll Processing</h3>
+                            <p>Process salaries, deductions and generate payslips</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'benefits_list' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Benefits Management</h3>
+                            <p>Manage employee benefits, enrollments and eligibility</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'reports_center' %}" class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Reports & Analytics</h3>
+                            <p>Generate comprehensive HR reports and insights</p>
+                        </div>
+                        <div class="feature-arrow">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3L11 8L6 13"></path>
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Quick Actions & Info -->
+        <div class="side-column">
+            <div class="info-card">
+                <h3 class="card-title">Quick Actions</h3>
+                <div class="action-list">
+                    <a href="{% url 'employer_employee_management' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Add New Employee</span>
+                    </a>
+                    <a href="{% url 'payroll_list' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Process Payroll</span>
+                    </a>
+                    <a href="{% url 'leave_management' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        <span>Approve Leave Requests</span>
+                    </a>
+                    <a href="{% url 'reports_center' %}" class="action-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>Generate Reports</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3 class="card-title">Recent Activity</h3>
+                <div class="activity-list">
+                    {% for activity in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-dot"></div>
+                        <div class="activity-content">
+                            <p class="activity-text">{{ activity.description }}</p>
+                            <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="empty-state">No recent activity</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .suite-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+    .stat-box {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: border-color 0.1s ease;
+    }
+    .stat-box:hover {
+        border-color: var(--primary);
+    }
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .stat-label {
+        font-size: 13px;
+        color: var(--medium-gray);
+        font-weight: 500;
+    }
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+    .feature-section {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 24px;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 20px;
+    }
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+    }
+    .feature-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        transition: all 0.1s ease;
+    }
+    .feature-card:hover {
+        border-color: var(--primary);
+        background: rgba(220, 20, 60, 0.02);
+    }
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .feature-content {
+        flex: 1;
+    }
+    .feature-content h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0 0 4px;
+    }
+    .feature-content p {
+        font-size: 13px;
+        color: var(--medium-gray);
+        margin: 0;
+        line-height: 1.4;
+    }
+    .feature-arrow {
+        color: var(--medium-gray);
+        opacity: 0;
+        transition: opacity 0.1s ease;
+    }
+    .feature-card:hover .feature-arrow {
+        opacity: 1;
+    }
+    .info-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 16px;
+    }
+    .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .action-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--dark-gray);
+        font-size: 14px;
+        transition: background 0.1s ease;
+    }
+    .action-item:hover {
+        background: var(--light-gray);
+    }
+    .action-item svg {
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .activity-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    .activity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .activity-content {
+        flex: 1;
+    }
+    .activity-text {
+        font-size: 13px;
+        color: var(--dark-gray);
+        margin: 0 0 4px;
+        line-height: 1.4;
+    }
+    .activity-time {
+        font-size: 12px;
+        color: var(--medium-gray);
+    }
+    .empty-state {
+        text-align: center;
+        color: var(--medium-gray);
+        font-size: 13px;
+        padding: 20px;
+    }
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

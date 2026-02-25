@@ -1,0 +1,180 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}{{ issue.issue_number }} - {{ issue.title }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <a href="{% url 'blu_projects:project_detail' issue.project.id %}" style="color: #64748b; text-decoration: none;">{{ issue.project.name }}</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <a href="{% url 'blu_projects:issue_list' issue.project.id %}" style="color: #1d4ed8; text-decoration: none;">Issues</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <span style="color: #0f172a;">{{ issue.issue_number }}</span>
+</div>
+
+<!-- Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+    <div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span style="font-size: 13px; font-weight: 700; color: #1d4ed8;">{{ issue.issue_number }}</span>
+            {% if issue.priority == 'CRITICAL' %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #fee2e2; color: #991b1b;">Critical</span>
+            {% elif issue.priority == 'HIGH' %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #fed7aa; color: #9a3412;">High</span>
+            {% elif issue.priority == 'MEDIUM' %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #dbeafe; color: #1e40af;">Medium</span>
+            {% else %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569;">Low</span>
+            {% endif %}
+            {% if issue.status == 'OPEN' %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #fee2e2; color: #991b1b;">Open</span>
+            {% elif issue.status == 'ACKNOWLEDGED' %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #dbeafe; color: #1e40af;">Acknowledged</span>
+            {% elif issue.status == 'IN_PROGRESS' %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #fef3c7; color: #92400e;">In Progress</span>
+            {% elif issue.status == 'RESOLVED' %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #d1fae5; color: #065f46;">Resolved</span>
+            {% else %}
+            <span style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569;">{{ issue.get_status_display }}</span>
+            {% endif %}
+        </div>
+        <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a;">{{ issue.title }}</h2>
+    </div>
+    <a href="{% url 'blu_projects:issue_list' issue.project.id %}" style="padding: 7px 14px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Back to Issues
+    </a>
+</div>
+
+<!-- Content Grid -->
+<div style="display: grid; grid-template-columns: 1fr 300px; gap: 16px;">
+    <!-- Main Column -->
+    <div>
+        <!-- Description -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+            <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Description</h3>
+            </div>
+            <div style="padding: 16px 20px;">
+                <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.6;">{{ issue.description }}</p>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Comments ({{ comments.count }})</h3>
+            </div>
+            <div style="padding: 16px 20px;">
+                {% for comment in comments %}
+                <div style="padding: 12px 14px; background: {% if comment.is_internal %}#eff6ff; border-left: 3px solid #3b82f6{% else %}#f8fafc{% endif %}; border-radius: 4px; margin-bottom: 10px;">
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 12px;">
+                        <strong style="color: #0f172a;">{{ comment.user.get_full_name }}</strong>
+                        <span style="color: #94a3b8;">{{ comment.created_at|timesince }} ago</span>
+                        {% if comment.is_internal %}<span style="padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #dbeafe; color: #1e40af;">Internal</span>{% endif %}
+                        {% if comment.is_resolution %}<span style="padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #d1fae5; color: #065f46;">Resolution</span>{% endif %}
+                    </div>
+                    <p style="margin: 0; font-size: 13px; color: #334155; line-height: 1.5;">{{ comment.comment }}</p>
+                </div>
+                {% empty %}
+                <p style="margin: 0; font-size: 13px; color: #94a3b8; text-align: center; padding: 20px 0;">No comments yet.</p>
+                {% endfor %}
+
+                <!-- Add Comment Form -->
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid #e2e8f0;">
+                    <form method="post" action="{% url 'blu_projects:issue_add_comment' issue.id %}">
+                        {% csrf_token %}
+                        <textarea name="comment" rows="3" placeholder="Add a comment..." required style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; margin-bottom: 8px;"></textarea>
+                        {% if can_view_internal %}
+                        <div style="display: flex; gap: 16px; margin-bottom: 10px; font-size: 12px; color: #475569;">
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="checkbox" name="is_internal"> Internal Note</label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;"><input type="checkbox" name="is_resolution"> Mark as Resolution</label>
+                        </div>
+                        {% endif %}
+                        <button type="submit" style="padding: 7px 16px; background: #1d4ed8; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            Add Comment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <!-- Details Card -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Details</h3>
+            </div>
+            <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Status</span><strong style="color: #0f172a;">{{ issue.get_status_display }}</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Priority</span><strong style="color: #0f172a;">{{ issue.get_priority_display }}</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Category</span><strong style="color: #0f172a;">{{ issue.get_category_display }}</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Reported By</span><strong style="color: #0f172a;">{{ issue.reported_by.get_full_name }}</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Reported</span><strong style="color: #0f172a;">{{ issue.reported_at|date:"M j, Y H:i" }}</strong></div>
+                {% if issue.assigned_to %}
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Assigned To</span><strong style="color: #0f172a;">{{ issue.assigned_to.get_full_name }}</strong></div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- SLA Card -->
+        {% if sla_info %}
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">SLA Information</h3>
+            </div>
+            <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Response SLA</span><strong style="color: #0f172a;">{{ sla_info.response_time }}h</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Resolution SLA</span><strong style="color: #0f172a;">{{ sla_info.resolution_time }}h</strong></div>
+                {% if issue.response_sla_breached %}
+                <div style="padding: 6px 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; color: #991b1b; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 5px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    Response SLA Breached
+                </div>
+                {% endif %}
+                {% if issue.resolution_sla_breached %}
+                <div style="padding: 6px 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; color: #991b1b; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 5px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    Resolution SLA Breached
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions Card -->
+        {% if can_view_internal %}
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Actions</h3>
+            </div>
+            <div style="padding: 14px 16px;">
+                <form method="post" action="{% url 'blu_projects:issue_update_status' issue.id %}">
+                    {% csrf_token %}
+                    <label style="display: block; margin-bottom: 4px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Update Status</label>
+                    <select name="status" style="width: 100%; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; margin-bottom: 10px; cursor: pointer;">
+                        <option value="OPEN" {% if issue.status == 'OPEN' %}selected{% endif %}>Open</option>
+                        <option value="ACKNOWLEDGED" {% if issue.status == 'ACKNOWLEDGED' %}selected{% endif %}>Acknowledged</option>
+                        <option value="IN_PROGRESS" {% if issue.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                        <option value="WAITING_CLIENT" {% if issue.status == 'WAITING_CLIENT' %}selected{% endif %}>Waiting for Client</option>
+                        <option value="RESOLVED" {% if issue.status == 'RESOLVED' %}selected{% endif %}>Resolved</option>
+                        <option value="CLOSED" {% if issue.status == 'CLOSED' %}selected{% endif %}>Closed</option>
+                    </select>
+                    <button type="submit" style="width: 100%; padding: 8px 16px; background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;">Update Status</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Billing - EMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Billing & Subscription</h1>
+        <p class="page-subtitle">Manage your payment methods and subscription</p>
+    </div>
+</div>
+
+<div style="max-width: 800px; margin: 0 auto;">
+    <!-- Current Plan -->
+    <div class="content-card" style="margin-bottom: 24px;">
+        <div style="padding: 24px;">
+            <h2 style="margin: 0 0 16px; color: #1e293b;">Current Subscription</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8fafc; border-radius: 8px;">
+                <div>
+                    <div style="font-size: 18px; font-weight: 600; color: #1e293b;">Professional Plan</div>
+                    <div style="color: #64748b; margin-top: 4px;">$29.99/month • Up to 500 employees</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="color: #10b981; font-weight: 600;">Active</div>
+                    <div style="color: #64748b; font-size: 14px;">Renews Mar 15, 2026</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Methods -->
+    <div class="content-card" style="margin-bottom: 24px;">
+        <div style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 style="margin: 0; color: #1e293b;">Payment Methods</h2>
+                <button class="btn-primary" onclick="addPaymentMethod()">
+                    Add Payment Method
+                </button>
+            </div>
+            
+            <div style="padding: 16px; background: #f8fafc; border-radius: 8px; border: 2px dashed #cbd5e1;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 32px; background: #dbeafe; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 12px; font-weight: 600; color: #1e40af;">VISA</span>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1e293b;">•••• 4242</div>
+                        <div style="color: #64748b; font-size: 14px;">Expires 12/24</div>
+                    </div>
+                    <div style="color: #10b981; font-weight: 600;">Default</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Billing History -->
+    <div class="content-card">
+        <div style="padding: 24px;">
+            <h2 style="margin: 0 0 16px; color: #1e293b;">Billing History</h2>
+            
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e2e8f0;">
+                            <th style="text-align: left; padding: 12px; color: #64748b; font-weight: 600;">Date</th>
+                            <th style="text-align: left; padding: 12px; color: #64748b; font-weight: 600;">Description</th>
+                            <th style="text-align: left; padding: 12px; color: #64748b; font-weight: 600;">Amount</th>
+                            <th style="text-align: left; padding: 12px; color: #64748b; font-weight: 600;">Status</th>
+                            <th style="text-align: left; padding: 12px; color: #64748b; font-weight: 600;">Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 12px; color: #475569;">Feb 15, 2026</td>
+                            <td style="padding: 12px; color: #475569;">Professional Plan - Monthly</td>
+                            <td style="padding: 12px; color: #475569; font-weight: 600;">$29.99</td>
+                            <td style="padding: 12px;">
+                                <span style="background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">Paid</span>
+                            </td>
+                            <td style="padding: 12px;">
+                                <a href="#" style="color: #008080; text-decoration: none; font-weight: 500;">Download</a>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 12px; color: #475569;">Jan 15, 2026</td>
+                            <td style="padding: 12px; color: #475569;">Professional Plan - Monthly</td>
+                            <td style="padding: 12px; color: #475569; font-weight: 600;">$29.99</td>
+                            <td style="padding: 12px;">
+                                <span style="background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">Paid</span>
+                            </td>
+                            <td style="padding: 12px;">
+                                <a href="#" style="color: #008080; text-decoration: none; font-weight: 500;">Download</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addPaymentMethod() {
+    alert('Payment method management would be implemented here');
+}
+</script>
+{% endblock %}

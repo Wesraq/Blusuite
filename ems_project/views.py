@@ -17,10 +17,10 @@ from .serializers import (
     PerformanceFeedbackSerializer, PerformanceTemplateSerializer
 )
 
-from accounts.models import EmployeeProfile, EmployerProfile
-from attendance.models import Attendance, LeaveRequest
-from documents.models import DocumentCategory, EmployeeDocument, DocumentTemplate, DocumentAccessLog
-from performance.models import (
+from blu_staff.apps.accounts.models import EmployeeProfile, EmployerProfile
+from blu_staff.apps.attendance.models import Attendance, LeaveRequest
+from blu_staff.apps.documents.models import DocumentCategory, EmployeeDocument, DocumentTemplate, DocumentAccessLog
+from blu_staff.apps.performance.models import (
     PerformanceReview, PerformanceGoal, PerformanceMetric,
     PerformanceFeedback, PerformanceTemplate
 )

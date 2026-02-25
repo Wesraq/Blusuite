@@ -1,0 +1,181 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Bulk Employee Import - EMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bi-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 16px; transition: border-color .15s, box-shadow .15s; }
+    .bi-card:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.10); }
+    .bi-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; font-size: 14px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .bi-card-body { padding: 20px; }
+    .bi-btn {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 9px 18px; border-radius: 4px; font-size: 13px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .bi-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .bi-btn-primary:hover { background: #be123c; border-color: #be123c; }
+    .bi-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .bi-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .bi-btn-success { background: #10b981; color: #fff; border-color: #10b981; }
+    .bi-btn-success:hover { background: #059669; border-color: #059669; }
+    .bi-table { width: 100%; border-collapse: collapse; }
+    .bi-table th { padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .bi-table td { padding: 10px 12px; border: 1px solid #e2e8f0; font-size: 13px; }
+    .bi-badge-req { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+    .bi-badge-opt { background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+    .bi-upload-zone {
+        border: 2px dashed #cbd5e1; border-radius: 4px; padding: 40px; text-align: center;
+        background: #f8fafc; transition: border-color 0.2s, background 0.2s;
+    }
+    .bi-upload-zone:hover { border-color: #e11d48; background: #fff1f2; }
+    .bi-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .bi-step:last-child { border-bottom: none; }
+    .bi-step-num {
+        width: 28px; height: 28px; background: #e11d48; color: #fff; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">Bulk Employee Import</h1>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">Import multiple employees at once using CSV file</p>
+        </div>
+        <a href="{% url 'employer_employee_management' %}" class="bi-btn bi-btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to Employees
+        </a>
+    </div>
+</div>
+
+<!-- Messages -->
+{% if messages %}
+<div style="margin-bottom: 16px;">
+    {% for message in messages %}
+    <div style="padding: 12px 16px; border-radius: 4px; margin-bottom: 8px; border: 1px solid; display: flex; align-items: center; gap: 10px;
+        {% if message.tags == 'success' %}background: #d1fae5; color: #065f46; border-color: #10b981;
+        {% elif message.tags == 'error' %}background: #fee2e2; color: #991b1b; border-color: #ef4444;
+        {% else %}background: #fef3c7; color: #92400e; border-color: #f59e0b;{% endif %}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            {% if message.tags == 'success' %}<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            {% elif message.tags == 'error' %}<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            {% else %}<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>{% endif %}
+        </svg>
+        <span style="font-size: 13px;">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Instructions -->
+<div class="bi-card">
+    <div class="bi-card-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        How to Import
+    </div>
+    <div class="bi-card-body">
+        <div class="bi-step">
+            <span class="bi-step-num">1</span>
+            <div style="font-size: 13px;"><strong>Download Template</strong> &mdash; Click below to get the CSV template</div>
+        </div>
+        <div class="bi-step">
+            <span class="bi-step-num">2</span>
+            <div style="font-size: 13px;"><strong>Fill Data</strong> &mdash; Open in Excel/Sheets and fill employee details</div>
+        </div>
+        <div class="bi-step">
+            <span class="bi-step-num">3</span>
+            <div style="font-size: 13px;"><strong>Save as CSV</strong> &mdash; Save in CSV format (not .xlsx)</div>
+        </div>
+        <div class="bi-step">
+            <span class="bi-step-num">4</span>
+            <div style="font-size: 13px;"><strong>Upload</strong> &mdash; Upload the completed CSV file below</div>
+        </div>
+        <div class="bi-step">
+            <span class="bi-step-num">5</span>
+            <div style="font-size: 13px;"><strong>Review</strong> &mdash; Check import results and fix any errors</div>
+        </div>
+        <div style="margin-top: 16px;">
+            <a href="data:text/csv;charset=utf-8,email,first_name,last_name,employee_id,job_title,department,phone_number,date_hired%0Ajohn.doe@example.com,John,Doe,EMP001,Software Engineer,IT,+1234567890,2024-01-15%0A" 
+               download="employee_import_template.csv" class="bi-btn bi-btn-success">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download CSV Template
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- CSV Format Reference -->
+<div class="bi-card">
+    <div class="bi-card-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        CSV Format Reference
+    </div>
+    <div class="bi-card-body">
+        <div style="overflow-x: auto;">
+        <table class="bi-table">
+            <thead>
+                <tr><th>Column</th><th>Required</th><th>Description</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-size: 12px;">email</code></td><td><span class="bi-badge-req">Required</span></td><td>Employee email (unique)</td><td>john.doe@example.com</td></tr>
+                <tr><td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-size: 12px;">first_name</code></td><td><span class="bi-badge-req">Required</span></td><td>First name</td><td>John</td></tr>
+                <tr><td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-size: 12px;">last_name</code></td><td><span class="bi-badge-req">Required</span></td><td>Last name</td><td>Doe</td></tr>
+                <tr><td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-size: 12px;">employee_id</code></td><td><span class="bi-badge-opt">Optional</span></td><td>Company employee ID</td><td>EMP001</td></tr>
+                <tr><td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-size: 12px;">job_title</code></td><td><span class="bi-badge-opt">Optional</span></td><td>Job title/position</td><td>Software Engineer</td></tr>
+                <tr><td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-size: 12px;">department</code></td><td><span class="bi-badge-opt">Optional</span></td><td>Department name</td><td>IT</td></tr>
+                <tr><td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-size: 12px;">phone_number</code></td><td><span class="bi-badge-opt">Optional</span></td><td>Contact number</td><td>+1234567890</td></tr>
+                <tr><td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-size: 12px;">date_hired</code></td><td><span class="bi-badge-opt">Optional</span></td><td>Hire date (YYYY-MM-DD)</td><td>2024-01-15</td></tr>
+            </tbody>
+        </table>
+        </div>
+        
+        <div style="margin-top: 16px; padding: 12px 16px; background: #fef3c7; border: 1px solid #f59e0b; border-left: 3px solid #f59e0b; border-radius: 4px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <strong style="font-size: 13px; color: #92400e;">Important Notes</strong>
+            </div>
+            <ul style="margin: 0; padding-left: 18px; color: #92400e; font-size: 12px; line-height: 1.8;">
+                <li>Temporary password: <code style="background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 3px;">TempPass123!</code></li>
+                <li>Employees should reset password on first login</li>
+                <li>Duplicate emails will be skipped</li>
+                <li>CSV must use UTF-8 encoding</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Form -->
+<div class="bi-card">
+    <div class="bi-card-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload CSV File
+    </div>
+    <div class="bi-card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="bi-upload-zone">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="display: block; margin: 0 auto 12px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">Choose CSV File</div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 14px;">Click to browse or drag and drop</div>
+                <input type="file" name="file" accept=".csv" required 
+                       style="display: block; margin: 0 auto; max-width: 360px; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px; background: #fff; font-size: 13px;" 
+                       onchange="this.form.querySelector('.file-name').textContent = this.files[0]?.name || 'No file selected'; this.form.querySelector('.file-name').style.color = this.files[0] ? '#10b981' : '#64748b';">
+                <div class="file-name" style="margin-top: 8px; color: #64748b; font-size: 12px;">No file selected</div>
+            </div>
+            <div style="text-align: center; margin-top: 16px;">
+                <button type="submit" class="bi-btn bi-btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload & Import
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

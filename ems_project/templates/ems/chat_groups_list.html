@@ -1,0 +1,81 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Chat Groups - BLU Suite{% endblock %}
+
+{% block extra_css %}
+<style>
+.cg-page { display: flex; flex-direction: column; gap: 20px; }
+.cg-header h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; color: #0f172a; }
+.cg-header p { margin: 0; font-size: 14px; color: #64748b; }
+.cg-grid { display: flex; flex-direction: column; gap: 12px; }
+.cg-card { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+.cg-card:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.10); }
+.cg-icon { width: 44px; height: 44px; border-radius: 10px; background: #1e293b; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+.cg-body { flex: 1; min-width: 0; }
+.cg-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.cg-name { margin: 0; font-size: 15px; font-weight: 600; color: #0f172a; }
+.cg-private-badge { display: inline-flex; align-items: center; gap: 4px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.cg-desc { margin: 0 0 6px; font-size: 13px; color: #64748b; line-height: 1.4; }
+.cg-meta { display: flex; align-items: center; gap: 14px; font-size: 12px; color: #94a3b8; }
+.cg-meta svg { vertical-align: middle; margin-right: 3px; }
+.cg-unread { background: #e11d48; color: #fff; min-width: 22px; height: 22px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; flex-shrink: 0; }
+.cg-empty { text-align: center; padding: 60px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; }
+.cg-empty svg { color: #cbd5e1; margin-bottom: 12px; }
+.cg-empty h3 { margin: 0 0 6px; color: #64748b; font-size: 16px; font-weight: 600; }
+.cg-empty p { margin: 0; color: #94a3b8; font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cg-page">
+    <div class="cg-header">
+        <h2>Chat Groups</h2>
+        <p>Collaborate with your teams</p>
+    </div>
+
+    {% if my_groups %}
+    <div class="cg-grid">
+        {% for group in my_groups %}
+        <a href="{% url 'chat_group_detail' group.id %}" class="cg-card">
+            <div class="cg-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="cg-body">
+                <div class="cg-name-row">
+                    <h3 class="cg-name">{{ group.name }}</h3>
+                    {% if group.is_private %}
+                    <span class="cg-private-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Private
+                    </span>
+                    {% endif %}
+                </div>
+                {% if group.description %}
+                <p class="cg-desc">{{ group.description|truncatewords:15 }}</p>
+                {% endif %}
+                <div class="cg-meta">
+                    <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        {{ group.members.count }} member{{ group.members.count|pluralize }}
+                    </span>
+                    {% if group.created_by %}
+                    <span>Created by {{ group.created_by.get_full_name }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if group.unread_count > 0 %}
+            <span class="cg-unread">{{ group.unread_count }}</span>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="cg-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <h3>No groups yet</h3>
+        <p>You're not a member of any chat groups</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

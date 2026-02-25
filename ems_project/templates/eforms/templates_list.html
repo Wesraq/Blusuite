@@ -1,0 +1,159 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Form Templates - EMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ef-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 16px; border-radius: 4px; font-size: 13px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .ef-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .ef-btn-primary:hover { background: #be123c; border-color: #be123c; }
+    .ef-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .ef-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .ef-btn-success { background: #10b981; color: #fff; border-color: #10b981; }
+    .ef-btn-success:hover { background: #059669; border-color: #059669; }
+    .ef-btn-sm { padding: 5px 12px; font-size: 12px; }
+    .ef-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; }
+    .ef-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; font-size: 14px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .ef-card-body { padding: 20px; }
+    .ef-input {
+        padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px;
+        font-size: 13px; font-family: inherit; width: 100%; transition: border-color 0.15s;
+    }
+    .ef-input:focus { outline: none; border-color: #e11d48; box-shadow: 0 0 0 2px rgba(225,29,72,0.08); }
+    select.ef-input {
+        cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 10px center; background-repeat: no-repeat; background-size: 14px; padding-right: 32px;
+    }
+    .ef-label { font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 4px; display: block; }
+    .ef-badge { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .ef-template-row { padding: 16px; border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
+    .ef-template-row:last-child { border-bottom: none; }
+    .ef-template-row:hover { background: #fafbfc; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">E-Forms Templates</h1>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">Create and manage digital form templates</p>
+        </div>
+        <a href="{% url 'form_template_create' %}" class="ef-btn ef-btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create Template
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="ef-card" style="padding: 16px; margin-bottom: 16px;">
+    <form method="GET" style="display: flex; gap: 12px; align-items: end;">
+        <div style="flex: 1;">
+            <label class="ef-label">Category</label>
+            <select name="category" class="ef-input">
+                <option value="">All Categories</option>
+                {% for value, label in categories %}
+                <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <label class="ef-label">Status</label>
+            <select name="status" class="ef-input">
+                <option value="">All Status</option>
+                <option value="DRAFT" {% if selected_status == 'DRAFT' %}selected{% endif %}>Draft</option>
+                <option value="ACTIVE" {% if selected_status == 'ACTIVE' %}selected{% endif %}>Active</option>
+                <option value="ARCHIVED" {% if selected_status == 'ARCHIVED' %}selected{% endif %}>Archived</option>
+            </select>
+        </div>
+        <button type="submit" class="ef-btn ef-btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filter
+        </button>
+        <a href="{% url 'form_templates_list' %}" class="ef-btn ef-btn-secondary">Clear</a>
+    </form>
+</div>
+
+<!-- Templates List -->
+<div class="ef-card">
+    <div class="ef-card-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Form Templates ({{ templates|length }})
+    </div>
+    <div>
+        {% if templates %}
+            {% for template in templates %}
+            <div class="ef-template-row">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #0f172a; font-size: 14px; margin-bottom: 3px;">{{ template.title }}</div>
+                        <div style="font-size: 12px; color: #64748b; margin-bottom: 6px;">{{ template.description|truncatewords:20 }}</div>
+                        <div style="display: flex; gap: 8px; align-items: center; font-size: 11px; color: #94a3b8; flex-wrap: wrap;">
+                            <span>{{ template.get_category_display }}</span>
+                            <span>&middot;</span>
+                            <span>{{ template.created_at|date:"M d, Y" }}</span>
+                            {% if template.requires_signature %}
+                            <span>&middot;</span>
+                            <span style="color: #3b82f6; display: inline-flex; align-items: center; gap: 3px;">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                Signature
+                            </span>
+                            {% endif %}
+                            {% if template.requires_approval %}
+                            <span>&middot;</span>
+                            <span style="color: #f59e0b; display: inline-flex; align-items: center; gap: 3px;">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Approval
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if template.status == 'ACTIVE' %}
+                    <span class="ef-badge" style="background: #d1fae5; color: #065f46;">Active</span>
+                    {% elif template.status == 'DRAFT' %}
+                    <span class="ef-badge" style="background: #fef3c7; color: #92400e;">Draft</span>
+                    {% else %}
+                    <span class="ef-badge" style="background: #f1f5f9; color: #64748b;">Archived</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <a href="{% url 'form_builder' template.id %}" class="ef-btn ef-btn-primary ef-btn-sm">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Builder
+                    </a>
+                    <a href="{% url 'form_template_edit' template.id %}" class="ef-btn ef-btn-secondary ef-btn-sm">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        Settings
+                    </a>
+                    {% if template.status == 'ACTIVE' %}
+                    <a href="{% url 'form_fill' template.id %}" class="ef-btn ef-btn-success ef-btn-sm">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Fill Form
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div style="text-align: center; padding: 48px 20px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" style="margin: 0 auto 12px; display: block;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <p style="font-size: 14px; margin: 0 0 4px; color: #64748b; font-weight: 600;">No form templates found</p>
+            <p style="font-size: 12px; margin: 0 0 16px; color: #94a3b8;">Get started by creating your first digital form template</p>
+            <a href="{% url 'form_template_create' %}" class="ef-btn ef-btn-primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Create Your First Template
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

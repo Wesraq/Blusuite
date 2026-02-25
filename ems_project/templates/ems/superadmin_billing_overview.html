@@ -1,0 +1,241 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Billing Overview - System Owner{% endblock %}
+{% block nav_dashboard %}{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <!-- Header -->
+    <div class="content-card" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <h3 class="card-title">Billing Overview</h3>
+            <div class="card-subtitle">Plans, trials and license status across all companies</div>
+        </div>
+        <div class="card-body">
+            <p style="margin: 0; font-size: 14px; color:#64748b;">
+                This view summarizes tenant billing state for the entire platform. Use it to track active trials,
+                upcoming renewals and expired licenses, then jump into a specific company profile when needed.
+            </p>
+        </div>
+    </div>
+
+    <!-- Top metrics -->
+    <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Total Companies</div>
+                <div class="card-subtitle">Approved & active tenants</div>
+            </div>
+            <div class="card-content">
+                <div style="display:flex; justify-content: space-between; align-items:center;">
+                    <div>
+                        <div style="font-size: 26px; font-weight:700; color:#1e293b;">{{ total_companies|default:"0" }}</div>
+                        <div style="font-size: 12px; color:#64748b;">As of {{ today|date:"M j, Y" }}</div>
+                    </div>
+                    <div style="width:40px; height:40px; border-radius:999px; background:#e0f2fe; display:flex; align-items:center; justify-content:center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Trials</div>
+                <div class="card-subtitle">Evaluation tenants</div>
+            </div>
+            <div class="card-content">
+                <div style="margin-bottom: 6px; font-size: 14px; color:#111827;">
+                    <strong>{{ trial_count|default:"0" }}</strong> active trials
+                </div>
+                <div style="font-size: 13px; color:#64748b;">
+                    Trials ending in 30 days: <strong>{{ expiring_soon_count|default:"0" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Paid Tenants</div>
+                <div class="card-subtitle">Non-trial companies</div>
+            </div>
+            <div class="card-content">
+                <div style="margin-bottom: 6px; font-size: 14px; color:#111827;">
+                    <strong>{{ paid_count|default:"0" }}</strong> paid companies
+                </div>
+                <div style="font-size: 13px; color:#64748b;">
+                    Active &amp; not expired: <strong>{{ active_paid_count|default:"0" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">At-Risk Tenants</div>
+                <div class="card-subtitle">Expiring or expired</div>
+            </div>
+            <div class="card-content">
+                <div style="margin-bottom: 6px; font-size: 14px; color:#111827;">
+                    <strong>{{ expiring_soon_count|default:"0" }}</strong> expiring in 30 days
+                </div>
+                <div style="font-size: 13px; color:#b91c1c;">
+                    <strong>{{ expired_count|default:"0" }}</strong> already expired
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- At-risk companies table -->
+    <div class="content-card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <div class="card-title">At-Risk Companies</div>
+            <div class="card-subtitle">Trials and licenses expiring soon or already expired</div>
+        </div>
+        <div class="card-content">
+            <div class="table-responsive">
+                <table class="data-table company-table">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Plan</th>
+                            <th>Billing</th>
+                            <th>Status</th>
+                            <th>Ends</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for company in at_risk_companies %}
+                        <tr>
+                            <td>{{ company.name }}</td>
+                            <td>
+                                {% if company.subscription_plan %}
+                                    {{ company.get_subscription_plan_display }}
+                                {% else %}-{% endif %}
+                            </td>
+                            <td>
+                                {% if company.registration_request %}
+                                    {{ company.registration_request.get_billing_preference_display }}
+                                {% else %}
+                                    Not set
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if company.id in expired_ids %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:600; text-transform:uppercase;">Expired</span>
+                                {% elif company.id in expiring_soon_ids %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">Expiring Soon</span>
+                                {% elif company.id in trial_ids %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#dbeafe; color:#1d4ed8; font-size:11px; font-weight:600; text-transform:uppercase;">Trial</span>
+                                {% else %}
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#dcfce7; color:#166534; font-size:11px; font-weight:600; text-transform:uppercase;">Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if company.is_trial and company.trial_ends_at %}
+                                    {{ company.trial_ends_at|date:"M j, Y" }}
+                                {% elif company.license_expiry %}
+                                    {{ company.license_expiry|date:"M j, Y" }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="/company/{{ company.id }}/" class="btn btn-secondary btn-sm">Profile</a>
+                                    <a href="/companies/{{ company.id }}/edit/" class="btn btn-outline-primary btn-sm">Edit</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No at-risk companies at the moment.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breakdown tables -->
+    <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Companies by Plan</div>
+                <div class="card-subtitle">Distribution across subscription plans</div>
+            </div>
+            <div class="card-content">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Companies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in plan_breakdown %}
+                            <tr>
+                                <td>
+                                    {% if row.subscription_plan %}
+                                        {% for value,label in plan_choices %}
+                                            {% if row.subscription_plan == value %}{{ label }}{% endif %}
+                                        {% endfor %}
+                                    {% else %}-{% endif %}
+                                </td>
+                                <td>{{ row.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">No companies found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Companies by Billing Preference</div>
+                <div class="card-subtitle">Trial, monthly and yearly distribution</div>
+            </div>
+            <div class="card-content">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Billing</th>
+                                <th>Companies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in billing_breakdown %}
+                            <tr>
+                                <td>
+                                    {% if row.registration_request__billing_preference %}
+                                        {% for value,label in billing_choices %}
+                                            {% if row.registration_request__billing_preference == value %}{{ label }}{% endif %}
+                                        {% endfor %}
+                                    {% else %}Not set{% endif %}
+                                </td>
+                                <td>{{ row.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">No billing data available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+
+{% block title %}Employee Roster Report - EMS{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.report-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.report-stat {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) - 2px);
+    padding: 20px;
+    text-align: center;
+}
+.report-stat h3 {
+    font-size: 28px;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0 0 4px;
+}
+.report-stat p {
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
+    font-weight: 500;
+}
+.report-stat .stat-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Employee Roster Report</h2>
+        <p>Workforce analytics - headcount, department distribution, tenure analysis, and hiring trends</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'export_employee_roster' %}" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print
+        </button>
+        <a href="{% url 'reports_center' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Reports
+        </a>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="report-stats">
+    <div class="report-stat">
+        <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h3>{{ total }}</h3>
+        <p>Total Employees</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <h3>{{ active }}</h3>
+        <p>Active</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(225, 29, 72, 0.12); color: #e11d48;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <h3>{{ inactive }}</h3>
+        <p>Inactive</p>
+    </div>
+    <div class="report-stat">
+        <div class="stat-icon" style="background: rgba(225, 29, 72, 0.08); color: #e11d48;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        </div>
+        <h3>{{ new_hires_30d }}</h3>
+        <p>New Hires (30d)</p>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Headcount by Department</div>
+            <div class="card-subtitle">Active employees per department</div>
+        </div>
+        <div class="card-content">
+            {% if dept_breakdown %}
+            <canvas id="deptChart" height="220"></canvas>
+            {% else %}
+            <p style="text-align: center; color: hsl(var(--muted-foreground)); padding: 40px 0;">No department data available</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Employment Type Distribution</div>
+            <div class="card-subtitle">Breakdown by contract type</div>
+        </div>
+        <div class="card-content">
+            {% if type_breakdown %}
+            <canvas id="typeChart" height="220"></canvas>
+            {% else %}
+            <p style="text-align: center; color: hsl(var(--muted-foreground)); padding: 40px 0;">No employment type data available</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Employee Tenure Distribution</div>
+            <div class="card-subtitle">Length of service breakdown</div>
+        </div>
+        <div class="card-content">
+            <canvas id="tenureChart" height="220"></canvas>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Monthly Hiring Trend</div>
+            <div class="card-subtitle">New hires over the last 6 months</div>
+        </div>
+        <div class="card-content">
+            <canvas id="hireTrendChart" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Tables Row -->
+<div class="content-grid" style="margin-bottom: 24px;">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Department Summary</div>
+            <div class="card-subtitle">Headcount and percentage per department</div>
+        </div>
+        <div class="card-content" style="padding: 0;">
+            <table class="attendance-table">
+                <thead><tr><th>Department</th><th style="text-align: right;">Headcount</th><th style="text-align: right;">% of Total</th></tr></thead>
+                <tbody>
+                    {% for dept in dept_breakdown %}
+                    <tr>
+                        <td><strong>{{ dept.name }}</strong></td>
+                        <td style="text-align: right;">{{ dept.count }}</td>
+                        <td style="text-align: right;">{% widthratio dept.count active 100 %}%</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align: center; padding: 24px; color: hsl(var(--muted-foreground));">No department data</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Recent Hires</div>
+            <div class="card-subtitle">Employees hired in the last 30 days</div>
+        </div>
+        <div class="card-content" style="padding: 0;">
+            <table class="attendance-table">
+                <thead><tr><th>Name</th><th>Department</th><th>Job Title</th><th>Date Hired</th></tr></thead>
+                <tbody>
+                    {% for emp in recent_hires %}
+                    <tr>
+                        <td><strong>{{ emp.get_full_name }}</strong></td>
+                        <td>{{ emp.employee_profile.department|default:"-" }}</td>
+                        <td>{{ emp.employee_profile.job_title|default:"-" }}</td>
+                        <td>{{ emp.employee_profile.date_hired|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align: center; padding: 24px; color: hsl(var(--muted-foreground));">No new hires in the last 30 days</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chartColors = ['#e11d48','#1e293b','#64748b','#94a3b8','#cbd5e1','#f43f5e','#334155','#475569','#be123c','#0f172a'];
+
+    {% if dept_breakdown %}
+    new Chart(document.getElementById('deptChart'), {
+        type: 'bar',
+        data: { labels: {{ dept_labels|safe }}, datasets: [{ label: 'Employees', data: {{ dept_counts|safe }}, backgroundColor: chartColors, borderRadius: 6 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+    {% endif %}
+
+    {% if type_breakdown %}
+    new Chart(document.getElementById('typeChart'), {
+        type: 'doughnut',
+        data: { labels: {{ type_labels|safe }}, datasets: [{ data: {{ type_counts|safe }}, backgroundColor: chartColors }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+    {% endif %}
+
+    new Chart(document.getElementById('tenureChart'), {
+        type: 'bar',
+        data: { labels: {{ tenure_labels|safe }}, datasets: [{ label: 'Employees', data: {{ tenure_counts|safe }}, backgroundColor: '#1e293b', borderRadius: 6 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+
+    new Chart(document.getElementById('hireTrendChart'), {
+        type: 'line',
+        data: { labels: {{ hire_trend_labels|safe }}, datasets: [{ label: 'New Hires', data: {{ hire_trend_data|safe }}, borderColor: '#e11d48', backgroundColor: 'rgba(225,29,72,0.08)', fill: true, tension: 0.3 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+});
+</script>
+{% endblock %}

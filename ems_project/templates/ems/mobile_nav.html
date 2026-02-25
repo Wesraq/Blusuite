@@ -1,0 +1,418 @@
+<!-- Mobile Navigation Component -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<!-- Mobile Menu Button (shown in top header) -->
+<button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+</button>
+
+<!-- Enhanced Mobile Sidebar -->
+<aside class="sidebar" id="mobileSidebar">
+    <!-- Mobile Header -->
+    <div class="mobile-nav-header">
+        <div class="mobile-user-info">
+            <div class="mobile-avatar">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile">
+                {% else %}
+                    <div class="avatar-placeholder">{{ user.first_name.0|default:user.email.0|upper }}</div>
+                {% endif %}
+            </div>
+            <div class="mobile-user-details">
+                <div class="mobile-user-name">{{ user.get_full_name|default:user.email }}</div>
+                <div class="mobile-user-role">{{ user.get_role_display }}</div>
+                {% if user.company %}
+                <div class="mobile-company">{{ user.company.name }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <button class="mobile-close-btn" onclick="toggleMobileMenu()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <nav class="mobile-nav-menu">
+        {% if user.role == 'EMPLOYEE' %}
+        <!-- Employee Navigation -->
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">Dashboard</div>
+            <a href="{% url 'employee_dashboard' %}" class="mobile-nav-link{% if request.path == '/employee/' %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>My Dashboard</span>
+            </a>
+        </div>
+
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">Time & Attendance</div>
+            <a href="{% url 'employee_attendance_view' %}" class="mobile-nav-link{% if 'attendance' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>My Attendance</span>
+            </a>
+            <a href="{% url 'employee_leave_request' %}" class="mobile-nav-link{% if 'leave' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Leave Requests</span>
+            </a>
+        </div>
+
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">My Files</div>
+            <a href="{% url 'documents_list' %}" class="mobile-nav-link{% if 'documents' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span>My Documents</span>
+            </a>
+        </div>
+
+        {% elif user.role in 'ADMINISTRATOR,EMPLOYER_ADMIN' %}
+        <!-- Admin Navigation -->
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">Dashboard</div>
+            <a href="{% url 'employer_dashboard' %}" class="mobile-nav-link{% if request.path == '/employer/' %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">People Management</div>
+            <a href="{% url 'employer_employee_management' %}" class="mobile-nav-link{% if 'employee' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Employees</span>
+            </a>
+            <a href="{% url 'attendance_dashboard' %}" class="mobile-nav-link{% if 'attendance' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Attendance</span>
+            </a>
+        </div>
+
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">Company</div>
+            <a href="{% url 'branch_management' %}" class="mobile-nav-link{% if 'branch' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Branches</span>
+            </a>
+            {% comment "PERFORMANCE MODULE DISABLED - Will be added in future version" %}
+            <a href="{% url 'performance_reviews_list' %}" class="mobile-nav-link{% if 'performance' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span>Performance</span>
+            </a>
+            {% endcomment %}
+        </div>
+
+        {% elif user.role == 'SUPERADMIN' %}
+        <!-- Super Admin Navigation -->
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">System Management</div>
+            <a href="{% url 'superadmin_dashboard' %}" class="mobile-nav-link{% if 'superadmin' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'company_list' %}" class="mobile-nav-link{% if 'companies' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Tenants</span>
+            </a>
+            <a href="{% url 'user_management' %}" class="mobile-nav-link{% if 'users' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Users</span>
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Common sections for all users -->
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">Communication</div>
+            <a href="{% url 'direct_messages_list' %}" class="mobile-nav-link{% if 'message' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Messages</span>
+            </a>
+            <a href="{% url 'notifications_list' %}" class="mobile-nav-link{% if 'notifications' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span>Notifications</span>
+                {% if unread_notifications_count %}
+                <span class="mobile-badge">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </a>
+        </div>
+
+        <!-- Settings & Logout -->
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-title">Account</div>
+            <a href="{% url 'settings_hub' %}" class="mobile-nav-link{% if 'settings' in request.path %} active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v6m0 6v6m0-12l-4 4m8 0l-4-4m-4 16l4-4m8 0l-4 4"></path>
+                </svg>
+                <span>Settings</span>
+            </a>
+            <a href="{% url 'ems_logout' %}" class="mobile-nav-link mobile-logout">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Sign Out</span>
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<style>
+/* Mobile Navigation Styles */
+@media screen and (max-width: 768px) {
+    .mobile-nav-header {
+        padding: 20px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+    }
+    
+    .mobile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .mobile-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #E11D48;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .mobile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .avatar-placeholder {
+        color: white;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .mobile-user-details {
+        flex: 1;
+    }
+    
+    .mobile-user-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 2px;
+    }
+    
+    .mobile-user-role {
+        font-size: 12px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .mobile-company {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+    
+    .mobile-close-btn {
+        background: none;
+        border: none;
+        padding: 8px;
+        cursor: pointer;
+        color: #64748b;
+        border-radius: 4px;
+    }
+    
+    .mobile-close-btn:hover {
+        background: #f1f5f9;
+        color: #E11D48;
+    }
+    
+    .mobile-nav-menu {
+        padding: 16px 0;
+        height: calc(100vh - 120px);
+        overflow-y: auto;
+    }
+    
+    .mobile-nav-section {
+        margin-bottom: 24px;
+    }
+    
+    .mobile-nav-title {
+        padding: 8px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 1px solid #f1f5f9;
+        margin-bottom: 8px;
+    }
+    
+    .mobile-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: #64748b;
+        text-decoration: none;
+        transition: all 0.2s;
+        position: relative;
+    }
+    
+    .mobile-nav-link:hover {
+        background: #f8fafc;
+        color: #E11D48;
+    }
+    
+    .mobile-nav-link.active {
+        background: #fef2f2;
+        color: #E11D48;
+        border-right: 3px solid #E11D48;
+    }
+    
+    .mobile-nav-link span {
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .mobile-nav-link svg {
+        flex-shrink: 0;
+    }
+    
+    .mobile-badge {
+        background: #E11D48;
+        color: white;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 10px;
+        margin-left: auto;
+    }
+    
+    .mobile-logout {
+        border-top: 1px solid #e2e8f0;
+        margin-top: 16px;
+        padding-top: 16px;
+    }
+    
+    .mobile-logout:hover {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+}
+
+/* Desktop hide mobile elements */
+@media screen and (min-width: 769px) {
+    .mobile-menu-btn,
+    .mobile-nav-header,
+    .mobile-close-btn {
+        display: none !important;
+    }
+}
+</style>
+
+<script>
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('mobileSidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+    }
+}
+
+// Close mobile menu when clicking overlay
+document.getElementById('mobileOverlay')?.addEventListener('click', toggleMobileMenu);
+
+// Close mobile menu when clicking a link
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            toggleMobileMenu();
+        }
+    });
+});
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        const sidebar = document.getElementById('mobileSidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        
+        if (sidebar && overlay) {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+    }
+});
+</script>

@@ -1,0 +1,197 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}SuperAdmin Dashboard - EMS{% endblock %}
+{% block nav_dashboard %} active{% endblock %}
+{% block page_title %}Employee Management System{% endblock %}
+
+{% block content %}
+    <!-- Top metrics row -->
+    <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Companies</div>
+                <div class="card-subtitle">Platform tenants and requests</div>
+            </div>
+            <div class="card-content">
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div>
+                        <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ total_companies|default:"0" }}</div>
+                        <div style="font-size: 12px; color:#64748b;">Total companies</div>
+                    </div>
+                    <div style="width:40px; height:40px; border-radius:999px; background:#e0f2fe; display:flex; align-items:center; justify-content:center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color:#64748b;">
+                    Pending requests: <strong>{{ pending_company_requests|default:"0" }}</strong>
+                </div>
+                <div style="margin-top: 12px;">
+                    <a href="{% url 'superadmin_tenants' %}" class="btn">Manage Tenants</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Subscriptions & Revenue</div>
+                <div class="card-subtitle">Active plans and billing metrics</div>
+            </div>
+            <div class="card-content">
+                <div style="margin-bottom: 8px; font-size: 14px; color:#111827;">
+                    <strong>{{ active_subscriptions|default:"0" }}</strong> active subscriptions
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    <strong>{{ trial_subscriptions|default:"0" }}</strong> active trials
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    Revenue this month: <strong>${{ revenue_this_month|default:"0" }}</strong>
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    Pending revenue: <strong>${{ pending_revenue|default:"0" }}</strong>
+                </div>
+                <div style="margin-top: 10px;">
+                    <a href="{% url 'superadmin_billing_overview' %}" class="btn">Billing Overview</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Platform Users</div>
+                <div class="card-subtitle">Owners and company admins</div>
+            </div>
+            <div class="card-content">
+                <div style="margin-bottom: 6px; font-size: 14px; color:#111827;">
+                    <strong>{{ total_users|default:"0" }}</strong> total users
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    System Owners: <strong>{{ total_superadmins|default:"0" }}</strong>
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    Company Admins / HR: <strong>{{ total_company_admins|default:"0" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">Support Center</div>
+                <div class="card-subtitle">Ticket status and team performance</div>
+            </div>
+            <div class="card-content">
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    Open Tickets: <strong>{{ open_tickets|default:"0" }}</strong>
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    Urgent Tickets: <strong style="color: #dc2626;">{{ urgent_tickets|default:"0" }}</strong>
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    Resolved Today: <strong style="color: #059669;">{{ tickets_resolved_today|default:"0" }}</strong>
+                </div>
+                <div style="margin-top: 10px;">
+                    <a href="{% url 'superadmin_support_center' %}" class="btn">Support Center</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">System Health</div>
+                <div class="card-subtitle">Platform performance and usage</div>
+            </div>
+            <div class="card-content">
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    System Status: <strong style="color: #059669;">Online</strong>
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    Storage Used: <strong>{{ total_storage_used|default:"0" }}GB</strong>
+                </div>
+                <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                    API Calls Today: <strong>{{ api_calls_today|default:"0" }}</strong>
+                </div>
+                <div style="margin-top: 10px;">
+                    <a href="{% url 'system_health' %}" class="btn">System Health</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Status Overview -->
+    <div class="content-card" style="max-width: 100%; margin-top: 8px;">
+        <div class="card-header">
+            <div class="card-title">Platform Status</div>
+            <div class="card-subtitle">System-wide operational status</div>
+        </div>
+        <div class="card-content">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #059669; margin-bottom: 8px;">● Online</div>
+                    <div style="font-size: 14px; color: #64748b;">System Status</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ total_companies|default:"0" }}</div>
+                    <div style="font-size: 14px; color: #64748b;">Total Tenants</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ total_users|default:"0" }}</div>
+                    <div style="font-size: 14px; color: #64748b;">Platform Users</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">${{ revenue_this_month|default:"0" }}</div>
+                    <div style="font-size: 14px; color: #64748b;">Monthly Revenue</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ new_companies_this_month|default:"0" }}</div>
+                    <div style="font-size: 14px; color: #64748b;">New This Month</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ pending_company_requests|default:"0" }}</div>
+                    <div style="font-size: 14px; color: #64748b;">Pending Requests</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ trials_expiring_30|default:"0" }}</div>
+                    <div style="font-size: 14px; color: #64748b;">Expiring Soon</div>
+                </div>
+                <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ open_tickets|default:"0" }}</div>
+                    <div style="font-size: 14px; color: #64748b;">Open Tickets</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .company-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .company-table thead th {
+        padding: 10px 14px;
+        background: #f8fafc;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .company-table tbody td {
+        padding: 10px 14px;
+        font-size: 14px;
+        color: #1f2933;
+        border-top: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .company-table tbody tr:hover {
+        background: #f9fafb;
+    }
+</style>
+{% endblock %}

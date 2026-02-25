@@ -1,0 +1,331 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}Support Center - BLU Suite Admin{% endblock %}
+{% block nav_support %} active{% endblock %}
+{% block page_title %}Support Center Management{% endblock %}
+
+{% block content %}
+<!-- Support Metrics -->
+<div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 24px;">
+    <!-- Ticket Overview -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Ticket Overview</div>
+            <div class="card-subtitle">Current ticket status</div>
+        </div>
+        <div class="card-content">
+            <div style="margin-bottom: 8px; font-size: 14px; color:#111827;">
+                <strong>{{ ticket_stats.total_tickets }}</strong> total tickets
+            </div>
+            <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                <strong>{{ ticket_stats.open_tickets }}</strong> open
+            </div>
+            <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                <strong>{{ ticket_stats.urgent_tickets }}</strong> urgent
+            </div>
+            <div style="margin-top: 12px;">
+                <a href="{% url 'support:superadmin_tickets' %}" class="btn">View All Tickets</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Performance -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Team Performance</div>
+            <div class="card-subtitle">Support team metrics</div>
+        </div>
+        <div class="card-content">
+            <div style="margin-bottom: 8px; font-size: 14px; color:#111827;">
+                <strong>{{ team_stats|length }}</strong> team members
+            </div>
+            <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                Avg satisfaction: <strong>{{ satisfaction_stats.avg_rating|floatformat:1|default:"N/A" }}/5</strong>
+            </div>
+            <div style="margin-top: 12px;">
+                <a href="{% url 'support:superadmin_support_team' %}" class="btn">Manage Team</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Response Time -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Response Times</div>
+            <div class="card-subtitle">Average resolution metrics</div>
+        </div>
+        <div class="card-content">
+            <div style="margin-bottom: 8px; font-size: 14px; color:#111827;">
+                {% if avg_response_time %}
+                    <strong>{{ avg_response_time|floatformat:1 }} hours</strong> avg response
+                {% else %}
+                    <strong>N/A</strong> avg response
+                {% endif %}
+            </div>
+            <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                SLA compliance: <strong>{{ sla_compliance.resolved_within_sla|default:0 }}/{{ sla_compliance.total_resolved|default:0 }}</strong>
+            </div>
+            <div style="margin-top: 12px;">
+                <a href="{% url 'support:support_analytics' %}" class="btn">View Analytics</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Categories</div>
+            <div class="card-subtitle">Ticket breakdown</div>
+        </div>
+        <div class="card-content">
+            <div style="margin-bottom: 8px; font-size: 14px; color:#111827;">
+                <strong>{{ category_stats|length }}</strong> categories
+            </div>
+            <div style="margin-bottom: 4px; font-size: 13px; color:#64748b;">
+                Most active: <strong>{{ category_stats.0.category|default:"Uncategorized" }}</strong>
+            </div>
+            <div style="margin-top: 12px;">
+                <a href="{% url 'support:superadmin_categories' %}" class="btn">Manage Categories</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Tickets -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">Recent Tickets</div>
+        <div class="card-subtitle">Latest support activity</div>
+    </div>
+    <div class="card-content">
+        {% if recent_tickets %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Subject</th>
+                            <th>Company</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in recent_tickets %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'support:superadmin_ticket_detail' ticket.id %}">
+                                    {{ ticket.reference }}
+                                </a>
+                            </td>
+                            <td>{{ ticket.subject|truncatechars:50 }}</td>
+                            <td>{{ ticket.company.name|default:"N/A" }}</td>
+                            <td>
+                                <span class="priority-badge priority-{{ ticket.priority|lower }}">
+                                    {{ ticket.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ ticket.status|lower }}">
+                                    {{ ticket.get_status_display }}
+                                </span>
+                            </td>
+                            <td>Unassigned</td>
+                            <td>{{ ticket.created_at|date:"M d, H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 16px; color: #64748b;">
+                    <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
+                    <path d="M6 12h4m4 0h4"></path>
+                    <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01"></path>
+                </svg>
+                <div style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">No tickets yet</div>
+                <div style="font-size: 14px; color: #64748b;">Support tickets will appear here</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Team Performance Overview -->
+<div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+    <!-- Top Performers -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Top Performers</div>
+            <div class="card-subtitle">Most tickets resolved</div>
+        </div>
+        <div class="card-content">
+            {% if team_stats %}
+                {% for member in team_stats|slice:":5" %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+                    <div>
+                        <div style="font-weight: 500;">{{ member.user.get_full_name }}</div>
+                        <div style="font-size: 12px; color: #64748b;">{{ member.get_role_display }}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600;">{{ member.tickets_resolved }}</div>
+                        <div style="font-size: 12px; color: #64748b;">resolved</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="font-size: 14px; color: #64748b;">No team members found</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Category Breakdown</div>
+            <div class="card-subtitle">Tickets by category</div>
+        </div>
+        <div class="card-content">
+            {% if category_stats %}
+                {% for category in category_stats|slice:":5" %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+                    <div>
+                        <div style="font-weight: 500;">{{ category.category|default:"Uncategorized" }}</div>
+                        <div style="font-size: 12px; color: #64748b;">Ticket category</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600;">{{ category.ticket_count }}</div>
+                        <div style="font-size: 12px; color: #64748b;">tickets</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="font-size: 14px; color: #64748b;">No categories found</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.priority-urgent {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.priority-high {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.priority-normal {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.priority-low {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-open {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-in_progress {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-resolved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-closed {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: #f8fafc;
+    padding: 12px;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+.data-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.data-table a {
+    color: #E11D48;
+    text-decoration: none;
+}
+
+.data-table a:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #E11D48;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #BE123C;
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #374151;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+</style>
+{% endblock %}

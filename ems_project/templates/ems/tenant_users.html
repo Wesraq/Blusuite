@@ -1,0 +1,553 @@
+{% extends 'ems/base_superadmin.html' %}
+
+{% block title %}{{ company.name }} - Users{% endblock %}
+{% block nav_companies %} active{% endblock %}
+{% block page_title %}{{ company.name }} - Users{% endblock %}
+
+{% block content %}
+<style>
+    .users-header {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .users-header h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+    
+    .users-meta {
+        display: flex;
+        gap: 24px;
+        font-size: 14px;
+        color: #64748b;
+        margin-top: 8px;
+    }
+    
+    .users-actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .btn {
+        padding: 10px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: #E11D48;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #BE123C;
+    }
+    
+    .btn-secondary {
+        background: white;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+        border-color: #E11D48;
+        color: #E11D48;
+    }
+    
+    .filters-section {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .filter-group label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #374151;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filter-group input,
+    .filter-group select {
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .users-table {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .table-header {
+        padding: 20px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .table-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+    
+    .table-info {
+        font-size: 14px;
+        color: #64748b;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .data-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: #374151;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .data-table tbody tr:hover {
+        background: #f8fafc;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #E11D48;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .user-details h4 {
+        font-size: 14px;
+        font-weight: 500;
+        color: #111827;
+        margin: 0 0 2px 0;
+    }
+    
+    .user-details p {
+        font-size: 12px;
+        color: #64748b;
+        margin: 0;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .role-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        background: #f1f5f9;
+        color: #475569;
+    }
+    
+    .table-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .action-btn {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        background: #f1f5f9;
+        color: #475569;
+    }
+    
+    .action-btn:hover {
+        background: #e2e8f0;
+    }
+    
+    .pagination {
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .pagination-info {
+        font-size: 14px;
+        color: #64748b;
+    }
+    
+    .pagination-controls {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .pagination-btn {
+        padding: 6px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        background: white;
+        color: #374151;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .pagination-btn:hover:not(:disabled) {
+        background: #f8fafc;
+    }
+    
+    .pagination-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .pagination-btn.active {
+        background: #E11D48;
+        color: white;
+        border-color: #E11D48;
+    }
+</style>
+
+<!-- Users Header -->
+<div class="users-header">
+    <div>
+        <h1>{{ company.name }} Users</h1>
+        <div class="users-meta">
+            <span><strong>Total:</strong> {{ total_users }}</span>
+            <span><strong>Active:</strong> {{ active_users }}</span>
+            <span><strong>Inactive:</strong> {{ inactive_users }}</span>
+        </div>
+    </div>
+    
+    <div class="users-actions">
+        <a href="{% url 'tenant_detail' company.id %}" class="btn btn-secondary">Back to Tenant</a>
+        <button class="btn btn-primary" onclick="exportUsers()">Export Users</button>
+    </div>
+</div>
+
+<!-- Filters Section -->
+<div class="filters-section">
+    <div class="filters-grid">
+        <div class="filter-group">
+            <label for="search">Search</label>
+            <input type="text" id="search" placeholder="Search by name or email..." value="{{ search_query }}">
+        </div>
+        
+        <div class="filter-group">
+            <label for="role">Role</label>
+            <select id="role">
+                <option value="">All Roles</option>
+                <option value="SUPERADMIN">SuperAdmin</option>
+                <option value="ADMINISTRATOR">Administrator</option>
+                <option value="EMPLOYER_ADMIN">Employer Admin</option>
+                <option value="HR_MANAGER">HR Manager</option>
+                <option value="PROJECT_MANAGER">Project Manager</option>
+                <option value="EMPLOYEE">Employee</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="status">Status</label>
+            <select id="status">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="date_from">Date From</label>
+            <input type="date" id="date_from">
+        </div>
+        
+        <div class="filter-group">
+            <label for="date_to">Date To</label>
+            <input type="date" id="date_to">
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 12px;">
+        <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+        <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="users-table">
+    <div class="table-header">
+        <h2 class="table-title">User List</h2>
+        <div class="table-info">
+            Showing {{ users|length }} of {{ total_users }} users
+        </div>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <div class="user-info">
+                        <div class="user-avatar">{{ user.first_name.0|default:user.email.0|upper }}</div>
+                        <div class="user-details">
+                            <h4>{{ user.get_full_name|default:user.email }}</h4>
+                            <p>{{ user.email }}</p>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="role-badge">{{ user.get_role_display }}</span>
+                </td>
+                <td>
+                    <span class="status-badge {{ user.is_active|yesno:'status-active,status-inactive' }}">
+                        {{ user.is_active|yesno:'Active,Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    {{ user.date_joined|date:"M d, Y" }}
+                </td>
+                <td>
+                    {% if user.last_login %}
+                        {{ user.last_login|date:"M d, Y H:i" }}
+                    {% else %}
+                        <span style="color: #9ca3af; font-size: 12px;">Never</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <button class="action-btn" onclick="viewUser({{ user.id }})">View</button>
+                        <button class="action-btn" onclick="editUser({{ user.id }})">Edit</button>
+                        {% if user.is_active %}
+                            <button class="action-btn" onclick="deactivateUser({{ user.id }})">Deactivate</button>
+                        {% else %}
+                            <button class="action-btn" onclick="activateUser({{ user.id }})">Activate</button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
+                    No users found matching the current filters.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if is_paginated %}
+    <div class="pagination">
+        <div class="pagination-info">
+            Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} users
+        </div>
+        <div class="pagination-controls">
+            {% if page_obj.has_previous %}
+                <button class="pagination-btn" onclick="goToPage({{ page_obj.previous_page_number }})">Previous</button>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <button class="pagination-btn active">{{ num }}</button>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <button class="pagination-btn" onclick="goToPage({{ num }})">{{ num }}</button>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <button class="pagination-btn" onclick="goToPage({{ page_obj.next_page_number }})">Next</button>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function applyFilters() {
+    const search = document.getElementById('search').value;
+    const role = document.getElementById('role').value;
+    const status = document.getElementById('status').value;
+    const dateFrom = document.getElementById('date_from').value;
+    const dateTo = document.getElementById('date_to').value;
+    
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (role) params.append('role', role);
+    if (status) params.append('status', status);
+    if (dateFrom) params.append('date_from', dateFrom);
+    if (dateTo) params.append('date_to', dateTo);
+    
+    window.location.href = `{% url 'tenant_users' company.id %}?${params.toString()}`;
+}
+
+function clearFilters() {
+    window.location.href = `{% url 'tenant_users' company.id %}`;
+}
+
+function exportUsers() {
+    window.location.href = `/admin/tenants/{{ company.id }}/export/`;
+}
+
+function viewUser(userId) {
+    // Django admin change page for accounts.User
+    window.location.href = `/admin/accounts/user/${userId}/change/`;
+}
+
+function editUser(userId) {
+    // Same as view in admin (edit form)
+    window.location.href = `/admin/accounts/user/${userId}/change/`;
+}
+
+function deactivateUser(userId) {
+    if (confirm('Are you sure you want to deactivate this user?')) {
+        fetch(`/admin/users/${userId}/deactivate/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to deactivate user: ' + (data.error || 'Unknown error'));
+            }
+        });
+    }
+}
+
+function activateUser(userId) {
+    if (confirm('Are you sure you want to activate this user?')) {
+        fetch(`/admin/users/${userId}/activate/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to activate user: ' + (data.error || 'Unknown error'));
+            }
+        });
+    }
+}
+
+function goToPage(pageNum) {
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('page', pageNum);
+    window.location.href = currentUrl.toString();
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Set current filter values
+document.addEventListener('DOMContentLoaded', function() {
+    {% if search_query %}document.getElementById('search').value = '{{ search_query|escapejs }}';{% endif %}
+    {% if role_filter %}document.getElementById('role').value = '{{ role_filter|escapejs }}';{% endif %}
+    {% if status_filter %}document.getElementById('status').value = '{{ status_filter|escapejs }}';{% endif %}
+    {% if date_from %}document.getElementById('date_from').value = '{{ date_from|escapejs }}';{% endif %}
+    {% if date_to %}document.getElementById('date_to').value = '{{ date_to|escapejs }}';{% endif %}
+});
+</script>
+{% endblock %}

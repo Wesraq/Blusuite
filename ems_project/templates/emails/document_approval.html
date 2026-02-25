@@ -1,0 +1,36 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Document {{ status }}{% endblock %}
+
+{% block header %}Document {{ status }}{% endblock %}
+
+{% block content %}
+<p>Hello {{ employee.first_name }},</p>
+
+<p>Your document has been <strong>{{ status|lower }}</strong>.</p>
+
+<div class="info-box">
+    <div class="info-row">
+        <span class="info-label">Document Type:</span>
+        <span class="info-value">{{ document_type }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Status:</span>
+        <span class="info-value">
+            <span class="badge {% if status == 'Verified' %}badge-success{% else %}badge-danger{% endif %}">
+                {{ status }}
+            </span>
+        </span>
+    </div>
+    {% if verified_by %}
+    <div class="info-row">
+        <span class="info-label">{{ status|title }} By:</span>
+        <span class="info-value">{{ verified_by.first_name }} {{ verified_by.last_name }}</span>
+    </div>
+    {% endif %}
+</div>
+
+<p style="text-align: center;">
+    <a href="{{ base_url }}/documents/" class="btn">View My Documents</a>
+</p>
+{% endblock %}

@@ -7,14 +7,15 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 from django.urls import path, include
 from django.contrib import admin
 from django.conf import settings
+from django.shortcuts import redirect
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.conf.urls.static import static
 
 from . import frontend_views, auth_views
-from accounts import views as account_views
-from accounts.registration_views import (
+from blu_staff.apps.accounts import views as account_views
+from blu_staff.apps.accounts.registration_views import (
     company_registration_request,
     registration_success,
     company_registration_list,
@@ -37,6 +38,17 @@ schema_view = get_schema_view(
 urlpatterns = [
     # Frontend pages - Landing page at root
     path('', frontend_views.landing_page, name='landing_page'),  # Proper landing page
+    path('about/', frontend_views.about_page, name='about_page'),
+    path('features/', frontend_views.features_page, name='features_page'),
+    path('solutions/', frontend_views.solutions_page, name='solutions_page'),
+    path('pricing/', frontend_views.pricing_page, name='pricing_page'),
+    path('help/', frontend_views.help_center_page, name='help_center_page'),
+    path('contact/', frontend_views.contact_page, name='contact_page'),
+    path('status/', frontend_views.status_page, name='status_page'),
+    path('docs/', frontend_views.documentation_page, name='documentation_page'),
+    path('careers/', frontend_views.careers_page, name='careers_page'),
+    path('blog/', frontend_views.blog_page, name='blog_page'),
+    path('press/', frontend_views.press_page, name='press_page'),
     # Redirect /login/ to root for better UX
     path('login/', auth_views.general_user_login, name='login'),  # General user login
     # SuperAdmin login at eiscomtech
@@ -51,10 +63,55 @@ urlpatterns = [
     path('admin/company-requests/<int:request_id>/approve/', approve_company_registration, name='approve_company_registration'),
     path('admin/company-requests/<int:request_id>/reject/', reject_company_registration, name='reject_company_registration'),
 
+    # Auth/session helpers
+    path('api/v1/auth/users/me/', frontend_views.api_current_user, name='api_current_user'),
+
     path('dashboard/', frontend_views.dashboard_redirect, name='dashboard_redirect'),
     path('superadmin/', frontend_views.superadmin_dashboard, name='superadmin_dashboard'),
+    path('superadmin/support/', frontend_views.superadmin_support_center, name='superadmin_support_center'),
+    path('superadmin/knowledge-base/', frontend_views.superadmin_knowledge_base, name='superadmin_knowledge_base'),
+    path('superadmin/knowledge-base/<int:article_id>/delete/', frontend_views.superadmin_knowledge_base_delete, name='superadmin_knowledge_base_delete'),
+    path('billing/overview/', frontend_views.superadmin_billing_overview, name='superadmin_billing_overview'),
+    # System owner portals (platform roles)
+    path('owner/billing/', frontend_views.owner_billing_portal, name='owner_billing_portal'),
+    path('owner/support/', frontend_views.owner_support_portal, name='owner_support_portal'),
+    path('owner/registration/', frontend_views.owner_registration_portal, name='owner_registration_portal'),
+    path('owner/account-manager/', frontend_views.owner_account_manager_portal, name='owner_account_manager_portal'),
+    path('superadmin/settings/', frontend_views.superadmin_settings, name='superadmin_settings'),
+    
+    # Super Admin Tenant Management
+    path('superadmin/tenants/', frontend_views.superadmin_tenants, name='superadmin_tenants'),
+    path('tenant/<int:company_id>/', frontend_views.tenant_detail, name='tenant_detail'),
+    path('tenant/<int:company_id>/users/', frontend_views.tenant_users, name='tenant_users'),
+    path('tenant/<int:company_id>/analytics/', frontend_views.tenant_analytics, name='tenant_analytics'),
+    
+    # Tenant Management Actions
+    path('admin/tenants/<int:company_id>/suspend/', frontend_views.suspend_tenant, name='suspend_tenant'),
+    path('admin/tenants/<int:company_id>/announce/', frontend_views.send_announcement, name='send_announcement'),
+    path('admin/tenants/<int:company_id>/report/', frontend_views.generate_tenant_report, name='generate_tenant_report'),
+    path('admin/tenants/<int:company_id>/export/', frontend_views.export_tenant_data, name='export_tenant_data'),
+    path('admin/tenants/<int:company_id>/reset-password/', frontend_views.reset_tenant_password, name='reset_tenant_password'),
     path('employee/', frontend_views.employee_dashboard, name='employee_dashboard'),
+    path('employee/suites/', frontend_views.employee_suites, name='employee_suites'),
+    path('employee/profile/', frontend_views.employee_profile_view, name='employee_profile'),
+    path('employee/my-payslips/', frontend_views.employee_my_payslips, name='employee_my_payslips'),
+    path('employee/print-profile/', frontend_views.employee_print_profile, name='employee_print_profile'),
+    path('employee/role-hub/', frontend_views.role_hub, name='role_hub'),
+    path('employee/hr-send-email/', frontend_views.hr_send_email, name='hr_send_email'),
+    path('petty-cash/', frontend_views.petty_cash_dashboard, name='petty_cash_dashboard'),
+    path('financial-assets/', frontend_views.financial_assets_view, name='financial_assets'),
+    path('financial-analytics/', frontend_views.financial_analytics_view, name='financial_analytics'),
     path('employer/', frontend_views.employer_dashboard, name='employer_dashboard'),
+    path('blusuite/', frontend_views.blu_suite_home, name='blu_suite_home'),
+    path('blusuite/staff/', frontend_views.blu_staff_home, name='blu_staff_home'),
+    path('blusuite/projects/', frontend_views.blu_projects_home, name='blu_projects_home'),
+    path('blusuite/assets/', frontend_views.blu_assets_home, name='blu_assets_home'),
+    path('blusuite/analytics/', frontend_views.blu_analytics_home, name='blu_analytics_home'),
+    path('blusuite/integrations/', frontend_views.blu_integrations_home, name='blu_integrations_home'),
+    path('blusuite/settings/', frontend_views.blu_settings_home, name='blu_settings_home'),
+    path('blusuite/billing/', frontend_views.blu_billing_home, name='blu_billing_home'),
+    path('blusuite/billing/invoice/<int:invoice_id>/pdf/', frontend_views.blu_invoice_pdf, name='blu_invoice_pdf'),
+    path('blusuite/support/', frontend_views.blu_support_home, name='blu_support_home'),
     path('employer-admin/', frontend_views.employer_admin_dashboard, name='employer_admin_dashboard'),
     path('attendance/', frontend_views.attendance_dashboard, name='attendance_dashboard'),
     path('attendance/update-status/', frontend_views.update_attendance_status, name='update_attendance_status'),
@@ -62,6 +119,7 @@ urlpatterns = [
     path('attendance/<int:attendance_id>/edit/', frontend_views.employer_edit_attendance, name='employer_edit_attendance'),
     path('leave/', frontend_views.leave_management, name='leave_management'),
     path('leave/<int:leave_id>/action/', frontend_views.employer_leave_action, name='employer_leave_action'),
+    path('leave/<int:leave_id>/detail/', frontend_views.leave_detail_view, name='leave_detail_view'),
     path('leave/bulk-approve/', frontend_views.bulk_approve_leave, name='bulk_approve_leave'),
     path('leave/bulk-reject/', frontend_views.bulk_reject_leave, name='bulk_reject_leave'),
     path('documents/', frontend_views.documents_list, name='documents_list'),
@@ -73,14 +131,23 @@ urlpatterns = [
     path('documents/bulk-download/', frontend_views.bulk_download_documents, name='bulk_download_documents'),
     path('employer/employees/<int:employee_id>/documents/upload/', frontend_views.employee_document_upload, name='employee_document_upload'),
     path('employer/employees/<int:employee_id>/profile-picture/upload/', frontend_views.employee_profile_picture_upload_redirect, name='employee_profile_picture_upload_with_redirect'),
-    path('performance/', frontend_views.performance_reviews_list, name='performance_reviews_list'),
-    path('performance/create/', frontend_views.performance_review_create, name='performance_review_create'),
-    path('performance/<int:review_id>/', frontend_views.performance_review_detail, name='performance_review_detail'),
+    path('contracts/', include('blu_staff.apps.contracts.urls')),
     path('payroll/', frontend_views.payroll_list, name='payroll_list'),
     path('payroll/<int:payroll_id>/', frontend_views.payroll_detail, name='payroll_detail'),
     path('benefits/', frontend_views.benefits_list, name='benefits_list'),
+    path('benefits/claim/submit/', frontend_views.benefit_claim_submit, name='benefit_claim_submit'),
+    path('benefits/claim/cleanup-mine/', frontend_views.benefit_claim_cleanup_my_pending, name='benefit_claim_cleanup_my_pending'),
+    path('benefits/claim/<int:claim_id>/delete/', frontend_views.benefit_claim_delete, name='benefit_claim_delete'),
+    path('benefits/claim/<int:claim_id>/action/', frontend_views.benefit_claim_action, name='benefit_claim_action'),
+    path('benefits/create/', frontend_views.benefit_create, name='benefit_create'),
+    path('benefits/enroll/', frontend_views.benefit_enrollment_create, name='benefit_enrollment_create'),
+    path('benefits/<int:enrollment_id>/toggle/', frontend_views.benefit_activation_toggle, name='benefit_activation_toggle'),
     path('training/', frontend_views.training_list, name='training_list'),
+    path('training/create-program/', frontend_views.training_program_create, name='training_program_create'),
+    path('training/create-enrollment/', frontend_views.training_enrollment_create, name='training_enrollment_create'),
     path('onboarding/', frontend_views.onboarding_list, name='onboarding_list'),
+    path('onboarding/create/', frontend_views.onboarding_create, name='onboarding_create'),
+    path('offboarding/create/', frontend_views.offboarding_create, name='offboarding_create'),
     path('analytics/dashboard/', frontend_views.analytics_dashboard_view, name='analytics_dashboard_view'),
     path('notifications/', frontend_views.notifications_list, name='notifications_list'),
     path('notifications/<int:notification_id>/mark-read/', frontend_views.notification_mark_read, name='notification_mark_read'),
@@ -90,17 +157,27 @@ urlpatterns = [
     path('employee-management/bulk-action/', frontend_views.employee_bulk_action, name='employee_bulk_action'),
     path('analytics/', frontend_views.analytics_dashboard, name='analytics_dashboard'),
     path('approvals/', frontend_views.approval_center, name='approval_center'),
-    path('assets/', frontend_views.assets_management, name='assets_management'),
-    path('assets/create/', frontend_views.asset_create, name='asset_create'),
+    path('support/new/', frontend_views.employer_support_ticket_create, name='employer_support_ticket_create'),
+    path('support/', frontend_views.employer_support_center, name='employer_support_center'),
+    # Assets redirect stubs removed - assets now mounted at /assets/ directly
     path('bulk-import/', frontend_views.bulk_employee_import, name='bulk_employee_import'),
     path('reports/', frontend_views.reports_center, name='reports_center'),
     path('reports/custom/', frontend_views.custom_report_builder, name='custom_report_builder'),
+    path('reports/employee-roster/', frontend_views.report_employee_roster, name='report_employee_roster'),
+    path('reports/attendance/', frontend_views.report_attendance, name='report_attendance'),
+    path('reports/leave/', frontend_views.report_leave, name='report_leave'),
+    path('reports/documents/', frontend_views.report_documents, name='report_documents'),
+    path('reports/assets/', frontend_views.report_assets, name='report_assets'),
+    path('reports/payroll/', frontend_views.report_payroll, name='report_payroll'),
+    path('reports/expenses/', frontend_views.report_expenses, name='report_expenses'),
+    path('reports/training/', frontend_views.report_training, name='report_training'),
+    path('reports/contract-expiry/', frontend_views.report_contract_expiry, name='report_contract_expiry'),
     path('reports/export/roster/', frontend_views.export_employee_roster, name='export_employee_roster'),
     path('reports/export/attendance/', frontend_views.export_attendance_report, name='export_attendance_report'),
     path('reports/export/leave/', frontend_views.export_leave_report, name='export_leave_report'),
     path('reports/export/documents/', frontend_views.export_documents_report, name='export_documents_report'),
     path('reports/export/assets/', frontend_views.export_assets_report, name='export_assets_report'),
-    path('integrations/', include('accounts.integration_urls')),
+    path('integrations/', include('blu_staff.apps.accounts.integration_urls')),
     path('logout/', auth_views.ems_logout, name='ems_logout'),
     path('settings/', frontend_views.settings_hub, name='settings_hub'),
     path('settings/config/', frontend_views.settings_dashboard, name='settings_dashboard'),
@@ -109,11 +186,13 @@ urlpatterns = [
     path('settings/delete-pay-grade/<int:grade_id>/', frontend_views.delete_pay_grade, name='delete_pay_grade'),
     path('settings/test-smtp/', frontend_views.test_smtp_connection, name='test_smtp'),
     path('settings/test-biometric/', frontend_views.test_biometric_connection, name='test_biometric'),
+    path('knowledge-base/', frontend_views.knowledge_base, name='knowledge_base'),
+    path('knowledge-base/<slug:slug>/', frontend_views.knowledge_article_detail, name='knowledge_article_detail'),
     path('companies/', account_views.company_list, name='company_list'),
     path('companies/create/', account_views.company_create, name='company_create'),
     path('companies/<int:company_id>/edit/', account_views.company_edit, name='company_edit'),
     path('companies/<int:request_id>/approve/', account_views.approve_company, name='approve_company'),
-    path('companies/<int:request_id>/approve-existing/', account_views.approve_existing_company, name='approve_existing_company'),
+    path('companies/<int:company_id>/approve-existing/', account_views.approve_existing_company, name='approve_existing_company'),
     path('companies/<int:company_id>/reject/', account_views.reject_company, name='reject_company'),
     path('users/', frontend_views.user_management, name='user_management'),
     path('system-health/', frontend_views.system_health, name='system_health'),
@@ -136,6 +215,7 @@ urlpatterns = [
     path('requests/', frontend_views.employee_requests_list, name='employee_requests_list'),
     path('requests/create/', frontend_views.employee_request_create, name='employee_request_create'),
     path('requests/<int:request_id>/', frontend_views.employee_request_detail, name='employee_request_detail'),
+    path('requests/<int:request_id>/edit/', frontend_views.employee_request_edit, name='employee_request_edit'),
     path('requests/approvals/', frontend_views.requests_approval_center, name='requests_approval_center'),
     path('requests/<int:request_id>/action/', frontend_views.request_approve_reject, name='request_approve_reject'),
     
@@ -147,6 +227,10 @@ urlpatterns = [
     path('announcements/', frontend_views.announcements_list, name='announcements_list'),
     path('announcements/<int:announcement_id>/', frontend_views.announcement_detail, name='announcement_detail'),
     
+    # Role-Based Dashboards
+    path('hr/dashboard/', frontend_views.hr_dashboard, name='hr_dashboard'),
+    path('accountant/dashboard/', frontend_views.accountant_dashboard, name='accountant_dashboard'),
+    
     # Supervisor Features (Phase 4)
     path('supervisor/dashboard/', frontend_views.supervisor_dashboard, name='supervisor_dashboard'),
     path('supervisor/team-attendance/', frontend_views.supervisor_team_attendance, name='supervisor_team_attendance'),
@@ -154,13 +238,23 @@ urlpatterns = [
     path('supervisor/request-approvals/', frontend_views.supervisor_request_approval, name='supervisor_request_approval'),
     
     # E-Forms & E-Signature (Phase 5)
-    path('forms/', include('eforms.urls')),
+    path('forms/', include('blu_staff.apps.eforms.urls')),
+    path('eforms/', include('blu_staff.apps.eforms.urls')),  # Alias for navigation consistency
     
-    # Asset Management (New System - Department-based)
-    path('asset-management/', include('assets.urls')),
+    # Payment Processing
+    path('payments/', include('ems_project.payments.urls')),
+    
+    # Asset Management Suite (AMS) - Standalone suite
+    path('asset-management/', include(('blu_assets.urls', 'blu_assets'), namespace='assets')),
     
     # Training & Development
-    path('training/', include('training.frontend_urls')),
+    path('training/', include('blu_staff.apps.training.frontend_urls')),
+    
+    # BLU Projects - Project Management
+    path('projects/', include('blu_projects.urls')),
+    
+    # BLU Analytics - Analytics & Reporting
+    path('analytics/', include('blu_analytics.urls')),
 
     # Django Admin - Standard Django admin (staff only)
     path('admin/', admin.site.urls),
@@ -171,17 +265,29 @@ urlpatterns = [
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     # API v1
-    path('api/v1/auth/', include('accounts.urls')),
+    path('api/v1/auth/', include('blu_staff.apps.accounts.urls')),
     
     # Accounts app URLs
-    path('', include('accounts.urls')),
-    path('api/v1/attendance/', include('attendance.urls')),
-    path('api/v1/documents/', include('documents.urls')),
-    path('api/v1/performance/', include('performance.urls')),
-    # path('api/v1/payroll/', include('payroll.urls')),  # Temporarily disabled
+    path('', include('blu_staff.apps.accounts.urls')),
+    path('api/v1/attendance/', include('blu_staff.apps.attendance.urls')),
+    path('api/v1/documents/', include('blu_staff.apps.documents.urls')),
+    # PERFORMANCE MODULE DISABLED
+    # path('api/v1/performance/', include('blu_staff.apps.performance.urls')),
+    path('api/v1/communication/', include('blu_staff.apps.communication.urls')),
+    path('api/v1/requests/', include('blu_staff.apps.requests.urls')),
+    path('api/v1/notifications/', include('blu_staff.apps.notifications.urls')),
+    path('api/v1/onboarding/', include('blu_staff.apps.onboarding.urls')),
+    path('api/v1/payroll/', include('blu_staff.apps.payroll.urls')),
+    path('api/v1/reports/', include('blu_staff.apps.reports.urls')),
 
     # Health check
     path('health/', include('health_check.urls')),
+    
+    # Billing Module
+    path('billing/', include('blu_billing.urls')),
+    
+    # Support Module
+    path('support/', include('blu_support.urls')),
 ]
 
 if settings.DEBUG:

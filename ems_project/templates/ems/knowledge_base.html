@@ -1,0 +1,103 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Knowledge Base - EMS{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="content-card" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">Knowledge Base</h3>
+                <div class="card-subtitle">Product updates, how-tos and training content for your team</div>
+            </div>
+        </div>
+        <div class="card-content">
+            <form method="get" style="display:flex; flex-direction:column; gap:12px; max-width:640px;">
+                <div>
+                    <label style="display:block; font-size: 13px; font-weight: 500; color:#374151; margin-bottom: 4px;">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search articles" style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid #d1d5db; font-size:14px;" />
+                </div>
+                <div>
+                    <label style="display:block; font-size: 13px; font-weight: 500; color:#374151; margin-bottom: 4px;">Category</label>
+                    <select name="category" style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid #d1d5db; font-size:14px;">
+                        <option value="">All categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button type="submit" class="btn">Apply</button>
+                    <a href="/knowledge-base/" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+            {% if categories %}
+            <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;">
+                <a href="/knowledge-base/" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid {% if not category_filter %}#1d4ed8{% else %}#e5e7eb{% endif %}; background:{% if not category_filter %}#eff6ff{% else %}#f9fafb{% endif %}; color:{% if not category_filter %}#1d4ed8{% else %}#4b5563{% endif %}; text-decoration:none;">All topics</a>
+                {% for cat in categories %}
+                <a href="?category={{ cat|urlencode }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid {% if category_filter == cat %}#1d4ed8{% else %}#e5e7eb{% endif %}; background:{% if category_filter == cat %}#eff6ff{% else %}#f9fafb{% endif %}; color:{% if category_filter == cat %}#1d4ed8{% else %}#4b5563{% endif %}; text-decoration:none;">{{ cat }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">Articles</h3>
+        </div>
+        <div class="card-content">
+            {% if articles %}
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:16px;">
+                {% for article in articles %}
+                <article style="border:1px solid #e5e7eb; border-radius:10px; padding:14px 16px; background:white; display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                        <h4 style="margin:0; font-size:15px; font-weight:600; color:#111827;">{{ article.title }}</h4>
+                        {% if article.category %}
+                        <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; padding:2px 8px; border-radius:999px; background:#eff6ff; color:#1d4ed8; white-space:nowrap;">{{ article.category }}</span>
+                        {% endif %}
+                    </div>
+                    <p style="margin:0; font-size:13px; color:#4b5563;">
+                        {% if article.summary %}
+                            {{ article.summary }}
+                        {% else %}
+                            {{ article.content|truncatewords:40 }}
+                        {% endif %}
+                    </p>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; font-size:12px; color:#9ca3af;">
+                        <span>
+                            Updated {{ article.updated_at|date:"M j, Y" }}
+                            {% if article.video_url or article.media_file %}
+                                · <span style="color:#2563eb;">Media available</span>
+                            {% endif %}
+                        </span>
+                        <a href="{% url 'knowledge_article_detail' slug=article.slug %}" style="display:inline-flex; align-items:center; gap:4px; color:#2563eb; text-decoration:none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v4"/><path d="M10 14 21 3"/><path d="M19 21h-4a2 2 0 0 1-2-2v-4"/><path d="M3 10 14 21"/></svg>
+                            <span>Learn more</span>
+                        </a>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% if page_obj and page_obj.paginator.num_pages > 1 %}
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#6b7280;">
+                <div>
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </div>
+                <div style="display:flex; gap:6px;">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}{% if category_filter %}&amp;category={{ category_filter|urlencode }}{% endif %}" class="btn btn-secondary" style="padding:4px 10px; font-size:12px;">Previous</a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}{% if category_filter %}&amp;category={{ category_filter|urlencode }}{% endif %}" class="btn btn-secondary" style="padding:4px 10px; font-size:12px;">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <p style="margin:0; font-size:14px; color:#6b7280;">No knowledge base articles are available yet. Check back soon for product updates and training guides.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

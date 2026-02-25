@@ -1,0 +1,28 @@
+{% extends 'ems/base_platform.html' %}
+{% block title %}Billing Portal{% endblock %}
+{% block nav_support %}{% endblock %}
+{% block page_title %}Billing Portal{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Billing Overview</div>
+        <div class="card-subtitle">System-owner billing metrics</div>
+    </div>
+    <div class="card-content" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+        <div class="stat-card"><div class="stat-label">MRR</div><div class="stat-value">${{ stats.mrr }}</div></div>
+        <div class="stat-card"><div class="stat-label">ARR</div><div class="stat-value">${{ stats.arr }}</div></div>
+        <div class="stat-card"><div class="stat-label">Failed Invoices</div><div class="stat-value">{{ stats.failed_invoices }}</div></div>
+        <div class="stat-card"><div class="stat-label">Expiring Licenses/Cards</div><div class="stat-value">{{ stats.expiring_cards }}</div></div>
+        <div class="stat-card"><div class="stat-label">Total Companies</div><div class="stat-value">{{ stats.total_companies }}</div></div>
+        <div class="stat-card"><div class="stat-label">Trials</div><div class="stat-value">{{ stats.trials }}</div></div>
+        <div class="stat-card"><div class="stat-label">Active Paid</div><div class="stat-value">{{ stats.active_paid }}</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Registrations</div><div class="stat-value">{{ stats.pending_registrations }}</div></div>
+    </div>
+</div>
+<style>
+.stat-card{background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:12px}
+.stat-label{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.stat-value{font-size:20px;font-weight:700;color:#0f172a;margin-top:4px}
+</style>
+{% endblock %}

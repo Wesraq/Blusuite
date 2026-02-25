@@ -1,0 +1,234 @@
+{% extends 'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Bulk Assign Employees - {{ cycle.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.bulk-assign-page { max-width: 1200px; margin: 0 auto; padding: 24px 0; }
+.bulk-header { margin-bottom: 32px; }
+.bulk-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 700; color: #0f172a; }
+.bulk-header p { margin: 0; font-size: 14px; color: #64748b; }
+.bulk-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+.bulk-card-header { padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.bulk-card-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; }
+.bulk-toolbar { padding: 20px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.bulk-search { flex: 1; max-width: 400px; }
+.bulk-search input { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; }
+.bulk-search input:focus { border-color: #e11d48; }
+.bulk-actions { display: flex; gap: 12px; }
+.bulk-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all .15s; border: none; cursor: pointer; }
+.bulk-btn-primary { background: #e11d48; color: white; }
+.bulk-btn-primary:hover { background: #be123c; }
+.bulk-btn-primary:disabled { background: #fca5a5; cursor: not-allowed; }
+.bulk-btn-secondary { background: white; color: #475569; border: 1px solid #e2e8f0; }
+.bulk-btn-secondary:hover { background: #f8fafc; }
+.employee-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding: 24px; }
+.employee-card { border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all .15s; }
+.employee-card:hover { border-color: #e11d48; background: #fef2f2; }
+.employee-card.selected { border-color: #e11d48; background: #fff1f2; }
+.employee-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.employee-checkbox { width: 20px; height: 20px; cursor: pointer; }
+.employee-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+.employee-info { flex: 1; }
+.employee-name { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 2px; }
+.employee-email { font-size: 12px; color: #64748b; }
+.employee-meta { display: flex; gap: 12px; font-size: 12px; color: #94a3b8; }
+.employee-meta-item { display: flex; align-items: center; gap: 4px; }
+.bulk-footer { padding: 20px 24px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; }
+.bulk-footer-info { font-size: 14px; color: #64748b; }
+.bulk-footer-info strong { color: #0f172a; font-weight: 700; }
+.empty-state { text-align: center; padding: 60px 24px; }
+.empty-state svg { color: #cbd5e1; margin-bottom: 16px; }
+.empty-state h3 { margin: 0 0 8px; color: #64748b; font-size: 18px; }
+.empty-state p { margin: 0; color: #94a3b8; font-size: 14px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bulk-assign-page">
+    <!-- Header -->
+    <div class="bulk-header">
+        <h2>Bulk Assign Employees</h2>
+        <p>Select employees to assign to <strong>{{ cycle.name }}</strong></p>
+    </div>
+
+    <!-- Card -->
+    <div class="bulk-card">
+        <!-- Toolbar -->
+        <div class="bulk-toolbar">
+            <div class="bulk-search">
+                <input type="text" id="searchInput" placeholder="Search employees by name, email, or department..." onkeyup="filterEmployees()">
+            </div>
+            <div class="bulk-actions">
+                <button onclick="selectAll()" class="bulk-btn bulk-btn-secondary">Select All</button>
+                <button onclick="deselectAll()" class="bulk-btn bulk-btn-secondary">Deselect All</button>
+            </div>
+        </div>
+
+        <!-- Employee Grid -->
+        {% if employees %}
+        <div class="employee-grid" id="employeeGrid">
+            {% for employee in employees %}
+            <div class="employee-card" onclick="toggleEmployee(this, {{ employee.id }})" data-name="{{ employee.get_full_name|lower }}" data-email="{{ employee.email|lower }}" data-dept="{% if employee.employee_profile %}{{ employee.employee_profile.department|lower }}{% endif %}">
+                <div class="employee-card-header">
+                    <input type="checkbox" class="employee-checkbox" data-employee-id="{{ employee.id }}" onclick="event.stopPropagation();">
+                    <div class="employee-avatar">{{ employee.first_name.0 }}{{ employee.last_name.0 }}</div>
+                    <div class="employee-info">
+                        <div class="employee-name">{{ employee.get_full_name }}</div>
+                        <div class="employee-email">{{ employee.email }}</div>
+                    </div>
+                </div>
+                <div class="employee-meta">
+                    {% if employee.employee_profile %}
+                    <div class="employee-meta-item">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+                        {{ employee.employee_profile.department }}
+                    </div>
+                    <div class="employee-meta-item">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        {{ employee.employee_profile.job_title }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <h3>No Employees Available</h3>
+            <p>All employees have already been assigned to this cycle</p>
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="bulk-footer">
+            <div class="bulk-footer-info">
+                <strong id="selectedCount">0</strong> employees selected
+            </div>
+            <div class="bulk-actions">
+                <a href="{% url 'review_cycle_detail' cycle.id %}" class="bulk-btn bulk-btn-secondary">Cancel</a>
+                <button onclick="assignEmployees()" id="assignBtn" class="bulk-btn bulk-btn-primary" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Assign Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedEmployees = new Set();
+
+function toggleEmployee(card, employeeId) {
+    const checkbox = card.querySelector('.employee-checkbox');
+    checkbox.checked = !checkbox.checked;
+    
+    if (checkbox.checked) {
+        selectedEmployees.add(employeeId);
+        card.classList.add('selected');
+    } else {
+        selectedEmployees.delete(employeeId);
+        card.classList.remove('selected');
+    }
+    
+    updateSelectedCount();
+}
+
+function selectAll() {
+    document.querySelectorAll('.employee-card:not([style*="display: none"])').forEach(card => {
+        const checkbox = card.querySelector('.employee-checkbox');
+        const employeeId = parseInt(checkbox.dataset.employeeId);
+        checkbox.checked = true;
+        card.classList.add('selected');
+        selectedEmployees.add(employeeId);
+    });
+    updateSelectedCount();
+}
+
+function deselectAll() {
+    document.querySelectorAll('.employee-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+        checkbox.closest('.employee-card').classList.remove('selected');
+    });
+    selectedEmployees.clear();
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    document.getElementById('selectedCount').textContent = selectedEmployees.size;
+    document.getElementById('assignBtn').disabled = selectedEmployees.size === 0;
+}
+
+function filterEmployees() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('.employee-card').forEach(card => {
+        const name = card.dataset.name;
+        const email = card.dataset.email;
+        const dept = card.dataset.dept;
+        
+        if (name.includes(searchTerm) || email.includes(searchTerm) || dept.includes(searchTerm)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function assignEmployees() {
+    if (selectedEmployees.size === 0) {
+        alert('Please select at least one employee');
+        return;
+    }
+    
+    const formData = new FormData();
+    selectedEmployees.forEach(id => {
+        formData.append('employee_ids[]', id);
+    });
+    formData.append('auto_assign_reviewers', 'true');
+    
+    document.getElementById('assignBtn').disabled = true;
+    document.getElementById('assignBtn').textContent = 'Assigning...';
+    
+    fetch('{% url "bulk_assign_employees" cycle.id %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.href = '{% url "review_cycle_detail" cycle.id %}';
+        } else {
+            alert('Error: ' + data.error);
+            document.getElementById('assignBtn').disabled = false;
+            document.getElementById('assignBtn').textContent = 'Assign Selected';
+        }
+    })
+    .catch(error => {
+        alert('Failed to assign employees: ' + error);
+        document.getElementById('assignBtn').disabled = false;
+        document.getElementById('assignBtn').textContent = 'Assign Selected';
+    });
+}
+</script>
+{% endblock %}

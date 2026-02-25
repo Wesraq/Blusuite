@@ -1,0 +1,134 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}Timeline View - BLU Projects{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <span style="color: #0f172a;">Timeline</span>
+</div>
+
+<!-- Header -->
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        </div>
+        <div>
+            <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">Project Timeline</h2>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">Visual timeline of {{ total_projects }} project{{ total_projects|pluralize }}</p>
+        </div>
+    </div>
+    <!-- Status Filter -->
+    <div style="display: flex; gap: 6px;">
+        <a href="?status=" style="padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; {% if not status_filter %}background: #1d4ed8; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">All</a>
+        <a href="?status=ACTIVE" style="padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; {% if status_filter == 'ACTIVE' %}background: #1d4ed8; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">Active</a>
+        <a href="?status=PLANNING" style="padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; {% if status_filter == 'PLANNING' %}background: #1d4ed8; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">Planning</a>
+        <a href="?status=COMPLETED" style="padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; {% if status_filter == 'COMPLETED' %}background: #1d4ed8; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">Completed</a>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <div>
+            <div style="font-size: 20px; font-weight: 700; color: #0f172a;">{{ total_projects }}</div>
+            <div style="font-size: 11px; color: #64748b;">Total Projects</div>
+        </div>
+    </div>
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 36px; height: 36px; border-radius: 4px; background: #d1fae5; display: flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div>
+            <div style="font-size: 20px; font-weight: 700; color: #059669;">{{ active_projects }}</div>
+            <div style="font-size: 11px; color: #64748b;">Active</div>
+        </div>
+    </div>
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 36px; height: 36px; border-radius: 4px; background: #e0e7ff; display: flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        </div>
+        <div>
+            <div style="font-size: 20px; font-weight: 700; color: #4f46e5;">{{ completed_projects }}</div>
+            <div style="font-size: 11px; color: #64748b;">Completed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Timeline -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+    <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Project Timeline</h3>
+        </div>
+        <span style="font-size: 11px; color: #94a3b8;">Sorted by start date</span>
+    </div>
+    {% if projects %}
+    <div style="padding: 24px 24px 24px 56px; position: relative;">
+        <div style="position: absolute; left: 34px; top: 24px; bottom: 24px; width: 2px; background: linear-gradient(to bottom, #1d4ed8, #93c5fd);"></div>
+        {% for project in projects %}
+        <div style="position: relative; margin-bottom: 24px; padding-left: 24px;">
+            <div style="position: absolute; left: -26px; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px {% if project.status == 'ACTIVE' %}#059669{% elif project.status == 'COMPLETED' %}#4f46e5{% elif project.status == 'ON_HOLD' %}#dc2626{% else %}#94a3b8{% endif %}; background: {% if project.status == 'ACTIVE' %}#059669{% elif project.status == 'COMPLETED' %}#4f46e5{% elif project.status == 'ON_HOLD' %}#dc2626{% else %}#94a3b8{% endif %};"></div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px 18px; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'" onmouseout="this.style.boxShadow='none'">
+                <div style="display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 8px;">
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 700;">
+                        <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #0f172a; text-decoration: none;">{{ project.name }}</a>
+                    </h4>
+                    {% if project.status == 'ACTIVE' %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #d1fae5; color: #065f46; white-space: nowrap;">Active</span>
+                    {% elif project.status == 'PLANNING' %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #f1f5f9; color: #475569; white-space: nowrap;">Planning</span>
+                    {% elif project.status == 'ON_HOLD' %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #fee2e2; color: #991b1b; white-space: nowrap;">On Hold</span>
+                    {% elif project.status == 'COMPLETED' %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #dbeafe; color: #1e40af; white-space: nowrap;">Completed</span>
+                    {% else %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #f1f5f9; color: #475569; white-space: nowrap;">{{ project.get_status_display }}</span>{% endif %}
+                </div>
+                {% if project.description %}<p style="margin: 0 0 10px; font-size: 12px; color: #64748b; line-height: 1.5;">{{ project.description|truncatewords:25 }}</p>{% endif %}
+                <!-- Progress bar -->
+                {% if project.total_tasks > 0 %}
+                <div style="margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-size: 11px; color: #64748b;">Progress</span>
+                        <span style="font-size: 11px; font-weight: 600; color: #0f172a;">{{ project.completed_tasks }}/{{ project.total_tasks }} tasks</span>
+                    </div>
+                    <div style="height: 4px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+                        <div style="height: 100%; border-radius: 999px; background: #1d4ed8; width: {% widthratio project.completed_tasks project.total_tasks 100 %}%;"></div>
+                    </div>
+                </div>
+                {% endif %}
+                <!-- Meta row -->
+                <div style="display: flex; gap: 16px; align-items: center; font-size: 11px; color: #94a3b8; flex-wrap: wrap;">
+                    <span style="display: flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        {{ project.start_date|date:"M j, Y"|default:"No start date" }}
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        {{ project.end_date|date:"M j, Y"|default:"No end date" }}
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                        {{ project.member_count }} member{{ project.member_count|pluralize }}
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        {{ project.total_tasks }} task{{ project.total_tasks|pluralize }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px; display: block;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+        <p style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: #475569;">No projects found</p>
+        <p style="margin: 0; font-size: 12px; color: #94a3b8;">{% if status_filter %}Try clearing the filter or create a new project.{% else %}Create your first project to see it on the timeline.{% endif %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

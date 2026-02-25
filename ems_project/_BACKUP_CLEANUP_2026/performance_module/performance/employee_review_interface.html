@@ -1,0 +1,247 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}My Performance Review{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="padding: 24px;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Performance Review Self-Assessment</h1>
+            <p style="color: #64748b; margin: 0;">{{ review.title }}</p>
+        </div>
+        <a href="{% url 'performance_reviews_list' %}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Reviews
+        </a>
+    </div>
+
+    <!-- Review Info Card -->
+    <div class="content-card" style="padding: 24px; margin-bottom: 24px; background: white; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
+            <div>
+                <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Review Period</div>
+                <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ review.review_period_start|date:"M d, Y" }} - {{ review.review_period_end|date:"M d, Y" }}</div>
+            </div>
+            <div>
+                <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Reviewer</div>
+                <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ review.reviewer.get_full_name|default:"Not Assigned" }}</div>
+            </div>
+            <div>
+                <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Status</div>
+                <div style="font-size: 15px; font-weight: 600;">
+                    {% if review.status == 'DRAFT' %}
+                        <span style="background: #fef3c7; color: #92400e; padding: 6px 12px; border-radius: 6px; font-size: 13px; border: 1px solid #fbbf24;">Draft</span>
+                    {% elif review.status == 'SUBMITTED' %}
+                        <span style="background: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 6px; font-size: 13px; border: 1px solid #3b82f6;">Submitted</span>
+                    {% elif review.status == 'COMPLETED' %}
+                        <span style="background: #d1fae5; color: #065f46; padding: 6px 12px; border-radius: 6px; font-size: 13px; border: 1px solid #10b981;">Completed</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if review.cycle.deadline %}
+            <div>
+                <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Deadline</div>
+                <div style="font-size: 15px; font-weight: 600; color: #ef4444;">{{ review.cycle.deadline|date:"M d, Y" }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not can_edit %}
+    <div class="alert alert-info" style="margin-bottom: 24px;">
+        <strong>ℹ️ This review has been submitted and cannot be edited.</strong>
+        <a href="{% url 'review_view_only' review.id %}" style="color: #2563eb; text-decoration: underline;">View completed review</a>
+    </div>
+    {% endif %}
+
+    <form method="post" id="reviewForm">
+        {% csrf_token %}
+        
+        <!-- Self-Assessment Section -->
+        <div class="content-card" style="padding: 24px; margin-bottom: 24px;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Self-Assessment
+            </h2>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Self-Rating <span style="color: #ef4444;">*</span>
+                </label>
+                <select name="self_rating" class="form-control" {% if not can_edit %}disabled{% endif %} required>
+                    <option value="">Select your self-rating...</option>
+                    {% for value, label in self_rating_choices %}
+                    <option value="{{ value }}" {% if review.self_rating == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Key Achievements <span style="color: #ef4444;">*</span>
+                </label>
+                <textarea name="achievements" class="form-control" rows="4" {% if not can_edit %}disabled{% endif %} required placeholder="Describe your key achievements during this review period...">{{ review.achievements }}</textarea>
+                <small style="color: #64748b;">What were your major accomplishments? What goals did you achieve?</small>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Challenges Faced
+                </label>
+                <textarea name="challenges_faced" class="form-control" rows="3" {% if not can_edit %}disabled{% endif %} placeholder="Describe any challenges you encountered...">{{ review.challenges_faced }}</textarea>
+                <small style="color: #64748b;">What obstacles did you face? How did you overcome them?</small>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Overall Comments <span style="color: #ef4444;">*</span>
+                </label>
+                <textarea name="employee_comments" class="form-control" rows="4" {% if not can_edit %}disabled{% endif %} required placeholder="Share your overall thoughts on your performance...">{{ review.employee_comments }}</textarea>
+            </div>
+        </div>
+
+        <!-- Goals for Next Period -->
+        <div class="content-card" style="padding: 24px; margin-bottom: 24px;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Goals for Next Period
+            </h2>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    What are your goals for the next review period?
+                </label>
+                <textarea name="goals_next_period" class="form-control" rows="4" {% if not can_edit %}disabled{% endif %} placeholder="Describe your goals and objectives for the next period...">{{ review.goals_next_period }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #0f172a; margin-bottom: 8px;">
+                    Training & Development Needs
+                </label>
+                <textarea name="training_needs" class="form-control" rows="3" {% if not can_edit %}disabled{% endif %} placeholder="What training or development would help you improve?">{{ review.training_needs }}</textarea>
+                <small style="color: #64748b;">What skills or knowledge would you like to develop?</small>
+            </div>
+        </div>
+
+        <!-- Competencies (if available) -->
+        {% if competencies %}
+        <div class="content-card" style="padding: 24px; margin-bottom: 24px;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 20px 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Competencies (View Only)
+            </h2>
+            <p style="color: #64748b; margin-bottom: 20px;">Your reviewer will rate you on these competencies.</p>
+            
+            <div style="display: grid; gap: 12px;">
+                {% for comp in competencies %}
+                <div style="padding: 16px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">{{ comp.name }}</div>
+                    <div style="font-size: 14px; color: #64748b;">{{ comp.description }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        {% if can_edit %}
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="submit" name="action" value="save_draft" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Draft
+            </button>
+            <button type="submit" name="action" value="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to submit this review? You will not be able to edit it after submission.');">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                Submit Review
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<style>
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-control:disabled {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+}
+
+.btn-secondary {
+    background: white;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.alert {
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-info {
+    background: #dbeafe;
+    border-color: #2563eb;
+    color: #1e40af;
+}
+</style>
+{% endblock %}

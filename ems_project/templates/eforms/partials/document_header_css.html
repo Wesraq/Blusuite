@@ -1,0 +1,138 @@
+{% comment %}
+Standardized E-Forms Document Header CSS
+Usage: {% include 'eforms/partials/document_header_css.html' %}
+Include this inside a <style> block or {% block extra_head %}
+{% endcomment %}
+
+/* ── E-Forms Letterhead ── */
+.ef-letterhead {
+    background: #fff;
+    border-bottom: 3px solid #E11D48;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Row layout (logo_left / logo_right) */
+.ef-lh-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+}
+.ef-lh-logo-wrap {
+    flex-shrink: 0;
+}
+.ef-lh-logo {
+    height: 52px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+    display: block;
+}
+.ef-lh-logo--center {
+    height: 48px;
+    margin: 0 auto 8px;
+}
+.ef-lh-logo--sm {
+    height: 28px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.ef-lh-logo-fallback {
+    width: 52px;
+    height: 52px;
+    background: #E11D48;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 22px;
+}
+.ef-lh-logo-fallback--lg {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+    margin: 0 auto 8px;
+}
+.ef-lh-info {
+    flex: 1;
+    min-width: 0;
+}
+.ef-lh-company-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+.ef-lh-company-name--lg {
+    font-size: 20px;
+    display: inline;
+    vertical-align: middle;
+}
+.ef-lh-detail {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* Center layout */
+.ef-lh-center {
+    padding: 18px 24px;
+    text-align: center;
+}
+
+/* Full width layout */
+.ef-lh-full {
+    padding: 0;
+}
+.ef-lh-full-top {
+    padding: 14px 24px;
+    text-align: center;
+}
+.ef-lh-full-bar {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 6px 24px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: #64748b;
+}
+.ef-lh-full-bar span {
+    white-space: nowrap;
+}
+
+/* Title bar below letterhead */
+.ef-lh-title-bar {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 10px 24px;
+    text-align: center;
+}
+.ef-letterhead--full_width .ef-lh-title-bar {
+    border-top: none;
+}
+.ef-lh-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+.ef-lh-subtitle {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Print-friendly */
+@media print {
+    .ef-letterhead { border-bottom-width: 2px; }
+    .ef-lh-company-name { font-size: 14px; }
+    .ef-lh-detail { font-size: 9px; }
+    .ef-lh-title { font-size: 13px; }
+    .ef-lh-logo { height: 40px; }
+}

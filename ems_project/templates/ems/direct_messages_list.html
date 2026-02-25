@@ -1,0 +1,131 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Messages - BLU Suite{% endblock %}
+
+{% block extra_css %}
+<style>
+.dm-page { display: flex; flex-direction: column; gap: 20px; }
+.dm-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.dm-header-text h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; color: #0f172a; }
+.dm-header-text p { margin: 0; font-size: 14px; color: #64748b; }
+.dm-btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #e11d48; color: #fff; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; text-decoration: none; }
+.dm-btn-primary:hover { background: #be123c; }
+.dm-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
+.dm-card:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.10); }
+.dm-conv-list { display: flex; flex-direction: column; }
+.dm-conv-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid #f1f5f9; text-decoration: none; transition: background .15s; }
+.dm-conv-item:last-child { border-bottom: none; }
+.dm-conv-item:hover { background: #f8fafc; }
+.dm-avatar { position: relative; flex-shrink: 0; }
+.dm-avatar-circle { width: 44px; height: 44px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 15px; }
+.dm-badge { position: absolute; top: -3px; right: -3px; background: #e11d48; color: #fff; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; border: 2px solid #fff; padding: 0 4px; }
+.dm-conv-body { flex: 1; min-width: 0; }
+.dm-conv-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+.dm-conv-name { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+.dm-conv-time { font-size: 11px; color: #94a3b8; white-space: nowrap; }
+.dm-conv-preview { margin: 0; font-size: 13px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dm-conv-preview.dm-unread { color: #0f172a; font-weight: 500; }
+.dm-empty { text-align: center; padding: 60px 20px; }
+.dm-empty svg { color: #cbd5e1; margin-bottom: 12px; }
+.dm-empty h3 { margin: 0 0 6px; color: #64748b; font-size: 16px; font-weight: 600; }
+.dm-empty p { margin: 0; color: #94a3b8; font-size: 13px; }
+.dm-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.4); z-index: 1000; align-items: center; justify-content: center; }
+.dm-modal { background: #fff; border-radius: 4px; width: 90%; max-width: 480px; max-height: 80vh; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,.12); }
+.dm-modal-header { padding: 18px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.dm-modal-header h3 { margin: 0; font-size: 17px; font-weight: 700; color: #0f172a; }
+.dm-modal-close { background: none; border: none; color: #64748b; cursor: pointer; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 20px; }
+.dm-modal-close:hover { background: #f1f5f9; }
+.dm-modal-body { padding: 16px 20px; }
+.dm-modal-body p { margin: 0 0 12px; color: #64748b; font-size: 13px; }
+.dm-colleague-list { max-height: 380px; overflow-y: auto; }
+.dm-colleague-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 4px; text-decoration: none; transition: background .15s; }
+.dm-colleague-item:hover { background: #f1f5f9; }
+.dm-colleague-avatar { width: 36px; height: 36px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 13px; flex-shrink: 0; }
+.dm-colleague-info { min-width: 0; }
+.dm-colleague-name { font-size: 14px; font-weight: 600; color: #0f172a; }
+.dm-colleague-role { font-size: 12px; color: #64748b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dm-page">
+    <div class="dm-header">
+        <div class="dm-header-text">
+            <h2>Direct Messages</h2>
+            <p>Private conversations with colleagues</p>
+        </div>
+        <button onclick="showNewMessageModal()" class="dm-btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="12" y1="7" x2="12" y2="13"/></svg>
+            New Message
+        </button>
+    </div>
+
+    <div class="dm-card">
+        {% if conversations %}
+        <div class="dm-conv-list">
+            {% for conv in conversations %}
+            <a href="{% url 'direct_message_conversation' conv.user.id %}" class="dm-conv-item">
+                <div class="dm-avatar">
+                    <div class="dm-avatar-circle">{{ conv.user.first_name|first }}{{ conv.user.last_name|first }}</div>
+                    {% if conv.unread_count > 0 %}<span class="dm-badge">{{ conv.unread_count }}</span>{% endif %}
+                </div>
+                <div class="dm-conv-body">
+                    <div class="dm-conv-top">
+                        <h4 class="dm-conv-name">{{ conv.user.get_full_name }}</h4>
+                        <span class="dm-conv-time">{{ conv.last_message.created_at|date:"M d, g:i A" }}</span>
+                    </div>
+                    <p class="dm-conv-preview {% if conv.unread_count > 0 %}dm-unread{% endif %}">
+                        {% if conv.last_message.sender.id == request.user.id %}You: {% endif %}{{ conv.last_message.message|truncatewords:10 }}
+                    </p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="dm-empty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <h3>No conversations yet</h3>
+            <p>Start chatting with your colleagues</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- New Message Modal -->
+<div id="newMessageModal" class="dm-modal-overlay">
+    <div class="dm-modal">
+        <div class="dm-modal-header">
+            <h3>New Message</h3>
+            <button onclick="closeNewMessageModal()" class="dm-modal-close">&times;</button>
+        </div>
+        <div class="dm-modal-body">
+            <p>Select a colleague to start a conversation:</p>
+            <div class="dm-colleague-list">
+                {% if colleagues %}
+                {% for colleague in colleagues %}
+                <a href="{% url 'direct_message_conversation' colleague.id %}" class="dm-colleague-item">
+                    <div class="dm-colleague-avatar">{{ colleague.first_name|first }}{{ colleague.last_name|first }}</div>
+                    <div class="dm-colleague-info">
+                        <div class="dm-colleague-name">{{ colleague.get_full_name }}</div>
+                        <div class="dm-colleague-role">{{ colleague.employee_profile.job_title|default:"Employee" }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="dm-empty" style="padding: 30px 20px;">
+                    <p>No colleagues available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showNewMessageModal() { document.getElementById('newMessageModal').style.display = 'flex'; }
+function closeNewMessageModal() { document.getElementById('newMessageModal').style.display = 'none'; }
+document.getElementById('newMessageModal')?.addEventListener('click', function(e) { if (e.target === this) closeNewMessageModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeNewMessageModal(); });
+</script>
+{% endblock %}

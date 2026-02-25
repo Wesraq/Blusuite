@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from accounts.models import User, EmployeeProfile, EmployerProfile
-from attendance.models import Attendance, LeaveRequest
-from documents.models import DocumentCategory, EmployeeDocument, DocumentTemplate, DocumentAccessLog
-from performance.models import (
+from blu_staff.apps.accounts.models import User, EmployeeProfile, EmployerProfile
+from blu_staff.apps.attendance.models import Attendance, LeaveRequest
+from blu_staff.apps.documents.models import DocumentCategory, EmployeeDocument, DocumentTemplate, DocumentAccessLog
+from blu_staff.apps.performance.models import (
     PerformanceReview, PerformanceGoal, PerformanceMetric,
     PerformanceFeedback, PerformanceTemplate
 )

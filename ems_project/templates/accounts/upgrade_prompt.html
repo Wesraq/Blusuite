@@ -1,0 +1,23 @@
+<!-- Upgrade prompt template for restricted features -->
+<div class="upgrade-prompt" style="background: linear-gradient(135deg, #FFF5F5 0%, #FED7D7 100%); border: 2px solid #FC8181; border-radius: 8px; padding: 24px; margin: 20px 0; text-align: center;">
+    {% if not has_access %}
+    <div style="margin-bottom: 16px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" style="margin: 0 auto;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+    </div>
+    <h3 style="font-size: 20px; font-weight: 700; color: #1A1A1A; margin-bottom: 12px;">
+        {{ feature_name }} Not Available
+    </h3>
+    <p style="font-size: 15px; color: #666666; margin-bottom: 20px;">
+        This feature is not included in your <strong>{{ current_plan|title }}</strong> plan.
+        <br>
+        Upgrade to <strong>{{ required_plan }}</strong> or higher to unlock this feature.
+    </p>
+    <a href="/pricing/" style="display: inline-block; background: #DC143C; color: white; padding: 12px 32px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 15px; transition: background 0.2s;">
+        View Plans & Upgrade
+    </a>
+    {% endif %}
+</div>

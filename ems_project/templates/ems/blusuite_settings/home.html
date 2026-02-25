@@ -1,0 +1,1471 @@
+{% extends 'ems/blusuite_base.html' %}
+{% load static %}
+
+{% block title %}Company Settings · BluSuite{% endblock %}
+
+{% block headline %}
+<div class="bs-settings-hero">
+    <div>
+        <h1>Settings &amp; Configuration</h1>
+        <p>Manage BluSuite administration, company identity, and connected modules.</p>
+    </div>
+    {% if settings.plan.name or settings.plan.expires_at %}
+    <div class="plan-chip">
+        <span class="plan-name">{{ settings.plan.name|default:'Plan not set' }}</span>
+        {% if settings.plan.expires_at %}
+        <span class="plan-expiry">Renews {{ settings.plan.expires_at|date:'d M Y' }}</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+{% load tz %}
+<div class="bs-settings">
+    <section class="bs-settings-cards">
+        <h2 class="section-heading">Administrative Tools</h2>
+        <div class="card-grid">
+            {% for card in settings.cards.administrative_tools %}
+            <article class="suite-card">
+                <div class="suite-icon">
+                    <span class="icon-label">{{ card.icon }}</span>
+                </div>
+                <div class="suite-body">
+                    <h3>{{ card.title }}</h3>
+                    <p>{{ card.description }}</p>
+                </div>
+                <a href="{{ card.url|default:'#' }}" class="suite-link" aria-label="Open {{ card.title }}"></a>
+            </article>
+            {% empty %}
+            <p class="empty">No administrative tools configured.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="bs-settings-cards">
+        <h2 class="section-heading">HR Management</h2>
+        <div class="card-grid">
+            {% for card in settings.cards.hr_management %}
+            <article class="suite-card">
+                <div class="suite-icon">
+                    <span class="icon-label">{{ card.icon }}</span>
+                </div>
+                <div class="suite-body">
+                    <h3>{{ card.title }}</h3>
+                    <p>{{ card.description }}</p>
+                </div>
+                <a href="{{ card.url|default:'#' }}" class="suite-link" aria-label="Open {{ card.title }}"></a>
+            </article>
+            {% empty %}
+            <p class="empty">No HR tools configured.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="bs-settings-cards">
+        <h2 class="section-heading">BluSuite Administration</h2>
+        <div class="card-grid">
+            {% for card in settings.cards.blusuite_administration %}
+            <article class="suite-card">
+                <div class="suite-icon">
+                    <span class="icon-label">{{ card.icon }}</span>
+                </div>
+                <div class="suite-body">
+                    <h3>{{ card.title }}</h3>
+                    <p>{{ card.description }}</p>
+                </div>
+                <a href="{{ card.url|default:'#' }}" class="suite-link" aria-label="Open {{ card.title }}"></a>
+            </article>
+            {% empty %}
+            <p class="empty">No administration tools configured.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="bs-forms" id="company-profile">
+        <div class="form-tabs" role="tablist">
+            <button type="button" class="form-tab active" data-tab="profile">Company Profile</button>
+            <button type="button" class="form-tab" data-tab="employee">Employee Configuration</button>
+            <button type="button" class="form-tab" data-tab="smtp">Email / SMTP</button>
+            <button type="button" class="form-tab" data-tab="biometric">Biometric Attendance</button>
+            <button type="button" class="form-tab" data-tab="notifications">Notifications</button>
+            <button type="button" class="form-tab" data-tab="integrations">Integrations</button>
+            <button type="button" class="form-tab" data-tab="payslip">Payslip Designer</button>
+        </div>
+
+        <div class="form-panels">
+            <section class="form-panel active" data-panel="profile">
+                <header>
+                    <h3>Company profile</h3>
+                    <p>Manage company information, logo, and official stamp for payslips.</p>
+                </header>
+                <form method="post" enctype="multipart/form-data" action="{{ settings.forms.profile.action }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="company_profile">
+
+                    <div class="form-grid three" style="margin-bottom: 24px;">
+                        <div class="form-group">
+                            <label>Company Name *</label>
+                            {{ settings.forms.profile.form.name }}
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            {{ settings.forms.profile.form.phone }}
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            {{ settings.forms.profile.form.email }}
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div class="form-group">
+                            <label>Address</label>
+                            {{ settings.forms.profile.form.address }}
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            {{ settings.forms.profile.form.city }}
+                        </div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            {{ settings.forms.profile.form.country }}
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label>Website</label>
+                        {{ settings.forms.profile.form.website }}
+                    </div>
+
+                    <hr style="margin: 32px 0; border: none; border-top: 1px solid #e2e8f0;">
+
+                    <h3 class="section-heading" style="font-size: 16px;">Company Logo &amp; Stamp</h3>
+
+                    <div class="form-grid two" style="gap: 24px;">
+                        <div>
+                            <label>Company Logo</label>
+                            <p class="empty" style="margin: 8px 0 16px 0; font-style: normal; color: #64748b;">Used in payslips and documents. Recommended: PNG/JPG, max 2MB.</p>
+                            {% if settings.branding.logo_url %}
+                            <div class="file-preview">
+                                <img src="{{ settings.branding.logo_url }}" alt="Company Logo">
+                            </div>
+                            {% endif %}
+                            {{ settings.forms.profile.form.logo }}
+                        </div>
+                        <div>
+                            <label>Company Stamp</label>
+                            <p class="empty" style="margin: 8px 0 16px 0; font-style: normal; color: #64748b;">Official stamp for payslips. Recommended: PNG with transparency, max 2MB.</p>
+                            {% if settings.branding.stamp_url %}
+                            <div class="file-preview">
+                                <img src="{{ settings.branding.stamp_url }}" alt="Company Stamp">
+                            </div>
+                            {% endif %}
+                            {{ settings.forms.profile.form.company_stamp }}
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary">Save company profile</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="form-panel" data-panel="branding">
+                <header>
+                    <h3>Branding & Colors</h3>
+                    <p>Manage your company palette for EMS sidebars, buttons, and headers.</p>
+                </header>
+                <form method="post" action="{{ settings.forms.profile.action }}" style="display:grid; gap:18px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="company_profile">
+                    <div class="form-grid three">
+                        <div class="form-group">
+                            <label>Primary color</label>
+                            {{ settings.forms.profile.form.primary_color }}
+                        </div>
+                        <div class="form-group">
+                            <label>Secondary color</label>
+                            {{ settings.forms.profile.form.secondary_color }}
+                        </div>
+                        <div class="form-group">
+                            <label>Text color</label>
+                            {{ settings.forms.profile.form.text_color }}
+                        </div>
+                    </div>
+                    <div class="form-grid three">
+                        <div class="form-group">
+                            <label>Background color</label>
+                            {{ settings.forms.profile.form.background_color }}
+                        </div>
+                        <div class="form-group">
+                            <label>Card header color</label>
+                            {{ settings.forms.profile.form.card_header_color }}
+                        </div>
+                        <div class="form-group">
+                            <label>Button color</label>
+                            {{ settings.forms.profile.form.button_color }}
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary">Save branding</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="form-panel" data-panel="employee">
+                <header>
+                    <h3>Employee configuration</h3>
+                    <p>Manage employee identifiers, departments, positions, and pay grades.</p>
+                </header>
+
+                <div class="form-section" style="margin-bottom: 32px;">
+                    <h3 class="section-heading" style="font-size:16px;">Employee ID format</h3>
+                    <form method="post" action="{{ settings.forms.employee_configuration.employee_id.action }}" class="form-grid three" style="gap:16px; align-items:end;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="{{ settings.forms.employee_configuration.employee_id.action_key }}">
+                        <div class="form-group">
+                            <label>Prefix</label>
+                            {{ settings.forms.employee_configuration.employee_id.form.prefix }}
+                        </div>
+                        <div class="form-group">
+                            <label>Padding</label>
+                            {{ settings.forms.employee_configuration.employee_id.form.padding }}
+                        </div>
+                        <div class="form-group">
+                            <label>Suffix</label>
+                            {{ settings.forms.employee_configuration.employee_id.form.suffix }}
+                        </div>
+                        <div class="form-group">
+                            <label>Preview</label>
+                            <div class="preview-box">{{ settings.employee_config_lists.employee_id_preview }}</div>
+                        </div>
+                        <div class="form-actions" style="justify-content:flex-end;">
+                            <button type="submit" class="btn primary">Save format</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="summary-strip" style="display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap;">
+                    <div class="summary-pill">Departments: <strong>{{ settings.cards.employee_configuration.statistics.total_departments }}</strong></div>
+                    <div class="summary-pill">Positions: <strong>{{ settings.cards.employee_configuration.statistics.total_positions }}</strong></div>
+                    <div class="summary-pill">Pay grades: <strong>{{ settings.cards.employee_configuration.statistics.total_pay_grades }}</strong></div>
+                </div>
+
+                <div class="form-grid three" style="gap:24px;">
+                    <div class="settings-section">
+                        <h3>Departments</h3>
+                        <p class="empty" style="font-style:normal; margin-bottom:16px;">Maintain the list of departments.</p>
+                        <form method="post" action="{{ settings.forms.employee_configuration.department.action }}" style="display:flex; gap:12px; margin-bottom:16px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="{{ settings.forms.employee_configuration.department.action_key }}">
+                            {{ settings.forms.employee_configuration.department.form.name }}
+                            <button type="submit" class="btn primary">Add</button>
+                        </form>
+                        <ul class="list">
+                            {% for department in settings.employee_config_lists.departments %}
+                            <li class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
+                                <span>{{ department.name }}</span>
+                                <span style="display:flex; gap:6px;">
+                                    <button type="button" class="btn-icon" onclick="editItem('Department', {{ department.id }}, '{{ department.name|escapejs }}', '{{ department.description|default:""|escapejs }}')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+                                    </button>
+                                    <button type="button" class="btn-icon" style="color:#dc2626;" onclick="deleteItem('Department', {{ department.id }}, '{{ department.name|escapejs }}')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </span>
+                            </li>
+                            {% empty %}
+                            <li class="list-item"><span class="empty" style="font-style:normal;">No departments yet.</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Positions</h3>
+                        <p class="empty" style="font-style:normal; margin-bottom:16px;">Associate positions with departments.</p>
+                        <form method="post" action="{{ settings.forms.employee_configuration.position.action }}" style="display:grid; gap:12px; margin-bottom:16px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="{{ settings.forms.employee_configuration.position.action_key }}">
+                            {{ settings.forms.employee_configuration.position.form.name }}
+                            {{ settings.forms.employee_configuration.position.form.department }}
+                            <button type="submit" class="btn primary">Add</button>
+                        </form>
+                        <ul class="list">
+                            {% for position in settings.employee_config_lists.positions %}
+                            <li class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-weight:500;">{{ position.name }}</div>
+                                    {% if position.department %}
+                                    <div class="form-hint" style="margin-top:4px;">Department: {{ position.department }}</div>
+                                    {% endif %}
+                                </div>
+                                <span style="display:flex; gap:6px; flex-shrink:0;">
+                                    <button type="button" class="btn-icon" onclick="editItem('Position', {{ position.id }}, '{{ position.name|escapejs }}', '', {{ position.department_id|default:'null' }})">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+                                    </button>
+                                    <button type="button" class="btn-icon" style="color:#dc2626;" onclick="deleteItem('Position', {{ position.id }}, '{{ position.name|escapejs }}')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </span>
+                            </li>
+                            {% empty %}
+                            <li class="list-item"><span class="empty" style="font-style:normal;">No positions yet.</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Pay grades</h3>
+                        <p class="empty" style="font-style:normal; margin-bottom:16px;">Standardise salary bands across employees.</p>
+                        <form method="post" action="{{ settings.forms.employee_configuration.pay_grade.action }}" style="display:grid; gap:12px; margin-bottom:16px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="{{ settings.forms.employee_configuration.pay_grade.action_key }}">
+                            {{ settings.forms.employee_configuration.pay_grade.form.name }}
+                            {{ settings.forms.employee_configuration.pay_grade.form.description }}
+                            <button type="submit" class="btn primary">Add</button>
+                        </form>
+                        <ul class="list">
+                            {% for grade in settings.employee_config_lists.pay_grades %}
+                            <li class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-weight:500;">{{ grade.name }}</div>
+                                    {% if grade.description %}
+                                    <div class="form-hint" style="margin-top:4px;">{{ grade.description }}</div>
+                                    {% endif %}
+                                </div>
+                                <span style="display:flex; gap:6px; flex-shrink:0;">
+                                    <button type="button" class="btn-icon" onclick="editItem('Pay Grade', {{ grade.id }}, '{{ grade.name|escapejs }}', '{{ grade.description|default:""|escapejs }}')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+                                    </button>
+                                    <button type="button" class="btn-icon" style="color:#dc2626;" onclick="deleteItem('Pay Grade', {{ grade.id }}, '{{ grade.name|escapejs }}')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </span>
+                            </li>
+                            {% empty %}
+                            <li class="list-item"><span class="empty" style="font-style:normal;">No pay grades yet.</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                {% if settings.cards.employee_configuration.position_by_department %}
+                <div class="settings-section" style="margin-top:32px;">
+                    <h3>Positions by department</h3>
+                    <div class="form-grid two" style="gap:12px;">
+                        {% for bucket in settings.cards.employee_configuration.position_by_department %}
+                        <div class="list-item" style="display:flex; justify-content:space-between;">
+                            <span>{{ bucket.department__name }}</span>
+                            <span class="form-hint">{{ bucket.count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="form-panel" data-panel="smtp">
+                <header>
+                    <h3>Email &amp; SMTP settings</h3>
+                    <p>Configure outgoing mail server for notifications.</p>
+                </header>
+                <form method="post" action="{{ settings.forms.email.action }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="{{ settings.forms.email.action_key }}">
+
+                    <p class="empty" style="margin-bottom: 20px; font-style: normal;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> SMTP configuration enables system emails such as password resets, alerts, and notifications.</p>
+
+                    <div class="form-grid two">
+                        <div class="form-group">
+                            <label>SMTP Host</label>
+                            {{ settings.forms.email.form.smtp_host }}
+                        </div>
+                        <div class="form-group">
+                            <label>Port</label>
+                            {{ settings.forms.email.form.smtp_port }}
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            {{ settings.forms.email.form.smtp_username }}
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            {{ settings.forms.email.form.smtp_password }}
+                        </div>
+                        <div class="form-group">
+                            <label>Sender Name</label>
+                            {{ settings.forms.email.form.smtp_sender_name }}
+                        </div>
+                        <div class="form-group">
+                            <label>Use TLS</label>
+                            {{ settings.forms.email.form.smtp_use_tls }}
+                        </div>
+                        <div class="form-group">
+                            <label>From Email</label>
+                            {{ settings.forms.email.form.from_email }}
+                        </div>
+                        <div class="form-group">
+                            <label>From Name</label>
+                            {{ settings.forms.email.form.from_name }}
+                        </div>
+                    </div>
+
+                    <div style="margin: 24px 0; padding: 20px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <h4 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #0f172a;">Email Notification Settings</h4>
+                        <div class="form-grid two">
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    {{ settings.forms.email.form.enable_email_notifications }}
+                                    <span style="font-weight: 600;">Enable Email Notifications (Master Switch)</span>
+                                </label>
+                                <p class="help-text">Turn on/off all email notifications system-wide</p>
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    {{ settings.forms.email.form.enable_performance_emails }}
+                                    <span>Performance Reviews</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    {{ settings.forms.email.form.enable_leave_emails }}
+                                    <span>Leave Requests</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    {{ settings.forms.email.form.enable_attendance_emails }}
+                                    <span>Attendance</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    {{ settings.forms.email.form.enable_payroll_emails }}
+                                    <span>Payroll</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    {{ settings.forms.email.form.enable_training_emails }}
+                                    <span>Training</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    {{ settings.forms.email.form.enable_document_emails }}
+                                    <span>Documents</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="gap: 12px;">
+                        <button type="button" class="btn secondary" onclick="testSMTPConnection(this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M18.36 5.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                            Test Connection
+                        </button>
+                        <button type="submit" class="btn primary">Save email settings</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="form-panel" data-panel="biometric">
+                <header>
+                    <h3>Biometric attendance</h3>
+                    <p>Integrate biometric devices for accurate attendance tracking.</p>
+                </header>
+                <form method="post" action="{{ settings.forms.biometric.action }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="{{ settings.forms.biometric.action_key }}">
+
+                    <div class="form-grid two">
+                        <div class="form-group">
+                            <label>Device Provider</label>
+                            {{ settings.forms.biometric.form.provider }}
+                        </div>
+                        <div class="form-group">
+                            <label>Device Name</label>
+                            {{ settings.forms.biometric.form.device_name }}
+                        </div>
+                        <div class="form-group">
+                            <label>Device Serial</label>
+                            {{ settings.forms.biometric.form.device_serial }}
+                        </div>
+                        <div class="form-group">
+                            <label>API Endpoint</label>
+                            {{ settings.forms.biometric.form.endpoint }}
+                        </div>
+                        <div class="form-group">
+                            <label>Device IP</label>
+                            {{ settings.forms.biometric.form.device_ip }}
+                        </div>
+                        <div class="form-group">
+                            <label>API Key</label>
+                            {{ settings.forms.biometric.form.api_key }}
+                        </div>
+                        <div class="form-group">
+                            <label>API Secret</label>
+                            {{ settings.forms.biometric.form.api_secret }}
+                        </div>
+                        <div class="form-group">
+                            <label>Webhook URL</label>
+                            {{ settings.forms.biometric.form.webhook_url }}
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            {{ settings.forms.biometric.form.location }}
+                        </div>
+                        <div class="form-group">
+                            <label>Device Timezone</label>
+                            {{ settings.forms.biometric.form.timezone }}
+                        </div>
+                        <div class="form-group">
+                            <label>Sync Frequency (minutes)</label>
+                            {{ settings.forms.biometric.form.sync_interval }}
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="gap: 12px;">
+                        <button type="button" class="btn secondary" onclick="testBiometricConnection(this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M18.36 5.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                            Test Device
+                        </button>
+                        <button type="submit" class="btn primary">Save biometric settings</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="form-panel" data-panel="notifications">
+                <header>
+                    <h3>Notification policy</h3>
+                    <p>Configure email digests and in-app notifications for your team.</p>
+                </header>
+                <form method="post" action="{{ settings.forms.notifications.action }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="{{ settings.forms.notifications.action_key }}">
+
+                    <div class="settings-section" style="margin-bottom: 24px;">
+                        <h3>Email Notifications</h3>
+                        <p class="empty" style="margin-bottom: 16px; font-style: normal;">Control which email notifications are sent to employees and administrators.</p>
+                        <div class="form-grid" style="gap: 16px;">
+                            <label class="settings-section" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                                {{ settings.forms.notifications.form.email_leave_requests }}
+                                <span>
+                                    <strong>Leave Request Notifications</strong>
+                                    <span class="empty">Notify managers when employees submit leave requests.</span>
+                                </span>
+                            </label>
+                            <label class="settings-section" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                                {{ settings.forms.notifications.form.email_leave_approvals }}
+                                <span>
+                                    <strong>Leave Approval Notifications</strong>
+                                    <span class="empty">Notify employees when their requests are approved or rejected.</span>
+                                </span>
+                            </label>
+                            <label class="settings-section" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                                {{ settings.forms.notifications.form.email_document_uploads }}
+                                <span>
+                                    <strong>Document Upload Notifications</strong>
+                                    <span class="empty">Alerts when documents are uploaded or require review.</span>
+                                </span>
+                            </label>
+                            <label class="settings-section" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                                {{ settings.forms.notifications.form.email_performance_reminders }}
+                                <span>
+                                    <strong>Performance Review Reminders</strong>
+                                    <span class="empty">Send reminders for upcoming performance reviews.</span>
+                                </span>
+                            </label>
+                            <label class="settings-section" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                                {{ settings.forms.notifications.form.email_training_assignments }}
+                                <span>
+                                    <strong>Training Assignment Notifications</strong>
+                                    <span class="empty">Notify employees when new training is assigned.</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section" style="margin-bottom: 24px;">
+                        <h3>In-app Notifications</h3>
+                        <div class="form-grid" style="gap: 16px;">
+                            <label class="settings-section" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                                {{ settings.forms.notifications.form.inapp_realtime }}
+                                <span>
+                                    <strong>Real-time Notifications</strong>
+                                    <span class="empty">Show notifications immediately when events occur.</span>
+                                </span>
+                            </label>
+                            <label class="settings-section" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                                {{ settings.forms.notifications.form.inapp_sound_alerts }}
+                                <span>
+                                    <strong>Sound Alerts</strong>
+                                    <span class="empty">Play a sound for key alerts.</span>
+                                </span>
+                            </label>
+                            <label class="settings-section" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                                {{ settings.forms.notifications.form.inapp_desktop_notifications }}
+                                <span>
+                                    <strong>Desktop Notifications</strong>
+                                    <span class="empty">Show notifications even when BluSuite is in the background.</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-grid two" style="margin-bottom: 24px;">
+                        <div class="form-group">
+                            <label>Daily Digest Time</label>
+                            {{ settings.forms.notifications.form.digest_time }}
+                        </div>
+                        <div class="form-group">
+                            <label>Digest Frequency</label>
+                            {{ settings.forms.notifications.form.digest_frequency }}
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary">Save notification settings</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="form-panel" data-panel="integrations">
+                <header>
+                    <h3>Integrations</h3>
+                    <p>Connect with third-party tools and manage API access.</p>
+                </header>
+                <div class="settings-section" style="margin-bottom:24px;">
+                    <h3>Available integrations</h3>
+                    <p class="empty" style="font-style:normal; margin-bottom:20px;">Connect BluSuite with external services to enhance functionality.</p>
+                    <div class="card-grid integrations-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+                        {% for integration in settings.integration_cards %}
+                        <article class="suite-card" style="position:relative; padding:20px;">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                                <div class="suite-icon" style="width:40px; height:40px; font-size:18px;">
+                                    <span class="icon-label">{{ integration.icon }}</span>
+                                </div>
+                                <div>
+                                    <h4 style="margin:0; font-size:16px;">{{ integration.name }}</h4>
+                                    <span class="form-hint">{{ integration.status }}</span>
+                                </div>
+                            </div>
+                            <p class="form-hint" style="margin-bottom:16px; color:#42526e;">{{ integration.description }}</p>
+                            <button type="button" class="btn secondary" style="width:100%;" data-integration="{{ integration.cta_action }}">{{ integration.cta }}</button>
+                        </article>
+                        {% empty %}
+                        <p class="empty" style="font-style:normal;">No integrations available.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>API access</h3>
+                    <p class="empty" style="font-style:normal; margin-bottom:20px;">Generate API keys for custom integrations and third-party applications.</p>
+                    <form method="post" action="{{ settings.forms.api_keys.action }}" class="form-grid two" style="gap:16px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="{{ settings.forms.api_keys.action_key }}">
+                        <div class="form-group">
+                            <label>API Key Name</label>
+                            {{ settings.forms.api_keys.form.name }}
+                        </div>
+                        <div class="form-group">
+                            <label>Webhook URL</label>
+                            {{ settings.forms.api_keys.form.webhook_url }}
+                        </div>
+                        <div class="form-actions" style="grid-column:1 / -1; justify-content:space-between;">
+                            <p class="empty" style="font-style:normal;">Generating a new key will deactivate existing active keys.</p>
+                            <button type="submit" class="btn primary">Generate API key</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="form-panel" data-panel="payslip">
+                <div class="bs-designer-wrapper">
+                    <div class="bs-designer-hero">
+                        <div class="bs-designer-hero__meta">
+                            <div class="bs-designer-hero__icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                                    <path d="M8 13h3"></path>
+                                    <path d="M8 17h6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4>Payslip Designer</h4>
+                                <p>Customize payslip templates, manage sections, and preview updates instantly.</p>
+                            </div>
+                        </div>
+                        <div class="bs-designer-hero__actions">
+                            <button type="button" class="btn secondary" id="previewPayslipBtn">Preview</button>
+                            <button type="button" class="btn primary" id="savePayslipBtn">Save design</button>
+                        </div>
+                    </div>
+
+                    <form id="payslipDesignForm" method="post" action="{{ settings.forms.payslip.action }}" style="display:none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="{{ settings.forms.payslip.action_key }}">
+                        <input type="hidden" name="orientation" id="orientationInput" value="{{ settings.payslip_designer.config.orientation }}">
+                        <input type="hidden" name="layout" id="layoutInput" value="{{ settings.payslip_designer.config.layout }}">
+                        <input type="hidden" name="header_style" id="headerStyleInput" value="{{ settings.payslip_designer.config.headerStyle }}">
+                        <input type="hidden" name="logo_position" id="logoPositionInput" value="{{ settings.payslip_designer.config.logoPosition }}">
+                        <input type="hidden" name="stamp_position" id="stampPositionInput" value="{{ settings.payslip_designer.config.stampPosition }}">
+                        <input type="hidden" name="address_position" id="addressPositionInput" value="{{ settings.payslip_designer.config.addressPosition }}">
+                        <input type="hidden" name="header_color" id="headerColorInput" value="{{ settings.payslip_designer.config.headerColor }}">
+                        <input type="hidden" name="accent_color" id="accentColorInput" value="{{ settings.payslip_designer.config.accentColor }}">
+                        <input type="hidden" name="section_color" id="sectionColorInput" value="{{ settings.payslip_designer.config.sectionColor }}">
+                        <input type="hidden" name="header_content" id="headerContentInput" value="{{ settings.payslip_designer.config.headerContent }}">
+                        <input type="hidden" name="footer_content" id="footerContentInput" value="{{ settings.payslip_designer.config.footerContent }}">
+                        <input type="hidden" name="section_order" id="sectionOrderInput">
+                        <input type="hidden" name="field_positions" id="fieldPositionsInput">
+                        <input type="hidden" name="show_logo" id="showLogoInput" value="{{ settings.payslip_designer.config.showLogo|yesno:'on,' }}">
+                        <input type="hidden" name="show_stamp" id="showStampInput" value="{{ settings.payslip_designer.config.showStamp|yesno:'on,' }}">
+                        <input type="hidden" name="show_signature" id="showSignatureInput" value="{{ settings.payslip_designer.config.showSignature|yesno:'on,' }}">
+                        <input type="hidden" name="show_tax_breakdown" id="showTaxBreakdownInput" value="{{ settings.payslip_designer.config.showTaxBreakdown|yesno:'on,' }}">
+                        <input type="hidden" name="show_confidentiality_notice" id="showConfidentialityInput" value="{{ settings.payslip_designer.config.showConfidentialityNotice|yesno:'on,' }}">
+                    </form>
+
+                    <div class="bs-designer-columns">
+                        <div class="bs-designer-card">
+                            <div class="bs-designer-card__head">
+                                <h5>Layout &amp; Sections</h5>
+                                <p>Control orientation, header layout, and drag sections into the canvas.</p>
+                            </div>
+
+                            <div class="bs-designer-section">
+                                <h6>Orientation</h6>
+                                <div class="orientation-toggle" id="orientationToggle">
+                                    <button type="button" data-orientation="portrait" class="orientation-btn">Portrait</button>
+                                    <button type="button" data-orientation="landscape" class="orientation-btn">Landscape</button>
+                                </div>
+                            </div>
+
+                            <div class="bs-designer-section">
+                                <h6>Header layout</h6>
+                                <div class="layout-toggle" id="headerStyleToggle">
+                                    <button type="button" data-header-style="logo_left" class="layout-btn">Logo left</button>
+                                    <button type="button" data-header-style="logo_center" class="layout-btn">Logo centre</button>
+                                    <button type="button" data-header-style="logo_right" class="layout-btn">Logo right</button>
+                                    <button type="button" data-header-style="full_width" class="layout-btn">Full width</button>
+                                </div>
+                            </div>
+
+                            <div class="bs-designer-section">
+                                <h6>Available sections</h6>
+                                <p>Drag sections onto the canvas to include them in the payslip layout.</p>
+                                <div class="sections-list" id="availableSections">
+                                    {% for section in settings.payslip_designer.available_sections %}
+                                    <div class="section-item" draggable="true" data-section-id="{{ section.id }}">
+                                        <span class="section-icon">{{ section.icon }}</span>
+                                        <span class="section-name">{{ section.name }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="bs-designer-section">
+                                <h6>Layout canvas</h6>
+                                <div class="payslip-canvas" id="payslipCanvas">
+                                    <div class="empty-canvas" id="emptyCanvasState">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <div>Drag sections here to build the payslip</div>
+                                    </div>
+                                    <div id="canvasSections"></div>
+                                </div>
+                            </div>
+
+                            <div class="designer-editor-card">
+                                <div class="designer-editor-card__head">
+                                    <h5>Template Designer</h5>
+                                    <p>Switch between tabs to configure company details, earnings, deductions, and styling.</p>
+                                </div>
+                                <div class="designer-tablist" role="tablist">
+                                    <button type="button" class="designer-tab active" data-panel="designer-tab-company" role="tab">Company</button>
+                                    <button type="button" class="designer-tab" data-panel="designer-tab-employee" role="tab">Employee</button>
+                                    <button type="button" class="designer-tab" data-panel="designer-tab-period" role="tab">Period</button>
+                                    <button type="button" class="designer-tab" data-panel="designer-tab-earnings" role="tab">Earnings</button>
+                                    <button type="button" class="designer-tab" data-panel="designer-tab-deductions" role="tab">Deductions</button>
+                                    <button type="button" class="designer-tab" data-panel="designer-tab-stamp" role="tab">Stamp</button>
+                                    <button type="button" class="designer-tab" data-panel="designer-tab-styles" role="tab">Styles</button>
+                                    <button type="button" class="designer-tab" data-panel="designer-tab-footer" role="tab">Footer</button>
+                                </div>
+                                <div class="designer-tabpanels">
+                                    <div class="designer-tabpanel active" id="designer-tab-company" role="tabpanel">
+                                        <div class="designer-two-column">
+                                            <div class="form-group">
+                                                <label for="companyNameInput">Company name</label>
+                                                <input id="companyNameInput" type="text" value="{{ settings.payslip_designer.config.company.name }}" placeholder="Company name" data-preview-target="previewCompanyName" data-config-key="company.name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="companyPhoneInput">Phone</label>
+                                                <input id="companyPhoneInput" type="text" value="{{ settings.payslip_designer.config.company.phone }}" placeholder="Phone number" data-preview-target="previewCompanyPhone" data-config-key="company.phone">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="companyEmailInput">Email</label>
+                                                <input id="companyEmailInput" type="email" value="{{ settings.payslip_designer.config.company.email }}" placeholder="Email address" data-preview-target="previewCompanyEmail" data-config-key="company.email">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="companyTaxIdInput">Tax ID / NRC</label>
+                                                <input id="companyTaxIdInput" type="text" value="{{ settings.payslip_designer.config.company.taxId }}" placeholder="TAX-12345" data-preview-target="previewCompanyTaxId" data-config-key="company.taxId">
+                                            </div>
+                                            <div class="form-group" style="grid-column:1 / -1;">
+                                                <label for="companyAddressInput">Address</label>
+                                                <textarea id="companyAddressInput" rows="3" placeholder="Street address" data-preview-target="previewCompanyAddress" data-config-key="company.address">{{ settings.payslip_designer.config.company.address }}</textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="companyCurrencySelect">Currency</label>
+                                                <select id="companyCurrencySelect" data-preview-target="previewCompanyCurrency" data-config-key="company.currency">
+                                                    {% for currency in settings.payslip_designer.currency_options %}
+                                                    <option value="{{ currency.value }}" {% if currency.value == settings.payslip_designer.config.company.currency %}selected{% endif %}>{{ currency.label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="designer-tabpanel" id="designer-tab-employee" role="tabpanel">
+                                        <div class="designer-two-column">
+                                            <div class="form-group">
+                                                <label>Employee name</label>
+                                                <input type="text" value="EMMANUEL SIMWANZA" placeholder="Employee name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Employee ID</label>
+                                                <input type="text" value="EMP-2024-001" placeholder="Employee ID">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Designation</label>
+                                                <input type="text" value="Software Engineer" placeholder="Job title">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Department</label>
+                                                <input type="text" value="Engineering" placeholder="Department">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Date of joining</label>
+                                                <input type="date" value="2020-01-15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="designer-tabpanel" id="designer-tab-period" role="tabpanel">
+                                        <div class="designer-two-column">
+                                            <div class="form-group">
+                                                <label>Month</label>
+                                                <select>
+                                                    <option value="January">January</option>
+                                                    <option value="February">February</option>
+                                                    <option value="March">March</option>
+                                                    <option value="April">April</option>
+                                                    <option value="May">May</option>
+                                                    <option value="June">June</option>
+                                                    <option value="July">July</option>
+                                                    <option value="August">August</option>
+                                                    <option value="September">September</option>
+                                                    <option value="October">October</option>
+                                                    <option value="November">November</option>
+                                                    <option value="December" selected>December</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Year</label>
+                                                <input type="number" value="2024">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Pay date</label>
+                                                <input type="date" value="2024-12-31">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Working days</label>
+                                                <input type="number" value="22">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Present days</label>
+                                                <input type="number" value="22">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="designer-tabpanel" id="designer-tab-earnings" role="tabpanel">
+                                        <div class="designer-section">
+                                            <div class="designer-inline-toggle">
+                                                <input type="checkbox" checked>
+                                                <span>Show earnings section on payslip</span>
+                                            </div>
+                                            <div class="designer-line-item">
+                                                <input type="text" value="Basic Salary">
+                                                <input type="number" value="985">
+                                                <button type="button" class="designer-line-remove">Remove</button>
+                                            </div>
+                                            <div class="designer-line-item">
+                                                <input type="text" value="House Rents Allowance (HRA @30%)">
+                                                <input type="number" value="295.5">
+                                                <button type="button" class="designer-line-remove">Remove</button>
+                                            </div>
+                                            <div class="designer-line-item">
+                                                <input type="text" value="Transport Allowance">
+                                                <input type="number" value="180">
+                                                <button type="button" class="designer-line-remove">Remove</button>
+                                            </div>
+                                            <div class="designer-line-item">
+                                                <input type="text" value="Lunch Allowance">
+                                                <input type="number" value="200">
+                                                <button type="button" class="designer-line-remove">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="designer-tabpanel" id="designer-tab-deductions" role="tabpanel">
+                                        <div class="designer-section">
+                                            <div class="designer-line-item">
+                                                <input type="text" value="NAPSA @5%">
+                                                <input type="number" value="83.03">
+                                                <button type="button" class="designer-line-remove">Remove</button>
+                                            </div>
+                                            <div class="designer-line-item">
+                                                <input type="text" value="NHIMA">
+                                                <input type="number" value="11.62">
+                                                <button type="button" class="designer-line-remove">Remove</button>
+                                            </div>
+                                            <div class="designer-line-item">
+                                                <input type="text" value="PAYE">
+                                                <input type="number" value="0">
+                                                <button type="button" class="designer-line-remove">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="designer-tabpanel" id="designer-tab-stamp" role="tabpanel">
+                                        <div class="designer-section">
+                                            <label class="bs-designer-checkbox" for="showStampToggle">
+                                                <input type="checkbox" id="showStampToggle" {% if settings.payslip_designer.config.showStamp %}checked{% endif %}>
+                                                <span>
+                                                    <span class="bs-designer-checkbox__title">Enable company stamp</span>
+                                                    <span class="bs-designer-checkbox__hint">Toggle the official stamp on the payslip footer.</span>
+                                                </span>
+                                            </label>
+                                            <div class="designer-two-column">
+                                                <div class="form-group">
+                                                    <label>Stamp preset</label>
+                                                    <select>
+                                                        <option>Classic</option>
+                                                        <option>Modern</option>
+                                                        <option>Elegant</option>
+                                                        <option>Bold</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Stamp position</label>
+                                                    <select id="stampPositionSelect">
+                                                        {% for option in settings.payslip_designer.position_options %}
+                                                        <option value="{{ option.value }}" {% if option.value == settings.payslip_designer.config.stampPosition %}selected{% endif %}>{{ option.label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="designer-tabpanel" id="designer-tab-styles" role="tabpanel">
+                                        <div class="designer-two-column">
+                                            <div class="form-group">
+                                                <label for="headerColorPicker">Header colour</label>
+                                                <input type="color" id="headerColorPicker" value="{{ settings.payslip_designer.config.headerColor }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="accentColorPicker">Accent colour</label>
+                                                <input type="color" id="accentColorPicker" value="{{ settings.payslip_designer.config.accentColor }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="sectionColorPicker">Section colour</label>
+                                                <input type="color" id="sectionColorPicker" value="{{ settings.payslip_designer.config.sectionColor }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="logoPositionSelect">Logo position</label>
+                                                <select id="logoPositionSelect">
+                                                    {% for option in settings.payslip_designer.position_options %}
+                                                    <option value="{{ option.value }}" {% if option.value == settings.payslip_designer.config.logoPosition %}selected{% endif %}>{{ option.label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="addressPositionSelect">Address position</label>
+                                                <select id="addressPositionSelect">
+                                                    {% for option in settings.payslip_designer.position_options %}
+                                                    <option value="{{ option.value }}" {% if option.value == settings.payslip_designer.config.addressPosition %}selected{% endif %}>{{ option.label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="bs-designer-grid">
+                                            <label class="bs-designer-checkbox" for="showLogoToggle">
+                                                <input type="checkbox" id="showLogoToggle" {% if settings.payslip_designer.config.showLogo %}checked{% endif %}>
+                                                <span>
+                                                    <span class="bs-designer-checkbox__title">Company logo</span>
+                                                    <span class="bs-designer-checkbox__hint">Toggle to show or hide the company logo in the header.</span>
+                                                </span>
+                                            </label>
+                                            <label class="bs-designer-checkbox" for="showSignatureToggle">
+                                                <input type="checkbox" id="showSignatureToggle" {% if settings.payslip_designer.config.showSignature %}checked{% endif %}>
+                                                <span>
+                                                    <span class="bs-designer-checkbox__title">Authorized signature</span>
+                                                    <span class="bs-designer-checkbox__hint">Include authorization signature placeholder on the payslip.</span>
+                                                </span>
+                                            </label>
+                                            <label class="bs-designer-checkbox" for="showTaxToggle">
+                                                <input type="checkbox" id="showTaxToggle" {% if settings.payslip_designer.config.showTaxBreakdown %}checked{% endif %}>
+                                                <span>
+                                                    <span class="bs-designer-checkbox__title">Tax breakdown</span>
+                                                    <span class="bs-designer-checkbox__hint">Show PAYE, NAPSA and other statutory deductions.</span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="designer-tabpanel" id="designer-tab-footer" role="tabpanel">
+                                        <div class="designer-section">
+                                            <div class="bs-designer-grid">
+                                                <div class="form-group">
+                                                    <label for="headerContentEditor">Header content</label>
+                                                    <textarea id="headerContentEditor" rows="4">{{ settings.payslip_designer.config.headerContent }}</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="footerContentEditor">Footer content</label>
+                                                    <textarea id="footerContentEditor" rows="4">{{ settings.payslip_designer.config.footerContent }}</textarea>
+                                                </div>
+                                            </div>
+                                            <label class="bs-designer-checkbox" for="showConfidentialityToggle">
+                                                <input type="checkbox" id="showConfidentialityToggle" {% if settings.payslip_designer.config.showConfidentialityNotice %}checked{% endif %}>
+                                                <span>
+                                                    <span class="bs-designer-checkbox__title">Show confidentiality notice</span>
+                                                    <span class="bs-designer-checkbox__hint">Append a compliance or confidentiality statement to the footer.</span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bs-designer-card">
+                            <div class="bs-designer-card__head">
+                                <h5>Live Preview</h5>
+                                <p>Confirm the final layout before saving.</p>
+                            </div>
+
+                            <div class="bs-designer-section">
+                                <div class="preview-frame" id="livePreview">
+                                    <div class="preview-header" id="previewHeader">
+                                        <div class="preview-logo" id="previewLogoSlot">
+                                            {% if settings.payslip_designer.config.company.logoUrl %}
+                                            <img src="{{ settings.payslip_designer.config.company.logoUrl }}" alt="Company logo">
+                                            {% else %}
+                                            <span>Logo</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="preview-company">
+                                            <strong id="previewCompanyName">{{ settings.payslip_designer.config.company.name }}</strong>
+                                            <span id="previewCompanyAddress">{{ settings.payslip_designer.config.company.address }}</span>
+                                            <span id="previewCompanyPhone">{{ settings.payslip_designer.config.company.phone }}</span>
+                                            <span id="previewCompanyEmail">{{ settings.payslip_designer.config.company.email }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="preview-body">
+                                        <div class="preview-section" id="previewSectionContainer"></div>
+                                    </div>
+                                    <div class="preview-footer" id="previewFooter">{{ settings.payslip_designer.config.footerContent|default:'Pay Slip Not Valid Unless Signed' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.form-tab');
+    const panels = document.querySelectorAll('.form-panel');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.tab;
+
+            tabs.forEach(button => button.classList.toggle('active', button === tab));
+            panels.forEach(panel => panel.classList.toggle('active', panel.dataset.panel === target));
+        });
+    });
+
+    const payslipConfig = JSON.parse('{{ settings.payslip_designer.config_json|escapejs }}');
+    const payslipForm = document.getElementById('payslipDesignForm');
+    const orientationInput = document.getElementById('orientationInput');
+    const headerStyleInput = document.getElementById('headerStyleInput');
+    const layoutInput = document.getElementById('layoutInput');
+    const sectionOrderInput = document.getElementById('sectionOrderInput');
+    const fieldPositionsInput = document.getElementById('fieldPositionsInput');
+
+    const payslipCanvas = document.getElementById('payslipCanvas');
+    const livePreview = document.getElementById('livePreview');
+    const previewHeader = document.getElementById('previewHeader');
+    const previewLogoSlot = document.getElementById('previewLogoSlot');
+    const previewSectionContainer = document.getElementById('previewSectionContainer');
+    const previewFooter = document.getElementById('previewFooter');
+
+    const headerColorPicker = document.getElementById('headerColorPicker');
+    const accentColorPicker = document.getElementById('accentColorPicker');
+    const sectionColorPicker = document.getElementById('sectionColorPicker');
+    const headerColorInput = document.getElementById('headerColorInput');
+    const accentColorInput = document.getElementById('accentColorInput');
+    const sectionColorInput = document.getElementById('sectionColorInput');
+
+    const headerContentEditor = document.getElementById('headerContentEditor');
+    const footerContentEditor = document.getElementById('footerContentEditor');
+    const headerContentInput = document.getElementById('headerContentInput');
+    const footerContentInput = document.getElementById('footerContentInput');
+
+    const logoPositionSelect = document.getElementById('logoPositionSelect');
+    const stampPositionSelect = document.getElementById('stampPositionSelect');
+    const addressPositionSelect = document.getElementById('addressPositionSelect');
+    const logoPositionInput = document.getElementById('logoPositionInput');
+    const stampPositionInput = document.getElementById('stampPositionInput');
+    const addressPositionInput = document.getElementById('addressPositionInput');
+
+    const orientationButtons = document.querySelectorAll('#orientationToggle .orientation-btn');
+    const headerStyleButtons = document.querySelectorAll('#headerStyleToggle .layout-btn');
+
+    const applyOrientation = (value) => {
+        orientationButtons.forEach(b => b.classList.toggle('active', b.dataset.orientation === value));
+        if (payslipCanvas) {
+            payslipCanvas.classList.remove('portrait', 'landscape');
+            payslipCanvas.classList.add(value);
+        }
+        if (livePreview) {
+            livePreview.classList.remove('portrait', 'landscape');
+            livePreview.classList.add(value);
+        }
+        orientationInput.value = value;
+        payslipConfig.orientation = value;
+    };
+
+    const headerStyles = ['logo_left', 'logo_center', 'logo_right', 'full_width'];
+    const applyHeaderStyle = (style) => {
+        headerStyleButtons.forEach(b => b.classList.toggle('active', b.dataset.headerStyle === style));
+        if (previewHeader) {
+            headerStyles.forEach(name => previewHeader.classList.remove(`header-style-${name}`));
+            previewHeader.classList.add(`header-style-${style}`);
+            previewHeader.dataset.headerStyle = style;
+        }
+        headerStyleInput.value = style;
+        payslipConfig.headerStyle = style;
+    };
+
+    const applyLogoPosition = (position) => {
+        if (previewHeader) {
+            previewHeader.dataset.logoPosition = position;
+        }
+        logoPositionInput.value = position;
+        payslipConfig.logoPosition = position;
+    };
+
+    orientationButtons.forEach(btn => {
+        btn.addEventListener('click', () => applyOrientation(btn.dataset.orientation));
+    });
+
+    headerStyleButtons.forEach(btn => {
+        btn.addEventListener('click', () => applyHeaderStyle(btn.dataset.headerStyle));
+    });
+
+    if (logoPositionSelect) {
+        logoPositionSelect.addEventListener('change', () => applyLogoPosition(logoPositionSelect.value));
+    }
+    if (stampPositionSelect) {
+        stampPositionSelect.addEventListener('change', () => {
+            stampPositionInput.value = stampPositionSelect.value;
+            payslipConfig.stampPosition = stampPositionSelect.value;
+        });
+    }
+    if (addressPositionSelect) {
+        addressPositionSelect.addEventListener('change', () => {
+            addressPositionInput.value = addressPositionSelect.value;
+            payslipConfig.addressPosition = addressPositionSelect.value;
+        });
+    }
+
+    const updatePreviewHeaderColor = (value) => {
+        if (previewHeader) {
+            previewHeader.style.setProperty('--preview-header-color', value);
+            previewHeader.style.backgroundColor = value;
+        }
+    };
+
+    const updateAccentColor = (value) => {
+        if (previewFooter) {
+            previewFooter.style.color = value;
+        }
+    };
+
+    const updateSectionColor = (value) => {
+        if (previewSectionContainer) {
+            previewSectionContainer.style.backgroundColor = value;
+        }
+    };
+
+    headerColorPicker.addEventListener('input', () => {
+        headerColorInput.value = headerColorPicker.value;
+        payslipConfig.headerColor = headerColorPicker.value;
+        updatePreviewHeaderColor(headerColorPicker.value);
+    });
+    accentColorPicker.addEventListener('input', () => {
+        accentColorInput.value = accentColorPicker.value;
+        payslipConfig.accentColor = accentColorPicker.value;
+        updateAccentColor(accentColorPicker.value);
+    });
+    sectionColorPicker.addEventListener('input', () => {
+        sectionColorInput.value = sectionColorPicker.value;
+        payslipConfig.sectionColor = sectionColorPicker.value;
+        updateSectionColor(sectionColorPicker.value);
+    });
+
+    const defaultFooterText = (previewFooter && previewFooter.textContent.trim()) || 'Pay Slip Not Valid Unless Signed';
+
+    headerContentEditor.addEventListener('input', (event) => {
+        headerContentInput.value = event.target.value;
+        payslipConfig.headerContent = event.target.value;
+    });
+    footerContentEditor.addEventListener('input', (event) => {
+        footerContentInput.value = event.target.value;
+        payslipConfig.footerContent = event.target.value;
+        if (previewFooter) {
+            previewFooter.textContent = event.target.value || defaultFooterText;
+        }
+    });
+
+    const toggleMap = [
+        {
+            checkboxId: 'showLogoToggle',
+            inputId: 'showLogoInput',
+            onChange: (checked) => {
+                if (previewLogoSlot) {
+                    previewLogoSlot.style.display = checked ? 'flex' : 'none';
+                }
+                payslipConfig.showLogo = checked;
+            },
+        },
+        {
+            checkboxId: 'showStampToggle',
+            inputId: 'showStampInput',
+            onChange: (checked) => {
+                payslipConfig.showStamp = checked;
+            },
+        },
+        {
+            checkboxId: 'showSignatureToggle',
+            inputId: 'showSignatureInput',
+            onChange: (checked) => {
+                payslipConfig.showSignature = checked;
+            },
+        },
+        {
+            checkboxId: 'showTaxToggle',
+            inputId: 'showTaxBreakdownInput',
+            onChange: (checked) => {
+                payslipConfig.showTaxBreakdown = checked;
+            },
+        },
+        {
+            checkboxId: 'showConfidentialityToggle',
+            inputId: 'showConfidentialityInput',
+            onChange: (checked) => {
+                payslipConfig.showConfidentialityNotice = checked;
+                if (previewFooter) {
+                    previewFooter.style.display = checked ? 'block' : 'none';
+                    if (checked) {
+                        previewFooter.textContent = footerContentEditor.value || defaultFooterText;
+                    }
+                }
+            },
+        },
+    ];
+
+    toggleMap.forEach(({ checkboxId, inputId, onChange }) => {
+        const checkbox = document.getElementById(checkboxId);
+        const input = document.getElementById(inputId);
+        if (!checkbox || !input) {
+            return;
+        }
+        checkbox.addEventListener('change', () => {
+            input.value = checkbox.checked ? 'on' : '';
+            if (onChange) {
+                onChange(checkbox.checked);
+            }
+        });
+        if (onChange) {
+            onChange(checkbox.checked);
+        }
+    });
+
+    const saveButton = document.getElementById('savePayslipBtn');
+    saveButton.addEventListener('click', () => {
+        if (!payslipForm) return;
+        sectionOrderInput.value = JSON.stringify(payslipConfig.sectionOrder || []);
+        fieldPositionsInput.value = JSON.stringify(payslipConfig.fieldPositions || {});
+        payslipForm.submit();
+    });
+
+    document.getElementById('previewPayslipBtn').addEventListener('click', () => {
+        const preview = document.getElementById('livePreview');
+        preview.classList.add('highlight');
+        setTimeout(() => preview.classList.remove('highlight'), 600);
+    });
+
+    applyOrientation(payslipConfig.orientation || 'portrait');
+    applyHeaderStyle(payslipConfig.headerStyle || 'logo_left');
+    applyLogoPosition(payslipConfig.logoPosition || 'top-left');
+
+    if (previewFooter && !payslipConfig.showConfidentialityNotice) {
+        previewFooter.style.display = 'none';
+    }
+
+    updatePreviewHeaderColor(payslipConfig.headerColor || '#1f2937');
+    updateAccentColor(payslipConfig.accentColor || '#475569');
+    updateSectionColor(payslipConfig.sectionColor || '#f1f5f9');
+
+    orientationInput.value = payslipConfig.orientation;
+    headerStyleInput.value = payslipConfig.headerStyle;
+    layoutInput.value = payslipConfig.layout;
+    sectionOrderInput.value = JSON.stringify(payslipConfig.sectionOrder || []);
+    fieldPositionsInput.value = JSON.stringify(payslipConfig.fieldPositions || {});
+});
+
+// ========== Settings Action Functions ==========
+
+function getCSRFToken() {
+    const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    return input ? input.value : '';
+}
+
+function showSettingsMessage(message, type) {
+    const banner = document.createElement('div');
+    banner.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 10000;
+        padding: 14px 20px; border-radius: 4px; font-size: 14px; font-weight: 500;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15); max-width: 400px;
+        display: flex; align-items: center; gap: 10px;
+        ${type === 'success' ? 'background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;' : ''}
+        ${type === 'error' ? 'background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;' : ''}
+        ${type === 'info' ? 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;' : ''}
+    `;
+    const icon = type === 'success' ? '&#10003;' : type === 'error' ? '&#10007;' : '&#9432;';
+    banner.innerHTML = '<span style="font-size:18px;">' + icon + '</span><span>' + message + '</span>';
+    document.body.appendChild(banner);
+    setTimeout(function() { banner.style.opacity = '0'; banner.style.transition = 'opacity 0.3s'; }, 3500);
+    setTimeout(function() { banner.remove(); }, 4000);
+}
+
+function editItem(type, id, name, description, departmentId) {
+    var newName = prompt('Edit ' + type + ' name:', name);
+    if (newName === null || newName.trim() === '') return;
+    var newDesc = prompt('Edit ' + type + ' description:', description || '');
+    if (newDesc === null) return;
+
+    var formData = new FormData();
+    formData.append('csrfmiddlewaretoken', getCSRFToken());
+    formData.append('name', newName.trim());
+    formData.append('description', newDesc.trim());
+
+    if (type === 'Department') {
+        formData.append('action', 'edit_department');
+        formData.append('dept_id', id);
+    } else if (type === 'Position') {
+        formData.append('action', 'edit_position');
+        formData.append('pos_id', id);
+        if (departmentId) formData.append('department', departmentId);
+    } else if (type === 'Pay Grade') {
+        formData.append('action', 'edit_pay_grade');
+        formData.append('grade_id', id);
+    }
+
+    fetch(window.location.href, { method: 'POST', body: formData })
+        .then(function(response) {
+            if (response.ok) {
+                showSettingsMessage(type + ' updated successfully.', 'success');
+                setTimeout(function() { window.location.reload(); }, 800);
+            } else {
+                showSettingsMessage('Failed to update ' + type + '.', 'error');
+            }
+        })
+        .catch(function(err) { showSettingsMessage('Error: ' + err.message, 'error'); });
+}
+
+function deleteItem(type, id, name) {
+    if (!confirm('Are you sure you want to delete ' + type + ' "' + name + '"? This action cannot be undone.')) return;
+
+    var url = '';
+    if (type === 'Department') url = '/settings/delete-department/' + id + '/';
+    else if (type === 'Position') url = '/settings/delete-position/' + id + '/';
+    else if (type === 'Pay Grade') url = '/settings/delete-pay-grade/' + id + '/';
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken(), 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }
+    }).then(function(r) { return r.json(); })
+      .then(function(data) {
+          if (data.success) {
+              showSettingsMessage(data.message || type + ' deleted successfully.', 'success');
+              setTimeout(function() { window.location.reload(); }, 800);
+          } else {
+              showSettingsMessage(data.error || 'Failed to delete ' + type + '.', 'error');
+          }
+      })
+      .catch(function(err) { showSettingsMessage('Error: ' + err.message, 'error'); });
+}
+
+function testSMTPConnection(btn) {
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Testing...';
+
+    fetch('/settings/test-smtp/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken(), 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }
+    }).then(function(r) { return r.json(); })
+      .then(function(data) {
+          if (data.success) showSettingsMessage(data.message || 'SMTP connection successful!', 'success');
+          else showSettingsMessage(data.error || 'SMTP connection failed.', 'error');
+      })
+      .catch(function(err) { showSettingsMessage('Connection test failed: ' + err.message, 'error'); })
+      .finally(function() { btn.disabled = false; btn.innerHTML = originalText; });
+}
+
+function testBiometricConnection(btn) {
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Testing...';
+
+    fetch('/settings/test-biometric/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken(), 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }
+    }).then(function(r) { return r.json(); })
+      .then(function(data) {
+          if (data.success) showSettingsMessage(data.message || 'Biometric device is reachable!', 'success');
+          else showSettingsMessage(data.error || 'Device connection failed.', 'error');
+      })
+      .catch(function(err) { showSettingsMessage('Connection test failed: ' + err.message, 'error'); })
+      .finally(function() { btn.disabled = false; btn.innerHTML = originalText; });
+}
+</script>
+{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/blusuite-settings.css' %}">
+{% endblock %}

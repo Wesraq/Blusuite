@@ -1,0 +1,116 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Reject Contract Renewal - EMS{% endblock %}
+{% block page_title %}Reject Contract Renewal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">Reject Contract Renewal</h1>
+        <p class="page-subtitle">{{ renewal.original_contract.employee.get_full_name }} - {{ renewal.original_contract.job_title }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'contracts:renewal_requests' %}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Renewals
+        </a>
+    </div>
+</div>
+
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="content-card">
+        <div class="card-header" style="background: #fee2e2; color: #991b1b;">
+            <h3>Reject Renewal Request</h3>
+        </div>
+        <div class="card-content">
+            <!-- Renewal Details -->
+            <div style="margin-bottom: 24px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <h4 style="margin: 0 0 12px 0; color: #1e293b; font-size: 14px; font-weight: 600;">Renewal Request Details</h4>
+                <div class="form-grid-2" style="font-size: 14px;">
+                    <div>
+                        <span style="color: #64748b;">Employee:</span>
+                        <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">{{ renewal.original_contract.employee.get_full_name }}</span>
+                    </div>
+                    <div>
+                        <span style="color: #64748b;">Job Title:</span>
+                        <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">{{ renewal.original_contract.job_title }}</span>
+                    </div>
+                    <div>
+                        <span style="color: #64748b;">Current End Date:</span>
+                        <span style="font-weight: 600; color: #dc2626; margin-left: 8px;">{{ renewal.original_contract.end_date|date:"M j, Y" }}</span>
+                    </div>
+                    <div>
+                        <span style="color: #64748b;">Proposed Start:</span>
+                        <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">{{ renewal.proposed_start_date|date:"M j, Y" }}</span>
+                    </div>
+                    <div>
+                        <span style="color: #64748b;">Proposed End:</span>
+                        <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">
+                            {% if renewal.proposed_end_date %}
+                                {{ renewal.proposed_end_date|date:"M j, Y" }}
+                            {% else %}
+                                Permanent
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div>
+                        <span style="color: #64748b;">Requested By:</span>
+                        <span style="font-weight: 600; color: #1e293b; margin-left: 8px;">{{ renewal.requested_by.get_full_name }}</span>
+                    </div>
+                </div>
+                
+                {% if renewal.renewal_notes %}
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+                    <span style="color: #64748b; font-size: 13px; font-weight: 600;">HR Notes:</span>
+                    <p style="margin: 4px 0 0 0; color: #1e293b; font-size: 14px;">{{ renewal.renewal_notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Rejection Form -->
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Reason for Rejection *</label>
+                    <textarea name="rejection_reason" rows="6" required placeholder="Please provide a detailed reason for rejecting this renewal request. This will be sent to the HR staff who submitted the request." style="width: 100%; padding: 12px; border: 2px solid #fca5a5; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                    <small style="color: #64748b; font-size: 12px;">Be specific and constructive. This helps HR understand what needs to be addressed.</small>
+                </div>
+
+                <!-- Warning Notice -->
+                <div style="padding: 16px; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; margin-bottom: 24px;">
+                    <div style="display: flex; gap: 12px; align-items: start;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 600; color: #991b1b; margin-bottom: 4px;">Rejection Notice</div>
+                            <div style="font-size: 13px; color: #7f1d1d;">
+                                Rejecting this renewal request will notify the HR staff who submitted it. The employee's current contract will remain unchanged. HR can submit a new renewal request with adjusted terms if needed.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                    <a href="{% url 'contracts:renewal_requests' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-danger">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Reject Renewal Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

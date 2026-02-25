@@ -61,14 +61,14 @@ class EmailNotificationService:
 
         # Notify admin/employer about new leave request
         if action == 'submitted':
-            admin_users = User.objects.filter(role='ADMIN')
-            employer_users = User.objects.filter(role='EMPLOYER')
+            manager_roles = ['SUPERADMIN', 'ADMINISTRATOR', 'EMPLOYER_ADMIN']
+            manager_users = User.objects.filter(role__in=manager_roles)
 
-            for admin in admin_users:
+            for manager in manager_users:
                 EmailNotificationService._send_email(
                     subject=f'New Leave Request: {leave_request.employee.get_full_name()}',
                     message=f"A new leave request has been submitted by {leave_request.employee.get_full_name()}",
-                    recipient_list=[admin.email]
+                    recipient_list=[manager.email]
                 )
 
     @staticmethod
@@ -284,15 +284,16 @@ class NotificationManager:
         """Notify admin about new user registration"""
         EmailNotificationService.send_welcome_email(user)
 
-        # Notify admin users
-        admin_users = User.objects.filter(role='ADMIN')
-        for admin in admin_users:
+        # Notify administrative users
+        manager_roles = ['SUPERADMIN', 'ADMINISTRATOR', 'EMPLOYER_ADMIN']
+        admin_users = User.objects.filter(role__in=manager_roles)
+        for manager in admin_users:
             message = f'A new user has registered: {user.email} ({user.get_full_name()}) with role {user.role}'
             EmailNotificationService._send_email(
-                subject=f'New User Registration: {user.get_full_name()}',
+                subject='New User Registration',
                 message=message,
                 html_message=f'<p>{message}</p>',
-                recipient_list=[admin.email]
+                recipient_list=[manager.email]
             )
 
     @staticmethod

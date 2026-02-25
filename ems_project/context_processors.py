@@ -2,6 +2,7 @@
 Context processors for EMS application
 """
 from django.db.models import Q
+from blu_staff.apps.accounts.models import SystemSettings
 
 
 def user_role_context(request):
@@ -41,6 +42,7 @@ def unread_counts(request):
         'unread_notifications_count': 0,
         'pending_leave_count': 0,
         'pending_requests_count': 0,
+        'pending_asset_requests_count': 0,
         'pending_documents_count': 0,
         'expiring_contracts_count': 0,
         'pending_training_count': 0,
@@ -52,7 +54,7 @@ def unread_counts(request):
         
         try:
             # Get unread notifications count
-            from notifications.models import Notification
+            from blu_staff.apps.notifications.models import Notification
             unread_notifications = Notification.objects.filter(
                 recipient=user,
                 is_read=False
@@ -133,6 +135,16 @@ def unread_counts(request):
                 ).count()
             except:
                 pass
+            
+            try:
+                # Pending asset requests (for AMS sidebar badge)
+                from blu_assets.models import AssetRequest
+                context['pending_asset_requests_count'] = AssetRequest.objects.filter(
+                    department__company=user.company,
+                    status='PENDING'
+                ).count()
+            except:
+                pass
         
         # Calculate total badge count
         context['total_badge_count'] = sum([
@@ -144,3 +156,116 @@ def unread_counts(request):
         ])
 
     return context
+
+
+def company_settings_context(request):
+    """Provide company settings and module visibility to all templates"""
+    context = {
+        'company_settings': None,
+        'modules_enabled': {
+            'attendance': True,
+            'leave': True,
+            'payroll': True,
+            'performance': True,
+            'training': True,
+            'onboarding': True,
+            'assets': True,
+            'eforms': True,
+            'benefits': True,
+            'documents': True,
+            'requests': True,
+            'communication': True,
+            'reports': True,
+        }
+    }
+    
+    if request.user.is_authenticated and hasattr(request.user, 'company') and request.user.company:
+        try:
+            from accounts.models import CompanySettings
+            settings = CompanySettings.get_for_company(request.user.company)
+            context['company_settings'] = settings
+            context['modules_enabled'] = {
+                'attendance': settings.enable_attendance,
+                'leave': settings.enable_leave,
+                'payroll': settings.enable_payroll,
+                'performance': settings.enable_performance,
+                'training': settings.enable_training,
+                'onboarding': settings.enable_onboarding,
+                'assets': settings.enable_assets,
+                'eforms': settings.enable_eforms,
+                'benefits': settings.enable_benefits,
+                'documents': settings.enable_documents,
+                'requests': settings.enable_requests,
+                'communication': settings.enable_communication,
+                'reports': settings.enable_reports,
+            }
+        except Exception:
+            pass
+    
+    return context
+
+
+CURRENCY_MAP = {
+    'Zambia':         {'code': 'ZMW', 'symbol': 'ZMW', 'rate': 1},
+    'Malawi':         {'code': 'MWK', 'symbol': 'MWK', 'rate': 25},
+    'Kenya':          {'code': 'KES', 'symbol': 'KES', 'rate': 4},
+    'Tanzania':       {'code': 'TZS', 'symbol': 'TZS', 'rate': 80},
+    'Uganda':         {'code': 'UGX', 'symbol': 'UGX', 'rate': 120},
+    'South Africa':   {'code': 'ZAR', 'symbol': 'R',   'rate': 0.6},
+    'Nigeria':        {'code': 'NGN', 'symbol': 'NGN', 'rate': 50},
+    'Ghana':          {'code': 'GHS', 'symbol': 'GHS', 'rate': 0.4},
+    'Zimbabwe':       {'code': 'ZWL', 'symbol': 'ZWL', 'rate': 10},
+    'Botswana':       {'code': 'BWP', 'symbol': 'BWP', 'rate': 0.4},
+    'Mozambique':     {'code': 'MZN', 'symbol': 'MZN', 'rate': 2},
+    'United States':  {'code': 'USD', 'symbol': '$',   'rate': 0.033},
+    'United Kingdom': {'code': 'GBP', 'symbol': 'GBP', 'rate': 0.026},
+}
+
+DEFAULT_CURRENCY = {'code': 'ZMW', 'symbol': 'ZMW', 'rate': 1}
+
+
+def get_company_currency(company):
+    """Return the currency dict for a company based on its country."""
+    country = getattr(company, 'country', '') or 'Zambia'
+    return CURRENCY_MAP.get(country, DEFAULT_CURRENCY)
+
+
+def currency_context(request):
+    """Inject currency_symbol, currency_code, and currency_rate into every template."""
+    currency = DEFAULT_CURRENCY
+    if request.user.is_authenticated:
+        company = getattr(request.user, 'company', None)
+        if not company:
+            company = getattr(getattr(request.user, 'employer_profile', None), 'company', None)
+        if not company:
+            company = getattr(getattr(request.user, 'employee_profile', None), 'company', None)
+        if company:
+            currency = get_company_currency(company)
+    return {
+        'currency_symbol': currency['symbol'],
+        'currency_code': currency['code'],
+        'currency_rate': currency['rate'],
+    }
+
+
+def system_settings_context(request):
+    system_settings = None
+    maintenance_mode = False
+    maintenance_message = 'The system is currently under maintenance. Please try again later.'
+    feature_billing_enabled = True
+    feature_support_enabled = True
+    feature_analytics_enabled = True
+    try:
+        system_settings = SystemSettings.get_solo()
+        maintenance_mode = bool(getattr(system_settings, 'maintenance_mode', False))
+        maintenance_message = getattr(system_settings, 'maintenance_message', maintenance_message)
+    except Exception:
+        pass
+    return {
+        'system_settings': system_settings,
+        'maintenance_mode': maintenance_mode,
+        'maintenance_message': maintenance_message,
+        'feature_billing_enabled': feature_billing_enabled if system_settings is None else bool(getattr(system_settings, 'enable_billing_module', True)),
+        'feature_support_enabled': feature_support_enabled if system_settings is None else bool(getattr(system_settings, 'enable_support_module', True)),
+        'feature_analytics_enabled': feature_analytics_enabled if system_settings is None else bool(getattr(system_settings, 'enable_analytics_module', True)),
+    }

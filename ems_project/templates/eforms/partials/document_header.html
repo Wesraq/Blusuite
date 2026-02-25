@@ -1,0 +1,99 @@
+{% comment %}
+Standardized E-Forms Document Header (Letterhead)
+Usage: {% include 'eforms/partials/document_header.html' %}
+Requires context: company, template (FormTemplate)
+Reads company.payslip_header_style for layout: logo_left, logo_center, logo_right, full_width
+{% endcomment %}
+
+{% with header_style=template.header_style|default:"logo_left" %}
+<div class="ef-letterhead ef-letterhead--{{ header_style }}">
+
+    {% if header_style == "logo_center" %}
+    <!-- ═══ CENTERED LOGO LAYOUT ═══ -->
+    <div class="ef-lh-center">
+        {% if company.logo %}
+        <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="ef-lh-logo ef-lh-logo--center">
+        {% else %}
+        <div class="ef-lh-logo-fallback ef-lh-logo-fallback--lg">{{ company.name|first }}</div>
+        {% endif %}
+        <div class="ef-lh-company-name" style="text-align:center">{{ company.name }}</div>
+        {% if company.address %}
+        <div class="ef-lh-detail" style="text-align:center">{{ company.address }}{% if company.city %}, {{ company.city }}{% endif %}{% if company.province %}, {{ company.province }}{% endif %}{% if company.country %}, {{ company.country }}{% endif %}</div>
+        {% endif %}
+        <div class="ef-lh-detail" style="text-align:center">
+            {% if company.phone %}Tel: {{ company.phone }}{% if company.alternative_phone %} / {{ company.alternative_phone }}{% endif %}{% endif %}
+            {% if company.phone and company.email %} | {% endif %}
+            {% if company.email %}{{ company.email }}{% endif %}
+            {% if company.website %} | {{ company.website }}{% endif %}
+        </div>
+    </div>
+
+    {% elif header_style == "logo_right" %}
+    <!-- ═══ LOGO RIGHT LAYOUT ═══ -->
+    <div class="ef-lh-row">
+        <div class="ef-lh-info">
+            <div class="ef-lh-company-name">{{ company.name }}</div>
+            {% if company.address %}
+            <div class="ef-lh-detail">{{ company.address }}{% if company.city %}, {{ company.city }}{% endif %}{% if company.province %}, {{ company.province }}{% endif %}</div>
+            {% endif %}
+            {% if company.country %}<div class="ef-lh-detail">{{ company.country }}{% if company.postal_code %} {{ company.postal_code }}{% endif %}</div>{% endif %}
+            {% if company.phone %}<div class="ef-lh-detail">Tel: {{ company.phone }}{% if company.alternative_phone %} / {{ company.alternative_phone }}{% endif %}</div>{% endif %}
+            {% if company.email %}<div class="ef-lh-detail">{{ company.email }}</div>{% endif %}
+            {% if company.website %}<div class="ef-lh-detail">{{ company.website }}</div>{% endif %}
+        </div>
+        <div class="ef-lh-logo-wrap">
+            {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="ef-lh-logo">
+            {% else %}
+            <div class="ef-lh-logo-fallback">{{ company.name|first }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% elif header_style == "full_width" %}
+    <!-- ═══ FULL WIDTH LAYOUT ═══ -->
+    <div class="ef-lh-full">
+        <div class="ef-lh-full-top">
+            {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="ef-lh-logo ef-lh-logo--sm">
+            {% endif %}
+            <div class="ef-lh-company-name ef-lh-company-name--lg">{{ company.name }}</div>
+        </div>
+        <div class="ef-lh-full-bar">
+            <span>{% if company.address %}{{ company.address }}{% if company.city %}, {{ company.city }}{% endif %}{% endif %}</span>
+            {% if company.phone %}<span>Tel: {{ company.phone }}</span>{% endif %}
+            {% if company.email %}<span>{{ company.email }}</span>{% endif %}
+            {% if company.website %}<span>{{ company.website }}</span>{% endif %}
+        </div>
+    </div>
+
+    {% else %}
+    <!-- ═══ LOGO LEFT LAYOUT (DEFAULT) ═══ -->
+    <div class="ef-lh-row">
+        <div class="ef-lh-logo-wrap">
+            {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="ef-lh-logo">
+            {% else %}
+            <div class="ef-lh-logo-fallback">{{ company.name|first }}</div>
+            {% endif %}
+        </div>
+        <div class="ef-lh-info">
+            <div class="ef-lh-company-name">{{ company.name }}</div>
+            {% if company.address %}
+            <div class="ef-lh-detail">{{ company.address }}{% if company.city %}, {{ company.city }}{% endif %}{% if company.province %}, {{ company.province }}{% endif %}</div>
+            {% endif %}
+            {% if company.country %}<div class="ef-lh-detail">{{ company.country }}{% if company.postal_code %} {{ company.postal_code }}{% endif %}</div>{% endif %}
+            {% if company.phone %}<div class="ef-lh-detail">Tel: {{ company.phone }}{% if company.alternative_phone %} / {{ company.alternative_phone }}{% endif %}</div>{% endif %}
+            {% if company.email %}<div class="ef-lh-detail">{{ company.email }}</div>{% endif %}
+            {% if company.website %}<div class="ef-lh-detail">{{ company.website }}</div>{% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Form Title -->
+    <div class="ef-lh-title-bar">
+        <div class="ef-lh-title">{{ template.title }}</div>
+        {% if template.description %}<div class="ef-lh-subtitle">{{ template.description }}</div>{% endif %}
+    </div>
+</div>
+{% endwith %}

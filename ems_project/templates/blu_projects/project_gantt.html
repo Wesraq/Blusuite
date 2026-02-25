@@ -1,0 +1,122 @@
+{% extends 'blu_projects/base_projects.html' %}
+
+{% block title %}Gantt Chart - {{ project.name }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #1d4ed8; text-decoration: none;">{{ project.name }}</a>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <span style="color: #0f172a;">Gantt Chart</span>
+</div>
+
+<!-- Header -->
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+    <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+    </div>
+    <div>
+        <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">Gantt Chart</h2>
+        <p style="margin: 0; font-size: 13px; color: #64748b;">Visual timeline of tasks and milestones</p>
+    </div>
+</div>
+
+<!-- Gantt Content -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+    <!-- Milestones -->
+    {% if milestones %}
+    <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+        <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Milestones</h3>
+    </div>
+    <div style="padding: 12px 20px;">
+        {% for milestone in milestones %}
+        <div style="display: grid; grid-template-columns: 220px 1fr 160px; gap: 12px; align-items: center; padding: 10px 12px; background: #f8fafc; border-radius: 4px; margin-bottom: 8px;">
+            <div>
+                <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ milestone.name }}</div>
+                <div style="font-size: 11px; color: #64748b;">Due: {{ milestone.due_date|date:"M j, Y" }}</div>
+            </div>
+            <div style="position: relative; height: 28px; background: #e2e8f0; border-radius: 4px; overflow: visible;">
+                <div style="position: absolute; height: 100%; width: 16px; border-radius: 50%; background: #1d4ed8; display: flex; align-items: center; justify-content: center; margin-left: {{ milestone.progress_percentage }}%;">
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path></svg>
+                </div>
+            </div>
+            <div>
+                {% if milestone.status == 'COMPLETED' %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #dbeafe; color: #1e40af;">Completed</span>
+                {% elif milestone.status == 'IN_PROGRESS' %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #fef3c7; color: #92400e;">In Progress</span>
+                {% else %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #f1f5f9; color: #475569;">{{ milestone.get_status_display }}</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Tasks -->
+    <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; border-top: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Tasks</h3>
+    </div>
+    {% if tasks %}
+    <div style="padding: 12px 20px;">
+        {% for task in tasks %}
+        <div style="display: grid; grid-template-columns: 220px 1fr 160px; gap: 12px; align-items: center; padding: 10px 12px; background: #f8fafc; border-radius: 4px; margin-bottom: 8px;">
+            <div>
+                <div style="font-size: 13px; font-weight: 600;">
+                    <a href="{% url 'blu_projects:task_detail' task.id %}" style="color: #0f172a; text-decoration: none;">{{ task.title }}</a>
+                </div>
+                <div style="font-size: 11px; color: #64748b;">
+                    {% if task.assigned_to %}{{ task.assigned_to.get_full_name }}{% endif %}
+                    {% if task.start_date and task.due_date %}<br>{{ task.start_date|date:"M j" }} - {{ task.due_date|date:"M j, Y" }}{% endif %}
+                </div>
+            </div>
+            <div style="position: relative; height: 28px; background: #e2e8f0; border-radius: 4px; overflow: visible;">
+                {% if task.start_date and task.due_date %}
+                <div style="position: absolute; height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 600; width: {{ task.duration_percentage }}%; margin-left: {{ task.start_percentage }}%; background: {% if task.priority == 'HIGH' %}#dc2626{% elif task.priority == 'MEDIUM' %}#1d4ed8{% else %}#64748b{% endif %};" title="{{ task.title }}">
+                    {{ task.progress_percentage }}%
+                </div>
+                {% else %}
+                <div style="position: absolute; height: 100%; width: 100%; border-radius: 4px; background: #94a3b8; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px;">No dates set</div>
+                {% endif %}
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                {% if task.status == 'TODO' %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #f1f5f9; color: #475569;">To Do</span>
+                {% elif task.status == 'IN_PROGRESS' %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #fef3c7; color: #92400e;">In Progress</span>
+                {% elif task.status == 'COMPLETED' %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #d1fae5; color: #065f46;">Completed</span>
+                {% elif task.status == 'BLOCKED' %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #fee2e2; color: #991b1b;">Blocked</span>
+                {% else %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #f1f5f9; color: #475569;">{{ task.get_status_display }}</span>{% endif %}
+                {% if task.priority == 'HIGH' %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #fee2e2; color: #991b1b;">High</span>
+                {% elif task.priority == 'MEDIUM' %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #dbeafe; color: #1e40af;">Medium</span>
+                {% else %}<span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #f1f5f9; color: #475569;">Low</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px 20px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 8px; display: block;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <p style="margin: 0; font-size: 13px; color: #94a3b8;">No tasks in this project yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Legend -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 14px 20px;">
+    <h4 style="margin: 0 0 8px; font-size: 12px; font-weight: 700; color: #0f172a;">Legend</h4>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: #475569;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 16px; height: 16px; border-radius: 4px; background: #1d4ed8; display: inline-block;"></span> Medium Priority
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 16px; height: 16px; border-radius: 4px; background: #dc2626; display: inline-block;"></span> High Priority
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 16px; height: 16px; border-radius: 4px; background: #64748b; display: inline-block;"></span> Low Priority
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Milestone
+        </div>
+    </div>
+</div>
+{% endblock %}

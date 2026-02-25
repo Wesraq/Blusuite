@@ -1,0 +1,359 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}Leave Management - EMS{% endblock %}
+{% block page_title %}Leave Management{% endblock %}
+
+{% block content %}
+<!-- Statistics Dashboard -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ total_requests }}</div>
+            <div class="stat-label">Total Requests</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ pending_count }}</div>
+            <div class="stat-label">Pending Approval</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #d1fae5; color: #047857;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ approved_count }}</div>
+            <div class="stat-label">Approved</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fee2e2; color: #b91c1c;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg></div>
+        <div class="stat-details">
+            <div class="stat-value">{{ rejected_count }}</div>
+            <div class="stat-label">Rejected</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="content-card" style="margin-top: 24px; padding: 20px;">
+    <form method="get" id="leave-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+        <div class="filter-group">
+            <label for="search" class="control-label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg> Search</label>
+            <input type="text" id="search" name="search" class="control-input" placeholder="Employee, reason..." value="{{ search_query }}">
+        </div>
+        <div class="filter-group">
+            <label for="status" class="control-label">Status</label>
+            <select id="status" name="status" class="control-input">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="leave_type" class="control-label">Leave Type</label>
+            <select id="leave_type" name="leave_type" class="control-input">
+                <option value="">All Types</option>
+                {% for value, label in leave_type_choices %}
+                    <option value="{{ value }}" {% if leave_type_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="date_from" class="control-label">From Date</label>
+            <input type="date" id="date_from" name="date_from" class="control-input" value="{{ date_from }}">
+        </div>
+        <div class="filter-group">
+            <label for="date_to" class="control-label">To Date</label>
+            <input type="date" id="date_to" name="date_to" class="control-input" value="{{ date_to }}">
+        </div>
+        <div style="display: flex; gap: 8px; align-items: end;">
+            <button class="btn" type="submit">Apply Filters</button>
+            <a class="btn btn-secondary" href="{% url 'leave_management' %}">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Action Buttons -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary" onclick="exportCSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg> Export CSV</button>
+        <button class="btn btn-success" onclick="bulkApprove()" id="bulk-approve-btn" style="display: none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Approve Selected</button>
+        <button class="btn btn-warning" onclick="bulkReject()" id="bulk-reject-btn" style="display: none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg> Reject Selected</button>
+    </div>
+</div>
+
+<!-- Leave Requests Table -->
+<div class="content-card" style="max-width: 100%; margin-top: 24px;">
+    <div class="card-header">
+        <div class="card-title">Leave Requests</div>
+        <div class="card-subtitle">Manage employee leave requests</div>
+    </div>
+    <div class="card-body">
+        {% if leave_requests %}
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" id="select-all-leaves" onchange="toggleSelectAllLeaves(this)" style="cursor: pointer;">
+                            </th>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in leave_requests %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="leave-checkbox" data-leave-id="{{ req.id }}" onchange="updateBulkLeaveButtons()" style="cursor: pointer;">
+                                </td>
+                                <td>
+                                    <div style="font-weight: 500;">{{ req.employee.first_name }} {{ req.employee.last_name }}</div>
+                                    <div style="font-size: 12px; color: #64748b;">{{ req.employee.employee_profile.job_title|default:'No position assigned' }}</div>
+                                </td>
+                                <td>{{ req.get_leave_type_display }}</td>
+                                <td>
+                                    <div style="font-size: 13px;">{{ req.start_date|date:'M d, Y' }} - {{ req.end_date|date:'M d, Y' }}</div>
+                                    <div style="font-size: 11px; color: #64748b;">{{ req.duration }} day{{ req.duration|pluralize }}</div>
+                                </td>
+                                <td>
+                                    <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ req.reason }}">
+                                        {{ req.reason|truncatewords:10 }}
+                                    </div>
+                                </td>
+                                <td><span class="status {{ req.status|lower }}">{{ req.get_status_display }}</span></td>
+                                <td>
+                                    <div style="font-size: 12px;">{{ req.created_at|date:'M d, Y' }}</div>
+                                    {% if req.approved_by %}
+                                        <div style="font-size: 11px; color: #64748b;">by {{ req.approved_by.get_full_name }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                        {% if req.status == 'PENDING' %}
+                                            <a href="{% url 'employer_leave_action' req.id %}?action=approve" class="btn btn-success" style="padding: 4px 8px; font-size: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg></a>
+                                            <button onclick="showRejectLeaveModal({{ req.id }})" class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg></button>
+                                        {% else %}
+                                            <span style="font-size: 11px; color: #94a3b8;">—</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #64748b;">
+                <div style="font-size: 48px; margin-bottom: 16px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg></div>
+                <h3>No Leave Requests Found</h3>
+                <p>No leave requests match your current filters.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Reject Leave Modal -->
+<div id="rejectLeaveModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+    <div class="modal-content" style="background: white; border-radius: 8px; max-width: 500px; width: 100%; margin: auto;">
+        <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+            <h3 style="margin: 0; font-size: 20px;">Reject Leave Request</h3>
+        </div>
+        <form method="get" id="rejectLeaveForm" style="padding: 20px;">
+            <div style="margin-bottom: 16px;">
+                <label class="control-label">Rejection Reason *</label>
+                <textarea name="reason" id="rejection-reason" class="control-input" rows="4" required placeholder="Explain why this leave request is being rejected..."></textarea>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-warning">Reject Request</button>
+                <button type="button" class="btn btn-secondary" onclick="hideRejectLeaveModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function exportCSV() {
+        const form = document.getElementById('leave-filters');
+        const params = new URLSearchParams(new FormData(form));
+        params.set('format', 'csv');
+        window.location.href = `${window.location.pathname}?${params.toString()}`;
+    }
+
+    function toggleSelectAllLeaves(checkbox) {
+        const checkboxes = document.querySelectorAll('.leave-checkbox');
+        checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        updateBulkLeaveButtons();
+    }
+
+    function updateBulkLeaveButtons() {
+        const checkboxes = document.querySelectorAll('.leave-checkbox:checked');
+        const count = checkboxes.length;
+        const approveBtn = document.getElementById('bulk-approve-btn');
+        const rejectBtn = document.getElementById('bulk-reject-btn');
+
+        if (count > 0) {
+            if (approveBtn) approveBtn.style.display = 'block';
+            if (rejectBtn) rejectBtn.style.display = 'block';
+        } else {
+            if (approveBtn) approveBtn.style.display = 'none';
+            if (rejectBtn) rejectBtn.style.display = 'none';
+        }
+
+        const allCheckboxes = document.querySelectorAll('.leave-checkbox');
+        const selectAllCheckbox = document.getElementById('select-all-leaves');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count === allCheckboxes.length && count > 0;
+            selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
+        }
+    }
+
+    function getSelectedLeaveIds() {
+        const checkboxes = document.querySelectorAll('.leave-checkbox:checked');
+        return Array.from(checkboxes).map(cb => cb.dataset.leaveId);
+    }
+
+    function bulkApprove() {
+        const leaveIds = getSelectedLeaveIds();
+        if (leaveIds.length === 0) {
+            alert('Please select at least one leave request');
+            return;
+        }
+
+        if (!confirm(`Approve ${leaveIds.length} leave request(s)?`)) {
+            return;
+        }
+
+        fetch('/leave/bulk-approve/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ leave_ids: leaveIds })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to approve leave requests. Please try again.');
+        });
+    }
+
+    function bulkReject() {
+        const leaveIds = getSelectedLeaveIds();
+        if (leaveIds.length === 0) {
+            alert('Please select at least one leave request');
+            return;
+        }
+
+        const reason = prompt('Please provide a reason for rejection:');
+        if (!reason) return;
+
+        fetch('/leave/bulk-reject/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ leave_ids: leaveIds, reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to reject leave requests. Please try again.');
+        });
+    }
+
+    function showRejectLeaveModal(leaveId) {
+        const form = document.getElementById('rejectLeaveForm');
+        form.action = `/leave/${leaveId}/action/?action=reject`;
+        document.getElementById('rejectLeaveModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideRejectLeaveModal() {
+        document.getElementById('rejectLeaveModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.getElementById('rejection-reason').value = '';
+    }
+</script>
+
+<style>
+    @media (max-width: 640px) {
+        .modal-content {
+            width: 95% !important;
+        }
+        
+        #leave-filters {
+            grid-template-columns: 1fr !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+        
+        .table-responsive {
+            font-size: 13px;
+        }
+    }
+</style>
+{% endblock %}

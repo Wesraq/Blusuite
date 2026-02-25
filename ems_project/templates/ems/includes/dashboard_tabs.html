@@ -1,0 +1,55 @@
+<!-- Dashboard Tab Navigation -->
+<div style="display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;">
+    <a href="{% url 'employee_dashboard' %}" 
+       style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {% if active_tab == 'employee' %}background: #E11D48; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        My Dashboard
+    </a>
+    
+    {% if user.employee_profile.employee_role == 'HR' %}
+    <a href="{% url 'hr_dashboard' %}" 
+       style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {% if active_tab == 'role' %}background: #E11D48; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        HR Dashboard
+    </a>
+    {% elif user.employee_profile.employee_role == 'ACCOUNTANT' %}
+    <a href="{% url 'accountant_dashboard' %}" 
+       style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {% if active_tab == 'role' %}background: #E11D48; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        Accountant Dashboard
+    </a>
+    {% elif user.employee_profile.employee_role == 'SUPERVISOR' %}
+    <a href="{% url 'supervisor_dashboard' %}" 
+       style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {% if active_tab == 'role' %}background: #E11D48; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Team Dashboard
+    </a>
+    {% endif %}
+
+    <a href="{% url 'employee_suites' %}" 
+       style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; {% if active_tab == 'suites' %}background: #E11D48; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        My Suites
+    </a>
+</div>

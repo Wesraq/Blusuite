@@ -1,0 +1,321 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load custom_filters %}
+
+{% block title %}Request #{{ request.request_number }} - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h1 style="margin: 0 0 8px 0; color: #0f172a; font-size: 28px; font-weight: 700;">Request #{{ request.request_number }}</h1>
+        <p style="margin: 0; color: #64748b; font-size: 14px;">{{ request.request_type.name|strip_emoji }} • Submitted {{ request.created_at|date:"M d, Y" }}</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        {% if request.status == 'PENDING' and request.employee == user %}
+        <a href="{% url 'employee_request_edit' request.id %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit Request
+        </a>
+        {% endif %}
+        <a href="{% url 'employee_requests_list' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Requests
+        </a>
+    </div>
+</div>
+
+<!-- Status Banner -->
+<div style="background: {% if request.status == 'APPROVED' %}#d1fae5{% elif request.status == 'REJECTED' %}#fee2e2{% elif request.status == 'PENDING' %}#fef3c7{% else %}#f1f5f9{% endif %}; border: 2px solid {% if request.status == 'APPROVED' %}#10b981{% elif request.status == 'REJECTED' %}#ef4444{% elif request.status == 'PENDING' %}#f59e0b{% else %}#64748b{% endif %}; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: {% if request.status == 'APPROVED' %}#10b981{% elif request.status == 'REJECTED' %}#ef4444{% elif request.status == 'PENDING' %}#f59e0b{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                {% if request.status == 'APPROVED' %}
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                {% elif request.status == 'REJECTED' %}
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+                {% elif request.status == 'PENDING' %}
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+                {% else %}
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+                {% endif %}
+            </svg>
+        </div>
+        <div style="flex: 1;">
+            <h2 style="margin: 0 0 8px 0; font-size: 22px; font-weight: 700; color: #1e293b;">{{ request.title }}</h2>
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; color: #64748b; font-size: 14px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-weight: 500;">Status:</span>
+                    <span style="background: {% if request.status == 'APPROVED' %}#10b981{% elif request.status == 'REJECTED' %}#ef4444{% elif request.status == 'PENDING' %}#f59e0b{% else %}#64748b{% endif %}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ request.get_status_display }}</span>
+                </div>
+                {% if request.amount %}
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-weight: 500;">Amount:</span>
+                    <span style="font-weight: 700; color: #1e293b;">{{ request.currency }} {{ request.amount|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 40px;">
+    <!-- Main Content -->
+    <div>
+        <!-- Request Details -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Request Details</h3>
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Description</label>
+                <p style="margin: 0; color: #1e293b; line-height: 1.7; white-space: pre-wrap; padding: 12px; background: #f8fafc; border-radius: 8px;">{{ request.description }}</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                {% if request.required_by %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Required By</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.required_by|date:"F d, Y" }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.attachment %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Attachment</label>
+                    <a href="{{ request.attachment.url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #eff6ff; color: #1e40af; border: 1px solid #93c5fd; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.2s;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                        </svg>
+                        View Attachment
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Type-Specific Details -->
+        {% if request.petty_cash_details %}
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Petty Cash Details</h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                {% if request.petty_cash_details.purpose %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Purpose</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.petty_cash_details.purpose }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.petty_cash_details.expense_category %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Category</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.petty_cash_details.expense_category }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.petty_cash_details.payment_method %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Payment Method</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.petty_cash_details.get_payment_method_display }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.petty_cash_details.disbursed_date %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Disbursed Date</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.petty_cash_details.disbursed_date|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if request.advance_details %}
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Salary Advance Details</h3>
+            </div>
+            
+            {% if request.advance_details.reason %}
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Reason</label>
+                <p style="margin: 0; color: #1e293b; line-height: 1.7; padding: 12px; background: #f8fafc; border-radius: 8px;">{{ request.advance_details.reason }}</p>
+            </div>
+            {% endif %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                {% if request.advance_details.installments %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Installments</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.advance_details.installments }} months</p>
+                </div>
+                {% endif %}
+                
+                {% if request.advance_details.deduction_start_date %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Deduction Start Date</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.advance_details.deduction_start_date|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if request.reimbursement_details %}
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Reimbursement Details</h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                {% if request.reimbursement_details.expense_date %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Expense Date</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.reimbursement_details.expense_date|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.reimbursement_details.expense_category %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Category</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.reimbursement_details.expense_category }}</p>
+                </div>
+                {% endif %}
+                
+                {% if request.reimbursement_details.vendor_name %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Vendor</label>
+                    <p style="margin: 0; color: #1e293b; font-weight: 600;">{{ request.reimbursement_details.vendor_name }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Approval History -->
+        {% if approvals %}
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Approval History</h3>
+            </div>
+            
+            <div style="position: relative; padding-left: 32px;">
+                {% for approval in approvals %}
+                <div style="position: relative; padding-bottom: 24px;">
+                    <div style="position: absolute; left: -32px; top: 0; width: 28px; height: 28px; border-radius: 50%; background: {% if approval.action == 'APPROVED' %}#10b981{% elif approval.action == 'REJECTED' %}#ef4444{% else %}#94a3b8{% endif %}; display: flex; align-items: center; justify-content: center; color: white;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            {% if approval.action == 'APPROVED' %}
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                            {% elif approval.action == 'REJECTED' %}
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                            {% else %}
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                            {% endif %}
+                        </svg>
+                    </div>
+                    {% if not forloop.last %}
+                    <div style="position: absolute; left: -20px; top: 24px; width: 2px; height: calc(100% - 24px); background: #e2e8f0;"></div>
+                    {% endif %}
+                    
+                    <div>
+                        <div style="font-weight: 600; color: #1e293b;">Level {{ approval.approval_level }} - {{ approval.approver.get_full_name }}</div>
+                        <div style="font-size: 13px; color: #64748b; margin-top: 2px;">
+                            {{ approval.approver.email }}
+                            {% if approval.action %}
+                            • <span style="color: {% if approval.action == 'APPROVED' %}#10b981{% elif approval.action == 'REJECTED' %}#ef4444{% else %}#94a3b8{% endif %}; font-weight: 600;">{{ approval.get_action_display }}</span>
+                            {% endif %}
+                        </div>
+                        {% if approval.comments %}
+                        <div style="margin-top: 8px; padding: 8px 12px; background: #f8fafc; border-left: 3px solid #e2e8f0; font-size: 13px; color: #475569;">
+                            {{ approval.comments }}
+                        </div>
+                        {% endif %}
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+                            {% if approval.action_date %}{{ approval.action_date|date:"M d, Y g:i A" }}{% else %}Pending{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <!-- Request Info Card -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+            <h3 style="color: #1e293b; margin: 0 0 20px 0; font-size: 16px; font-weight: 600;">Request Information</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px; font-size: 13px;">
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Status</label>
+                    <span style="background: {% if request.status == 'APPROVED' %}#d1fae5{% elif request.status == 'REJECTED' %}#fee2e2{% elif request.status == 'PENDING' %}#fef3c7{% else %}#f1f5f9{% endif %}; color: {% if request.status == 'APPROVED' %}#065f46{% elif request.status == 'REJECTED' %}#991b1b{% elif request.status == 'PENDING' %}#92400e{% else %}#475569{% endif %}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                        {{ request.get_status_display }}
+                    </span>
+                </div>
+                
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Priority</label>
+                    <span style="background: {% if request.priority == 'URGENT' or request.priority == 'HIGH' %}#fee2e2{% else %}#f1f5f9{% endif %}; color: {% if request.priority == 'URGENT' or request.priority == 'HIGH' %}#991b1b{% else %}#475569{% endif %}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                        {{ request.get_priority_display }}
+                    </span>
+                </div>
+                
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Created</label>
+                    <div style="color: #1e293b; font-weight: 600;">{{ request.created_at|date:"M d, Y g:i A" }}</div>
+                </div>
+                
+                {% if request.updated_at %}
+                <div>
+                    <label style="display: block; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Last Updated</label>
+                    <div style="color: #1e293b; font-weight: 600;">{{ request.updated_at|date:"M d, Y g:i A" }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

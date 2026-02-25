@@ -1,0 +1,642 @@
+{% extends 'ems/blusuite_base.html' %}
+
+{% block title %}BluSuite Hub{% endblock %}
+
+{% block headline %}
+<h1 style="font-size: 28px; margin: 0 0 8px; color: var(--dark); font-weight: 700;">BluSuite Control Center</h1>
+<p style="margin: 0; color: var(--medium-gray); font-size: 14px;">Unified platform for HR, Projects, Assets, Analytics and Integrations</p>
+{% endblock %}
+
+{% block content %}
+<div class="hub-layout">
+    <section class="overview-banner">
+        <div class="banner-content">
+            <div class="company-info">
+                <span class="chip">Active Tenant</span>
+                <h2>{{ overview.tenant_name|default:"Your Organization" }}</h2>
+                <p>Managing {{ modules|length }} active suite{{ modules|length|pluralize }} with full admin access</p>
+            </div>
+            <div class="stat-grid">
+                <article class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total Users</span>
+                        <strong>{{ overview.system_metrics.total_users }}</strong>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m6.36 6.36l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m6.36-6.36l4.24-4.24"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Active Today</span>
+                        <strong>{{ overview.system_metrics.active_today }}</strong>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Active Suites</span>
+                        <strong>{{ modules|length }}</strong>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Metrics Dashboard -->
+    <section class="metrics-dashboard">
+        <div class="metrics-grid">
+            <!-- Staff Suite Metrics -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <h3>Staff Suite</h3>
+                </div>
+                <div class="metric-stats">
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.staff.total_employees }}</span>
+                        <span class="metric-label">Total Employees</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.staff.present_today }}</span>
+                        <span class="metric-label">Present Today</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.staff.on_leave }}</span>
+                        <span class="metric-label">On Leave</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.staff.pending_requests }}</span>
+                        <span class="metric-label">Pending Requests</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Suite Metrics -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3h7v7H3z"></path>
+                        <path d="M14 3h7v7h-7z"></path>
+                        <path d="M14 14h7v7h-7z"></path>
+                        <path d="M3 14h7v7H3z"></path>
+                    </svg>
+                    <h3>Projects Suite</h3>
+                </div>
+                <div class="metric-stats">
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.projects.total_projects }}</span>
+                        <span class="metric-label">Total Projects</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.projects.active_projects }}</span>
+                        <span class="metric-label">Active</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.projects.completed_projects }}</span>
+                        <span class="metric-label">Completed</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" style="color: #dc143c;">{{ overview.module_stats.projects.overdue_projects }}</span>
+                        <span class="metric-label">Overdue</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assets Suite Metrics -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    </svg>
+                    <h3>Assets Suite</h3>
+                </div>
+                <div class="metric-stats">
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.assets.total_assets }}</span>
+                        <span class="metric-label">Total Assets</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.assets.assigned_assets }}</span>
+                        <span class="metric-label">Assigned</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.assets.available_assets }}</span>
+                        <span class="metric-label">Available</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value">{{ overview.module_stats.assets.in_repair }}</span>
+                        <span class="metric-label">In Repair</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="hub-main">
+        <section class="hub-modules">
+            <header class="section-head">
+                <h2>Suites</h2>
+                <p>Launch into tenant-aware modules across HR, projects, assets, analytics and integrations.</p>
+            </header>
+            <div class="hub-grid">
+                {% for module in modules %}
+                <a href="{{ module.url }}" class="hub-card" style="--card-accent: {{ module.color }};">
+                    <header>
+                        <span class="hub-icon">{{ module.icon_html|safe }}</span>
+                        <h3>{{ module.title }}</h3>
+                    </header>
+                    <p>{{ module.description }}</p>
+                    <span class="hub-cta">Open suite</span>
+                </a>
+                {% empty %}
+                <div class="hub-empty">
+                    <h3>No suites available</h3>
+                    <p>Contact your administrator to enable BluSuite modules for your tenant.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        <aside class="hub-insights">
+            <section class="insight-block">
+                <header>
+                    <h3>Platform notices</h3>
+                    <span class="muted">Scheduled updates & releases</span>
+                </header>
+                <ul class="insight-list">
+                    {% for notice in overview.upcoming_notices %}
+                    <li>
+                        <span class="primary">{{ notice.title }}</span>
+                        <span class="secondary">{{ notice.description }}</span>
+                        <span class="meta">{{ notice.type }} · {{ notice.date|date:"M j" }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="empty">No upcoming notices scheduled.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="insight-block">
+                <header>
+                    <h3>Module admin requests</h3>
+                    <span class="muted">Latest submissions from suite owners</span>
+                </header>
+                <ul class="insight-list">
+                    {% for request in overview.module_requests %}
+                    <li>
+                        <span class="primary">{{ request.title }}</span>
+                        <span class="secondary">{{ request.module }} · {{ request.submitted_by }}</span>
+                        <span class="meta">{{ request.submitted_at|date:"M j" }} · {{ request.status }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="empty">No open requests from module admins.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="insight-block">
+                <header>
+                    <h3>Module rollouts</h3>
+                    <span class="muted">Status across BluSuite suites</span>
+                </header>
+                <ul class="insight-list">
+                    {% for module in overview.modules %}
+                    <li>
+                        <span class="primary">{{ module.name }}</span>
+                        <span class="secondary">{{ module.status }} · Owners: {{ module.owners|join:", " }}</span>
+                        <span class="meta">Last update {{ module.last_update|date:"M j" }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="empty">No module activity recorded.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="insight-block">
+                <header>
+                    <h3>Company workspace</h3>
+                    <span class="muted">Manage configuration, billing and support</span>
+                </header>
+                <div class="quick-actions">
+                    {% if show_company_settings %}
+                    <a href="{% url 'blu_settings_home' %}" class="quick-action">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Settings</span>
+                    </a>
+                    {% endif %}
+                    {% if show_company_billing %}
+                    <a href="{% url 'blu_billing_home' %}" class="quick-action">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Billing</span>
+                    </a>
+                    {% endif %}
+                    {% if show_company_support %}
+                    <a href="{% url 'blu_support_home' %}" class="quick-action">
+                        <i class="fa-solid fa-headset"></i>
+                        <span>Support</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="insight-block">
+                <header>
+                    <h3>Activity timeline</h3>
+                    <span class="muted">Highlights across suites</span>
+                </header>
+                <ul class="activity-list">
+                    {% for update in overview.recent_updates %}
+                    <li>
+                        <span class="dot"></span>
+                        <div>
+                            <strong>{{ update.label }}</strong>
+                            <p>{{ update.primary }} · {{ update.secondary }}</p>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="empty">No platform activity captured yet.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hub-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .overview-banner {
+        background: white;
+        border-radius: 4px;
+        padding: 28px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 0;
+    }
+    .metrics-dashboard {
+        background: white;
+        border-radius: 4px;
+        padding: 24px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 24px;
+    }
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+    }
+    .metric-card {
+        background: var(--light-gray);
+        border-radius: 4px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+    }
+    .metric-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .metric-header svg {
+        color: var(--primary);
+    }
+    .metric-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    .metric-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .metric-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        line-height: 1;
+    }
+    .metric-label {
+        font-size: 11px;
+        color: var(--medium-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-weight: 500;
+    }
+    .banner-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 32px;
+        flex-wrap: wrap;
+    }
+    .company-info {
+        flex: 1;
+        min-width: 300px;
+    }
+    .company-info h2 {
+        margin: 8px 0 6px;
+        font-size: 1.75rem;
+        color: var(--dark);
+        font-weight: 700;
+    }
+    .company-info p {
+        margin: 0;
+        color: var(--medium-gray);
+        font-size: 14px;
+    }
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 4px 10px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        color: var(--primary);
+    }
+    .stat-grid {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .stat-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 180px;
+        transition: border-color 0.1s ease;
+    }
+    .stat-card:hover {
+        border-color: var(--primary);
+    }
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .stat-label {
+        font-size: 12px;
+        color: var(--medium-gray);
+        font-weight: 500;
+    }
+    .stat-card strong {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    .hub-main {
+        display: grid;
+        grid-template-columns: minmax(0, 2.25fr) minmax(0, 1fr);
+        gap: 20px;
+    }
+    .section-head h2 {
+        margin: 0 0 4px;
+        font-size: 1.4rem;
+        color: var(--dark);
+        font-weight: 700;
+    }
+    .section-head p {
+        margin: 0;
+        color: var(--medium-gray);
+        font-size: 14px;
+    }
+    .hub-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
+    .hub-card {
+        text-decoration: none;
+        background: white;
+        border-radius: 4px;
+        padding: 24px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: border-color 0.1s ease, box-shadow 0.1s ease;
+        color: var(--dark-gray);
+    }
+    .hub-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(220, 20, 60, 0.1);
+    }
+    .hub-card header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .hub-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 4px;
+        background: rgba(220, 20, 60, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 20px;
+    }
+    .hub-card h3 {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    .hub-card p {
+        margin: 0;
+        color: var(--medium-gray);
+        line-height: 1.5;
+        font-size: 14px;
+    }
+    .hub-cta {
+        margin-top: auto;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .hub-empty {
+        grid-column: 1 / -1;
+        background: var(--light-gray);
+        border-radius: 4px;
+        border: 1px dashed var(--border-color);
+        padding: 32px;
+        text-align: center;
+        color: var(--medium-gray);
+    }
+    .hub-insights {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .insight-block {
+        background: white;
+        border-radius: 4px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .insight-block header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--dark);
+        font-weight: 600;
+    }
+    .insight-block header .muted {
+        font-size: 12px;
+        color: var(--medium-gray);
+    }
+    .insight-list,
+    .activity-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .insight-list li,
+    .activity-list li {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 10px 12px;
+        border-radius: 4px;
+        background: var(--light-gray);
+        color: var(--dark-gray);
+        font-size: 13px;
+    }
+    .insight-list li .primary {
+        font-weight: 600;
+        color: var(--dark);
+    }
+    .insight-list li .secondary {
+        font-size: 12px;
+        color: var(--medium-gray);
+    }
+    .insight-list li .meta {
+        font-size: 11px;
+        color: var(--medium-gray);
+    }
+    .insight-list li.empty,
+    .activity-list li.empty {
+        background: transparent;
+        border: 1px dashed var(--border-color);
+        color: var(--medium-gray);
+        text-align: center;
+    }
+    .activity-list li {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .activity-list li .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .activity-list li strong {
+        font-size: 13px;
+        color: var(--dark);
+    }
+    .activity-list li p {
+        margin: 2px 0 0;
+        color: var(--medium-gray);
+        font-size: 12px;
+    }
+    .quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .quick-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: rgba(220, 20, 60, 0.1);
+        border-radius: 4px;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 13px;
+        text-decoration: none;
+        transition: background 0.1s ease;
+    }
+    .quick-action:hover {
+        background: rgba(220, 20, 60, 0.15);
+    }
+    .quick-action i {
+        font-size: 14px;
+    }
+    @media (max-width: 1100px) {
+        .hub-main {
+            grid-template-columns: 1fr;
+        }
+        .hub-insights {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        .insight-block {
+            flex: 1 1 260px;
+        }
+    }
+</style>
+{% endblock %}

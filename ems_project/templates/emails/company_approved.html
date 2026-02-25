@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Registration Approved - Welcome to EMS</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 30px; text-align: center; border-radius: 5px; margin-bottom: 20px; }
+        .content { background: white; padding: 30px; border-radius: 5px; border: 1px solid #ddd; }
+        .license-info { background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ea580c; }
+        .credentials { background: #e9ecef; padding: 15px; border-radius: 5px; margin: 15px 0; font-family: monospace; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 5px; text-align: center; }
+        .btn { display: inline-block; padding: 12px 30px; background: #ea580c; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .btn:hover { background: #dc2626; }
+        .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Congratulations!</h1>
+            <h2>Your Company Registration is Approved</h2>
+            <p>Welcome to the Employee Management System</p>
+        </div>
+
+        <div class="content">
+            <h2>Company Information</h2>
+            <p><strong>Company Name:</strong> {{ company.name }}</p>
+            <p><strong>Company ID:</strong> {{ company.id }}</p>
+            <p><strong>Approval Date:</strong> {{ company.approved_at|date:"M j, Y H:i" }}</p>
+
+            <div class="license-info">
+                <h3>License Information</h3>
+                <p><strong>Subscription Plan:</strong> {{ license_info.plan }}</p>
+                <p><strong>License Key:</strong> <code>{{ license_info.license_key }}</code></p>
+                <p><strong>Max Employees:</strong> {{ license_info.max_employees }}</p>
+                <p><strong>License Expiry:</strong> {{ license_info.expiry|date:"M j, Y"|default:"Never expires" }}</p>
+            </div>
+
+            <div class="credentials">
+                <h3>Login Credentials</h3>
+                <p><strong>Email:</strong> {{ employer.email }}</p>
+                <p><strong>Temporary Password:</strong> <code>{{ password }}</code></p>
+                <p><strong>Login URL:</strong> <a href="{{ login_url }}" style="color: #ea580c; text-decoration: none; font-weight: bold;">{{ login_url }}</a></p>
+            </div>
+
+            <div class="warning">
+                <h4>Important Security Notice</h4>
+                <p>You will be required to change your password upon first login for security reasons.</p>
+                <p>Please keep your license key safe - you'll need it for support requests.</p>
+            </div>
+
+            <div class="footer">
+                <p><strong>Next Steps:</strong></p>
+                <ol>
+                    <li>Click the login button below</li>
+                    <li>Use the provided credentials to log in</li>
+                    <li>Change your password when prompted</li>
+                    <li>Start setting up your company profile</li>
+                </ol>
+                <a href="{{ login_url }}" class="btn">Login to Your Account</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

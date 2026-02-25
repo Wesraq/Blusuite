@@ -1,0 +1,41 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Request {{ status }}{% endblock %}
+
+{% block header %}Request {{ status }}{% endblock %}
+
+{% block content %}
+<p>Hello {{ employee.first_name }},</p>
+
+<p>Your <strong>{{ request_type }}</strong> request has been <strong>{{ status|lower }}</strong>.</p>
+
+<div class="info-box">
+    <div class="info-row">
+        <span class="info-label">Request Type:</span>
+        <span class="info-value">{{ request_type }}</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Status:</span>
+        <span class="info-value">
+            <span class="badge {% if status == 'Approved' %}badge-success{% else %}badge-danger{% endif %}">
+                {{ status }}
+            </span>
+        </span>
+    </div>
+    {% if approved_by %}
+    <div class="info-row">
+        <span class="info-label">{{ status|title }} By:</span>
+        <span class="info-value">{{ approved_by.first_name }} {{ approved_by.last_name }}</span>
+    </div>
+    {% endif %}
+</div>
+
+{% if approval_notes %}
+<p><strong>Notes:</strong></p>
+<p style="background-color: #f8f9fa; padding: 15px; border-radius: 4px;">{{ approval_notes }}</p>
+{% endif %}
+
+<p style="text-align: center;">
+    <a href="{{ base_url }}/requests/" class="btn">View My Requests</a>
+</p>
+{% endblock %}

@@ -1,0 +1,459 @@
+{% extends 'blu_assets/base_assets.html' %}
+{% load static %}
+
+{% block title %}{{ asset.name }} - Asset Details{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .ad-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .ad-card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .ad-card-title { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+    .ad-card-body { padding: 20px; }
+    .ad-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 14px; border-radius: 4px; font-size: 12px; font-weight: 500;
+        text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .ad-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .ad-btn-primary:hover { background: #be123c; border-color: #be123c; }
+    .ad-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .ad-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .ad-btn-sm { padding: 4px 10px; font-size: 11px; }
+    .ad-input {
+        width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px;
+        font-size: 13px; font-family: inherit; transition: border-color 0.15s;
+    }
+    .ad-input:focus { outline: none; border-color: #e11d48; box-shadow: 0 0 0 2px rgba(225,29,72,0.08); }
+    .ad-label { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a; }
+    .ad-badge { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .ad-badge-assigned { background: #dbeafe; color: #1e40af; }
+    .ad-badge-available { background: #d1fae5; color: #065f46; }
+    .ad-badge-in_repair { background: #fef3c7; color: #92400e; }
+    .ad-badge-retired { background: #f1f5f9; color: #475569; }
+    .ad-badge-lost { background: #fee2e2; color: #991b1b; }
+    .ad-field-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+    .ad-field-value { font-size: 14px; color: #0f172a; font-weight: 500; }
+    .ad-section-title { font-size: 13px; font-weight: 600; color: #0f172a; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 6px; }
+    .ad-table { width: 100%; border-collapse: collapse; }
+    .ad-table thead { background: #f8fafc; }
+    .ad-table th { padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; }
+    .ad-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    dialog { border: none; border-radius: 4px; padding: 0; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+    dialog::backdrop { background: rgba(0,0,0,0.3); }
+    .ad-modal-header { padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .ad-modal-body { padding: 20px; }
+    .ad-modal-footer { padding: 14px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px; }
+</style>
+{% endblock page_content %}
+
+{% block page_content %}
+<!-- Back Link -->
+<div style="margin-bottom: 12px;">
+    <a href="/asset-management/" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 500;" onmouseover="this.style.color='#e11d48'" onmouseout="this.style.color='#64748b'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Assets
+    </a>
+</div>
+
+<!-- Page Header -->
+<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">{{ asset.name }}</h1>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">Asset Tag: <strong style="color: #e11d48; font-family: 'Cascadia Code', monospace;">{{ asset.asset_tag }}</strong></p>
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            <span class="ad-badge ad-badge-{{ asset.status|lower }}" style="padding: 5px 14px; font-size: 12px;">{{ asset.get_status_display }}</span>
+            {% if can_manage_assets %}
+            {% if latest_collection %}
+            <a href="{% url 'assets:asset_collection_print' asset.id latest_collection.id %}" class="ad-btn ad-btn-secondary ad-btn-sm">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Latest Collection
+            </a>
+            {% endif %}
+            <button type="button" class="ad-btn ad-btn-primary ad-btn-sm" onclick="openCollectionModal()">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+                Record Collection
+            </button>
+            {% if asset.status not in 'RETIRED,LOST' %}
+                {% if asset.status != 'IN_REPAIR' %}
+                <form method="post" action="{% url 'assets:asset_send_to_repair' asset.id %}" style="margin: 0; display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="ad-btn ad-btn-secondary ad-btn-sm" style="color: #d97706; border-color: #fbbf24;">Repair</button>
+                </form>
+                {% endif %}
+                {% if asset.status != 'AVAILABLE' %}
+                <form method="post" action="{% url 'assets:asset_return' asset.id %}" style="margin: 0; display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="ad-btn ad-btn-secondary ad-btn-sm" style="color: #10b981; border-color: #6ee7b7;">Return</button>
+                </form>
+                {% endif %}
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <!-- Left: Asset Information -->
+    <div class="ad-card">
+        <div class="ad-card-header"><h3 class="ad-card-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Asset Information
+        </h3></div>
+        <div class="ad-card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <span class="ad-field-label">Asset Type</span>
+                    <div class="ad-field-value">{{ asset.get_asset_type_display }}</div>
+                </div>
+                <div>
+                    <span class="ad-field-label">Quantity</span>
+                    <div class="ad-field-value" style="font-weight: 700;">{{ asset.quantity }}</div>
+                </div>
+                {% if asset.category %}
+                <div>
+                    <span class="ad-field-label">Category</span>
+                    <div class="ad-field-value">{{ asset.category.name }}</div>
+                </div>
+                {% endif %}
+                {% if asset.brand %}
+                <div>
+                    <span class="ad-field-label">Brand</span>
+                    <div class="ad-field-value">{{ asset.brand }}</div>
+                </div>
+                {% endif %}
+                {% if asset.model %}
+                <div>
+                    <span class="ad-field-label">Model</span>
+                    <div class="ad-field-value">{{ asset.model }}</div>
+                </div>
+                {% endif %}
+                {% if asset.serial_number %}
+                <div>
+                    <span class="ad-field-label">Serial Number</span>
+                    <div class="ad-field-value" style="font-family: 'Cascadia Code', monospace;">{{ asset.serial_number }}</div>
+                </div>
+                {% endif %}
+                <div>
+                    <span class="ad-field-label">Condition</span>
+                    {% if asset.condition == 'NEW' or asset.condition == 'EXCELLENT' %}
+                    <span class="ad-badge" style="background: #d1fae5; color: #065f46;">{{ asset.get_condition_display }}</span>
+                    {% elif asset.condition == 'GOOD' %}
+                    <span class="ad-badge" style="background: #dbeafe; color: #1e40af;">Good</span>
+                    {% elif asset.condition == 'FAIR' %}
+                    <span class="ad-badge" style="background: #fef3c7; color: #92400e;">Fair</span>
+                    {% else %}
+                    <span class="ad-badge" style="background: #fee2e2; color: #991b1b;">Poor</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if asset.description %}
+            <div style="margin-top: 16px;">
+                <span class="ad-field-label">Description</span>
+                <div style="font-size: 13px; color: #475569; line-height: 1.6;">{{ asset.description }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right: Assignment & Location -->
+    <div>
+        <div class="ad-card">
+            <div class="ad-card-header"><h3 class="ad-card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Assignment & Location
+            </h3></div>
+            <div class="ad-card-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    {% if asset.department %}
+                    <div>
+                        <span class="ad-field-label">Department</span>
+                        <span class="ad-badge" style="background: #e0e7ff; color: #3730a3;">{{ asset.department.name }}</span>
+                    </div>
+                    {% endif %}
+                    {% if asset.custodian %}
+                    <div>
+                        <span class="ad-field-label">Custodian</span>
+                        <div class="ad-field-value">{{ asset.custodian.get_full_name }}</div>
+                    </div>
+                    {% endif %}
+                    {% if asset.location %}
+                    <div style="grid-column: 1 / -1;">
+                        <span class="ad-field-label">Location</span>
+                        <div class="ad-field-value">{{ asset.location }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if asset.employee %}
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 4px; padding: 14px; margin-top: 16px;">
+                    <span class="ad-field-label" style="color: #0369a1;">Assigned To</span>
+                    <div style="font-size: 15px; color: #0c4a6e; font-weight: 600; margin-bottom: 2px;">{{ asset.employee.get_full_name }}</div>
+                    <div style="font-size: 12px; color: #0369a1;">
+                        Since {{ asset.assigned_date|date:"F d, Y" }}
+                        {% if asset.days_with_employee > 0 %}({{ asset.days_with_employee }} days){% endif %}
+                    </div>
+                    {% if asset.assigned_by %}
+                    <div style="font-size: 11px; color: #0369a1; margin-top: 6px;">Assigned by: {{ asset.assigned_by.get_full_name }}</div>
+                    {% endif %}
+                    {% if can_manage_assets %}
+                    <form method="post" action="{% url 'assets:asset_unassign' asset.id %}" style="margin-top: 10px;">
+                        {% csrf_token %}
+                        <button type="submit" class="ad-btn ad-btn-secondary ad-btn-sm">Unassign</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px; padding: 14px; margin-top: 16px; text-align: center;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" style="margin: 0 auto 6px; display: block;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                    <div style="font-size: 13px; color: #15803d; font-weight: 600;">Asset Available</div>
+                    <div style="font-size: 11px; color: #16a34a; margin-top: 2px;">Ready for assignment</div>
+                    {% if can_manage_assets and asset.status not in 'IN_REPAIR,RETIRED,LOST' %}
+                    <button class="ad-btn ad-btn-primary ad-btn-sm" style="margin-top: 10px;" onclick="document.getElementById('assign-modal').showModal();">Assign</button>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Purchase Information -->
+        <div class="ad-card">
+            <div class="ad-card-header"><h3 class="ad-card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Purchase Information
+            </h3></div>
+            <div class="ad-card-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    {% if asset.purchase_date %}
+                    <div>
+                        <span class="ad-field-label">Purchase Date</span>
+                        <div class="ad-field-value">{{ asset.purchase_date|date:"F d, Y" }}</div>
+                    </div>
+                    {% endif %}
+                    {% if asset.purchase_price %}
+                    <div>
+                        <span class="ad-field-label">Purchase Price</span>
+                        <div class="ad-field-value">K{{ asset.purchase_price|floatformat:2 }}</div>
+                    </div>
+                    {% endif %}
+                    {% if asset.warranty_expiry %}
+                    <div style="grid-column: 1 / -1;">
+                        <span class="ad-field-label">Warranty Expiry</span>
+                        <div class="ad-field-value">
+                            {{ asset.warranty_expiry|date:"F d, Y" }}
+                            {% if asset.is_warranty_valid %}
+                            <span class="ad-badge" style="background: #d1fae5; color: #065f46; margin-left: 6px;">VALID</span>
+                            {% else %}
+                            <span class="ad-badge" style="background: #fee2e2; color: #991b1b; margin-left: 6px;">EXPIRED</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if asset.notes %}
+<div class="ad-card">
+    <div class="ad-card-header"><h3 class="ad-card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Notes
+    </h3></div>
+    <div class="ad-card-body">
+        <p style="font-size: 13px; color: #475569; line-height: 1.6; white-space: pre-wrap; margin: 0;">{{ asset.notes }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Maintenance History -->
+{% if maintenance_logs %}
+<div class="ad-card">
+    <div class="ad-card-header"><h3 class="ad-card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Maintenance History
+    </h3></div>
+    <div style="overflow-x: auto;">
+        <table class="ad-table">
+            <thead>
+                <tr><th>Date</th><th>Type</th><th>Description</th><th>Performed By</th><th>Cost</th></tr>
+            </thead>
+            <tbody>
+                {% for log in maintenance_logs %}
+                <tr>
+                    <td style="white-space: nowrap;">{{ log.performed_date|date:"M d, Y" }}</td>
+                    <td><span class="ad-badge" style="background: #e0e7ff; color: #3730a3;">{{ log.get_maintenance_type_display }}</span></td>
+                    <td style="color: #475569;">{{ log.description|truncatewords:15 }}</td>
+                    <td>{{ log.performed_by }}</td>
+                    <td style="font-weight: 600;">{% if log.cost %}K{{ log.cost|floatformat:2 }}{% else %}&mdash;{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if can_manage_assets %}
+<!-- Assign Modal -->
+<dialog id="assign-modal" style="width: 420px; max-width: 90vw;">
+    <form method="post" action="{% url 'asset_assign' asset.id %}">
+        {% csrf_token %}
+        <div class="ad-modal-header">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #0f172a;">Assign Asset</h3>
+            <button type="button" onclick="document.getElementById('assign-modal').close();" style="background: none; border: none; cursor: pointer; color: #64748b; font-size: 18px;">&#215;</button>
+        </div>
+        <div class="ad-modal-body">
+            {% if asset.status in 'IN_REPAIR,RETIRED,LOST' %}
+            <p style="color: #e11d48; font-size: 13px;">Cannot assign while status is {{ asset.get_status_display }}.</p>
+            {% else %}
+            <div style="margin-bottom: 12px;">
+                <label class="ad-label">Employee</label>
+                <select name="employee" required class="ad-input">
+                    <option value="">Select employee</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}">{{ emp.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="ad-label">Notes (optional)</label>
+                <textarea name="notes" rows="3" class="ad-input" style="resize: vertical;"></textarea>
+            </div>
+            {% endif %}
+        </div>
+        {% if asset.status not in 'IN_REPAIR,RETIRED,LOST' %}
+        <div class="ad-modal-footer">
+            <button type="button" class="ad-btn ad-btn-secondary" onclick="document.getElementById('assign-modal').close();">Cancel</button>
+            <button type="submit" class="ad-btn ad-btn-primary">Assign</button>
+        </div>
+        {% endif %}
+    </form>
+</dialog>
+
+<!-- Maintenance Modal -->
+<dialog id="maintenance-modal" style="width: 460px; max-width: 90vw;">
+    <form method="post" action="{% url 'assets:asset_maintenance_add' asset.id %}">
+        {% csrf_token %}
+        <div class="ad-modal-header">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #0f172a;">Add Maintenance</h3>
+            <button type="button" onclick="document.getElementById('maintenance-modal').close();" style="background: none; border: none; cursor: pointer; color: #64748b; font-size: 18px;">&#215;</button>
+        </div>
+        <div class="ad-modal-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="grid-column: 1 / -1;"><label class="ad-label">Type</label>{{ maintenance_form.maintenance_type }}</div>
+                <div style="grid-column: 1 / -1;"><label class="ad-label">Performed Date</label>{{ maintenance_form.performed_date }}</div>
+                <div><label class="ad-label">Performed By</label>{{ maintenance_form.performed_by }}</div>
+                <div><label class="ad-label">Cost</label>{{ maintenance_form.cost }}</div>
+                <div style="grid-column: 1 / -1;"><label class="ad-label">Description</label>{{ maintenance_form.description }}</div>
+                <div style="grid-column: 1 / -1;"><label class="ad-label">Notes</label>{{ maintenance_form.notes }}</div>
+            </div>
+        </div>
+        <div class="ad-modal-footer">
+            <button type="button" class="ad-btn ad-btn-secondary" onclick="document.getElementById('maintenance-modal').close();">Cancel</button>
+            <button type="submit" class="ad-btn ad-btn-primary">Save</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Collection / Handover Modal -->
+<dialog id="collection-modal" style="width: 520px; max-width: 95vw;">
+    <form method="post" action="{% url 'assets:asset_collection_add' asset.id %}" id="collection-form">
+        {% csrf_token %}
+        <div class="ad-modal-header">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #0f172a;">Collection / Handover</h3>
+            <button type="button" onclick="document.getElementById('collection-modal').close();" style="background: none; border: none; cursor: pointer; color: #64748b; font-size: 18px;">&#215;</button>
+        </div>
+        <div class="ad-modal-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="grid-column: 1 / -1;"><label class="ad-label">Employee / Recipient</label>{{ collection_form.employee }}</div>
+                <div style="grid-column: 1 / -1;"><label class="ad-label">Position / Department</label>{{ collection_form.position }}</div>
+                <div style="grid-column: 1 / -1;"><label class="ad-label">Notes</label>{{ collection_form.notes }}</div>
+                <div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: #f8fafc;">
+                    {{ collection_form.use_saved_signature }}
+                    <label style="margin: 0; font-size: 13px; color: #0f172a;">Use my saved signature</label>
+                </div>
+                <div id="pin-row" style="grid-column: 1 / -1; display: none;">
+                    <label class="ad-label">Enter PIN/Password</label>
+                    {{ collection_form.pin }}
+                </div>
+                <div id="draw-row" style="grid-column: 1 / -1;">
+                    <label class="ad-label">Draw Signature</label>
+                    <canvas id="signature-pad" width="450" height="160" style="width: 100%; border: 1px dashed #cbd5e1; border-radius: 4px; background: white;"></canvas>
+                    <div style="margin-top: 6px; text-align: right;">
+                        <button type="button" class="ad-btn ad-btn-secondary ad-btn-sm" onclick="clearSignature()">Clear</button>
+                    </div>
+                </div>
+                {{ collection_form.signature_data }}
+            </div>
+            {% if latest_collection %}
+            <div style="margin-top: 14px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 4px; background: #f8fafc;">
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 2px;">Last collection:</div>
+                <div style="font-size: 12px; color: #0f172a; font-weight: 600;">{{ latest_collection.employee_name }} - {{ latest_collection.signed_at|date:"M d, Y H:i" }}</div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="ad-modal-footer">
+            <button type="button" class="ad-btn ad-btn-secondary" onclick="document.getElementById('collection-modal').close();">Cancel</button>
+            <button type="submit" class="ad-btn ad-btn-primary">Save Collection</button>
+        </div>
+    </form>
+</dialog>
+{% endif %}
+
+<script>
+function openMaintenanceModal() {
+    const dlg = document.getElementById('maintenance-modal');
+    if (dlg) dlg.showModal();
+}
+function openCollectionModal() {
+    const dlg = document.getElementById('collection-modal');
+    if (dlg) dlg.showModal();
+}
+// Signature pad logic
+const useSavedCheckbox = document.getElementById('{{ collection_form.use_saved_signature.id_for_label }}');
+const pinRow = document.getElementById('pin-row');
+const drawRow = document.getElementById('draw-row');
+const sigCanvas = document.getElementById('signature-pad');
+const sigInput = document.getElementById('{{ collection_form.signature_data.id_for_label }}');
+let sigCtx, drawing = false;
+if (sigCanvas) {
+    sigCtx = sigCanvas.getContext('2d');
+    sigCtx.lineWidth = 2;
+    sigCtx.lineCap = 'round';
+    sigCtx.strokeStyle = '#0f172a';
+    const start = (e) => { drawing = true; sigCtx.beginPath(); sigCtx.moveTo(getX(e), getY(e)); };
+    const move = (e) => { if (!drawing) return; sigCtx.lineTo(getX(e), getY(e)); sigCtx.stroke(); };
+    const end = () => { drawing = false; };
+    const getX = (e) => e.offsetX || (e.touches && e.touches[0].clientX - sigCanvas.getBoundingClientRect().left);
+    const getY = (e) => e.offsetY || (e.touches && e.touches[0].clientY - sigCanvas.getBoundingClientRect().top);
+    sigCanvas.addEventListener('mousedown', start);
+    sigCanvas.addEventListener('mousemove', move);
+    sigCanvas.addEventListener('mouseup', end);
+    sigCanvas.addEventListener('mouseleave', end);
+    sigCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
+    sigCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); });
+    sigCanvas.addEventListener('touchend', (e) => { e.preventDefault(); end(e); });
+}
+function clearSignature() {
+    if (sigCtx) { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); if (sigInput) sigInput.value = ''; }
+}
+function toggleSignatureMode() {
+    const useSaved = useSavedCheckbox && useSavedCheckbox.checked;
+    if (pinRow) pinRow.style.display = useSaved ? 'block' : 'none';
+    if (drawRow) drawRow.style.display = useSaved ? 'none' : 'block';
+    if (!useSaved && sigInput) sigInput.value = '';
+}
+if (useSavedCheckbox) { useSavedCheckbox.addEventListener('change', toggleSignatureMode); toggleSignatureMode(); }
+const collectionForm = document.getElementById('collection-form');
+if (collectionForm) {
+    collectionForm.addEventListener('submit', function(e) {
+        const useSaved = useSavedCheckbox && useSavedCheckbox.checked;
+        if (!useSaved && sigCanvas && sigInput) { sigInput.value = sigCanvas.toDataURL('image/png'); }
+    });
+}
+</script>
+{% endblock page_content %}

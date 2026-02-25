@@ -1,0 +1,558 @@
+{% extends 'ems/base_employer.html' %}
+
+{% block title %}{{ company.company_name|default:company.name }} Dashboard - EMS{% endblock %}
+
+{% block page_title %}{{ company.company_name|default:"Company Dashboard" }}{% endblock %}
+
+{% block content %}
+<!-- Dashboard Content -->
+<div id="dashboard-content">
+    <!-- Modern Tab Navigation -->
+    <div style="border-bottom: 2px solid #e2e8f0; margin-bottom: 24px;">
+        <div style="display: flex; gap: 8px;">
+            <button class="tab-btn active" onclick="showTab('overview')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; border-bottom: 2px solid #1d4ed8; color: #1d4ed8; font-weight: 600; margin-bottom: -2px;">Overview</button>
+            <button class="tab-btn" onclick="showTab('employees')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; color: #64748b; font-weight: 600; margin-bottom: -2px;">Employees</button>
+            <button class="tab-btn" onclick="showTab('company')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; color: #64748b; font-weight: 600; margin-bottom: -2px;">Company</button>
+        </div>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="overview" class="tab-content active">
+        <div class="welcome-card">
+            <h2>Company Overview</h2>
+            <p>Manage your organization, monitor employee performance, and oversee all HR activities.</p>
+            {% if company %}
+                <h3>{{ company.company_name }}</h3>
+                <p>{{ company.company_address }}</p>
+            {% endif %}
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg></div>
+                <h3>{{ total_employees }}</h3>
+                <p>Total Employees</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg></div>
+                <h3>{{ present_today }}</h3>
+                <p>Present Today</p>
+                <small style="color: #10b981;">{{ attendance_rate }}% attendance rate</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg></div>
+                <h3>{{ pending_leaves }}</h3>
+                <p>Pending Leave Requests</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg></div>
+                <h3>{{ recent_docs|length }}</h3>
+                <p>Recent Documents</p>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Leave Management</div>
+                    <div class="card-subtitle">Manage employee leave requests</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">
+                        {% if pending_leaves > 0 %}
+                            You have {{ pending_leaves }} leave request(s) awaiting approval.
+                        {% else %}
+                            All leave requests are up to date.
+                        {% endif %}
+                    </p>
+                    {% url 'leave_management' as leave_url %}
+                    {% if leave_url %}
+                        <a href="{{ leave_url }}" class="btn">Review Leave Requests</a>
+                    {% else %}
+                        <a href="#" class="btn disabled" onclick="alert('Leave management not available'); return false;">Review Leave Requests</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Employee Management</div>
+                    <div class="card-subtitle">Manage employee profiles and roles</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">View and manage all employees in your organization.</p>
+                    {% url 'employee_management' as employee_url %}
+                    {% if employee_url %}
+                        <a href="{{ employee_url }}" class="btn">Manage Employees</a>
+                    {% else %}
+                        <a href="#" class="btn disabled" onclick="alert('Employee management not available'); return false;">Manage Employees</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Performance Reviews</div>
+                    <div class="card-subtitle">Track employee performance</div>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">Monitor and manage employee performance reviews.</p>
+                    <a href="/performance/" class="btn">View Reviews</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees Tab -->
+    <div id="employees" class="tab-content">
+        <div class="content-card" style="max-width: 100%; padding-bottom: 8px;">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">Employee Management</div>
+                    <div class="card-subtitle">Manage your team members</div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    {% url 'employee_management' as employee_url %}
+                    <a href="{{ employee_url|default:'#' }}" class="btn{% if not employee_url %} disabled{% endif %}">View All</a>
+                    <a href="{{ employee_url|default:'#' }}" class="btn btn-secondary{% if not employee_url %} disabled{% endif %}">Add New</a>
+                </div>
+            </div>
+
+            <div class="card-content">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 16px;">
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <p style="margin: 0; color: #475569; font-size: 12px;">New hires (30d)</p>
+                        <h3 style="margin: 4px 0 0; color: #0f172a;">{{ new_hires_month|default:"—" }}</h3>
+                    </div>
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <p style="margin: 0; color: #475569; font-size: 12px;">On leave today</p>
+                        <h3 style="margin: 4px 0 0; color: #0f172a;">{{ on_leave_today|default:"—" }}</h3>
+                    </div>
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <p style="margin: 0; color: #475569; font-size: 12px;">Attrition YTD</p>
+                        <h3 style="margin: 4px 0 0; color: #0f172a;">{{ attrition_rate|default:"—" }}{% if attrition_rate %}%{% endif %}</h3>
+                    </div>
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <p style="margin: 0; color: #475569; font-size: 12px;">Open roles</p>
+                        <h3 style="margin: 4px 0 0; color: #0f172a;">{{ open_roles|default:"—" }}</h3>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                        <h4 style="margin: 0 0 10px; color: #0f172a;">HR Inbox</h4>
+                        <ul style="margin: 0; padding-left: 18px; color: #475569; font-size: 13px; display: grid; gap: 6px;">
+                            <li><strong>{{ pending_leaves|default:"0" }}</strong> pending leave requests.</li>
+                            <li><strong>{{ attendance_exceptions|default:"0" }}</strong> attendance exceptions today.</li>
+                            <li><strong>{{ probation_reviews|default:"0" }}</strong> probation/contract reviews this week.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                        <h4 style="margin: 0 0 10px; color: #0f172a;">Quick Actions</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;">
+                            <a href="{{ employee_url|default:'#' }}" class="btn{% if not employee_url %} disabled{% endif %}">Employee Directory</a>
+                            {% url 'attendance_dashboard' as attendance_url %}
+                            <a href="{{ attendance_url|default:'#' }}" class="btn btn-secondary{% if not attendance_url %} disabled{% endif %}">Attendance</a>
+                            <a href="/performance/" class="btn btn-secondary">Performance</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h5 style="margin: 0; color: #0f172a;">Upcoming Birthdays</h5>
+                            <span style="background: #e0f2fe; color: #075985; padding: 2px 8px; border-radius: 999px; font-size: 11px;">People</span>
+                        </div>
+                        <p style="margin: 0; color: #475569;">No upcoming birthdays this week.</p>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h5 style="margin: 0; color: #0f172a;">Onboarding / Offboarding</h5>
+                            <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-size: 11px;">Tasks</span>
+                        </div>
+                        <p style="margin: 0; color: #475569;">No open onboarding/offboarding tasks.</p>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h5 style="margin: 0; color: #0f172a;">Contracts & Probation</h5>
+                            <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; font-size: 11px;">Watchlist</span>
+                        </div>
+                        <p style="margin: 0; color: #475569;">No expiring contracts or probation reviews this week.</p>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h5 style="margin: 0; color: #0f172a;">Performance Follow-ups</h5>
+                            <span style="background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 999px; font-size: 11px;">Reviews</span>
+                        </div>
+                        <p style="margin: 0; color: #475569;">No upcoming performance follow-ups scheduled.</p>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h5 style="margin: 0; color: #0f172a;">Expiring Documents</h5>
+                            <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 999px; font-size: 11px;">Compliance</span>
+                        </div>
+                        <p style="margin: 0; color: #475569;">{{ expiring_docs|default:"0" }} employee docs nearing expiry.</p>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h5 style="margin: 0; color: #0f172a;">Pending Verifications</h5>
+                            <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; font-size: 11px;">ID / Docs</span>
+                        </div>
+                        <p style="margin: 0; color: #475569;">{{ pending_verifications|default:"0" }} employees need ID/address checks.</p>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h5 style="margin: 0; color: #0f172a;">Benefits Enrollment</h5>
+                            <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-size: 11px;">Benefits</span>
+                        </div>
+                        <p style="margin: 0; color: #475569;">{{ pending_benefits|default:"0" }} pending enrollments awaiting approval.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Tab -->
+    <div id="company" class="tab-content">
+        <div class="content-card" style="max-width: 100%;">
+            <div class="card-header">
+                <div class="card-title">Company Information</div>
+                <div class="card-subtitle">Manage your company details</div>
+            </div>
+            <div class="card-content">
+                {% if company %}
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; margin-bottom: 12px;">
+                        <div style="display: flex; gap: 16px; align-items: center;">
+
+                            <div style="width: 72px; height: 72px; border-radius: 12px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                {% if company.logo %}
+                                    <img src="{{ company.logo.url }}" alt="Company Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    <span style="font-weight: 700; color: #0f172a;">{{ company.name|default:"--"|slice:":2"|upper }}</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: #0f172a;">{{ company.company_name|default:company.name }}</h3>
+                                <p style="margin: 4px 0 0; color: #475569;">{{ company.company_address|default:company.address }}</p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                                    <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;">
+                                        {{ company.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                    <span style="background: #e0f2fe; color: #075985; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;">
+                                        {{ company.is_approved|yesno:"Approved,Pending" }}
+                                    </span>
+                                    {% if company.is_trial %}
+                                        <span style="background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;">
+                                            Trial - ends {{ company.trial_ends_at|date:"M j, Y" }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            {% if company.id %}
+                                {% url 'company_edit' company.id as company_edit_url %}
+                                {% if company_edit_url %}
+                                    <a href="{{ company_edit_url }}" class="btn" style="display: block;">Edit Company Info</a>
+                                {% else %}
+                                    <a href="#" class="btn disabled" style="display: block;" onclick="alert('Company edit not available'); return false;">Edit Company Info</a>
+                                {% endif %}
+                            {% else %}
+                                <a href="#" class="btn disabled" style="display: block;" onclick="alert('Company ID not available'); return false;">Edit Company Info</a>
+                            {% endif %}
+                            <a href="/performance/" class="btn" style="display: block;">View Reviews</a>
+                            {% url 'attendance_dashboard' as attendance_url %}
+                            {% if attendance_url %}
+                                <a href="{{ attendance_url }}" class="btn btn-secondary" style="display: block;">View Attendance</a>
+                            {% else %}
+                                <a href="#" class="btn btn-secondary disabled" style="display: block;" onclick="alert('Attendance dashboard not available'); return false;">View Attendance</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 16px;">
+                        <a href="{{ company_edit_url|default:'#' }}" class="btn{% if not company_edit_url %} disabled{% endif %}" style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                            </svg>
+                            Edit Profile
+                        </a>
+                        {% url 'blu_settings_home' as settings_home %}
+                        <a href="{{ settings_home|default:'#' }}" class="btn btn-secondary{% if not settings_home %} disabled{% endif %}" style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .69.4 1.3 1.01 1.58.3.14.63.21.99.21H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                            </svg>
+                            Settings
+                        </a>
+                        {% url 'attendance_dashboard' as attendance_url %}
+                        <a href="{{ attendance_url|default:'#' }}" class="btn btn-secondary{% if not attendance_url %} disabled{% endif %}" style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            Attendance
+                        </a>
+                        {% url 'blu_integrations_home' as integrations_url %}
+                        <a href="{{ integrations_url|default:'#' }}" class="btn btn-secondary{% if not integrations_url %} disabled{% endif %}" style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 7v3a2 2 0 0 1-2 2h-4"></path>
+                                <path d="M6 17v-3a2 2 0 0 1 2-2h4"></path>
+                                <circle cx="5" cy="5" r="3"></circle>
+                                <circle cx="19" cy="19" r="3"></circle>
+                            </svg>
+                            Integrations
+                        </a>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                            <h4 style="color: #0f172a; margin-bottom: 10px;">Contact & Basics</h4>
+                            <p style="margin: 6px 0;"><strong>Phone:</strong> {{ company.phone|default:"—" }}</p>
+                            <p style="margin: 6px 0;"><strong>Email:</strong> {{ company.company_email|default:company.email|default:"—" }}</p>
+                            <p style="margin: 6px 0;"><strong>Website:</strong> {% if company.website %}<a href="{{ company.website }}" target="_blank">{{ company.website }}</a>{% else %}—{% endif %}</p>
+                            <p style="margin: 6px 0;"><strong>Address:</strong> {{ company.company_address|default:company.address|default:"—" }}</p>
+                            <p style="margin: 6px 0;"><strong>City/Country:</strong> {{ company.city|default:"—" }}, {{ company.country|default:"—" }}</p>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                            <h4 style="color: #0f172a; margin-bottom: 10px;">Business Profile</h4>
+                            <p style="margin: 6px 0;"><strong>Tax ID:</strong> {{ company.tax_id|default:"—" }}</p>
+                            <p style="margin: 6px 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <strong>License Key:</strong>
+                                <span id="license-key" data-full="{{ company.license_key|default:'—' }}" data-hidden="true">
+                                    {% if company.license_key %}••••••••••••••••{% else %}—{% endif %}
+                                </span>
+                                {% if company.license_key %}
+                                    <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="toggleLicenseKey(event)">
+                                        <span class="license-toggle-icon" aria-hidden="true">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                        </span>
+                                        <span class="license-toggle-label">Show</span>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="copyLicenseKey()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                        </svg>
+                                        Copy
+                                    </button>
+                                {% endif %}
+                            </p>
+
+                            <p style="margin: 6px 0;"><strong>License Expires:</strong> {{ company.license_expiry|date:"M j, Y"|default:"—" }}</p>
+
+                            <p style="margin: 6px 0;"><strong>Subscription:</strong> {{ company.subscription_plan|default:"—" }}</p>
+                            <p style="margin: 6px 0;"><strong>Max Employees:</strong> {{ company.max_employees|default:"—" }}</p>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                            <h4 style="color: #0f172a; margin-bottom: 10px;">Compliance Documents</h4>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                <li style="margin: 6px 0; display: flex; align-items: center; gap: 8px;">
+                                    <strong style="min-width: 120px;">Tax Cert:</strong>
+                                    {% if company.tax_certificate %}
+                                        <a href="{{ company.tax_certificate.url }}" target="_blank">View</a>
+                                        <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">On file</span>
+                                    {% else %}
+                                        <span>—</span>
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">Missing</span>
+                                    {% endif %}
+                                </li>
+                                <li style="margin: 6px 0; display: flex; align-items: center; gap: 8px;">
+                                    <strong style="min-width: 120px;">Registration:</strong>
+                                    {% if company.business_registration %}
+                                        <a href="{{ company.business_registration.url }}" target="_blank">View</a>
+                                        <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">On file</span>
+                                    {% else %}
+                                        <span>—</span>
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">Missing</span>
+                                    {% endif %}
+                                </li>
+                                <li style="margin: 6px 0; display: flex; align-items: center; gap: 8px;">
+                                    <strong style="min-width: 120px;">Trade License:</strong>
+                                    {% if company.trade_license %}
+                                        <a href="{{ company.trade_license.url }}" target="_blank">View</a>
+                                        <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">On file</span>
+                                    {% else %}
+                                        <span>—</span>
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">Missing</span>
+                                    {% endif %}
+                                </li>
+                                <li style="margin: 6px 0; display: flex; align-items: center; gap: 8px;">
+                                    <strong style="min-width: 120px;">NAPSA:</strong>
+                                    {% if company.napsa_certificate %}
+                                        <a href="{{ company.napsa_certificate.url }}" target="_blank">View</a>
+                                        <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">On file</span>
+                                    {% else %}
+                                        <span>—</span>
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">Missing</span>
+                                    {% endif %}
+                                </li>
+                                <li style="margin: 6px 0; display: flex; align-items: center; gap: 8px;">
+                                    <strong style="min-width: 120px;">NHIMA:</strong>
+                                    {% if company.nhima_certificate %}
+                                        <a href="{{ company.nhima_certificate.url }}" target="_blank">View</a>
+                                        <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">On file</span>
+                                    {% else %}
+                                        <span>—</span>
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">Missing</span>
+                                    {% endif %}
+                                </li>
+                                <li style="margin: 6px 0; display: flex; align-items: center; gap: 8px;">
+                                    <strong style="min-width: 120px;">Workers Comp:</strong>
+                                    {% if company.workers_compensation %}
+                                        <a href="{{ company.workers_compensation.url }}" target="_blank">View</a>
+                                        <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">On file</span>
+                                    {% else %}
+                                        <span>—</span>
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">Missing</span>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                            <h4 style="color: #0f172a; margin-bottom: 10px;">Branding</h4>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 90px;">
+                                    <div style="background-color: {{ company.primary_color|default:'#2d3748' }}; height: 34px; border-radius: 8px;"></div>
+                                    <small style="display: block; margin-top: 6px; color: #475569;">Primary</small>
+                                </div>
+                                <div style="flex: 1; min-width: 90px;">
+                                    <div style="background-color: {{ company.secondary_color|default:'#718096' }}; height: 34px; border-radius: 8px;"></div>
+                                    <small style="display: block; margin-top: 6px; color: #475569;">Secondary</small>
+                                </div>
+                                <div style="flex: 1; min-width: 90px;">
+                                    <div style="background-color: {{ company.button_color|default:'#3b82f6' }}; height: 34px; border-radius: 8px;"></div>
+                                    <small style="display: block; margin-top: 6px; color: #475569;">Buttons</small>
+                                </div>
+                            </div>
+                            <p style="margin: 10px 0 0; color: #475569;">Text: {{ company.text_color|default:'#1e293b' }} | Background: {{ company.background_color|default:'#ffffff' }}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <h5 style="margin: 0; color: #0f172a;">Attendance Compliance</h5>
+                                <span style="background: #e0f2fe; color: #075985; padding: 4px 8px; border-radius: 999px; font-size: 12px;">Overview</span>
+                            </div>
+                            <p style="margin: 0; color: #475569;">Review attendance and leave policies for this company.</p>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <h5 style="margin: 0; color: #0f172a;">Documents & Policies</h5>
+                                <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 999px; font-size: 12px;">Docs</span>
+                            </div>
+                            <p style="margin: 0; color: #475569;">Keep compliance documents and internal policies up to date.</p>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <h5 style="margin: 0; color: #0f172a;">Activity</h5>
+                                <span style="background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 999px; font-size: 12px;">Log</span>
+                            </div>
+                            <p style="margin: 0 0 6px; color: #475569;">Last updated: {{ company.updated_at|date:"M j, Y, g:i a"|default:"—" }}</p>
+                            <ul style="margin: 0; padding-left: 16px; color: #475569; font-size: 13px;">
+                                <li>Profile last edited {{ company.updated_at|date:"M j, Y" |default:"—" }}</li>
+                                <li>Documents status: {% if company.tax_certificate or company.business_registration %}Partial{% else %}Pending{% endif %}</li>
+                                <li>Integrations: {% if integrations_url %}Configured{% else %}Not set{% endif %}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <p class="card-text">No company information available. Please contact your administrator.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+        tab.classList.remove('active');
+    });
+
+    // Remove active class and styles from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.borderBottom = '2px solid transparent';
+        btn.style.color = '#64748b';
+    });
+
+    // Show selected tab content
+    const targetTab = document.getElementById(tabName);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+        targetTab.classList.add('active');
+    }
+
+    // Add active class and styles to clicked tab button
+    if (event && event.target) {
+        event.target.classList.add('active');
+        event.target.style.borderBottom = '2px solid #1d4ed8';
+        event.target.style.color = '#1d4ed8';
+    }
+}
+
+function toggleLicenseKey(event) {
+    const btn = event.currentTarget;
+    const label = btn.querySelector('.license-toggle-label');
+    const span = document.getElementById('license-key');
+    if (!span || !label) return;
+
+    const isHidden = span.getAttribute('data-hidden') === 'true';
+    const fullValue = span.getAttribute('data-full') || '';
+    if (isHidden) {
+        span.textContent = fullValue || '—';
+        label.textContent = 'Hide';
+        span.setAttribute('data-hidden', 'false');
+    } else {
+        span.textContent = fullValue ? '••••••••••••••••' : '—';
+        label.textContent = 'Show';
+        span.setAttribute('data-hidden', 'true');
+    }
+}
+</script>
+{% endblock %}

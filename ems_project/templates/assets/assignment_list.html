@@ -1,0 +1,275 @@
+{% extends 'assets/base_ams.html' %}
+{% load static %}
+
+{% block title %}Assignments{% endblock %}
+{% block page_title %}Assignments{% endblock %}
+
+{% block ams_page_css %}
+<style>
+    .asg-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .asg-card-h { padding: 12px 18px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .asg-card-t { margin: 0; font-size: 13px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+    .asg-card-t svg { width: 15px; height: 15px; stroke: #64748b; }
+    .asg-card-b { padding: 16px 18px; }
+    .asg-table { width: 100%; border-collapse: collapse; }
+    .asg-table thead { background: #f8fafc; }
+    .asg-table th { padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; }
+    .asg-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .asg-table tbody tr:hover { background: #fafbfc; }
+    .asg-badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .asg-link { color: #E11D48; text-decoration: none; font-weight: 600; }
+    .asg-link:hover { text-decoration: underline; }
+    .asg-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: 500; text-decoration: none; border: 1px solid; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .asg-btn-primary { background: #E11D48; color: #fff; border-color: #E11D48; }
+    .asg-btn-primary:hover { background: #BE123C; border-color: #BE123C; }
+    .asg-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+    .asg-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .asg-btn-danger { background: #fff; color: #dc2626; border-color: #fca5a5; }
+    .asg-btn-danger:hover { background: #fef2f2; border-color: #dc2626; }
+    .asg-input { padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; transition: border-color 0.15s; }
+    .asg-input:focus { outline: none; border-color: #E11D48; box-shadow: 0 0 0 2px rgba(225,29,72,0.08); }
+    select.asg-input { background: #fff; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e"); background-position: right 8px center; background-repeat: no-repeat; background-size: 14px; padding-right: 28px; }
+    .asg-stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px; display: flex; align-items: center; gap: 14px; }
+    .asg-stat-icon { width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .asg-stat-icon svg { width: 18px; height: 18px; }
+    .asg-stat h3 { margin: 0; font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.1; }
+    .asg-stat p { margin: 2px 0 0; font-size: 11px; color: #64748b; font-weight: 500; }
+    .asg-stat-sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+    .asg-duration { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+    .asg-duration-ok { background: #d1fae5; color: #065f46; }
+    .asg-duration-warn { background: #fef3c7; color: #92400e; }
+    .asg-duration-overdue { background: #fee2e2; color: #991b1b; }
+    @media (max-width: 768px) { .asg-table th, .asg-table td { padding: 8px 10px; font-size: 12px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2>Asset Assignments</h2>
+        <p>{% if view_scope == 'personal' %}Assets assigned to you{% elif view_scope == 'department' %}Department asset assignments{% else %}All currently assigned assets across the organization{% endif %}</p>
+    </div>
+    <a href="{% url 'assets:asset_list' %}" class="asg-btn asg-btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Asset Registry
+    </a>
+</div>
+
+<!-- Stats Row -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 16px;">
+    <div class="asg-stat">
+        <div class="asg-stat-icon" style="background: #dbeafe; color: #2563eb;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+        </div>
+        <div>
+            <h3>{{ total_assigned }}</h3>
+            <p>Total Assigned</p>
+        </div>
+    </div>
+    <div class="asg-stat">
+        <div class="asg-stat-icon" style="background: {% if overdue_count %}#fee2e2{% else %}#d1fae5{% endif %}; color: {% if overdue_count %}#dc2626{% else %}#059669{% endif %};">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+            <h3>{{ overdue_count }}</h3>
+            <p>Overdue (90+ days)</p>
+        </div>
+    </div>
+    <div class="asg-stat">
+        <div class="asg-stat-icon" style="background: #d1fae5; color: #059669;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+            <h3>{{ recent_count }}</h3>
+            <p>Last 30 Days</p>
+        </div>
+    </div>
+    <div class="asg-stat">
+        <div class="asg-stat-icon" style="background: #e0e7ff; color: #4f46e5;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+            <h3>{{ avg_days }}d</h3>
+            <p>Avg Duration</p>
+        </div>
+    </div>
+    <div class="asg-stat">
+        <div class="asg-stat-icon" style="background: #fce4ec; color: #E11D48;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div>
+            <h3>{{ currency_symbol }}{{ assigned_value|floatformat:0 }}</h3>
+            <p>Assigned Value</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="asg-card">
+    <div class="asg-card-b" style="padding: 12px 18px;">
+        <form method="get" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search employee, asset tag, name..." class="asg-input" style="width: 240px;">
+            {% if departments %}
+            <select name="department" class="asg-input">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}" {% if department_filter == dept.id|stringformat:"d" %}selected{% endif %}>{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <select name="asset_type" class="asg-input">
+                <option value="">All Types</option>
+                {% for value, label in asset_types %}
+                <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="asg-btn asg-btn-primary">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                Filter
+            </button>
+            {% if search or department_filter or type_filter %}
+            <a href="{% url 'assets:assignment_list' %}" class="asg-btn asg-btn-secondary">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Assignments Table -->
+{% if assets %}
+<div class="asg-card">
+    <div class="asg-card-h">
+        <h3 class="asg-card-t">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+            Assignments <span style="color: #64748b; font-weight: 400; font-size: 12px;">({{ paginator.count }})</span>
+        </h3>
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="asg-table">
+            <thead>
+                <tr>
+                    <th>Asset</th>
+                    <th>Type</th>
+                    <th>Assigned To</th>
+                    <th>Department</th>
+                    <th>Assigned Date</th>
+                    <th>Duration</th>
+                    <th>Condition</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asset in assets %}
+                <tr>
+                    <td>
+                        <a href="{% url 'assets:asset_detail' asset.id %}" class="asg-link" style="font-family: 'Cascadia Code', monospace; font-size: 12px;">{{ asset.asset_tag }}</a>
+                        <div style="font-weight: 600; color: #0f172a; font-size: 13px;">{{ asset.name|truncatechars:28 }}</div>
+                        {% if asset.brand or asset.model %}<div style="font-size: 11px; color: #94a3b8;">{{ asset.brand }} {{ asset.model }}</div>{% endif %}
+                    </td>
+                    <td style="font-size: 12px; color: #64748b;">{{ asset.get_asset_type_display }}</td>
+                    <td>
+                        {% if asset.employee %}
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 30px; height: 30px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #4f46e5; flex-shrink: 0;">{{ asset.employee.first_name|slice:":1" }}{{ asset.employee.last_name|slice:":1" }}</div>
+                            <div>
+                                <div style="font-weight: 500; color: #0f172a; font-size: 13px;">{{ asset.employee.get_full_name }}</div>
+                                {% if asset.assigned_by %}<div style="font-size: 10px; color: #94a3b8;">by {{ asset.assigned_by.first_name }}</div>{% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <span style="color: #94a3b8;">--</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if asset.department %}
+                        <span class="asg-badge" style="background: #e0e7ff; color: #3730a3;">{{ asset.department.name }}</span>
+                        {% else %}
+                        <span style="color: #94a3b8;">--</span>
+                        {% endif %}
+                    </td>
+                    <td style="white-space: nowrap; font-size: 12px; color: #64748b;">{{ asset.assigned_date|date:"M d, Y"|default:"--" }}</td>
+                    <td>
+                        {% if asset.days_with_employee is not None %}
+                            {% if asset.days_with_employee > 90 %}
+                            <span class="asg-duration asg-duration-overdue">{{ asset.days_with_employee }}d</span>
+                            {% elif asset.days_with_employee > 60 %}
+                            <span class="asg-duration asg-duration-warn">{{ asset.days_with_employee }}d</span>
+                            {% else %}
+                            <span class="asg-duration asg-duration-ok">{{ asset.days_with_employee }}d</span>
+                            {% endif %}
+                        {% else %}
+                        <span style="color: #94a3b8;">--</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if asset.condition == 'NEW' or asset.condition == 'EXCELLENT' %}
+                        <span class="asg-badge" style="background: #d1fae5; color: #065f46;">{{ asset.get_condition_display }}</span>
+                        {% elif asset.condition == 'GOOD' %}
+                        <span class="asg-badge" style="background: #dbeafe; color: #1e40af;">Good</span>
+                        {% elif asset.condition == 'FAIR' %}
+                        <span class="asg-badge" style="background: #fef3c7; color: #92400e;">Fair</span>
+                        {% elif asset.condition == 'POOR' %}
+                        <span class="asg-badge" style="background: #fee2e2; color: #991b1b;">Poor</span>
+                        {% else %}
+                        <span class="asg-badge" style="background: #f1f5f9; color: #475569;">{{ asset.get_condition_display|default:"--" }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 4px;">
+                            <a href="{% url 'assets:asset_detail' asset.id %}" class="asg-btn asg-btn-secondary">View</a>
+                            {% if asset.employee %}
+                            <a href="{% url 'assets:asset_assignment_document' asset.id %}" class="asg-btn asg-btn-secondary" title="Download Assignment Form">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                PDF
+                            </a>
+                            {% endif %}
+                            {% if can_manage_assets %}
+                            <form method="post" action="{% url 'assets:asset_unassign' asset.id %}" style="margin: 0; display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="asg-btn asg-btn-danger" onclick="return confirm('Unassign this asset from {{ asset.employee.get_full_name }}?');">Unassign</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #64748b;">
+    <div>Page {{ page_obj.number }} of {{ paginator.num_pages }}</div>
+    <div style="display: flex; gap: 6px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&department={{ department_filter }}&asset_type={{ type_filter }}" class="asg-btn asg-btn-secondary">Prev</a>
+        {% else %}
+        <span class="asg-btn asg-btn-secondary" style="opacity: 0.4; pointer-events: none;">Prev</span>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&department={{ department_filter }}&asset_type={{ type_filter }}" class="asg-btn asg-btn-secondary">Next</a>
+        {% else %}
+        <span class="asg-btn asg-btn-secondary" style="opacity: 0.4; pointer-events: none;">Next</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty State -->
+<div class="asg-card">
+    <div class="asg-card-b" style="text-align: center; padding: 60px 20px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px; display: block;">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>
+        </svg>
+        <p style="margin: 0 0 4px; font-size: 15px; font-weight: 600; color: #64748b;">No Assigned Assets</p>
+        <p style="margin: 0 0 16px; font-size: 13px; color: #94a3b8;">{% if search or department_filter or type_filter %}No assignments match your filters.{% else %}There are no assets currently assigned.{% endif %}</p>
+        {% if search or department_filter or type_filter %}
+        <a href="{% url 'assets:assignment_list' %}" class="asg-btn asg-btn-secondary">Clear Filters</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
