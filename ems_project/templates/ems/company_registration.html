@@ -340,35 +340,149 @@
             text-decoration: underline;
         }
 
+        /* Plan Cards */
+        .billing-toggle {
+            display: flex;
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 24px;
+            width: fit-content;
+        }
+        .billing-toggle button {
+            padding: 8px 20px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--medium-gray);
+            transition: all 0.2s;
+        }
+        .billing-toggle button.active {
+            background: white;
+            color: var(--dark);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+        }
+        .yearly-badge {
+            background: #dcfce7;
+            color: #16a34a;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+        .plan-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .plan-card {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .plan-card:hover {
+            border-color: var(--primary);
+        }
+        .plan-card.selected {
+            border-color: var(--primary);
+            background: #fff5f7;
+        }
+        .plan-card.featured {
+            border-color: #2563eb;
+        }
+        .plan-card.featured.selected {
+            background: #eff6ff;
+        }
+        .plan-badge-card {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2563eb;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .plan-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        .plan-price {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+        .plan-price span {
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--medium-gray);
+        }
+        .plan-limit {
+            font-size: 12px;
+            color: var(--medium-gray);
+            margin-bottom: 10px;
+        }
+        .plan-features-list {
+            list-style: none;
+            font-size: 12px;
+            color: var(--dark-gray);
+        }
+        .plan-features-list li {
+            padding: 3px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .plan-features-list li::before {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            margin-top: 1px;
+            background: var(--primary);
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+        .currency-note {
+            font-size: 12px;
+            color: var(--medium-gray);
+            margin-bottom: 16px;
+        }
+        .trial-note {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #92400e;
+            margin-bottom: 20px;
+        }
+
         @media (max-width: 768px) {
-            body {
-                padding: 15px 10px;
-            }
-
-            .registration-card {
-                padding: 24px 20px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .progress-bar {
-                flex-wrap: wrap;
-            }
-
-            .progress-step {
-                flex-basis: 50%;
-                margin-bottom: 20px;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
+            body { padding: 15px 10px; }
+            .registration-card { padding: 24px 20px; }
+            .header h1 { font-size: 20px; }
+            .form-row { grid-template-columns: 1fr; }
+            .progress-bar { flex-wrap: wrap; }
+            .progress-step { flex-basis: 50%; margin-bottom: 20px; }
+            .btn-group { flex-direction: column; }
+            .plan-cards { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -511,47 +625,76 @@
                     </div>
                 </div>
 
-                <!-- Step 3: Subscription Details -->
+                <!-- Step 3: Plan Selection -->
                 <div class="form-section" data-section="3">
-                    <h2 class="section-title">Subscription Details</h2>
+                    <h2 class="section-title">Choose Your Plan</h2>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="{{ form.subscription_plan.id_for_label }}">Subscription Plan <span class="required">*</span></label>
-                            {{ form.subscription_plan }}
-                            <div class="help-text">Choose based on your company size</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="{{ form.number_of_employees.id_for_label }}">Number of Employees <span class="required">*</span></label>
-                            {{ form.number_of_employees }}
+                    <!-- Hidden fields for form submission -->
+                    {{ form.subscription_plan.as_hidden }}
+                    {{ form.billing_preference.as_hidden }}
+
+                    <!-- Billing Toggle -->
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                        <div class="billing-toggle">
+                            <button type="button" id="btn-trial" onclick="setBilling('TRIAL')" class="active">30-day Free Trial</button>
+                            <button type="button" id="btn-monthly" onclick="setBilling('MONTHLY')">Monthly</button>
+                            <button type="button" id="btn-yearly" onclick="setBilling('YEARLY')">Yearly <span class="yearly-badge">-20%</span></button>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="{{ form.billing_preference.id_for_label }}">Billing Preference</label>
-                        {{ form.billing_preference }}
-                        <div class="help-text">Select Trial, Monthly, or Yearly subscription</div>
+                    <p class="currency-note" id="currency-note">Prices shown in USD. Detecting your currency...</p>
+
+                    <!-- Plan Cards -->
+                    <div class="plan-cards">
+                        <!-- Starter -->
+                        <div class="plan-card" id="card-BASIC" onclick="selectPlan('BASIC')">
+                            <div class="plan-name">Starter</div>
+                            <div class="plan-price" id="price-BASIC">$29.99<span>/mo</span></div>
+                            <div class="plan-limit">Up to 25 employees</div>
+                            <ul class="plan-features-list">
+                                <li>Employee Management</li>
+                                <li>Attendance Tracking</li>
+                                <li>Leave Management</li>
+                                <li>Payroll Processing</li>
+                                <li>Document Management</li>
+                                <li>Email Support</li>
+                            </ul>
+                        </div>
+                        <!-- Professional -->
+                        <div class="plan-card featured" id="card-PROFESSIONAL" onclick="selectPlan('PROFESSIONAL')">
+                            <div class="plan-badge-card">Most Popular</div>
+                            <div class="plan-name">Professional</div>
+                            <div class="plan-price" id="price-PROFESSIONAL">$79.99<span>/mo</span></div>
+                            <div class="plan-limit">Up to 100 employees</div>
+                            <ul class="plan-features-list">
+                                <li>Everything in Starter</li>
+                                <li>Performance Reviews</li>
+                                <li>Advanced Analytics</li>
+                                <li>Training Management</li>
+                                <li>Benefits Management</li>
+                                <li>Priority Support</li>
+                            </ul>
+                        </div>
+                        <!-- Enterprise -->
+                        <div class="plan-card" id="card-ENTERPRISE" onclick="selectPlan('ENTERPRISE')">
+                            <div class="plan-name">Enterprise</div>
+                            <div class="plan-price" id="price-ENTERPRISE">$199.99<span>/mo</span></div>
+                            <div class="plan-limit">Unlimited employees</div>
+                            <ul class="plan-features-list">
+                                <li>Everything in Professional</li>
+                                <li>Asset Management</li>
+                                <li>Custom Workflows</li>
+                                <li>E-Forms & Signatures</li>
+                                <li>Dedicated Account Manager</li>
+                                <li>24/7 Phone Support</li>
+                            </ul>
+                        </div>
                     </div>
 
-                    <!-- Price Summary -->
-                    <div id="price-summary" style="display: none; background: var(--light-gray); padding: 20px; border-radius: 4px; margin-bottom: 20px;">
-                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Price Summary</h3>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Plan:</span>
-                            <strong id="summary-plan">-</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Employees:</span>
-                            <strong id="summary-employees">-</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Billing:</span>
-                            <strong id="summary-billing">-</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border-color); font-size: 20px;">
-                            <span style="font-weight: 700;">Total Amount:</span>
-                            <strong style="color: var(--primary);" id="summary-total">ZMW 0</strong>
-                        </div>
+                    <!-- Number of Employees -->
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label for="{{ form.number_of_employees.id_for_label }}">Number of Employees <span class="required">*</span></label>
+                        {{ form.number_of_employees }}
                     </div>
 
                     <div class="form-row">
@@ -565,9 +708,34 @@
                         </div>
                     </div>
 
+                    <!-- Trial note -->
+                    <div class="trial-note" id="trial-note">
+                        <strong>Free Trial:</strong> Your account will be activated within 24 hours. No payment required for the trial period.
+                    </div>
+
+                    <!-- Price Summary -->
+                    <div id="price-summary" style="display:none;background:var(--light-gray);padding:16px;border-radius:8px;margin-bottom:20px;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;">
+                            <span>Plan:</span><strong id="summary-plan">-</strong>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;">
+                            <span>Billing:</span><strong id="summary-billing">-</strong>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:2px solid var(--border-color);font-size:16px;">
+                            <span style="font-weight:700;">Total Due Now:</span>
+                            <strong style="color:var(--primary);" id="summary-total">$0</strong>
+                        </div>
+                    </div>
+
                     <div class="btn-group">
                         <button type="button" class="btn btn-secondary" onclick="prevStep(3)">← Previous</button>
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Submit Registration</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                            </svg>
+                            Start Free Trial
+                        </button>
                     </div>
                 </div>
             </form>
@@ -580,140 +748,183 @@
 
     <script>
         let currentStep = 1;
+        let selectedPlan = 'BASIC';
+        let selectedBilling = 'TRIAL';
 
-        // Pricing configuration (base prices in ZMW)
-        const pricingConfig = {
-            'BASIC': { name: 'Basic', basePrice: 29.99, maxEmployees: 25 },
-            'STANDARD': { name: 'Standard', basePrice: 49.99, maxEmployees: 100 },
-            'PROFESSIONAL': { name: 'Professional', basePrice: 79.99, maxEmployees: 500 },
-            'ENTERPRISE': { name: 'Enterprise', basePrice: 199.99, maxEmployees: 99999 }
+        // Canonical plan pricing (USD base)
+        const planConfig = {
+            'BASIC':        { name: 'Starter',      monthly: 29.99,  maxEmployees: 25 },
+            'PROFESSIONAL': { name: 'Professional', monthly: 79.99,  maxEmployees: 100 },
+            'ENTERPRISE':   { name: 'Enterprise',   monthly: 199.99, maxEmployees: 99999 },
         };
 
-        // Currency detection
+        // Currency conversion rates relative to USD
         const currencyMap = {
-            'ZM': { code: 'ZMW', symbol: 'ZMW', rate: 1 },
-            'MW': { code: 'MWK', symbol: 'MWK', rate: 25 },
-            'KE': { code: 'KES', symbol: 'KES', rate: 4 },
-            'TZ': { code: 'TZS', symbol: 'TZS', rate: 80 },
-            'UG': { code: 'UGX', symbol: 'UGX', rate: 120 },
-            'ZA': { code: 'ZAR', symbol: 'ZAR', rate: 0.6 },
-            'NG': { code: 'NGN', symbol: 'NGN', rate: 50 },
-            'GH': { code: 'GHS', symbol: 'GHS', rate: 0.4 },
-            'BW': { code: 'BWP', symbol: 'BWP', rate: 0.4 },
-            'MZ': { code: 'MZN', symbol: 'MZN', rate: 2 },
-            'ZW': { code: 'ZWL', symbol: 'ZWL', rate: 10 },
-            'US': { code: 'USD', symbol: '$', rate: 0.033 },
-            'GB': { code: 'GBP', symbol: 'GBP', rate: 0.026 },
+            'US': { code: 'USD', symbol: '$',    rate: 1 },
+            'GB': { code: 'GBP', symbol: '£',    rate: 0.79 },
+            'EU': { code: 'EUR', symbol: '€',    rate: 0.92 },
+            'ZM': { code: 'ZMW', symbol: 'ZMW ', rate: 27.5 },
+            'ZA': { code: 'ZAR', symbol: 'R ',   rate: 18.5 },
+            'KE': { code: 'KES', symbol: 'KSh ', rate: 130 },
+            'NG': { code: 'NGN', symbol: '₦',    rate: 1580 },
+            'GH': { code: 'GHS', symbol: 'GH₵ ', rate: 15.5 },
+            'TZ': { code: 'TZS', symbol: 'TSh ', rate: 2560 },
+            'UG': { code: 'UGX', symbol: 'USh ', rate: 3750 },
+            'MW': { code: 'MWK', symbol: 'MK ',  rate: 1730 },
+            'BW': { code: 'BWP', symbol: 'P ',   rate: 13.5 },
+            'MZ': { code: 'MZN', symbol: 'MT ',  rate: 64 },
+            'IN': { code: 'INR', symbol: '₹',    rate: 83 },
+            'AU': { code: 'AUD', symbol: 'A$',   rate: 1.53 },
+            'CA': { code: 'CAD', symbol: 'C$',   rate: 1.36 },
         };
-        let detectedCurrency = { code: 'ZMW', symbol: 'ZMW', rate: 1 };
+        let detectedCurrency = { code: 'USD', symbol: '$', rate: 1 };
+        let detectedCountry = 'US';
 
-        // Auto-fill form from URL parameters
         document.addEventListener('DOMContentLoaded', function() {
+            // Auto-fill from URL params
             const urlParams = new URLSearchParams(window.location.search);
-            const plan = urlParams.get('plan');
-            const employees = urlParams.get('employees');
+            const paramPlan = urlParams.get('plan');
+            const paramBilling = urlParams.get('billing');
+            if (paramPlan && planConfig[paramPlan]) selectPlan(paramPlan);
+            if (paramBilling) setBilling(paramBilling);
 
-            if (plan) {
-                const planSelect = document.querySelector('select[name="subscription_plan"]');
-                if (planSelect) {
-                    planSelect.value = plan;
-                }
-            }
-
-            if (employees && employees !== 'unlimited') {
-                const employeesInput = document.querySelector('input[name="number_of_employees"]');
-                if (employeesInput) {
-                    employeesInput.value = employees;
-                }
-            }
-
-            // Detect currency from location
+            // Detect user's country/currency via IP
             fetch('https://ipapi.co/json/')
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    var c = currencyMap[data.country_code];
-                    if (c) detectedCurrency = c;
-                    // Auto-fill country field if empty
-                    var countryInput = document.querySelector('input[name="country"]');
-                    if (countryInput && !countryInput.value && data.country_name) {
+                .then(r => r.json())
+                .then(data => {
+                    detectedCountry = data.country_code || 'US';
+                    const curr = currencyMap[detectedCountry] || currencyMap['US'];
+                    detectedCurrency = curr;
+
+                    // Auto-fill location fields
+                    const countryInput = document.querySelector('input[name="country"]');
+                    if (countryInput && !countryInput.value && data.country_name)
                         countryInput.value = data.country_name;
-                    }
-                    var cityInput = document.querySelector('input[name="city"]');
-                    if (cityInput && !cityInput.value && data.city) {
+                    const cityInput = document.querySelector('input[name="city"]');
+                    if (cityInput && !cityInput.value && data.city)
                         cityInput.value = data.city;
-                    }
-                    calculatePrice();
+
+                    updatePricingDisplay();
                 })
-                .catch(function() { calculatePrice(); });
+                .catch(() => updatePricingDisplay());
 
-            // Add event listeners for price recalculation
-            var billingSelect = document.querySelector('select[name="billing_preference"]');
-            if (billingSelect) billingSelect.addEventListener('change', calculatePrice);
-
-            var planSelect = document.querySelector('select[name="subscription_plan"]');
-            if (planSelect) planSelect.addEventListener('change', function() {
-                // Auto-set employee count based on plan limit
-                var config = pricingConfig[this.value];
-                if (config) {
-                    var empInput = document.querySelector('input[name="number_of_employees"]');
-                    if (empInput && (!empInput.value || parseInt(empInput.value) < 1)) {
-                        empInput.value = Math.min(config.maxEmployees, 10);
-                    }
-                }
-                calculatePrice();
+            // Phone formatting
+            document.querySelectorAll('input[name*="phone"]').forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let v = e.target.value.replace(/[^\d\s\+\-\(\)\.]/g, '');
+                    if (v.indexOf('+') > 0) v = v.replace(/\+/g, '');
+                    if (v.replace(/\D/g, '').length > 15) v = v.slice(0, -1);
+                    e.target.value = v;
+                });
             });
 
-            var employeesInput = document.querySelector('input[name="number_of_employees"]');
-            if (employeesInput) employeesInput.addEventListener('input', calculatePrice);
+            // Real-time validation on blur
+            document.querySelectorAll('input, select, textarea').forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
 
-            // Trigger initial calculation
-            calculatePrice();
+            // Set default plan
+            selectPlan('BASIC');
+            setBilling('TRIAL');
         });
 
-        function calculatePrice() {
-            var planSelect = document.querySelector('select[name="subscription_plan"]');
-            var employeesInput = document.querySelector('input[name="number_of_employees"]');
-            var billingSelect = document.querySelector('select[name="billing_preference"]');
-            var priceSummary = document.getElementById('price-summary');
+        function selectPlan(planKey) {
+            selectedPlan = planKey;
+            document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+            const card = document.getElementById('card-' + planKey);
+            if (card) card.classList.add('selected');
 
-            var plan = planSelect ? planSelect.value : '';
-            var employees = employeesInput ? parseInt(employeesInput.value) || 0 : 0;
-            var billing = billingSelect ? billingSelect.value : '';
+            // Update hidden form field
+            const hiddenPlan = document.querySelector('input[name="subscription_plan"]');
+            if (hiddenPlan) hiddenPlan.value = planKey;
 
-            if (plan && employees > 0 && billing) {
-                var planConfig = pricingConfig[plan];
-                if (planConfig) {
-                    var perUserMonthly = +(planConfig.basePrice * detectedCurrency.rate).toFixed(2);
-                    var totalPrice = 0;
-                    var billingText = '';
-                    var periodText = '/month';
+            updatePricingDisplay();
+        }
 
-                    if (billing === 'TRIAL') {
-                        totalPrice = 0;
-                        billingText = '30-day Free Trial';
-                        periodText = '';
-                    } else if (billing === 'MONTHLY') {
-                        totalPrice = +(perUserMonthly * employees).toFixed(2);
-                        billingText = 'Monthly';
-                        periodText = '/month';
-                    } else if (billing === 'YEARLY') {
-                        var perUserYearly = +(perUserMonthly * 0.8).toFixed(2);
-                        totalPrice = +(perUserYearly * employees * 12).toFixed(2);
-                        billingText = 'Yearly (20% off)';
-                        periodText = '/year';
-                    }
+        function setBilling(billing) {
+            selectedBilling = billing;
+            document.querySelectorAll('.billing-toggle button').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('btn-' + billing.toLowerCase());
+            if (btn) btn.classList.add('active');
 
-                    document.getElementById('summary-plan').textContent = planConfig.name;
-                    document.getElementById('summary-employees').textContent = employees + ' users \u00d7 ' + detectedCurrency.symbol + ' ' + perUserMonthly + '/user/mo';
-                    document.getElementById('summary-billing').textContent = billingText;
-                    document.getElementById('summary-total').textContent = detectedCurrency.symbol + ' ' + totalPrice.toLocaleString() + periodText;
+            // Update hidden form field
+            const hiddenBilling = document.querySelector('input[name="billing_preference"]');
+            if (hiddenBilling) hiddenBilling.value = billing;
 
-                    priceSummary.style.display = 'block';
-                } else {
-                    priceSummary.style.display = 'none';
+            const trialNote = document.getElementById('trial-note');
+            const priceSummary = document.getElementById('price-summary');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (billing === 'TRIAL') {
+                if (trialNote) trialNote.style.display = 'block';
+                if (priceSummary) priceSummary.style.display = 'none';
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Start Free Trial';
                 }
             } else {
-                priceSummary.style.display = 'none';
+                if (trialNote) trialNote.style.display = 'none';
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Proceed to Payment';
+                }
+                updatePricingDisplay();
+            }
+
+            updatePricingDisplay();
+        }
+
+        function updatePricingDisplay() {
+            const sym = detectedCurrency.symbol;
+            const rate = detectedCurrency.rate;
+            const code = detectedCurrency.code;
+
+            // Update currency note
+            const note = document.getElementById('currency-note');
+            if (note) note.textContent = code === 'USD'
+                ? 'Prices shown in USD'
+                : `Prices shown in ${code} (approximate, charged in USD)`;
+
+            // Update each plan card price
+            Object.keys(planConfig).forEach(key => {
+                const cfg = planConfig[key];
+                const el = document.getElementById('price-' + key);
+                if (!el) return;
+
+                let displayPrice, suffix;
+                if (selectedBilling === 'YEARLY') {
+                    displayPrice = (cfg.monthly * 12 * 0.80 * rate).toFixed(2);
+                    suffix = '/yr';
+                } else {
+                    displayPrice = (cfg.monthly * rate).toFixed(2);
+                    suffix = '/mo';
+                }
+                el.innerHTML = sym + parseFloat(displayPrice).toLocaleString() + '<span>' + suffix + '</span>';
+            });
+
+            // Update price summary for paid plans
+            if (selectedBilling !== 'TRIAL') {
+                const cfg = planConfig[selectedPlan];
+                if (!cfg) return;
+
+                let totalUSD, billingLabel;
+                if (selectedBilling === 'YEARLY') {
+                    totalUSD = cfg.monthly * 12 * 0.80;
+                    billingLabel = 'Yearly (20% discount applied)';
+                } else {
+                    totalUSD = cfg.monthly;
+                    billingLabel = 'Monthly';
+                }
+
+                const totalLocal = (totalUSD * rate).toFixed(2);
+                document.getElementById('summary-plan').textContent = cfg.name;
+                document.getElementById('summary-billing').textContent = billingLabel;
+                document.getElementById('summary-total').textContent =
+                    sym + parseFloat(totalLocal).toLocaleString() +
+                    (code !== 'USD' ? ` (≈ $${totalUSD.toFixed(2)} USD)` : '');
+
+                const ps = document.getElementById('price-summary');
+                if (ps) ps.style.display = 'block';
             }
         }
 
@@ -730,103 +941,53 @@
         }
 
         function updateStepDisplay() {
-            document.querySelectorAll('.form-section').forEach(section => {
-                section.classList.remove('active');
-            });
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
             document.querySelector(`[data-section="${currentStep}"]`).classList.add('active');
-
-            document.querySelectorAll('.progress-step').forEach((step, index) => {
-                if (index < currentStep) {
-                    step.classList.add('active');
-                } else {
-                    step.classList.remove('active');
-                }
+            document.querySelectorAll('.progress-step').forEach((s, i) => {
+                s.classList.toggle('active', i < currentStep);
             });
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (currentStep === 3) updatePricingDisplay();
+        }
+
+        function validateField(input) {
+            const errorDiv = document.getElementById(`error-${input.name}`);
+            if (errorDiv) errorDiv.classList.remove('show');
+            input.classList.remove('error');
+
+            if (input.hasAttribute('required') && !input.value.trim()) {
+                input.classList.add('error');
+                if (errorDiv) { errorDiv.textContent = 'This field is required'; errorDiv.classList.add('show'); }
+                return false;
+            }
+            if (input.type === 'email' && input.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+                input.classList.add('error');
+                if (errorDiv) { errorDiv.textContent = 'Please enter a valid email address'; errorDiv.classList.add('show'); }
+                return false;
+            }
+            if (input.name && input.name.includes('phone') && input.value) {
+                const cleaned = input.value.replace(/[\s\-\(\)\.]/g, '');
+                if (!/^\+[1-9]\d{9,14}$/.test(cleaned) && !/^0\d{8,11}$/.test(cleaned)) {
+                    input.classList.add('error');
+                    if (errorDiv) { errorDiv.textContent = 'Please enter a valid phone number with country code'; errorDiv.classList.add('show'); }
+                    return false;
+                }
+            }
+            return true;
         }
 
         function validateStep(step) {
             let isValid = true;
             const section = document.querySelector(`[data-section="${step}"]`);
-            const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
-
-            inputs.forEach(input => {
-                const errorDiv = document.getElementById(`error-${input.name}`);
-                if (errorDiv) {
-                    errorDiv.classList.remove('show');
-                }
-                input.classList.remove('error');
-
-                if (!input.value.trim()) {
-                    isValid = false;
-                    input.classList.add('error');
-                    if (errorDiv) {
-                        errorDiv.textContent = 'This field is required';
-                        errorDiv.classList.add('show');
-                    }
-                } else if (input.type === 'email' && !validateEmail(input.value)) {
-                    isValid = false;
-                    input.classList.add('error');
-                    if (errorDiv) {
-                        errorDiv.textContent = 'Please enter a valid email address';
-                        errorDiv.classList.add('show');
-                    }
-                } else if (input.name.includes('phone') && input.value && !validatePhone(input.value)) {
-                    isValid = false;
-                    input.classList.add('error');
-                    if (errorDiv) {
-                        errorDiv.textContent = 'Please enter a valid phone number with country code';
-                        errorDiv.classList.add('show');
-                    }
-                }
+            section.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+                if (!validateField(input)) isValid = false;
             });
-
+            if (step === 3 && !selectedPlan) {
+                alert('Please select a subscription plan.');
+                isValid = false;
+            }
             return isValid;
         }
-
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
-        function validatePhone(phone) {
-            const cleaned = phone.replace(/[\s\-\(\)\.]/g, '');
-            const internationalFormat = /^\+[1-9]\d{9,14}$/;
-            const localFormat = /^0\d{8,11}$/;
-            return internationalFormat.test(cleaned) || localFormat.test(cleaned);
-        }
-
-        // Real-time validation
-        document.querySelectorAll('input, select, textarea').forEach(input => {
-            input.addEventListener('blur', function() {
-                const errorDiv = document.getElementById(`error-${this.name}`);
-                if (errorDiv) {
-                    errorDiv.classList.remove('show');
-                }
-                this.classList.remove('error');
-
-                if (this.hasAttribute('required') && !this.value.trim()) {
-                    this.classList.add('error');
-                    if (errorDiv) {
-                        errorDiv.textContent = 'This field is required';
-                        errorDiv.classList.add('show');
-                    }
-                } else if (this.type === 'email' && this.value && !validateEmail(this.value)) {
-                    this.classList.add('error');
-                    if (errorDiv) {
-                        errorDiv.textContent = 'Please enter a valid email address';
-                        errorDiv.classList.add('show');
-                    }
-                } else if (this.name.includes('phone') && this.value && !validatePhone(this.value)) {
-                    this.classList.add('error');
-                    if (errorDiv) {
-                        errorDiv.textContent = 'Please enter a valid phone number';
-                        errorDiv.classList.add('show');
-                    }
-                }
-            });
-        });
 
         // Form submission
         document.getElementById('registrationForm').addEventListener('submit', function(e) {
@@ -834,24 +995,11 @@
                 e.preventDefault();
                 return false;
             }
-            
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('submitBtn').textContent = 'Submitting...';
-        });
-
-        // Phone number formatting
-        document.querySelectorAll('input[name*="phone"]').forEach(input => {
-            input.addEventListener('input', function(e) {
-                let value = e.target.value;
-                value = value.replace(/[^\d\s\+\-\(\)\.]/g, '');
-                if (value.indexOf('+') > 0) {
-                    value = value.replace(/\+/g, '');
-                }
-                if (value.replace(/\D/g, '').length > 15) {
-                    value = value.substring(0, value.length - 1);
-                }
-                e.target.value = value;
-            });
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = selectedBilling === 'TRIAL'
+                ? 'Submitting...'
+                : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg> Redirecting to payment...';
         });
     </script>
 </body>

@@ -528,15 +528,12 @@
 
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 24px;
             margin-top: 48px;
         }
 
-        @media (max-width: 1200px) {
-            .pricing-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 640px) {
+        @media (max-width: 900px) {
             .pricing-grid { grid-template-columns: 1fr; }
         }
 
@@ -1148,97 +1145,149 @@
             <div class="section-header">
                 <div class="section-badge">Pricing</div>
                 <h2 class="section-title">Simple, Transparent Pricing</h2>
-                <p class="section-subtitle">
-                    Choose the plan that fits your organization. All prices shown in <span id="currency-label">ZMW</span>.
-                </p>
+                <p class="section-subtitle">No hidden fees. Choose monthly or yearly — cancel anytime.</p>
+            </div>
+
+            <!-- Billing + Currency Controls -->
+            <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:center;margin-bottom:40px;">
+                <div style="display:flex;background:#f5f5f5;border-radius:8px;padding:4px;">
+                    <button id="lp-monthly" onclick="lpSetBilling('monthly')"
+                        style="padding:8px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#000;box-shadow:0 1px 4px rgba(0,0,0,0.12);font-family:inherit;">
+                        Monthly
+                    </button>
+                    <button id="lp-yearly" onclick="lpSetBilling('yearly')"
+                        style="padding:8px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:none;color:#666;font-family:inherit;">
+                        Yearly <span style="background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;">-20%</span>
+                    </button>
+                </div>
+                <select id="lp-currency" onchange="lpSetCurrency(this.value)"
+                    style="padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;font-family:inherit;cursor:pointer;">
+                    <option value="USD">$ USD</option>
+                    <option value="ZMW">ZMW Zambia</option>
+                    <option value="ZAR">R South Africa</option>
+                    <option value="KES">KSh Kenya</option>
+                    <option value="NGN">&#8358; Nigeria</option>
+                    <option value="GHS">GH&#8373; Ghana</option>
+                    <option value="GBP">&pound; GBP</option>
+                    <option value="EUR">&euro; EUR</option>
+                    <option value="TZS">TSh Tanzania</option>
+                    <option value="UGX">USh Uganda</option>
+                    <option value="MWK">MK Malawi</option>
+                    <option value="AUD">A$ AUD</option>
+                    <option value="CAD">C$ CAD</option>
+                </select>
+                <small id="lp-currency-note" style="color:#666;font-size:12px;">Prices in USD. Charged in USD.</small>
             </div>
 
             <div class="pricing-grid">
-                <!-- Basic -->
+                <!-- Starter -->
                 <div class="pricing-card">
-                    <h3>Basic</h3>
+                    <h3>Starter</h3>
                     <p>Perfect for small teams getting started</p>
                     <div class="pricing-price">
-                        <div class="pricing-amount"><span class="currency-sym">ZMW</span> <span id="price-basic">29.99</span></div>
-                        <div class="pricing-period">per user / month</div>
+                        <div class="pricing-amount" id="lp-price-BASIC">$29.99</div>
+                        <div class="pricing-period" id="lp-period-BASIC">per month</div>
                     </div>
                     <ul class="pricing-features">
-                        <li>Up to 25 users</li>
-                        <li>Basic attendance tracking</li>
+                        <li>Up to 25 employees</li>
+                        <li>Employee database &amp; profiles</li>
+                        <li>Attendance tracking</li>
                         <li>Leave management</li>
                         <li>Payroll processing</li>
+                        <li>Document management</li>
                         <li>Email support</li>
-                        <li>Responsive web access</li>
                     </ul>
-                    <a href="/register/?plan=BASIC&employees=25" class="btn btn-primary">Get Started</a>
+                    <a href="/register/?plan=BASIC&billing=MONTHLY" id="lp-cta-BASIC" class="btn btn-primary">Get Started</a>
                 </div>
 
-                <!-- Standard (Most Popular) -->
+                <!-- Professional (Most Popular) -->
                 <div class="pricing-card featured">
                     <div class="pricing-badge">Most Popular</div>
-                    <h3>Standard</h3>
-                    <p>For growing businesses with advanced needs</p>
+                    <h3>Professional</h3>
+                    <p>For growing businesses with advanced HR needs</p>
                     <div class="pricing-price">
-                        <div class="pricing-amount"><span class="currency-sym">ZMW</span> <span id="price-standard">49.99</span></div>
-                        <div class="pricing-period">per user / month</div>
+                        <div class="pricing-amount" id="lp-price-PROFESSIONAL">$79.99</div>
+                        <div class="pricing-period" id="lp-period-PROFESSIONAL">per month</div>
                     </div>
                     <ul class="pricing-features">
-                        <li>Up to 100 users</li>
-                        <li>Advanced attendance & GPS tracking</li>
-                        <li>Leave management & approvals</li>
-                        <li>Automated payroll processing</li>
-                        <li>Performance reviews</li>
-                        <li>Document management</li>
-                        <li>Custom reports</li>
+                        <li>Up to 100 employees</li>
+                        <li>Everything in Starter</li>
+                        <li>Performance reviews &amp; goals</li>
+                        <li>Advanced analytics &amp; reports</li>
+                        <li>Training management</li>
+                        <li>Benefits management</li>
+                        <li>Approvals &amp; workflows</li>
                         <li>Priority support</li>
                     </ul>
-                    <a href="/register/?plan=STANDARD&employees=100" class="btn btn-primary">Get Started</a>
-                </div>
-
-                <!-- Professional -->
-                <div class="pricing-card">
-                    <h3>Professional</h3>
-                    <p>For large organizations needing full control</p>
-                    <div class="pricing-price">
-                        <div class="pricing-amount"><span class="currency-sym">ZMW</span> <span id="price-professional">79.99</span></div>
-                        <div class="pricing-period">per user / month</div>
-                    </div>
-                    <ul class="pricing-features">
-                        <li>Up to 500 users</li>
-                        <li>All Standard features</li>
-                        <li>Advanced analytics & insights</li>
-                        <li>Custom integrations</li>
-                        <li>API access</li>
-                        <li>Dedicated account manager</li>
-                        <li>Priority phone support</li>
-                        <li>Custom training</li>
-                    </ul>
-                    <a href="/register/?plan=PROFESSIONAL&employees=500" class="btn btn-primary">Get Started</a>
+                    <a href="/register/?plan=PROFESSIONAL&billing=MONTHLY" id="lp-cta-PROFESSIONAL" class="btn btn-primary">Get Started</a>
                 </div>
 
                 <!-- Enterprise -->
                 <div class="pricing-card">
                     <h3>Enterprise</h3>
-                    <p>Unlimited scale with premium support</p>
+                    <p>For large organizations with custom requirements</p>
                     <div class="pricing-price">
-                        <div class="pricing-amount"><span class="currency-sym">ZMW</span> <span id="price-enterprise">199.99</span></div>
-                        <div class="pricing-period">per user / month</div>
+                        <div class="pricing-amount" id="lp-price-ENTERPRISE">$199.99</div>
+                        <div class="pricing-period" id="lp-period-ENTERPRISE">per month</div>
                     </div>
                     <ul class="pricing-features">
-                        <li>Unlimited users</li>
-                        <li>All Professional features</li>
-                        <li>White-label branding</li>
-                        <li>Custom SLA guarantee</li>
-                        <li>On-premise deployment option</li>
-                        <li>24/7 dedicated support</li>
-                        <li>Custom development</li>
-                        <li>Data migration assistance</li>
+                        <li>Unlimited employees</li>
+                        <li>Everything in Professional</li>
+                        <li>Asset management (AMS)</li>
+                        <li>E-Forms &amp; digital signatures</li>
+                        <li>Custom integrations &amp; API</li>
+                        <li>Dedicated account manager</li>
+                        <li>24/7 phone support</li>
+                        <li>SLA guarantee</li>
                     </ul>
-                    <a href="/register/?plan=ENTERPRISE&employees=unlimited" class="btn btn-primary">Contact Sales</a>
+                    <a href="/register/?plan=ENTERPRISE&billing=MONTHLY" id="lp-cta-ENTERPRISE" class="btn btn-primary">Get Started</a>
                 </div>
             </div>
         </div>
     </section>
+
+    <script>
+    (function() {
+        const lpPlans = { BASIC: 29.99, PROFESSIONAL: 79.99, ENTERPRISE: 199.99 };
+        const lpCurrencies = {
+            USD:{sym:'$',rate:1},ZMW:{sym:'ZMW ',rate:27.5},ZAR:{sym:'R ',rate:18.5},
+            KES:{sym:'KSh ',rate:130},NGN:{sym:'\u20A6',rate:1580},GHS:{sym:'GH\u20B5 ',rate:15.5},
+            GBP:{sym:'\u00A3',rate:0.79},EUR:{sym:'\u20AC',rate:0.92},TZS:{sym:'TSh ',rate:2560},
+            UGX:{sym:'USh ',rate:3750},MWK:{sym:'MK ',rate:1730},AUD:{sym:'A$',rate:1.53},CAD:{sym:'C$',rate:1.36},
+        };
+        let lpBilling = 'monthly', lpCurr = 'USD';
+
+        window.lpSetBilling = function(b) {
+            lpBilling = b;
+            document.getElementById('lp-monthly').style.cssText += b==='monthly' ? ';background:white;color:#000;box-shadow:0 1px 4px rgba(0,0,0,0.12)' : ';background:none;color:#666;box-shadow:none';
+            document.getElementById('lp-yearly').style.cssText += b==='yearly' ? ';background:white;color:#000;box-shadow:0 1px 4px rgba(0,0,0,0.12)' : ';background:none;color:#666;box-shadow:none';
+            lpUpdatePrices();
+        };
+        window.lpSetCurrency = function(c) { lpCurr = c; lpUpdatePrices(); };
+
+        function lpUpdatePrices() {
+            const c = lpCurrencies[lpCurr] || lpCurrencies.USD;
+            const isYearly = lpBilling === 'yearly';
+            document.getElementById('lp-currency-note').textContent = lpCurr === 'USD' ? 'Prices in USD.' : `Approx in ${lpCurr}. Charged in USD.`;
+            Object.keys(lpPlans).forEach(function(key) {
+                const amt = isYearly ? lpPlans[key] * 12 * 0.80 : lpPlans[key];
+                const disp = (amt * c.rate).toLocaleString(undefined, {maximumFractionDigits:2});
+                document.getElementById('lp-price-' + key).textContent = c.sym + disp;
+                document.getElementById('lp-period-' + key).textContent = isYearly ? 'per year' : 'per month';
+                document.getElementById('lp-cta-' + key).href = '/register/?plan=' + key + '&billing=' + (isYearly ? 'YEARLY' : 'MONTHLY');
+            });
+        }
+
+        fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d) {
+            const map = {ZM:'ZMW',ZA:'ZAR',KE:'KES',NG:'NGN',GH:'GHS',GB:'GBP',TZ:'TZS',UG:'UGX',MW:'MWK',AU:'AUD',CA:'CAD',US:'USD'};
+            const code = map[d.country_code] || 'USD';
+            const sel = document.getElementById('lp-currency');
+            if (sel) { sel.value = code; lpSetCurrency(code); }
+        }).catch(function(){lpUpdatePrices();});
+
+        lpUpdatePrices();
+    })();
+    </script>
 
     <!-- CTA Section -->
     <section class="cta-section">

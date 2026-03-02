@@ -194,50 +194,65 @@ def stripe_webhook(request):
 
 
 def registration_success(request):
-    """Handle successful payment for company registration"""
+    """Handle successful Stripe payment → auto-provision company"""
     session_id = request.GET.get('session_id')
-    
+
     if not session_id:
-        messages.error(request, 'Payment session not found')
+        messages.error(request, 'Payment session not found.')
         return redirect('/')
-    
+
     try:
-        # Retrieve the session from Stripe
         session = stripe.checkout.Session.retrieve(session_id)
-        
-        if session.payment_status == 'paid':
-            # Store payment info in session
-            request.session['payment_completed'] = True
-            request.session['payment_session_id'] = session_id
-            request.session['plan_type'] = session.metadata.get('plan_type')
-            request.session['company_data'] = {
-                'company_name': session.metadata.get('company_name', ''),
-                'contact_email': session.metadata.get('contact_email', ''),
-                'employee_count': session.metadata.get('employee_count', '25'),
-            }
-            
-            # Create payment record
-            payment = Payment.objects.create(
-                company=None,  # Will be set after company creation
+
+        if session.payment_status != 'paid':
+            messages.error(request, 'Payment was not completed. Please try again.')
+            return redirect('company_registration')
+
+        request_number = session.metadata.get('request_number')
+
+        if not request_number:
+            messages.error(request, 'Registration reference not found. Please contact support.')
+            return redirect('/')
+
+        # Import lazily to avoid circular imports
+        from blu_staff.apps.accounts.models import CompanyRegistrationRequest, Company
+        from blu_staff.apps.accounts.registration_views import _provision_company
+
+        try:
+            reg_request = CompanyRegistrationRequest.objects.get(request_number=request_number)
+        except CompanyRegistrationRequest.DoesNotExist:
+            messages.error(request, f'Registration #{request_number} not found. Please contact support.')
+            return redirect('/')
+
+        # Check if company was already provisioned (idempotency)
+        existing_company = Company.objects.filter(registration_request=reg_request).first()
+
+        if not existing_company:
+            company, employer_user, generated_password = _provision_company(reg_request)
+            # Record the payment
+            Payment.objects.create(
+                company=company,
                 stripe_payment_intent_id=session.payment_intent,
-                amount=session.amount_total / 100,  # Convert from cents
+                amount=session.amount_total / 100,
                 currency=session.currency,
                 status='succeeded',
                 payment_method='card',
                 paid_at=timezone.now(),
             )
-            
-            # Redirect to your existing registration with plan info
-            plan_type = session.metadata.get('plan_type')
-            employee_count = session.metadata.get('employee_count', '25')
-            messages.success(request, f'Payment successful! Please complete your registration.')
-            return redirect(f'/register/?plan={plan_type}&employees={employee_count}')
         else:
-            messages.error(request, 'Payment was not completed')
-            return redirect('/')
-            
+            company = existing_company
+
+        return render(request, 'ems/payment_registration_success.html', {
+            'company': company,
+            'plan': session.metadata.get('plan_type', ''),
+            'billing': session.metadata.get('billing_preference', ''),
+            'amount': session.amount_total / 100,
+            'currency': session.currency.upper(),
+            'login_url': '/login/',
+        })
+
     except Exception as e:
-        messages.error(request, f'Error verifying payment: {str(e)}')
+        messages.error(request, f'Error processing payment: {str(e)}')
         return redirect('/')
 
 

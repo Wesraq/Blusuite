@@ -9,17 +9,140 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.urls import reverse
 import json
+import random
+import string
 
 from .models import CompanyRegistrationRequest, Company, User, EmployerProfile, SystemSettings
 from .forms import CompanyRegistrationForm
 from tenant_management.services import provision_tenant_for_company, assign_user_role
 
 
+# Canonical plan pricing (USD/month base prices)
+PLAN_PRICING = {
+    'BASIC':        {'name': 'Starter',      'monthly': 29.99,  'max_employees': 25},
+    'PROFESSIONAL': {'name': 'Professional', 'monthly': 79.99,  'max_employees': 100},
+    'ENTERPRISE':   {'name': 'Enterprise',   'monthly': 199.99, 'max_employees': 99999},
+}
+
+
+def _provision_company(registration_request, admin_password=None, approved_by=None):
+    """
+    Provision a company from an approved registration request.
+    Creates the company, employer user, profile, and tenant.
+    Returns (company, employer_user, generated_password).
+    """
+    billing_pref = getattr(registration_request, 'billing_preference', None)
+    today = timezone.now().date()
+
+    company = Company.objects.create(
+        name=registration_request.company_name,
+        address=registration_request.company_address,
+        phone=registration_request.company_phone,
+        email=registration_request.company_email,
+        website=registration_request.company_website,
+        tax_id=registration_request.tax_id,
+        city=getattr(registration_request, 'city', ''),
+        country=getattr(registration_request, 'country', 'Zambia'),
+        subscription_plan=registration_request.subscription_plan,
+        max_employees=registration_request.number_of_employees,
+        registration_request=registration_request,
+        is_approved=True,
+        approved_by=approved_by,
+        approved_at=timezone.now(),
+    )
+
+    if billing_pref == CompanyRegistrationRequest.BillingPreference.TRIAL:
+        company.is_trial = True
+        company.trial_ends_at = timezone.now() + timedelta(days=30)
+    elif billing_pref == CompanyRegistrationRequest.BillingPreference.MONTHLY:
+        company.is_trial = False
+        company.license_expiry = today + timedelta(days=30)
+    elif billing_pref == CompanyRegistrationRequest.BillingPreference.YEARLY:
+        company.is_trial = False
+        company.license_expiry = today + timedelta(days=365)
+
+    if billing_pref:
+        company.save(update_fields=['is_trial', 'trial_ends_at', 'license_expiry'])
+
+    final_password = admin_password or ''.join(
+        random.choices(string.ascii_letters + string.digits + '!@#$%', k=12)
+    )
+
+    employer_user = User.objects.filter(email=registration_request.contact_email).first()
+    if employer_user:
+        employer_user.first_name = registration_request.contact_first_name
+        employer_user.last_name = registration_request.contact_last_name
+        employer_user.role = 'ADMINISTRATOR'
+        employer_user.company = company
+        employer_user.must_change_password = True
+        employer_user.is_active = True
+        employer_user.save()
+        EmployerProfile.objects.update_or_create(
+            user=employer_user,
+            defaults={
+                'company_name': registration_request.company_name,
+                'company_address': registration_request.company_address,
+                'company_phone': registration_request.company_phone,
+                'company_email': registration_request.company_email,
+                'tax_id': registration_request.tax_id,
+                'company': company,
+            }
+        )
+    else:
+        employer_user = User.objects.create_user(
+            email=registration_request.contact_email,
+            password=final_password,
+            first_name=registration_request.contact_first_name,
+            last_name=registration_request.contact_last_name,
+            role='ADMINISTRATOR',
+            company=company,
+            must_change_password=True,
+            is_active=True,
+        )
+        EmployerProfile.objects.create(
+            user=employer_user,
+            company_name=registration_request.company_name,
+            company_address=registration_request.company_address,
+            company_phone=registration_request.company_phone,
+            company_email=registration_request.company_email,
+            tax_id=registration_request.tax_id,
+            company=company,
+        )
+
+    tenant_result = provision_tenant_for_company(company=company, owner=employer_user)
+    assign_user_role(tenant=tenant_result.tenant, user=employer_user, role='OWNER')
+
+    registration_request.status = 'APPROVED'
+    registration_request.reviewed_at = timezone.now()
+    registration_request.save(update_fields=['status', 'reviewed_at'])
+
+    try:
+        subject = f'Welcome to BLU Suite - Your Company Account is Ready'
+        message = render_to_string('emails/company_approved.html', {
+            'company': company,
+            'employer': employer_user,
+            'password': final_password,
+            'login_url': f"{getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')}/login/",
+            'license_info': {
+                'plan': company.subscription_plan,
+                'license_key': company.license_key,
+                'max_employees': company.max_employees,
+                'expiry': company.license_expiry,
+            }
+        })
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
+                  [registration_request.contact_email], html_message=message)
+    except Exception as e:
+        print(f"Failed to send approval email: {e}")
+
+    return company, employer_user, final_password
+
+
 @csrf_exempt
 def company_registration_request(request):
     """Handle company registration requests from potential employers"""
-    # Respect global system settings for public registration
     try:
         system_settings = SystemSettings.get_solo()
     except Exception:
@@ -36,32 +159,82 @@ def company_registration_request(request):
         form = CompanyRegistrationForm(request.POST)
         if form.is_valid():
             registration_request = form.save()
+            billing_pref = registration_request.billing_preference
 
-            # Send notification email to EiscomTech admin
+            # Send notification to admin
             try:
-                admin_email = settings.ADMIN_EMAIL or 'admin@eiscomtech.com'
+                admin_email = getattr(settings, 'ADMIN_EMAIL', None) or 'admin@eiscomtech.com'
                 subject = f'New Company Registration Request - {registration_request.company_name}'
                 message = render_to_string('emails/company_registration_request.html', {
                     'request': registration_request,
                 })
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [admin_email],
-                    html_message=message
-                )
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email], html_message=message)
             except Exception as e:
                 print(f"Failed to send registration notification email: {e}")
 
+            # For paid plans: redirect to Stripe checkout
+            if billing_pref in ('MONTHLY', 'YEARLY'):
+                try:
+                    import stripe
+                    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+                    plan_key = registration_request.subscription_plan
+                    plan_info = PLAN_PRICING.get(plan_key, PLAN_PRICING['BASIC'])
+
+                    if billing_pref == 'YEARLY':
+                        unit_price = plan_info['monthly'] * 12 * 0.80  # 20% yearly discount
+                        label = f"{plan_info['name']} Plan - Yearly (20% off)"
+                    else:
+                        unit_price = plan_info['monthly']
+                        label = f"{plan_info['name']} Plan - Monthly"
+
+                    success_url = request.build_absolute_uri(
+                        reverse('payments:registration_success')
+                    ) + '?session_id={CHECKOUT_SESSION_ID}'
+                    cancel_url = request.build_absolute_uri(reverse('company_registration'))
+
+                    session = stripe.checkout.Session.create(
+                        payment_method_types=['card'],
+                        line_items=[{
+                            'price_data': {
+                                'currency': 'usd',
+                                'product_data': {
+                                    'name': label,
+                                    'description': f'BLU Suite EMS for {registration_request.company_name}',
+                                },
+                                'unit_amount': int(unit_price * 100),
+                            },
+                            'quantity': 1,
+                        }],
+                        mode='payment',
+                        success_url=success_url,
+                        cancel_url=cancel_url,
+                        customer_email=registration_request.contact_email,
+                        metadata={
+                            'request_number': registration_request.request_number,
+                            'plan_type': plan_key,
+                            'billing_preference': billing_pref,
+                            'company_name': registration_request.company_name[:100],
+                        },
+                    )
+                    return redirect(session.url)
+
+                except Exception as e:
+                    print(f"Stripe session creation failed: {e}")
+                    messages.warning(
+                        request,
+                        'Payment gateway error. Your registration was saved - our team will contact you to complete payment.'
+                    )
+                    return redirect('registration_success', request_id=registration_request.request_number)
+
+            # TRIAL: existing approval-pending flow
             messages.success(
                 request,
-                f'Thank you! Your registration request (#{registration_request.request_number}) has been submitted successfully. '
-                'You will receive an email notification once your request is reviewed.'
+                f'Thank you! Your trial registration (#{registration_request.request_number}) has been submitted. '
+                'You will receive an email once your account is activated.'
             )
             return redirect('registration_success', request_id=registration_request.request_number)
         else:
-            # Debug: Print form errors to console
             print("Form validation errors:")
             for field, errors in form.errors.items():
                 print(f"  {field}: {errors}")
@@ -69,7 +242,11 @@ def company_registration_request(request):
     else:
         form = CompanyRegistrationForm()
 
-    return render(request, 'ems/company_registration.html', {'form': form})
+    return render(request, 'ems/company_registration.html', {
+        'form': form,
+        'stripe_publishable_key': getattr(settings, 'STRIPE_PUBLISHABLE_KEY', ''),
+        'plan_pricing': PLAN_PRICING,
+    })
 
 
 def registration_success(request, request_id):

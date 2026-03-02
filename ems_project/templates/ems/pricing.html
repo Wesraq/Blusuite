@@ -400,68 +400,184 @@
         <p>Choose the plan that fits your business needs. No hidden fees, no surprises.</p>
     </section>
 
+    <!-- Currency + Billing Toggles -->
+    <section style="padding: 40px 5% 0; background: white;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: center;">
+            <!-- Billing Toggle -->
+            <div style="display:flex; background:#f5f5f5; border-radius:8px; padding:4px;">
+                <button id="toggle-monthly" onclick="setBilling('monthly')"
+                    style="padding:8px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#000;box-shadow:0 1px 4px rgba(0,0,0,0.12);">
+                    Monthly
+                </button>
+                <button id="toggle-yearly" onclick="setBilling('yearly')"
+                    style="padding:8px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:none;color:#666;">
+                    Yearly <span style="background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;">-20%</span>
+                </button>
+            </div>
+            <!-- Currency Selector -->
+            <select id="currency-select" onchange="setCurrency(this.value)"
+                style="padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;font-family:inherit;cursor:pointer;">
+                <option value="USD">$ USD</option>
+                <option value="ZMW">ZMW Zambia</option>
+                <option value="ZAR">R ZAR South Africa</option>
+                <option value="KES">KSh Kenya</option>
+                <option value="NGN">₦ Nigeria</option>
+                <option value="GHS">GH₵ Ghana</option>
+                <option value="GBP">£ GBP</option>
+                <option value="EUR">€ EUR</option>
+                <option value="TZS">TSh Tanzania</option>
+                <option value="UGX">USh Uganda</option>
+                <option value="MWK">MK Malawi</option>
+                <option value="AUD">A$ AUD</option>
+                <option value="CAD">C$ CAD</option>
+                <option value="INR">₹ INR</option>
+            </select>
+            <small id="currency-note" style="color:#666;font-size:12px;">Prices shown in USD. Charged in USD.</small>
+        </div>
+    </section>
+
     <section class="pricing-section">
         <div class="pricing-grid">
+            <!-- Starter -->
             <div class="pricing-card">
                 <h3>Starter</h3>
                 <p>Perfect for small teams getting started</p>
                 <div class="pricing-price">
-                    <div class="pricing-amount">$29</div>
-                    <div class="pricing-period">per month</div>
+                    <div class="pricing-amount" id="price-BASIC">$29.99</div>
+                    <div class="pricing-period" id="period-BASIC">per month</div>
                 </div>
                 <ul class="pricing-features">
                     <li>Up to 25 employees</li>
-                    <li>Basic attendance tracking</li>
+                    <li>Employee database &amp; profiles</li>
+                    <li>Attendance tracking</li>
                     <li>Leave management</li>
                     <li>Payroll processing</li>
+                    <li>Document management</li>
                     <li>Email support</li>
-                    <li>Mobile app access</li>
                 </ul>
-                <a href="/register/" class="pricing-btn pricing-btn-secondary">Get Started</a>
+                <a href="/register/?plan=BASIC&billing=monthly" id="cta-BASIC" class="pricing-btn pricing-btn-secondary">Get Started</a>
             </div>
 
+            <!-- Professional -->
             <div class="pricing-card featured">
                 <div class="pricing-badge">Most Popular</div>
                 <h3>Professional</h3>
-                <p>For growing businesses with advanced needs</p>
+                <p>For growing businesses with advanced HR needs</p>
                 <div class="pricing-price">
-                    <div class="pricing-amount">$79</div>
-                    <div class="pricing-period">per month</div>
+                    <div class="pricing-amount" id="price-PROFESSIONAL">$79.99</div>
+                    <div class="pricing-period" id="period-PROFESSIONAL">per month</div>
                 </div>
                 <ul class="pricing-features">
                     <li>Up to 100 employees</li>
-                    <li>Advanced attendance & GPS tracking</li>
-                    <li>Leave management & approvals</li>
-                    <li>Automated payroll processing</li>
-                    <li>Performance reviews</li>
-                    <li>Document management</li>
-                    <li>Custom reports</li>
+                    <li>Everything in Starter</li>
+                    <li>Performance reviews &amp; goals</li>
+                    <li>Advanced analytics &amp; reports</li>
+                    <li>Training management</li>
+                    <li>Benefits management</li>
+                    <li>Approvals &amp; workflows</li>
                     <li>Priority support</li>
                 </ul>
-                <a href="/register/" class="pricing-btn pricing-btn-primary">Get Started</a>
+                <a href="/register/?plan=PROFESSIONAL&billing=monthly" id="cta-PROFESSIONAL" class="pricing-btn pricing-btn-primary">Get Started</a>
             </div>
 
+            <!-- Enterprise -->
             <div class="pricing-card">
                 <h3>Enterprise</h3>
                 <p>For large organizations with custom requirements</p>
                 <div class="pricing-price">
-                    <div class="pricing-amount">Custom</div>
-                    <div class="pricing-period">contact sales</div>
+                    <div class="pricing-amount" id="price-ENTERPRISE">$199.99</div>
+                    <div class="pricing-period" id="period-ENTERPRISE">per month</div>
                 </div>
                 <ul class="pricing-features">
                     <li>Unlimited employees</li>
-                    <li>All Professional features</li>
-                    <li>Advanced analytics & insights</li>
-                    <li>Custom integrations</li>
+                    <li>Everything in Professional</li>
+                    <li>Asset management (AMS)</li>
+                    <li>E-Forms &amp; digital signatures</li>
+                    <li>Custom integrations &amp; API</li>
                     <li>Dedicated account manager</li>
                     <li>24/7 phone support</li>
-                    <li>Custom training</li>
                     <li>SLA guarantee</li>
                 </ul>
-                <a href="/register/" class="pricing-btn pricing-btn-secondary">Contact Sales</a>
+                <a href="/register/?plan=ENTERPRISE&billing=monthly" id="cta-ENTERPRISE" class="pricing-btn pricing-btn-secondary">Get Started</a>
             </div>
         </div>
     </section>
+
+    <script>
+        const plans = {
+            BASIC:        { monthly: 29.99 },
+            PROFESSIONAL: { monthly: 79.99 },
+            ENTERPRISE:   { monthly: 199.99 },
+        };
+        const currencies = {
+            USD: { symbol: '$',    rate: 1,      note: 'Prices shown in USD.' },
+            ZMW: { symbol: 'ZMW ',rate: 27.5,   note: 'Prices approximate in ZMW. Charged in USD.' },
+            ZAR: { symbol: 'R ',  rate: 18.5,   note: 'Prices approximate in ZAR. Charged in USD.' },
+            KES: { symbol: 'KSh ',rate: 130,    note: 'Prices approximate in KES. Charged in USD.' },
+            NGN: { symbol: '₦',   rate: 1580,   note: 'Prices approximate in NGN. Charged in USD.' },
+            GHS: { symbol: 'GH₵ ',rate: 15.5,   note: 'Prices approximate in GHS. Charged in USD.' },
+            GBP: { symbol: '£',   rate: 0.79,   note: 'Prices approximate in GBP. Charged in USD.' },
+            EUR: { symbol: '€',   rate: 0.92,   note: 'Prices approximate in EUR. Charged in USD.' },
+            TZS: { symbol: 'TSh ',rate: 2560,   note: 'Prices approximate in TZS. Charged in USD.' },
+            UGX: { symbol: 'USh ',rate: 3750,   note: 'Prices approximate in UGX. Charged in USD.' },
+            MWK: { symbol: 'MK ', rate: 1730,   note: 'Prices approximate in MWK. Charged in USD.' },
+            AUD: { symbol: 'A$',  rate: 1.53,   note: 'Prices approximate in AUD. Charged in USD.' },
+            CAD: { symbol: 'C$',  rate: 1.36,   note: 'Prices approximate in CAD. Charged in USD.' },
+            INR: { symbol: '₹',   rate: 83,     note: 'Prices approximate in INR. Charged in USD.' },
+        };
+
+        let currentBilling = 'monthly';
+        let currentCurrency = 'USD';
+
+        function setBilling(billing) {
+            currentBilling = billing;
+            document.getElementById('toggle-monthly').style.background = billing === 'monthly' ? 'white' : 'none';
+            document.getElementById('toggle-monthly').style.color = billing === 'monthly' ? '#000' : '#666';
+            document.getElementById('toggle-monthly').style.boxShadow = billing === 'monthly' ? '0 1px 4px rgba(0,0,0,0.12)' : 'none';
+            document.getElementById('toggle-yearly').style.background = billing === 'yearly' ? 'white' : 'none';
+            document.getElementById('toggle-yearly').style.color = billing === 'yearly' ? '#000' : '#666';
+            document.getElementById('toggle-yearly').style.boxShadow = billing === 'yearly' ? '0 1px 4px rgba(0,0,0,0.12)' : 'none';
+            updatePrices();
+        }
+
+        function setCurrency(code) {
+            currentCurrency = code;
+            updatePrices();
+        }
+
+        function updatePrices() {
+            const curr = currencies[currentCurrency] || currencies.USD;
+            document.getElementById('currency-note').textContent = curr.note;
+
+            Object.keys(plans).forEach(key => {
+                const p = plans[key];
+                let amount = currentBilling === 'yearly'
+                    ? p.monthly * 12 * 0.80
+                    : p.monthly;
+                const display = (amount * curr.rate).toLocaleString(undefined, { maximumFractionDigits: 2 });
+                document.getElementById('price-' + key).textContent = curr.symbol + display;
+                document.getElementById('period-' + key).textContent = currentBilling === 'yearly' ? 'per year' : 'per month';
+                document.getElementById('cta-' + key).href = `/register/?plan=${key}&billing=${currentBilling.toUpperCase()}`;
+            });
+        }
+
+        // Auto-detect currency on load
+        fetch('https://ipapi.co/json/')
+            .then(r => r.json())
+            .then(data => {
+                const countryToCurrency = {
+                    ZM:'ZMW', ZA:'ZAR', KE:'KES', NG:'NGN', GH:'GHS',
+                    GB:'GBP', TZ:'TZS', UG:'UGX', MW:'MWK', AU:'AUD',
+                    CA:'CAD', IN:'INR', US:'USD',
+                };
+                const code = countryToCurrency[data.country_code] || 'USD';
+                const sel = document.getElementById('currency-select');
+                if (sel) { sel.value = code; setCurrency(code); }
+            })
+            .catch(() => updatePrices());
+
+        updatePrices();
+    </script>
 
     <footer class="footer">
         <div class="footer-container">
