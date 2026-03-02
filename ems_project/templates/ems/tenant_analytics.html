@@ -205,49 +205,25 @@
     <div class="metric-card">
         <div class="metric-value">{{ company.total_users|default:0 }}</div>
         <div class="metric-label">Total Users</div>
-        <div class="metric-change change-positive">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; margin-right: 4px;">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-            </svg>
-            +12% from last month
-        </div>
+        <div class="metric-change change-positive">Total registered accounts</div>
     </div>
     
     <div class="metric-card">
         <div class="metric-value">{{ company.active_users|default:0 }}</div>
         <div class="metric-label">Active Users</div>
-        <div class="metric-change change-positive">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; margin-right: 4px;">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-            </svg>
-            +8% from last month
-        </div>
+        <div class="metric-change change-positive">Currently active accounts</div>
     </div>
     
     <div class="metric-card">
         <div class="metric-value">{{ company.total_employees|default:0 }}</div>
         <div class="metric-label">Employees</div>
-        <div class="metric-change change-negative">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; margin-right: 4px;">
-                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-                <polyline points="17 18 23 18 23 12"></polyline>
-            </svg>
-            -2% from last month
-        </div>
+        <div class="metric-change" style="color:#64748b;">Registered employee accounts</div>
     </div>
     
     <div class="metric-card">
         <div class="metric-value">{{ company.storage_used|default:0 }}GB</div>
         <div class="metric-label">Storage Used</div>
-        <div class="metric-change change-positive">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; margin-right: 4px;">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-            </svg>
-            +5% from last month
-        </div>
+        <div class="metric-change" style="color:#64748b;">From uploaded documents</div>
     </div>
 </div>
 
@@ -278,17 +254,23 @@
     <!-- User Distribution -->
     <div class="chart-card">
         <div class="chart-header">
-            <h2 class="chart-title">User Distribution</h2>
+            <h2 class="chart-title">User Distribution by Role</h2>
         </div>
-        <div class="chart-placeholder">
-            <div style="text-align: center;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 12px;">
-                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
-                    <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
-                </svg>
-                <p>User distribution by role</p>
+        {% if role_dist %}
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            {% for item in role_dist %}
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:90px;font-size:12px;color:#64748b;">{{ item.role|title }}</div>
+                <div style="flex:1;background:#f1f5f9;border-radius:4px;height:16px;overflow:hidden;">
+                    <div style="height:100%;background:#E11D48;width:{% widthratio item.count company.total_users 100 %}%;"></div>
+                </div>
+                <div style="width:30px;font-size:13px;font-weight:600;color:#111827;">{{ item.count }}</div>
             </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div style="text-align:center;padding:32px;color:#64748b;font-size:14px;">No user data available.</div>
+        {% endif %}
     </div>
 </div>
 
@@ -296,66 +278,28 @@
 <div class="chart-card">
     <div class="chart-header">
         <h2 class="chart-title">Recent Activity</h2>
-        <a href="#" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">View All</a>
     </div>
-    
     <div class="activity-list">
+        {% for activity in recent_activity %}
         <div class="activity-item">
             <div class="activity-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="8.5" cy="7" r="4"></circle>
-                    <line x1="20" y1="8" x2="20" y2="14"></line>
-                    <line x1="23" y1="11" x2="17" y2="11"></line>
-                </svg>
+                {% if activity.icon == 'user' %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                {% elif activity.icon == 'document' %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                {% else %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                {% endif %}
             </div>
             <div class="activity-content">
-                <h4>New user registered</h4>
-                <p>John Smith joined as Employee</p>
-                <div class="activity-time">2 hours ago</div>
+                <h4>{{ activity.title }}</h4>
+                <p>{{ activity.description }}</p>
+                <div class="activity-time">{{ activity.timestamp|date:"M j, Y g:i A" }}</div>
             </div>
         </div>
-        
-        <div class="activity-item">
-            <div class="activity-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-            </div>
-            <div class="activity-content">
-                <h4>Document uploaded</h4>
-                <p>Employee handbook uploaded by HR Admin</p>
-                <div class="activity-time">5 hours ago</div>
-            </div>
-        </div>
-        
-        <div class="activity-item">
-            <div class="activity-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-            </div>
-            <div class="activity-content">
-                <h4>Attendance recorded</h4>
-                <p>25 employees clocked in today</p>
-                <div class="activity-time">8 hours ago</div>
-            </div>
-        </div>
-        
-        <div class="activity-item">
-            <div class="activity-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-            </div>
-            <div class="activity-content">
-                <h4>Payment processed</h4>
-                <p>Monthly subscription payment completed</p>
-                <div class="activity-time">1 day ago</div>
-            </div>
-        </div>
+        {% empty %}
+        <div style="text-align:center;padding:32px;color:#64748b;font-size:14px;">No recent activity found.</div>
+        {% endfor %}
     </div>
 </div>
 

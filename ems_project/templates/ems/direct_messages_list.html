@@ -76,7 +76,7 @@
                         <span class="dm-conv-time">{{ conv.last_message.created_at|date:"M d, g:i A" }}</span>
                     </div>
                     <p class="dm-conv-preview {% if conv.unread_count > 0 %}dm-unread{% endif %}">
-                        {% if conv.last_message.sender.id == request.user.id %}You: {% endif %}{{ conv.last_message.message|truncatewords:10 }}
+                        {% if conv.last_message.sender.id == request.user.id %}You: {% endif %}{{ conv.last_message.content|truncatewords:10 }}
                     </p>
                 </div>
             </a>

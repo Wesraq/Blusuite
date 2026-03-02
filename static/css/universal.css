@@ -610,6 +610,17 @@ body.sidebar-collapsed .sidebar-logo {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.btn-primary {
+    background: #DC143C !important;
+    border-color: #DC143C !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background: #B01030 !important;
+    border-color: #B01030 !important;
+}
+
 .btn-secondary {
     background: hsl(var(--secondary));
     color: hsl(var(--secondary-foreground));
@@ -1049,3 +1060,60 @@ body.sidebar-collapsed .sidebar-logo {
     justify-content: flex-end;
     gap: 8px;
 }
+
+/* ── Status / Message Utilities ─────────────────────────────── */
+.msg-alert { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; border: 1px solid; margin-bottom: 8px; font-size: 13px; }
+.msg-success { background: #d1fae5; border-color: #86efac; color: #065f46; }
+.msg-error   { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+.msg-warning { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+.msg-info    { background: #dbeafe; border-color: #93c5fd; color: #1e40af; }
+
+/* ── Status Badge Utilities ─────────────────────────────────── */
+.status-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+.status-success, .status-active, .status-approved, .status-paid, .status-present { background: #d1fae5; color: #065f46; }
+.status-error, .status-rejected, .status-overdue, .status-absent   { background: #fee2e2; color: #991b1b; }
+.status-warning, .status-pending, .status-late, .status-trial       { background: #fef3c7; color: #92400e; }
+.status-info, .status-inactive, .status-draft, .status-on_leave     { background: #dbeafe; color: #1e40af; }
+.status-neutral, .status-closed, .status-expired                    { background: #f1f5f9; color: #64748b; }
+
+/* ── Status Banner Utilities ─────────────────────────────────── */
+.status-banner-success { background: #d1fae5; border-color: #10b981 !important; }
+.status-banner-error   { background: #fee2e2; border-color: #ef4444 !important; }
+.status-banner-warning { background: #fef3c7; border-color: #f59e0b !important; }
+.status-banner-neutral { background: #f1f5f9; border-color: #64748b !important; }
+
+/* ── Status Icon Circle Utilities ───────────────────────────── */
+.status-icon-success { background: #10b981; }
+.status-icon-error   { background: #ef4444; }
+.status-icon-warning { background: #f59e0b; }
+.status-icon-neutral { background: #94a3b8; }
+
+/* ── Task Card Utilities ────────────────────────────────────── */
+.task-card { background: white; border: 1px solid #e2e8f0; border-radius: 4px; border-left: 3px solid #94a3b8; overflow: hidden; }
+.task-card-overdue { border-color: #fecaca; }
+.task-card-completed { border-left-color: #16a34a; }
+.task-card-in_progress { border-left-color: #d97706; }
+.task-card-in_review { border-left-color: #7c3aed; }
+.task-card-blocked { border-left-color: #dc2626; }
+.task-stat-card { text-decoration: none; background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; transition: border-color 0.15s; }
+.task-stat-card:hover { border-color: #cbd5e1; }
+.task-stat-active { border-color: #DC143C !important; }
+
+/* ── Divider List ────────────────────────────────────────────── */
+.divider-list > *:not(:last-child) { border-bottom: 1px solid #e2e8f0; }
+
+/* ── Filter Tab Utilities ───────────────────────────────────── */
+.filter-tab-btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; transition: all 0.2s; background: #f1f5f9; color: #64748b; display: inline-block; }
+.filter-tab-btn:hover { background: #e2e8f0; color: #334155; }
+.filter-tab-active { background: #DC143C !important; color: white !important; box-shadow: 0 2px 4px rgba(220,20,60,0.25); }
+.ul-tab { padding: 12px 20px; text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 3px solid transparent; color: #64748b; margin-bottom: -2px; display: inline-block; transition: color 0.15s; }
+.ul-tab:hover { color: #334155; }
+.ul-tab-active { border-bottom-color: #DC143C !important; color: #DC143C !important; }
+
+/* ── Text Color Utilities ───────────────────────────────────── */
+.text-success { color: #059669; }
+.text-error   { color: #dc2626; }
+.text-warning { color: #d97706; }
+.text-info    { color: #2563eb; }
+.text-muted   { color: #64748b; }
+.text-crimson { color: #DC143C; }

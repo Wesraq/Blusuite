@@ -24,7 +24,7 @@
 <!-- Key Financial Metrics -->
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
         <div class="stat-details">
             <h3>{{ monthly_payroll|floatformat:0|default:0 }}</h3>
             <p>Monthly Payroll</p>
@@ -52,7 +52,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="stat-details">
             <h3>{{ active_employees|default:0 }}</h3>
             <p>Active Employees</p>
@@ -61,46 +61,40 @@
 </div>
 
     <!-- Quick Actions -->
+    <style>
+    .fin-ops-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    @media (max-width: 1024px) { .fin-ops-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px)  { .fin-ops-grid { grid-template-columns: repeat(2, 1fr); } }
+    .fin-op-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; text-decoration: none; transition: all 0.18s; gap: 8px; }
+    .fin-op-card:hover { background: #eff6ff; border-color: #93c5fd; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(29,78,216,0.10); }
+    .fin-op-card span { font-size: 12px; font-weight: 600; color: #0f172a; text-align: center; line-height: 1.3; }
+    </style>
     <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-        <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 18px; font-weight: 600;">Finance Operations</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
-            <a href="{% url 'payroll_list' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" fill="#1d4ed8" style="margin-bottom: 8px;">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
-                    <path d="M8.5 7.5h1.586a.5.5 0 0 1 0 1H8.5v1h1.586a.5.5 0 0 1 0 1H8.5V12h-.5v-1.5H6.414a.5.5 0 0 1 0-1H8V8H6.414a.5.5 0 0 1 0-1H8V5.5h.5V7z"/>
-                </svg>
-                <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Payroll Management</div>
+        <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 16px; font-weight: 600;">Finance Operations</h3>
+        <div class="fin-ops-grid">
+            <a href="{% url 'payroll_list' %}" class="fin-op-card">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <span>Payroll Management</span>
             </a>
-            <a href="{% url 'benefits_list' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" fill="#1d4ed8" style="margin-bottom: 8px;">
-                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                </svg>
-                <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Benefits</div>
+            <a href="{% url 'benefits_list' %}" class="fin-op-card">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span>Benefits</span>
             </a>
-            <a href="{% url 'reports_center' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" fill="#1d4ed8" style="margin-bottom: 8px;">
-                    <path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm5 8h-2v4h2v-4z"/>
-                </svg>
-                <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Financial Reports</div>
+            <a href="{% url 'reports_center' %}" class="fin-op-card">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Financial Reports</span>
             </a>
-            <a href="{% url 'payroll_list' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="1.5" style="margin-bottom: 8px;">
-                    <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-                <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Salary Settings</div>
+            <a href="{% url 'finance_policy_settings' %}" class="fin-op-card">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 2.82 1.17l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Salary Settings</span>
             </a>
-            <a href="{% url 'payroll_list' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="1.5" style="margin-bottom: 8px;">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Employee Salaries</div>
+            <a href="{% url 'employee_salary_list' %}" class="fin-op-card">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Employee Salaries</span>
             </a>
-            <a href="{% url 'analytics_dashboard_view' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" fill="#1d4ed8" style="margin-bottom: 8px;">
-                    <path d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/>
-                </svg>
-                <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Analytics</div>
+            <a href="{% url 'financial_analytics' %}" class="fin-op-card">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>Analytics</span>
             </a>
         </div>
     </div>
@@ -110,7 +104,7 @@
         <!-- Payroll Overview -->
         <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
             <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                <svg width="20" height="20" fill="#1d4ed8">
+                <svg width="20" height="20" fill="#DC143C">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                     <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
                     <path d="M8.5 7.5h1.586a.5.5 0 0 1 0 1H8.5v1h1.586a.5.5 0 0 1 0 1H8.5V12h-.5v-1.5H6.414a.5.5 0 0 1 0-1H8V8H6.414a.5.5 0 0 1 0-1H8V5.5h.5V7z"/>
@@ -119,7 +113,7 @@
             </h3>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
                 <div style="text-align: center; padding: 16px; background: #f0fdfa; border-radius: 8px;">
-                    <div style="font-size: 24px; font-weight: 700; color: #1d4ed8;">{{ total_payrolls|default:0 }}</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #DC143C;">{{ total_payrolls|default:0 }}</div>
                     <div style="font-size: 12px; color: #64748b;">Total Payrolls</div>
                 </div>
                 <div style="text-align: center; padding: 16px; background: #d1fae5; border-radius: 8px;">
@@ -135,7 +129,7 @@
                     <div style="font-size: 12px; color: #475569;">Draft</div>
                 </div>
             </div>
-            <a href="{% url 'payroll_list' %}" style="display: block; text-align: center; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #1d4ed8; font-weight: 600;">
+            <a href="{% url 'payroll_list' %}" style="display: block; text-align: center; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #DC143C; font-weight: 600;">
                 View All Payrolls →
             </a>
         </div>
@@ -143,7 +137,7 @@
         <!-- Financial Summary -->
         <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
             <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                <svg width="20" height="20" fill="#1d4ed8">
+                <svg width="20" height="20" fill="#DC143C">
                     <path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm5 8h-2v4h2v-4z"/>
                 </svg>
                 Financial Summary
@@ -184,7 +178,7 @@
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 {% if recent_payrolls %}
                     {% for payroll in recent_payrolls %}
-                    <div style="padding: 12px; background: #f8fafc; border-left: 3px solid #1d4ed8; border-radius: 4px;">
+                    <div style="padding: 12px; background: #f8fafc; border-left: 3px solid #DC143C; border-radius: 4px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                             <span style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ payroll.period_start|date:"M Y" }}</span>
                             <span style="padding: 2px 8px; background: {% if payroll.status == 'PAID' %}#d1fae5{% elif payroll.status == 'PENDING_APPROVAL' %}#fef3c7{% else %}#f1f5f9{% endif %}; color: {% if payroll.status == 'PAID' %}#065f46{% elif payroll.status == 'PENDING_APPROVAL' %}#92400e{% else %}#475569{% endif %}; border-radius: 12px; font-size: 11px; font-weight: 600;">
@@ -209,7 +203,7 @@
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; justify-content: space-between; padding: 12px; background: #f0fdfa; border-radius: 8px;">
                     <span style="font-size: 14px; color: #64748b;">Active Enrollments</span>
-                    <span style="font-size: 18px; font-weight: 700; color: #1d4ed8;">{{ active_benefits|default:0 }}</span>
+                    <span style="font-size: 18px; font-weight: 700; color: #DC143C;">{{ active_benefits|default:0 }}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 12px; background: #f8fafc; border-radius: 8px;">
                     <span style="font-size: 14px; color: #64748b;">Company Contribution</span>
@@ -285,7 +279,7 @@ a[href*="employer_employee_management"]:hover,
 a[href*="analytics_dashboard_view"]:hover {
     transform: translateY(-4px) !important;
     box-shadow: 0 8px 24px rgba(0, 128, 128, 0.15) !important;
-    border-color: #1d4ed8 !important;
+    border-color: #DC143C !important;
     background: #f0fdfa !important;
 }
 
@@ -309,7 +303,7 @@ a[href] {
 
 /* Focus states for accessibility */
 a[href]:focus {
-    outline: 2px solid #1d4ed8;
+    outline: 2px solid #DC143C;
     outline-offset: 2px;
 }
 </style>

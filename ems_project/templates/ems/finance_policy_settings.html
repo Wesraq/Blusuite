@@ -1,0 +1,115 @@
+﻿{% extends base_template|default:'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Finance Policy Settings - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<style>
+.fp-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:28px 32px; margin-bottom:24px; }
+.fp-section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#94a3b8; border-bottom:1px solid #f1f5f9; padding-bottom:8px; margin:0 0 18px; }
+.fp-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
+.fp-field { display:flex; flex-direction:column; gap:5px; }
+.fp-field label { font-size:12px; font-weight:600; color:#374151; }
+.fp-field .fp-help { font-size:11px; color:#94a3b8; margin-top:2px; }
+.fp-field input { border:1px solid #e2e8f0; border-radius:7px; padding:9px 12px; font-size:13px; color:#0f172a; background:#fff; font-family:inherit; transition:border-color .15s; }
+.fp-field input:focus { border-color:#DC143C; outline:none; box-shadow:0 0 0 3px rgba(220,20,60,.08); }
+.fp-prefix-wrap { position:relative; }
+.fp-prefix-wrap span { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:13px; color:#64748b; pointer-events:none; }
+.fp-prefix-wrap input { padding-left:30px; }
+.fp-suffix-wrap { position:relative; }
+.fp-suffix-wrap span { position:absolute; right:11px; top:50%; transform:translateY(-50%); font-size:13px; color:#64748b; pointer-events:none; }
+.fp-suffix-wrap input { padding-right:28px; }
+@media(max-width:640px){ .fp-card{padding:18px 16px;} }
+</style>
+
+<div class="page-header">
+    <div>
+        <h2>Finance &amp; Payroll Policy</h2>
+        <p>Configure advance limits, deduction rates, and request thresholds for your company</p>
+    </div>
+</div>
+
+{% if messages %}
+<div style="margin-top:16px;">
+    {% for message in messages %}
+    <div style="padding:12px 16px;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:10px;font-size:13px;
+        {% if message.tags == 'success' %}background:#d1fae5;color:#065f46;border:1px solid #86efac;
+        {% elif message.tags == 'error' %}background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;
+        {% else %}background:#fce7f3;color:#DC143C;border:1px solid #93c5fd;{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="post" style="margin-top:24px;">
+    {% csrf_token %}
+
+    <!-- Salary Advance -->
+    <div class="fp-card">
+        <div class="fp-section-title">Salary Advance Policy</div>
+        <div class="fp-grid">
+            <div class="fp-field">
+                <label>Max Advance (% of Gross Salary)</label>
+                <div class="fp-suffix-wrap">
+                    <input type="number" name="advance_max_percentage" value="{{ policy.advance_max_percentage }}" min="0" max="100" step="0.01" required>
+                    <span>%</span>
+                </div>
+                <span class="fp-help">Employees can request up to this percentage of their monthly gross salary</span>
+            </div>
+            <div class="fp-field">
+                <label>Default Repayment Period</label>
+                <div class="fp-suffix-wrap">
+                    <input type="number" name="advance_repayment_months" value="{{ policy.advance_repayment_months }}" min="1" max="24" step="1" required>
+                    <span>mo</span>
+                </div>
+                <span class="fp-help">Default number of months for advance repayment</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Limits -->
+    <div class="fp-card">
+        <div class="fp-section-title">Request Amount Limits</div>
+        <div class="fp-grid">
+            <div class="fp-field">
+                <label>Max Petty Cash per Request</label>
+                <input type="number" name="max_petty_cash_amount" value="{{ policy.max_petty_cash_amount }}" min="0" step="0.01" required>
+                <span class="fp-help">Single petty cash request ceiling</span>
+            </div>
+            <div class="fp-field">
+                <label>Max Reimbursement per Request</label>
+                <input type="number" name="max_reimbursement_amount" value="{{ policy.max_reimbursement_amount }}" min="0" step="0.01" required>
+                <span class="fp-help">Single expense reimbursement ceiling</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overtime -->
+    <div class="fp-card">
+        <div class="fp-section-title">Overtime Policy</div>
+        <div class="fp-grid">
+            <div class="fp-field">
+                <label>Overtime Rate Multiplier</label>
+                <div class="fp-suffix-wrap">
+                    <input type="number" name="overtime_rate_multiplier" value="{{ policy.overtime_rate_multiplier }}" min="1" max="5" step="0.01" required>
+                    <span>×</span>
+                </div>
+                <span class="fp-help">1.5 = 150% of normal hourly rate for overtime hours</span>
+            </div>
+        </div>
+    </div>
+
+    {% if policy.updated_at %}
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:16px;">Last updated: {{ policy.updated_at|date:"M d, Y H:i" }}</p>
+    {% endif %}
+
+    <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:5px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Policy
+        </button>
+        <a href="{% url 'finance_policy_settings' %}" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+{% endblock %}

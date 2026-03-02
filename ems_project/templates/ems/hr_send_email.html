@@ -1,4 +1,4 @@
-{% extends 'ems/base_employee.html' %}
+﻿{% extends 'ems/base_employee.html' %}
 {% load static %}
 
 {% block title %}HR Send Email{% endblock %}
@@ -37,7 +37,7 @@
                 {% if emp.profile_picture %}
                     <img src="{{ emp.profile_picture.url }}" alt="{{ emp.get_full_name }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">
                 {% else %}
-                    <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#60a5fa); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#DC143C,#60a5fa); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">
                         {{ emp.first_name|slice:':1' }}{{ emp.last_name|slice:':1' }}
                     </div>
                 {% endif %}

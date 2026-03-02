@@ -1,0 +1,633 @@
+/* ================================================================
+   BLU SUITE — 4-THEME SYSTEM
+   Themes: company-light | company-dark | default-light | default-dark
+   Applied via data-theme attribute on <html>
+   ================================================================ */
+
+/* ── 1. Surface / text tokens ────────────────────────────────── */
+html[data-theme="company-light"],
+html[data-theme="default-light"],
+html.theme-light {
+    --t-bg:      #f0f2f5;
+    --t-surface: #ffffff;
+    --t-surf2:   #f8fafc;
+    --t-input:   #ffffff;
+    --t-text:    #0f172a;
+    --t-soft:    #475569;
+    --t-muted:   #94a3b8;
+    --t-border:  #e2e8f0;
+    --t-row:     #f8fafc;
+    --t-shadow:  0 1px 3px rgba(0,0,0,.08);
+}
+
+html[data-theme="company-dark"],
+html[data-theme="default-dark"] {
+    --t-bg:      #0d1117;
+    --t-surface: #161b22;
+    --t-surf2:   #1c2128;
+    --t-input:   #1c2128;
+    --t-text:    #e6edf3;
+    --t-soft:    #8b949e;
+    --t-muted:   #484f58;
+    --t-border:  #30363d;
+    --t-row:     #1c2128;
+    --t-shadow:  0 4px 20px rgba(0,0,0,.4);
+}
+
+/* ── 2. Default-theme BLU blue accent overrides ──────────────── */
+html[data-theme="default-light"],
+html[data-theme="default-dark"] {
+    --company-button:      #2563eb;
+    --company-primary:     #1e3a8a;
+    --company-card-header: #1e3a8a;
+    --company-secondary:   #60a5fa;
+}
+
+/* ── 3. Page background ──────────────────────────────────────── */
+body,
+.main-content {
+    background: var(--t-bg, #f0f2f5) !important;
+    color: var(--t-text, #0f172a);
+    transition: background .25s, color .2s;
+}
+
+/* ── 4. Sidebar + header for DEFAULT themes ──────────────────── */
+html[data-theme="default-dark"] .top-header,
+html[data-theme="default-dark"] .sidebar,
+html[data-theme="default-dark"] .sidebar-header {
+    background: #1e293b !important;
+    border: none !important;
+}
+html[data-theme="default-dark"] .top-header *,
+html[data-theme="default-dark"] .top-header svg,
+html[data-theme="default-dark"] .sidebar-toggle-btn svg {
+    color: rgba(255,255,255,.9) !important;
+    stroke: rgba(255,255,255,.9) !important;
+}
+
+html[data-theme="default-light"] .top-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+html[data-theme="default-light"] .top-header *,
+html[data-theme="default-light"] .top-header svg,
+html[data-theme="default-light"] .sidebar-toggle-btn svg {
+    color: rgba(0,0,0,.75) !important;
+    stroke: rgba(0,0,0,.75) !important;
+}
+html[data-theme="default-light"] .sidebar,
+html[data-theme="default-light"] .sidebar-header {
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+html[data-theme="default-light"] .nav-link            { color: rgba(0,0,0,.7) !important; }
+html[data-theme="default-light"] .nav-link svg        { stroke: rgba(0,0,0,.7) !important; }
+html[data-theme="default-light"] .sidebar-title       { color: #111 !important; }
+html[data-theme="default-dark"]  .nav-link            { color: rgba(255,255,255,.8) !important; }
+html[data-theme="default-dark"]  .nav-link svg        { stroke: rgba(255,255,255,.8) !important; }
+
+html[data-theme="default-light"] .nav-link.active,
+html[data-theme="default-dark"]  .nav-link.active     { background: #DC143C !important; color: #fff !important; }
+html[data-theme="default-light"] .nav-link.active svg,
+html[data-theme="default-dark"]  .nav-link.active svg { stroke: #fff !important; }
+
+/* Default theme primary button — brand crimson */
+html[data-theme="default-light"] .btn:not(.btn-secondary):not(.btn-danger):not(.btn-warning):not(.btn-success):not(.btn-destructive),
+html[data-theme="default-dark"]  .btn:not(.btn-secondary):not(.btn-danger):not(.btn-warning):not(.btn-success):not(.btn-destructive) {
+    background: #DC143C !important;
+    border-color: #DC143C !important;
+}
+
+/* ── 5. DARK MODE: content-area surfaces ─────────────────────── */
+html[data-theme*="-dark"] .content-card,
+html[data-theme*="-dark"] .stat-card,
+html[data-theme*="-dark"] .section-card,
+html[data-theme*="-dark"] .welcome-card,
+html[data-theme*="-dark"] .filters-card,
+html[data-theme*="-dark"] .dashboard-card {
+    background: var(--t-surface) !important;
+    border-color: var(--t-border) !important;
+    box-shadow: var(--t-shadow) !important;
+}
+html[data-theme*="-dark"] .page-header        { border-color: var(--t-border) !important; }
+html[data-theme*="-dark"] .page-title,
+html[data-theme*="-dark"] .card-title         { color: var(--t-text) !important; }
+html[data-theme*="-dark"] .page-subtitle,
+html[data-theme*="-dark"] .card-subtitle      { color: var(--t-soft) !important; }
+html[data-theme*="-dark"] .card-header        { border-color: var(--t-border) !important; }
+
+/* ── 6. DARK MODE: tables ────────────────────────────────────── */
+html[data-theme*="-dark"] table th {
+    background: var(--t-surf2) !important;
+    color: var(--t-soft) !important;
+    border-color: var(--t-border) !important;
+}
+html[data-theme*="-dark"] table td {
+    color: var(--t-text) !important;
+    border-color: var(--t-border) !important;
+}
+html[data-theme*="-dark"] table tbody tr:hover { background: var(--t-row) !important; }
+
+/* ── 7. DARK MODE: form controls ─────────────────────────────── */
+html[data-theme*="-dark"] .page-content input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=range]):not([type=color]),
+html[data-theme*="-dark"] .page-content select,
+html[data-theme*="-dark"] .page-content textarea {
+    background: var(--t-input) !important;
+    color: var(--t-text) !important;
+    border-color: var(--t-border) !important;
+}
+html[data-theme*="-dark"] .page-content input::placeholder,
+html[data-theme*="-dark"] .page-content textarea::placeholder { color: var(--t-muted) !important; }
+
+/* ── 8. DARK MODE: override inline white/light backgrounds ──────
+   Most common hardcoded bg values in templates                  */
+html[data-theme*="-dark"] .page-content [style*="background: white"],
+html[data-theme*="-dark"] .page-content [style*="background:white"],
+html[data-theme*="-dark"] .page-content [style*="background: #fff"],
+html[data-theme*="-dark"] .page-content [style*="background:#fff"],
+html[data-theme*="-dark"] .page-content [style*="background: #ffffff"],
+html[data-theme*="-dark"] .page-content [style*="background:#ffffff"],
+html[data-theme*="-dark"] .page-content [style*="background: #f8fafc"],
+html[data-theme*="-dark"] .page-content [style*="background:#f8fafc"],
+html[data-theme*="-dark"] .page-content [style*="background: #f9fafb"],
+html[data-theme*="-dark"] .page-content [style*="background:#f9fafb"],
+html[data-theme*="-dark"] .page-content [style*="background: #f1f5f9"],
+html[data-theme*="-dark"] .page-content [style*="background:#f1f5f9"],
+html[data-theme*="-dark"] .page-content [style*="background: #f0f2f5"],
+html[data-theme*="-dark"] .page-content [style*="background-color: white"],
+html[data-theme*="-dark"] .page-content [style*="background-color: #fff"],
+html[data-theme*="-dark"] .page-content [style*="background-color: #ffffff"],
+html[data-theme*="-dark"] .page-content [style*="background-color: #f8fafc"],
+html[data-theme*="-dark"] .page-content [style*="background-color: #f9fafb"],
+html[data-theme*="-dark"] .page-content [style*="background-color: #f1f5f9"],
+html[data-theme*="-dark"] .page-content [style*="background: linear-gradient(to right, #f8fafc"],
+html[data-theme*="-dark"] .page-content [style*="background: linear-gradient(135deg, #f8fafc"] {
+    background: var(--t-surface) !important;
+}
+
+/* ── 9. DARK MODE: override inline dark text ─────────────────── */
+html[data-theme*="-dark"] .page-content [style*="color: #0f172a"],
+html[data-theme*="-dark"] .page-content [style*="color:#0f172a"],
+html[data-theme*="-dark"] .page-content [style*="color: #1e293b"],
+html[data-theme*="-dark"] .page-content [style*="color:#1e293b"],
+html[data-theme*="-dark"] .page-content [style*="color: #374151"],
+html[data-theme*="-dark"] .page-content [style*="color:#374151"],
+html[data-theme*="-dark"] .page-content [style*="color: #111827"],
+html[data-theme*="-dark"] .page-content [style*="color: #1f2937"] {
+    color: var(--t-text) !important;
+}
+html[data-theme*="-dark"] .page-content [style*="color: #64748b"],
+html[data-theme*="-dark"] .page-content [style*="color:#64748b"],
+html[data-theme*="-dark"] .page-content [style*="color: #6b7280"],
+html[data-theme*="-dark"] .page-content [style*="color: #9ca3af"] {
+    color: var(--t-soft) !important;
+}
+
+/* ── 10. DARK MODE: override inline borders ──────────────────── */
+html[data-theme*="-dark"] .page-content [style*="border: 1px solid #e2e8f0"],
+html[data-theme*="-dark"] .page-content [style*="border:1px solid #e2e8f0"],
+html[data-theme*="-dark"] .page-content [style*="border: 1px solid #e5e7eb"],
+html[data-theme*="-dark"] .page-content [style*="border:1px solid #e5e7eb"],
+html[data-theme*="-dark"] .page-content [style*="border-bottom: 1px solid #e2e8f0"],
+html[data-theme*="-dark"] .page-content [style*="border-top: 1px solid #e2e8f0"],
+html[data-theme*="-dark"] .page-content [style*="border-left: 3px solid #e2e8f0"] {
+    border-color: var(--t-border) !important;
+}
+
+/* ── 11. Modals in dark mode ─────────────────────────────────── */
+html[data-theme*="-dark"] [id$="Modal"],
+html[data-theme*="-dark"] [id*="modal"] {
+    background: rgba(0,0,0,.65) !important;
+}
+html[data-theme*="-dark"] .modal-content,
+html[data-theme*="-dark"] [id$="Modal"] > div,
+html[data-theme*="-dark"] [id*="modal"] > div {
+    background: var(--t-surface) !important;
+    border-color: var(--t-border) !important;
+    color: var(--t-text) !important;
+}
+
+/* ── 12. Scrollbar theming ───────────────────────────────────── */
+html[data-theme*="-dark"] ::-webkit-scrollbar          { width: 6px; height: 6px; }
+html[data-theme*="-dark"] ::-webkit-scrollbar-track    { background: var(--t-bg); }
+html[data-theme*="-dark"] ::-webkit-scrollbar-thumb    { background: var(--t-border); border-radius: 3px; }
+html[data-theme*="-dark"] ::-webkit-scrollbar-thumb:hover { background: var(--t-soft); }
+
+/* ── 13. DARK MODE: override company text-colour rules ──────────
+   Company CSS uses !important on .main-content p/span/label etc.
+   Adding html[data-theme*="-dark"] prefix raises specificity above it.  */
+html[data-theme*="-dark"] .main-content p:not(.status):not(.badge),
+html[data-theme*="-dark"] .main-content label:not(.status):not(.badge),
+html[data-theme*="-dark"] .main-content td:not(.status):not(.badge),
+html[data-theme*="-dark"] .main-content th,
+html[data-theme*="-dark"] .main-content .card-content,
+html[data-theme*="-dark"] .main-content .form-hint,
+html[data-theme*="-dark"] .main-content span:not(.status):not(.badge):not(.welcome-text),
+html[data-theme*="-dark"] .content-card p,
+html[data-theme*="-dark"] .content-card label,
+html[data-theme*="-dark"] .content-card td,
+html[data-theme*="-dark"] .content-card th { color: var(--t-text, #e6edf3) !important; }
+
+/* Headings are not targeted by company CSS but may inherit dark defaults */
+html[data-theme*="-dark"] .page-content h1,
+html[data-theme*="-dark"] .page-content h2,
+html[data-theme*="-dark"] .page-content h3,
+html[data-theme*="-dark"] .page-content h4,
+html[data-theme*="-dark"] .page-content h5,
+html[data-theme*="-dark"] .page-content h6 { color: var(--t-text, #e6edf3) !important; }
+
+/* universal.css card/page title colours */
+html[data-theme*="-dark"] .page-title,
+html[data-theme*="-dark"] .card-title  { color: var(--t-text, #e6edf3) !important; }
+html[data-theme*="-dark"] .page-subtitle,
+html[data-theme*="-dark"] .card-subtitle,
+html[data-theme*="-dark"] .main-content .form-hint { color: var(--t-soft, #8b949e) !important; }
+
+/* Ensure body & layout wrappers propagate the right base colour */
+html[data-theme*="-dark"] .page-content { color: var(--t-text, #e6edf3); }
+html[data-theme*="-dark"] .main-content { color: var(--t-text, #e6edf3) !important; }
+
+/* ── 15. DARK MODE: sidebar logo + tab buttons + global inline ──
+   These elements are outside .page-content or use class-based CSS
+   that the earlier scoped rules don't reach.                     */
+
+/* Sidebar logo image has background:#fff baked in (base.html) */
+html[data-theme*="-dark"] .sidebar-logo-img {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+/* Sidebar header / brand inline colour:#0f172a text */
+html[data-theme*="-dark"] .sidebar-header [style*="color: #0f172a"],
+html[data-theme*="-dark"] .sidebar-header [style*="color:#0f172a"],
+html[data-theme*="-dark"] .sidebar-brand  [style*="color: #0f172a"],
+html[data-theme*="-dark"] .sidebar-brand  [style*="color:#0f172a"] {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+/* Dashboard tab buttons – template <style> uses background:#f1f5f9 */
+html[data-theme*="-dark"] .dash-tab-btn:not(.active) {
+    background: var(--t-surf2) !important;
+    color:      var(--t-soft)  !important;
+    border:     1px solid var(--t-border) !important;
+}
+html[data-theme*="-dark"] .dash-tab-btn:not(.active):hover {
+    background: var(--t-surface) !important;
+    color:      var(--t-text)    !important;
+}
+
+/* Generic class-based light backgrounds not covered by section 5 */
+html[data-theme*="-dark"] .bg-white,
+html[data-theme*="-dark"] .bg-light,
+html[data-theme*="-dark"] .card,
+html[data-theme*="-dark"] .panel  { background: var(--t-surface) !important; border-color: var(--t-border) !important; }
+
+/* .btn-secondary uses #f1f5f9 */
+html[data-theme*="-dark"] .btn-secondary {
+    background:   var(--t-surf2)  !important;
+    color:        var(--t-text)   !important;
+    border-color: var(--t-border) !important;
+}
+
+/* GLOBAL inline-style overrides – broaden beyond .page-content
+   so they catch dashboard cards, sidebar sub-areas, etc.        */
+html[data-theme*="-dark"] [style*="background: white"]:not([class*="status"]):not([class*="badge"]):not(.sidebar-logo-block),
+html[data-theme*="-dark"] [style*="background:white"]:not([class*="status"]):not([class*="badge"]):not(.sidebar-logo-block),
+html[data-theme*="-dark"] [style*="background: #fff;"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background: #ffffff"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background: #f8fafc"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background: #f9fafb"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background: #f1f5f9"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background-color: white"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background-color: #fff"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background-color: #ffffff"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background-color: #f8fafc"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background-color: #f9fafb"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="background-color: #f1f5f9"]:not([class*="status"]):not([class*="badge"]) {
+    background: var(--t-surface) !important;
+}
+
+/* Global inline dark-text overrides (sidebar + any other container) */
+html[data-theme*="-dark"] [style*="color: #0f172a"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="color:#0f172a"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="color: #1e293b"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="color:#1e293b"]:not([class*="status"]):not([class*="badge"]),
+html[data-theme*="-dark"] [style*="color: #374151"]:not([class*="status"]):not([class*="badge"]) {
+    color: var(--t-text) !important;
+}
+
+/* Global inline border overrides */
+html[data-theme*="-dark"] [style*="border: 1px solid #e2e8f0"],
+html[data-theme*="-dark"] [style*="border:1px solid #e2e8f0"],
+html[data-theme*="-dark"] [style*="border-bottom: 1px solid #e2e8f0"],
+html[data-theme*="-dark"] [style*="border-top: 1px solid #e2e8f0"],
+html[data-theme*="-dark"] [style*="border-left: 1px solid #e2e8f0"],
+html[data-theme*="-dark"] [style*="border: 1px solid #e5e7eb"],
+html[data-theme*="-dark"] [style*="border-bottom: 1px solid #e5e7eb"] {
+    border-color: var(--t-border) !important;
+}
+
+/* ── 16. NUCLEAR DARK MODE: explicit backgrounds on all layout ──
+   Belt-and-suspenders approach: every major layout zone gets an
+   explicit dark background so nothing bleeds through as white.   */
+
+html[data-theme*="-dark"] body,
+html[data-theme*="-dark"] .app-layout,
+html[data-theme*="-dark"] .main-content,
+html[data-theme*="-dark"] .page-content {
+    background: var(--t-bg, #0d1117) !important;
+}
+
+/* Override Tailwind CSS HSL variables so hsl(var(--secondary)) etc.
+   all resolve to dark values instead of near-white                  */
+html[data-theme*="-dark"] {
+    --background:          222.2 84% 4.9%;
+    --foreground:          210 40% 98%;
+    --card:                222.2 84% 4.9%;
+    --card-foreground:     210 40% 98%;
+    --popover:             222.2 84% 4.9%;
+    --popover-foreground:  210 40% 98%;
+    --secondary:           217.2 32.6% 17.5%;
+    --secondary-foreground:210 40% 98%;
+    --muted:               217.2 32.6% 17.5%;
+    --muted-foreground:    215 20.2% 65.1%;
+    --border:              217.2 32.6% 17.5%;
+    --input:               217.2 32.6% 17.5%;
+}
+
+/* btn-secondary uses hsl(var(--secondary)) — now resolves to dark */
+html[data-theme*="-dark"] .btn-secondary {
+    background:   hsl(var(--secondary))           !important;
+    color:        hsl(var(--secondary-foreground)) !important;
+    border-color: hsl(var(--border))               !important;
+}
+
+/* page-header has no explicit bg — force transparent so parent dark shows */
+html[data-theme*="-dark"] .page-header {
+    background: transparent !important;
+    border-bottom-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] .page-header h1,
+html[data-theme*="-dark"] .page-header h2,
+html[data-theme*="-dark"] .page-header h3,
+html[data-theme*="-dark"] .page-header p { color: var(--t-text, #e6edf3) !important; }
+
+/* stats-grid, content wrappers: make sure no white bg bleeds through */
+html[data-theme*="-dark"] .stats-grid,
+html[data-theme*="-dark"] .grid-container,
+html[data-theme*="-dark"] .dashboard-grid { background: transparent !important; }
+
+/* Dashboard tab links (dashboard_tabs.html inline style background:#f1f5f9) */
+html[data-theme*="-dark"] .page-content a[style*="background: #f1f5f9"],
+html[data-theme*="-dark"] .page-content a[style*="background:#f1f5f9"],
+html[data-theme*="-dark"] a[href][style*="background: #f1f5f9"],
+html[data-theme*="-dark"] a[href][style*="background:#f1f5f9"] {
+    background: var(--t-surf2, #1c2128) !important;
+    color:      var(--t-soft, #8b949e)  !important;
+}
+
+/* Sidebar logo: remove white box — just show the image on the gradient block */
+html[data-theme*="-dark"] .sidebar-logo-img {
+    background: transparent !important;
+    border: none !important;
+    padding: 4px !important;
+}
+html[data-theme*="-dark"] .sidebar-logo-block {
+    background: rgba(255,255,255,0.12) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* Sidebar header text in dark mode */
+html[data-theme*="-dark"] .sidebar-header,
+html[data-theme*="-dark"] .sidebar-brand { color: rgba(255,255,255,0.85) !important; }
+
+/* ── 17a. COMPANY-LIGHT: restore brand sidebar/header colours ───
+   theme-light class (added for company-light) whitens sidebar to
+   #fff via html.theme-light .sidebar rule. We counter it with a
+   higher-specificity selector (3 vs 2) that keeps company colours. */
+html[data-theme="company-light"].theme-light .sidebar,
+html[data-theme="company-light"].theme-light .sidebar-header {
+    background: var(--company-primary, #1e293b) !important;
+    border-right: none !important;
+}
+html[data-theme="company-light"].theme-light .top-header {
+    background: var(--company-primary, #1e293b) !important;
+    border-bottom: none !important;
+}
+html[data-theme="company-light"].theme-light .top-header *,
+html[data-theme="company-light"].theme-light .top-header svg,
+html[data-theme="company-light"].theme-light .sidebar-toggle-btn svg {
+    color: rgba(255,255,255,0.9) !important;
+    stroke: rgba(255,255,255,0.9) !important;
+}
+html[data-theme="company-light"].theme-light .nav-link {
+    color: rgba(255,255,255,0.75) !important;
+}
+html[data-theme="company-light"].theme-light .nav-link svg {
+    stroke: rgba(255,255,255,0.75) !important;
+}
+html[data-theme="company-light"].theme-light .nav-link:hover:not(.active) {
+    background: rgba(255,255,255,0.1) !important;
+    color: rgba(255,255,255,0.9) !important;
+}
+html[data-theme="company-light"].theme-light .nav-link:hover:not(.active) svg {
+    stroke: rgba(255,255,255,0.9) !important;
+}
+html[data-theme="company-light"].theme-light .nav-link.active {
+    background: var(--company-button, #E11D48) !important;
+    color: #fff !important;
+}
+html[data-theme="company-light"].theme-light .nav-link.active svg {
+    stroke: #fff !important;
+}
+html[data-theme="company-light"].theme-light .sidebar-title,
+html[data-theme="company-light"].theme-light .sidebar-brand,
+html[data-theme="company-light"].theme-light .nav-section-title {
+    color: rgba(255,255,255,0.5) !important;
+}
+
+/* ── 17b. AMS dark mode: .d-* (dashboard) + .al-* (list pages) ─ */
+html[data-theme*="-dark"] .d-card,
+html[data-theme*="-dark"] .d-stat,
+html[data-theme*="-dark"] .al-card,
+html[data-theme*="-dark"] .al-stat {
+    background: var(--t-surface, #161b22) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] .d-card-h,
+html[data-theme*="-dark"] .al-card-header {
+    background: var(--t-surf2, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] .d-card-t,
+html[data-theme*="-dark"] .d-stat h3,
+html[data-theme*="-dark"] .d-bar-label,
+html[data-theme*="-dark"] .al-card-title,
+html[data-theme*="-dark"] .al-stat-value,
+html[data-theme*="-dark"] .al-name,
+html[data-theme*="-dark"] .al-label,
+html[data-theme*="-dark"] .am-label { color: var(--t-text, #e6edf3) !important; }
+html[data-theme*="-dark"] .d-stat p,
+html[data-theme*="-dark"] .d-stat-sub,
+html[data-theme*="-dark"] .al-stat-label,
+html[data-theme*="-dark"] .al-meta { color: var(--t-soft, #8b949e) !important; }
+html[data-theme*="-dark"] .d-table th,
+html[data-theme*="-dark"] .al-table thead,
+html[data-theme*="-dark"] .al-table th {
+    background: var(--t-surf2, #1c2128) !important;
+    color: var(--t-soft, #8b949e) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] .d-table td,
+html[data-theme*="-dark"] .al-table td {
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .d-table tbody tr:hover,
+html[data-theme*="-dark"] .al-table tbody tr:hover { background: var(--t-row, #1c2128) !important; }
+html[data-theme*="-dark"] .al-input,
+html[data-theme*="-dark"] .am-input {
+    background: var(--t-input, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .al-btn-secondary,
+html[data-theme*="-dark"] .am-btn-outline {
+    background: var(--t-surf2, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .d-bar-track { background: var(--t-surf2, #1c2128) !important; }
+html[data-theme*="-dark"] .d-alert-warning { background: rgba(146,64,14,.25) !important; border-color: rgba(252,211,77,.3) !important; }
+html[data-theme*="-dark"] .d-alert-error   { background: rgba(153,27,27,.25) !important;  border-color: rgba(254,202,202,.3) !important; }
+html[data-theme*="-dark"] .d-alert-info    { background: rgba(30,64,175,.25) !important;  border-color: rgba(191,219,254,.3) !important; }
+html[data-theme*="-dark"] .al-badge-retired,
+html[data-theme*="-dark"] .d-badge-retired { background: var(--t-surf2, #1c2128) !important; color: var(--t-soft, #8b949e) !important; }
+
+/* ── 17c. PMS dark mode: .control-* and .attendance-table ────── */
+html[data-theme*="-dark"] .control-input {
+    background: var(--t-input, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .control-input::placeholder { color: var(--t-muted, #484f58) !important; }
+html[data-theme*="-dark"] .control-label { color: var(--t-soft, #8b949e) !important; }
+html[data-theme*="-dark"] .filter-group label { color: var(--t-soft, #8b949e) !important; }
+html[data-theme*="-dark"] .attendance-table thead th,
+html[data-theme*="-dark"] .attendance-table th {
+    background: var(--t-surf2, #1c2128) !important;
+    color: var(--t-soft, #8b949e) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] .attendance-table td {
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .attendance-table tbody tr:hover { background: var(--t-row, #1c2128) !important; }
+
+/* ── 18. UNIVERSAL substring-class dark overrides ────────────
+   Covers ALL template-scoped prefixes (rc-, ar-, ard-, ra-, af-,
+   dd-, am-, al-, d- etc.) without listing each one explicitly.
+   Exceptions: badge classes, primary coloured buttons are left. */
+
+/* Card containers */
+html[data-theme*="-dark"] [class$="-card"],
+html[data-theme*="-dark"] [class*="-card "]:not([class*="badge"]):not([class*="doc-card"]),
+html[data-theme*="-dark"] [class*=" -card"]:not([class*="badge"]) {
+    background: var(--t-surface, #161b22) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+/* Simpler targeted card rules for known prefixes */
+html[data-theme*="-dark"] .rc-card, html[data-theme*="-dark"] .ar-card,
+html[data-theme*="-dark"] .ard-card, html[data-theme*="-dark"] .ra-card,
+html[data-theme*="-dark"] .af-card, html[data-theme*="-dark"] .dd-card,
+html[data-theme*="-dark"] .dd-stat, html[data-theme*="-dark"] .maintenance-card {
+    background: var(--t-surface, #161b22) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] .rc-card-header, html[data-theme*="-dark"] .ar-card-header,
+html[data-theme*="-dark"] .ard-card-header, html[data-theme*="-dark"] .ra-card-header,
+html[data-theme*="-dark"] .af-card-header, html[data-theme*="-dark"] .dd-card-header {
+    background: var(--t-surf2, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] .rc-card-title, html[data-theme*="-dark"] .ar-card-title,
+html[data-theme*="-dark"] .ard-card-title, html[data-theme*="-dark"] .ra-card-title,
+html[data-theme*="-dark"] .af-card-title, html[data-theme*="-dark"] .dd-card-title,
+html[data-theme*="-dark"] .dd-stat-value, html[data-theme*="-dark"] .ard-value,
+html[data-theme*="-dark"] .ra-field-value {
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .ard-label, html[data-theme*="-dark"] .ra-field-label,
+html[data-theme*="-dark"] .rc-hint, html[data-theme*="-dark"] .dd-stat-label,
+html[data-theme*="-dark"] .dd-stat-hint {
+    color: var(--t-soft, #8b949e) !important;
+}
+
+/* Secondary / outline buttons */
+html[data-theme*="-dark"] .rc-btn-secondary, html[data-theme*="-dark"] .ar-btn-secondary,
+html[data-theme*="-dark"] .ard-btn-secondary, html[data-theme*="-dark"] .ra-btn-secondary,
+html[data-theme*="-dark"] .af-btn-secondary, html[data-theme*="-dark"] .dd-btn-secondary {
+    background: var(--t-surf2, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+
+/* Tables */
+html[data-theme*="-dark"] .ar-table thead, html[data-theme*="-dark"] .dd-table thead,
+html[data-theme*="-dark"] .ar-table th, html[data-theme*="-dark"] .dd-table th {
+    background: var(--t-surf2, #1c2128) !important;
+    color: var(--t-soft, #8b949e) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] .ar-table td, html[data-theme*="-dark"] .dd-table td {
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .ar-table tbody tr:hover,
+html[data-theme*="-dark"] .dd-table tbody tr:hover { background: var(--t-row, #1c2128) !important; }
+
+/* Tabs */
+html[data-theme*="-dark"] .ar-tabs { border-color: var(--t-border, #30363d) !important; }
+html[data-theme*="-dark"] .ar-tab { color: var(--t-soft, #8b949e) !important; }
+html[data-theme*="-dark"] .ar-tab:hover { color: var(--t-text, #e6edf3) !important; }
+
+/* Form inputs */
+html[data-theme*="-dark"] .rc-input, html[data-theme*="-dark"] .ra-input,
+html[data-theme*="-dark"] .af-group input, html[data-theme*="-dark"] .af-group select,
+html[data-theme*="-dark"] .af-group textarea {
+    background: var(--t-input, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .rc-label, html[data-theme*="-dark"] .ra-label,
+html[data-theme*="-dark"] .af-group label {
+    color: var(--t-text, #e6edf3) !important;
+}
+
+/* Status badges — keep coloured backgrounds but improve dark-mode contrast */
+html[data-theme*="-dark"] .ard-badge-pending, html[data-theme*="-dark"] .ar-badge-pending { background: rgba(146,64,14,.3) !important; color: #fbbf24 !important; }
+html[data-theme*="-dark"] .ard-badge-approved, html[data-theme*="-dark"] .ar-badge-approved { background: rgba(22,101,52,.3) !important; color: #4ade80 !important; }
+html[data-theme*="-dark"] .ard-badge-rejected, html[data-theme*="-dark"] .ar-badge-rejected { background: rgba(153,27,27,.3) !important; color: #f87171 !important; }
+html[data-theme*="-dark"] .ard-badge-fulfilled { background: rgba(30,64,175,.3) !important; color: #93c5fd !important; }
+html[data-theme*="-dark"] .ard-badge-low { background: rgba(100,116,139,.15) !important; color: #94a3b8 !important; }
+html[data-theme*="-dark"] .ard-badge-medium { background: rgba(146,64,14,.3) !important; color: #fbbf24 !important; }
+html[data-theme*="-dark"] .ard-badge-high { background: rgba(154,52,18,.3) !important; color: #fb923c !important; }
+html[data-theme*="-dark"] .ard-badge-urgent { background: rgba(153,27,27,.3) !important; color: #f87171 !important; }
+
+/* Progress bar track */
+html[data-theme*="-dark"] .dd-progress-track { background: var(--t-surf2, #1c2128) !important; }
+
+/* ── 14. Theme picker panel theming ─────────────────────────── */
+html[data-theme*="-light"] #theme-picker-panel {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+html[data-theme*="-dark"] #theme-picker-panel {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e6edf3 !important;
+}
+html[data-theme*="-dark"] #theme-picker-panel .tp-label {
+    color: #64748b !important;
+}

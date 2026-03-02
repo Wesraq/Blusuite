@@ -961,7 +961,7 @@ def asset_request_list(request):
             requests_list = AssetRequest.objects.none()
         view_scope = 'all'
         
-    elif hasattr(user, 'employee_profile') and user.employee_profile.employee_type == 'HR':
+    elif hasattr(user, 'employee_profile') and user.employee_profile.employee_role == 'HR':
         # HR sees all requests, especially those pending HR approval
         if company:
             requests_list = AssetRequest.objects.filter(department__company=company)
@@ -1264,7 +1264,7 @@ def asset_request_detail(request, request_id):
         if user_dept == asset_request.department and user.role in ['DEPARTMENT_MANAGER', 'SUPERVISOR']:
             can_view = True
         # HR can view all requests
-        if user.employee_profile.employee_type == 'HR':
+        if user.employee_profile.employee_role == 'HR':
             can_view = True
     
     if not can_view:
@@ -1330,7 +1330,7 @@ def department_asset_dashboard(request):
     # Admins can view all departments; managers/supervisors see their own
     if user.role in ['SUPERADMIN', 'ADMINISTRATOR', 'EMPLOYER_ADMIN']:
         # Admin: show all departments, pick first or use query param
-        from accounts.models import CompanyDepartment
+        from blu_staff.apps.accounts.models import CompanyDepartment
         dept_id = request.GET.get('department')
         if dept_id:
             user_dept = CompanyDepartment.objects.filter(id=dept_id, company=company).first()

@@ -11,9 +11,8 @@
     Leave Management
 {% elif request.resolver_match.url_name == 'documents_list' %}
     Documents
-{# PERFORMANCE MODULE DISABLED #}
-{# {% elif request.resolver_match.url_name == 'performance_reviews_list' %} #}
-{#     Performance Reviews #}
+{% elif request.resolver_match.url_name == 'performance_reviews_list' or request.resolver_match.url_name == 'performance_review_detail' %}
+    Performance Reviews
 {% elif request.resolver_match.url_name == 'onboarding_list' %}
     Onboarding
 {% elif request.resolver_match.url_name == 'training_list' %}

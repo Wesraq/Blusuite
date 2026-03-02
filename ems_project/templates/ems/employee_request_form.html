@@ -1,7 +1,28 @@
-{% extends 'ems/base_employee.html' %}
+﻿{% extends 'ems/base_employee.html' %}
 {% load custom_filters %}
 
 {% block title %}New Request - BLU Suite EMS{% endblock %}
+
+{% block extra_css %}
+<style>
+.req-msg { padding: 16px; border-radius: 8px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; border: 1px solid; }
+.req-msg-success { background: #d1fae5; border-color: #86efac; color: #065f46; }
+.req-msg-error { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+.req-msg-info { background-color: #fce7f3; border-color: #fca5a5; color: #DC143C; }
+/* Request type cards */
+.rtype-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
+.rtype-card { border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 12px; cursor: pointer; text-align: center; transition: border-color .18s, box-shadow .18s, background .18s; background: #fff; }
+.rtype-card:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.12); }
+.rtype-card.selected { border-color: #DC143C; background: #fff1f2; box-shadow: 0 2px 10px rgba(220,20,60,.15); }
+.rtype-card .rtype-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+.rtype-card .rtype-name { font-size: 12px; font-weight: 700; color: #1e293b; line-height: 1.3; }
+.rtype-card .rtype-desc { font-size: 10px; color: #64748b; margin-top: 3px; line-height: 1.3; }
+/* Advance calculator */
+.adv-bar-wrap { background: #e2e8f0; border-radius: 999px; height: 8px; overflow: hidden; margin: 6px 0 2px; }
+.adv-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#DC143C,#f87171); transition: width .4s; }
+@media(max-width:600px){ .rtype-grid{grid-template-columns:repeat(2,1fr);} }
+</style>
+{% endblock %}
 
 {% block content %}
 <div style="max-width: 1000px; margin: 0 auto; padding: 0 40px;">
@@ -22,7 +43,7 @@
 {% if messages %}
 <div style="margin-bottom: 20px;">
     {% for message in messages %}
-    <div style="padding: 16px; background: {% if message.tags == 'success' %}#d1fae5{% elif message.tags == 'error' %}#fee2e2{% else %}#dbeafe{% endif %}; border: 1px solid {% if message.tags == 'success' %}#86efac{% elif message.tags == 'error' %}#fca5a5{% else %}#93c5fd{% endif %}; border-radius: 8px; color: {% if message.tags == 'success' %}#065f46{% elif message.tags == 'error' %}#991b1b{% else %}#1e40af{% endif %}; display: flex; align-items: center; gap: 12px;">
+    <div class="req-msg {% if message.tags == 'success' %}req-msg-success{% elif message.tags == 'error' %}req-msg-error{% else %}req-msg-info{% endif %}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             {% if message.tags == 'success' %}
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -49,32 +70,46 @@
         
         <!-- Request Type Selection -->
         <div style="margin-bottom: 32px;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                     <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                 </svg>
-                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Request Type</h3>
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 600;">Select Request Type <span style="color:#dc2626">*</span></h3>
             </div>
-            
-            <div style="margin-bottom: 0;">
-                <label for="request_type" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Select Request Type <span style="color: #dc2626;">*</span></label>
-                <select id="request_type" name="request_type" required onchange="toggleRequestFields()" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
-                    <option value="">-- Select Type --</option>
-                    {% for type in request_types %}
-                    <option value="{{ type.id }}" data-code="{{ type.code }}" data-requires-amount="{{ type.requires_amount }}" data-max-amount="{{ type.max_amount }}">
-                        {{ type.name|strip_emoji }}
-                    </option>
-                    {% endfor %}
-                </select>
-                <div id="type_help" style="display: none; margin-top: 8px; padding: 8px 12px; background: #eff6ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af;"></div>
+            <!-- Hidden select for form submission -->
+            <input type="hidden" id="request_type" name="request_type" required>
+            <!-- Visual cards -->
+            <div class="rtype-grid" id="rtype-grid">
+                {% for type in request_types %}
+                <div class="rtype-card" data-id="{{ type.id }}" data-code="{{ type.code }}" data-requires-amount="{{ type.requires_amount }}" data-max-amount="{{ type.max_amount }}" onclick="selectRequestType(this)">
+                    <div class="rtype-icon" style="background:{% if type.code == 'ADVANCE' %}#fef3c7{% elif type.code == 'PETTY_CASH' %}#d1fae5{% elif type.code == 'REIMBURSEMENT' %}#fce7f3{% elif type.code == 'LEAVE' %}#fce7f3{% else %}#fee2e2{% endif %};">
+                        {% if type.code == 'ADVANCE' %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        {% elif type.code == 'PETTY_CASH' %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                        {% elif type.code == 'REIMBURSEMENT' %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        {% elif type.code == 'LEAVE' %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        {% else %}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        {% endif %}
+                    </div>
+                    <div class="rtype-name">{{ type.name|strip_emoji }}</div>
+                    {% if type.description %}<div class="rtype-desc">{{ type.description|truncatewords:6 }}</div>{% endif %}
+                </div>
+                {% empty %}
+                <p style="color:#64748b;font-size:13px;">No request types available. Contact HR to configure them.</p>
+                {% endfor %}
             </div>
+            <div id="type_help" style="display: none; margin-top: 10px; padding: 10px 14px; background: #eff6ff; border-left: 3px solid #DC143C; border-radius: 6px; font-size: 13px; color: #DC143C;"></div>
         </div>
 
         <!-- Basic Information -->
         <div style="margin-bottom: 32px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -112,8 +147,19 @@
                 <div style="margin-bottom: 0;">
                     <label for="currency" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Currency</label>
                     <select id="currency" name="currency" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
-                        <option value="ZMW" selected>ZMW (Kwacha)</option>
-                        <option value="USD">USD (Dollar)</option>
+                        <option value="ZMW" {% if currency_code == 'ZMW' %}selected{% endif %}>ZMW - Zambian Kwacha</option>
+                        <option value="MWK" {% if currency_code == 'MWK' %}selected{% endif %}>MWK - Malawian Kwacha</option>
+                        <option value="KES" {% if currency_code == 'KES' %}selected{% endif %}>KES - Kenyan Shilling</option>
+                        <option value="TZS" {% if currency_code == 'TZS' %}selected{% endif %}>TZS - Tanzanian Shilling</option>
+                        <option value="UGX" {% if currency_code == 'UGX' %}selected{% endif %}>UGX - Ugandan Shilling</option>
+                        <option value="ZAR" {% if currency_code == 'ZAR' %}selected{% endif %}>ZAR - South African Rand</option>
+                        <option value="NGN" {% if currency_code == 'NGN' %}selected{% endif %}>NGN - Nigerian Naira</option>
+                        <option value="GHS" {% if currency_code == 'GHS' %}selected{% endif %}>GHS - Ghanaian Cedi</option>
+                        <option value="ZWL" {% if currency_code == 'ZWL' %}selected{% endif %}>ZWL - Zimbabwean Dollar</option>
+                        <option value="BWP" {% if currency_code == 'BWP' %}selected{% endif %}>BWP - Botswana Pula</option>
+                        <option value="MZN" {% if currency_code == 'MZN' %}selected{% endif %}>MZN - Mozambican Metical</option>
+                        <option value="USD" {% if currency_code == 'USD' %}selected{% endif %}>USD - US Dollar</option>
+                        <option value="GBP" {% if currency_code == 'GBP' %}selected{% endif %}>GBP - British Pound</option>
                     </select>
                 </div>
             </div>
@@ -209,28 +255,27 @@
             </div>
             
             {% if employee_salary > 0 %}
-            <div style="margin-bottom: 20px; padding: 16px; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                    </svg>
-                    <strong style="color: #1e40af; font-size: 14px;">Your Salary Advance Eligibility</strong>
+            <div style="margin-bottom: 20px; padding: 16px 18px; background: linear-gradient(135deg,#eff6ff 0%,#fff1f2 100%); border: 1px solid #bfdbfe; border-radius: 10px;">
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#64748b;margin-bottom:12px;">Your Salary Advance Eligibility</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 13px;">
+                    <div>
+                        <div style="font-weight: 500; color:#64748b; margin-bottom: 2px;">Monthly Salary</div>
+                        <div style="font-weight: 700; font-size: 15px; color:#0f172a;">{{ currency_symbol }} {{ employee_salary|floatformat:2 }}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 500; color:#64748b; margin-bottom: 2px;">Max Advance ({{ advance_percentage }}%)</div>
+                        <div style="font-weight: 700; font-size: 15px; color:#DC143C;">{{ currency_symbol }} {{ max_advance_amount|floatformat:2 }}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 500; color:#64748b; margin-bottom: 2px;">Monthly Deduction</div>
+                        <div id="adv-monthly-calc" style="font-weight: 700; font-size: 15px; color:#059669;">—</div>
+                    </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 13px; color: #1e40af;">
-                    <div>
-                        <div style="font-weight: 500; margin-bottom: 2px;">Monthly Salary</div>
-                        <div style="font-weight: 700; font-size: 16px;">{{ currency_symbol }} {{ employee_salary|floatformat:2 }}</div>
+                <div style="margin-top:10px;">
+                    <div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:3px;">
+                        <span>Advance amount</span><span id="adv-bar-pct">0%</span>
                     </div>
-                    <div>
-                        <div style="font-weight: 500; margin-bottom: 2px;">Max Advance ({{ advance_percentage }}%)</div>
-                        <div style="font-weight: 700; font-size: 16px;">{{ currency_symbol }} {{ max_advance_amount|floatformat:2 }}</div>
-                    </div>
-                    <div>
-                        <div style="font-weight: 500; margin-bottom: 2px;">Available</div>
-                        <div style="font-weight: 700; font-size: 16px; color: #10b981;">{{ currency_symbol }} {{ max_advance_amount|floatformat:2 }}</div>
-                    </div>
+                    <div class="adv-bar-wrap"><div class="adv-bar-fill" id="adv-bar-fill" style="width:0%;"></div></div>
                 </div>
             </div>
             {% endif %}
@@ -246,16 +291,16 @@
             </div>
             
             <div style="margin-bottom: 0;">
-                <label for="installments" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Number of Installments (Months)</label>
-                <input type="number" id="installments" name="installments" min="1" max="12" value="1" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
-                <small style="color: #64748b; font-size: 12px; display: block; margin-top: 4px;">Maximum 12 months</small>
+                <label for="installments" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b; font-size: 14px;">Repayment Installments (Months)</label>
+                <input type="number" id="installments" name="installments" min="1" max="12" value="{{ advance_repayment_months }}" oninput="updateAdvanceCalc()" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #ffffff; box-sizing: border-box;">
+                <small style="color: #64748b; font-size: 12px; display: block; margin-top: 4px;">Max 12 months — default set by HR policy</small>
             </div>
         </div>
 
         <!-- Reimbursement Specific Fields -->
         <div id="reimbursement_fields" style="display: none; margin-bottom: 32px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                     <line x1="1" y1="10" x2="23" y2="10"></line>
                 </svg>
@@ -310,56 +355,87 @@
 </div>
 
 <script>
-// Salary advance settings from backend
 const employeeSalary = {{ employee_salary|default:0 }};
 const maxAdvanceAmount = {{ max_advance_amount|default:0 }};
 const advancePercentage = {{ advance_percentage|default:40 }};
+const currencySymbol = '{{ currency_symbol|default:"ZMW" }}';
 
-function toggleRequestFields() {
-    const select = document.getElementById('request_type');
-    const selectedOption = select.options[select.selectedIndex];
-    const code = selectedOption.getAttribute('data-code');
-    const requiresAmount = selectedOption.getAttribute('data-requires-amount') === 'True';
-    const maxAmount = selectedOption.getAttribute('data-max-amount');
-    
-    // Hide all specific fields
+function selectRequestType(card) {
+    // Deselect all
+    document.querySelectorAll('.rtype-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    const id = card.getAttribute('data-id');
+    const code = card.getAttribute('data-code');
+    const requiresAmount = card.getAttribute('data-requires-amount') === 'True';
+    const maxAmount = card.getAttribute('data-max-amount');
+    // Set hidden input
+    document.getElementById('request_type').value = id;
+    toggleRequestFields(code, requiresAmount, maxAmount);
+}
+
+function toggleRequestFields(code, requiresAmount, maxAmount) {
     document.getElementById('petty_cash_fields').style.display = 'none';
     document.getElementById('advance_fields').style.display = 'none';
     document.getElementById('reimbursement_fields').style.display = 'none';
     document.getElementById('type_help').style.display = 'none';
-    
-    // Handle amount field requirement
+
     const amountField = document.getElementById('amount');
     const amountRequired = document.getElementById('amount_required');
-    
-    // Special handling for salary advance
+
     if (code === 'ADVANCE' && maxAdvanceAmount > 0) {
         amountField.required = true;
         amountRequired.style.display = 'inline';
         amountField.max = maxAdvanceAmount;
-        document.getElementById('type_help').innerHTML = `Maximum advance: {{ currency_symbol }} ${maxAdvanceAmount.toFixed(2)} (${advancePercentage}% of your salary)`;
+        document.getElementById('type_help').innerHTML =
+            `<strong>Limit:</strong> ${currencySymbol} ${maxAdvanceAmount.toFixed(2)} (${advancePercentage}% of your monthly salary)`;
         document.getElementById('type_help').style.display = 'block';
-    } else if (requiresAmount) {
-        amountField.required = true;
-        amountRequired.style.display = 'inline';
-        if (maxAmount && maxAmount !== 'None') {
-            amountField.max = maxAmount;
-            document.getElementById('type_help').innerHTML = `Maximum amount: ${maxAmount}`;
-            document.getElementById('type_help').style.display = 'block';
-        }
-    } else {
-        amountField.required = false;
-        amountRequired.style.display = 'none';
-        amountField.max = '';
-    }
-    
-    // Show relevant fields based on type
-    if (code === 'PETTY_CASH') {
-        document.getElementById('petty_cash_fields').style.display = 'block';
+        document.getElementById('advance_fields').style.display = 'block';
+        updateAdvanceCalc();
     } else if (code === 'ADVANCE') {
         document.getElementById('advance_fields').style.display = 'block';
+    } else if (code === 'PETTY_CASH') {
+        if (requiresAmount) { amountField.required = true; amountRequired.style.display = 'inline'; }
+        document.getElementById('petty_cash_fields').style.display = 'block';
     } else if (code === 'REIMBURSEMENT') {
+        if (requiresAmount) { amountField.required = true; amountRequired.style.display = 'inline'; }
         document.getElementById('reimbursement_fields').style.display = 'block';
+    } else {
+        if (requiresAmount) {
+            amountField.required = true;
+            amountRequired.style.display = 'inline';
+            if (maxAmount && maxAmount !== 'None') {
+                amountField.max = maxAmount;
+                document.getElementById('type_help').innerHTML = `<strong>Max:</strong> ${currencySymbol} ${parseFloat(maxAmount).toFixed(2)}`;
+                document.getElementById('type_help').style.display = 'block';
+            }
+        } else {
+            amountField.required = false;
+            amountRequired.style.display = 'none';
+            amountField.max = '';
+        }
+    }
+}
+
+function updateAdvanceCalc() {
+    const amountEl = document.getElementById('amount');
+    const installEl = document.getElementById('installments');
+    const monthlyEl = document.getElementById('adv-monthly-calc');
+    const barFill = document.getElementById('adv-bar-fill');
+    const barPct = document.getElementById('adv-bar-pct');
+    if (!amountEl || !monthlyEl) return;
+    const amt = parseFloat(amountEl.value) || 0;
+    const months = parseInt(installEl ? installEl.value : 1) || 1;
+    if (amt > 0 && months > 0) {
+        const monthly = (amt / months).toFixed(2);
+        monthlyEl.textContent = `${currencySymbol} ${monthly}/mo`;
+    } else {
+        monthlyEl.textContent = '—';
+    }
+    if (barFill && maxAdvanceAmount > 0) {
+        const pct = Math.min(100, (amt / maxAdvanceAmount) * 100);
+        barFill.style.width = pct + '%';
+        barFill.style.background = pct > 90 ? '#ef4444' : 'linear-gradient(90deg,#DC143C,#f87171)';
+        if (barPct) barPct.textContent = pct.toFixed(0) + '%';
     }
 }
 
@@ -384,9 +460,9 @@ function validateAmount() {
     const amountError = document.getElementById('amount_error');
     const amount = parseFloat(amountField.value);
     const max = parseFloat(amountField.max);
-    
-    if (amountField.max && amount > max) {
-        amountError.textContent = `Amount cannot exceed ${max}`;
+    updateAdvanceCalc();
+    if (amountField.max && !isNaN(max) && amount > max) {
+        amountError.textContent = `Amount exceeds the maximum of ${currencySymbol} ${max.toFixed(2)}`;
         amountError.style.display = 'block';
         amountField.style.borderColor = '#dc2626';
     } else if (amount < 0) {
@@ -422,23 +498,24 @@ function validateFile() {
     }
 }
 
-// Form validation before submit
 document.getElementById('requestForm').addEventListener('submit', function(e) {
-    const amountField = document.getElementById('amount');
-    const amountError = document.getElementById('amount_error');
-    
-    // Check if amount validation failed
-    if (amountError.style.display === 'block') {
+    // Must pick a type
+    if (!document.getElementById('request_type').value) {
         e.preventDefault();
-        alert('Please fix the amount error before submitting');
-        amountField.focus();
+        document.getElementById('rtype-grid').scrollIntoView({behavior:'smooth', block:'center'});
+        document.getElementById('rtype-grid').style.outline = '2px solid #DC143C';
+        setTimeout(() => document.getElementById('rtype-grid').style.outline = '', 2000);
         return false;
     }
-    
-    // Show loading state
+    const amountError = document.getElementById('amount_error');
+    if (amountError && amountError.style.display === 'block') {
+        e.preventDefault();
+        document.getElementById('amount').focus();
+        return false;
+    }
     const submitBtn = this.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10"></circle></svg> Submitting...';
+    submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite;vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/></svg> Submitting...';
 });
 </script>
 

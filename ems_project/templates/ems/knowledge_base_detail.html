@@ -7,21 +7,21 @@
     <div class="content-card" style="margin-bottom:16px;">
         <div class="card-header" style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
             <div>
-                <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">
-                    <a href="/knowledge-base/" style="color:#2563eb; text-decoration:none;">Knowledge Base</a>
-                    <span style="color:#9ca3af;"> / </span>
+                <div style="font-size:12px; color:#DC143C80; margin-bottom:4px;">
+                    <a href="/knowledge-base/" style="color:#DC143C; text-decoration:none;">Knowledge Base</a>
+                    <span style="color:#DC143C;"> / </span>
                     <span>{{ article.category|default:'Article' }}</span>
                 </div>
                 <h3 class="card-title">{{ article.title }}</h3>
                 <div class="card-subtitle">
                     Updated {{ article.updated_at|date:"M j, Y" }}
                     {% if article.video_url %}
-                        · <span style="color:#2563eb;">Includes training video</span>
+                        · <span style="color:#DC143C;">Includes training video</span>
                     {% endif %}
                 </div>
             </div>
             {% if article.category %}
-            <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; padding:2px 8px; border-radius:999px; background:#eff6ff; color:#1d4ed8; white-space:nowrap;">{{ article.category }}</span>
+            <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; padding:2px 8px; border-radius:999px; background:#fce7f36ff; color:#DC143C; white-space:nowrap;">{{ article.category }}</span>
             {% endif %}
         </div>
     </div>
@@ -30,9 +30,9 @@
         <div class="content-card">
             <div class="card-content">
                 {% if article.summary %}
-                    <p style="font-size:14px; color:#4b5563; margin-top:0;">{{ article.summary }}</p>
+                    <p style="font-size:14px; color:#DC143C80; margin-top:0;">{{ article.summary }}</p>
                 {% endif %}
-                <div style="font-size:14px; color:#111827; line-height:1.6;">
+                <div style="font-size:14px; color:#DC143C; line-height:1.6;">
                     {{ article.content|linebreaks }}
                 </div>
             </div>
@@ -47,7 +47,7 @@
                 {% if article.media_file %}
                     {% with article.media_file.url|lower as media_url %}
                     <div style="margin-bottom:16px;">
-                        <div style="font-size:13px; font-weight:600; color:#111827; margin-bottom:6px;">Attached media</div>
+                        <div style="font-size:13px; font-weight:600; color:#DC143C; margin-bottom:6px;">Attached media</div>
                         {% if media_url|slice:"-4:" == '.mp4' or media_url|slice:"-4:" == '.mov' or media_url|slice:"-4:" == '.ogg' or media_url|slice:"-5:" == '.webm' %}
                             <video controls style="width:100%; max-height:360px; border-radius:8px; background:#000;">
                                 <source src="{{ article.media_file.url }}" type="video/mp4">
@@ -68,7 +68,7 @@
 
                 {% if article.video_url %}
                     <div style="margin-bottom:12px;">
-                        <div style="font-size:13px; font-weight:600; color:#111827; margin-bottom:6px;">External video link</div>
+                        <div style="font-size:13px; font-weight:600; color:#DC143C; margin-bottom:6px;">External video link</div>
                         <a href="{{ article.video_url }}" target="_blank" rel="noopener" class="btn" style="display:inline-flex; align-items:center; gap:6px;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                             <span>Watch video</span>
@@ -77,10 +77,10 @@
                 {% endif %}
 
                 {% if not article.media_file and not article.video_url %}
-                    <p style="font-size:13px; color:#6b7280; margin:0;">No additional resources have been linked to this article.</p>
+                    <p style="font-size:13px; color:#DC143C80; margin:0;">No additional resources have been linked to this article.</p>
                 {% endif %}
 
-                <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px; font-size:12px; color:#9ca3af;">
+                <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px; font-size:12px; color:#DC143C;">
                     <span>If you still need help, contact your administrator or raise a support ticket.</span>
                     <a href="{% url 'employer_support_center' %}" class="btn btn-secondary" style="align-self:flex-start; display:inline-flex; align-items:center; gap:6px; font-size:12px;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h1"></path><path d="M12 7a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-1"></path><path d="M12 17v1"></path></svg>

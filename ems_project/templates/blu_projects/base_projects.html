@@ -183,6 +183,13 @@
     </nav>
 </aside>
 
+{% block extra_css %}
+<style>
+    /* Hide EMS app shortcuts (Tasks/Calendar/Timesheet/Files/Feed/Chat) inside Projects Suite */
+    #appShortcuts { display: none !important; }
+</style>
+{% endblock %}
+
 <style>
     .nav-section-title {
         padding: 12px 16px 8px;

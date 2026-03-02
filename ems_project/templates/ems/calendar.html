@@ -1,0 +1,365 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% block title %}Calendar{% endblock %}
+{% block page_title %}Calendar{% endblock %}
+
+{% block content %}
+<style>
+.cal-page { padding:20px 24px; max-width:1200px; margin:0 auto; }
+
+/* ── Stats row ── */
+.cal-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.cal-stat-card { background:#fff; border:1px solid #fce7f30; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; transition:box-shadow .15s; }
+.cal-stat-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08); }
+.cal-stat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.cal-stat-info { min-width:0; }
+.cal-stat-val { font-size:22px; font-weight:800; color:#0f172a; line-height:1; }
+.cal-stat-label { font-size:11px; color:#64748b; margin-top:3px; font-weight:500; }
+
+/* ── Toolbar ── */
+.cal-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px; background:#fff; border:1px solid #fce7f30; border-radius:12px; padding:14px 18px; }
+.cal-toolbar-left h2 { margin:0; font-size:18px; font-weight:700; color:#0f172a; }
+.cal-toolbar-left p { margin:3px 0 0; font-size:12px; color:#64748b; }
+.cal-toolbar-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.cal-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; border:none; cursor:pointer; transition:all .15s; }
+.cal-btn-primary { background:var(--company-button,#DC143C); color:#fff; }
+.cal-btn-primary:hover { opacity:.9; }
+.cal-btn-ghost { background:#DC143Cafc; color:#DC143C1; border:1px solid #fce7f30; }
+.cal-btn-ghost:hover { background:#f1f5f9; }
+
+/* ── Legend ── */
+.cal-legend { display:flex; gap:14px; flex-wrap:wrap; }
+.cal-legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:#64748b; font-weight:500; }
+.cal-legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+/* ── Calendar container ── */
+#calendarEl { background:#fff; border:1px solid #fce7f30; border-radius:12px; padding:20px; min-height:520px; }
+
+/* FullCalendar overrides */
+.fc .fc-toolbar-title { font-size:16px !important; font-weight:700 !important; color:#0f172a !important; }
+.fc .fc-button { background:var(--company-button,#DC143C) !important; border-color:var(--company-button,#DC143C) !important; font-size:12px !important; padding:5px 12px !important; }
+.fc .fc-button:hover { opacity:.85 !important; }
+.fc .fc-button-active { opacity:.75 !important; }
+.fc-day-today { background:#eff6ff !important; }
+.fc-event { border-radius:5px !important; font-size:12px !important; font-weight:500 !important; }
+.fc .fc-col-header-cell-cushion { font-size:12px !important; font-weight:700 !important; color:#475569 !important; text-transform:uppercase; letter-spacing:.4px; }
+.fc .fc-daygrid-day-number { font-size:12px !important; color:#DC143C1 !important; font-weight:600 !important; }
+
+/* ── Modal ── */
+.ev-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:2000; align-items:center; justify-content:center; padding:16px; }
+.ev-modal-bg.open { display:flex; }
+.ev-modal { background:#fff; border-radius:16px; padding:28px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+.ev-modal h3 { margin:0 0 20px; font-size:17px; font-weight:700; color:#0f172a; padding-bottom:14px; border-bottom:1px solid #f1f5f9; }
+.ev-field { margin-bottom:14px; }
+.ev-field label { font-size:12px; font-weight:600; color:#DC143C1; display:block; margin-bottom:5px; letter-spacing:.2px; }
+.ev-field input, .ev-field textarea, .ev-field select { width:100%; border:1.5px solid #fce7f30; border-radius:8px; padding:9px 12px; font-size:13px; color:#0f172a; font-family:inherit; box-sizing:border-box; transition:border-color .12s; }
+.ev-field input:focus, .ev-field textarea:focus, .ev-field select:focus { border-color:var(--company-button,#DC143C); outline:none; box-shadow:0 0 0 3px rgba(29,78,216,.1); }
+.ev-modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid #f1f5f9; flex-wrap:wrap; }
+
+/* ── Popover ── */
+.ev-popover { display:none; position:fixed; background:#fff; border:1px solid #fce7f30; border-radius:12px; padding:16px; min-width:240px; max-width:300px; z-index:3000; box-shadow:0 12px 32px rgba(0,0,0,.18); }
+.ev-popover.open { display:block; animation:fadeInUp .15s ease; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.ev-pop-title { font-size:14px; font-weight:700; color:#0f172a; margin-bottom:8px; padding-right:20px; }
+.ev-pop-meta { font-size:12px; color:#64748b; margin-bottom:4px; display:flex; align-items:center; gap:5px; }
+
+@media(max-width:900px){ .cal-stats{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:768px){ .cal-page{padding:12px 10px;} #calendarEl{padding:10px;} .cal-stats{grid-template-columns:repeat(2,1fr);} .cal-toolbar{padding:10px 12px;} }
+@media(max-width:480px){ .cal-stats{grid-template-columns:1fr 1fr;} }
+</style>
+
+<!-- FullCalendar v6 from CDN -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+<div class="cal-page">
+
+    <!-- Stat cards -->
+    <div class="cal-stats" id="calStats">
+        <div class="cal-stat-card">
+            <div class="cal-stat-icon" style="background:#eff6ff;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="cal-stat-info">
+                <div class="cal-stat-val" id="statTotal">—</div>
+                <div class="cal-stat-label">Total Events</div>
+            </div>
+        </div>
+        <div class="cal-stat-card">
+            <div class="cal-stat-icon" style="background:#fefce8;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143Ca" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="cal-stat-info">
+                <div class="cal-stat-val" id="statToday">—</div>
+                <div class="cal-stat-label">Today</div>
+            </div>
+        </div>
+        <div class="cal-stat-card">
+            <div class="cal-stat-icon" style="background:#f0fdf4;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143Ca" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="cal-stat-info">
+                <div class="cal-stat-val" id="statWeek">—</div>
+                <div class="cal-stat-label">This Week</div>
+            </div>
+        </div>
+        <div class="cal-stat-card">
+            <div class="cal-stat-icon" style="background:#fdf4ff;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143Ca" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="cal-stat-info">
+                <div class="cal-stat-val" id="statMonth">—</div>
+                <div class="cal-stat-label">This Month</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="cal-toolbar">
+        <div class="cal-toolbar-left">
+            <h2>&#128197; Calendar</h2>
+            <p>Company events, leave approvals &amp; pay dates in one view</p>
+        </div>
+        <div class="cal-toolbar-right">
+            <div class="cal-legend">
+                <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#DC143C;"></div>Meetings</div>
+                <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#dc2626;"></div>Deadlines</div>
+                <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#6366f1;"></div>Leave</div>
+                <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#059669;"></div>Pay Day</div>
+            </div>
+            <button class="cal-btn cal-btn-primary" onclick="openEventModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Event
+            </button>
+        </div>
+    </div>
+
+    <div id="calendarEl"></div>
+</div>
+
+<!-- Create / Edit Event Modal -->
+<div class="ev-modal-bg" id="eventModal">
+    <div class="ev-modal">
+        <h3 id="modalTitle">New Event</h3>
+        <form id="eventForm">
+            {% csrf_token %}
+            <input type="hidden" name="event_id" id="eventId">
+            <div class="ev-field"><label>Title *</label><input type="text" name="title" id="evTitle" required placeholder="Event title"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="ev-field"><label>Type</label>
+                    <select name="event_type" id="evType">
+                        <option value="MEETING">Meeting</option>
+                        <option value="DEADLINE">Deadline</option>
+                        <option value="REMINDER">Reminder</option>
+                        <option value="HOLIDAY">Holiday</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="ev-field"><label>Colour</label>
+                    <input type="color" name="color" id="evColor" value="#DC143C" style="height:40px;padding:4px 8px;cursor:pointer;">
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="ev-field"><label>Start *</label><input type="datetime-local" name="start" id="evStart" required></div>
+                <div class="ev-field"><label>End</label><input type="datetime-local" name="end" id="evEnd"></div>
+            </div>
+            <div class="ev-field">
+                <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
+                    <input type="checkbox" name="all_day" id="evAllDay" style="width:auto;" onchange="toggleAllDay(this)">
+                    All-day event
+                </label>
+            </div>
+            <div class="ev-field"><label>Location</label><input type="text" name="location" id="evLocation" placeholder="Optional location"></div>
+            <div class="ev-field"><label>Description</label><textarea name="description" id="evDesc" rows="2" placeholder="Optional details..."></textarea></div>
+            {% if is_admin %}
+            <div class="ev-field">
+                <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
+                    <input type="checkbox" name="is_company_wide" id="evCompanyWide" style="width:auto;">
+                    Visible to all employees
+                </label>
+            </div>
+            {% endif %}
+            <div class="ev-modal-actions">
+                <button type="button" id="deleteEventBtn" style="display:none;padding:8px 16px;border:1px solid #fca5a5;border-radius:7px;background:#fff;color:#dc2626;cursor:pointer;font-size:13px;" onclick="deleteEvent()">Delete</button>
+                <button type="button" onclick="closeEventModal()" style="padding:8px 16px;border:1px solid #fce7f30;border-radius:7px;background:#DC143Cafc;cursor:pointer;font-size:13px;">Cancel</button>
+                <button type="submit" class="cal-btn cal-btn-primary">Save Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Event detail popover -->
+<div class="ev-popover" id="evPopover">
+    <button onclick="document.getElementById('evPopover').classList.remove('open')" style="position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">&times;</button>
+    <div class="ev-pop-title" id="popTitle"></div>
+    <div class="ev-pop-meta" id="popTime"></div>
+    <div class="ev-pop-meta" id="popLoc"></div>
+    <div class="ev-pop-meta" id="popDesc" style="margin-top:4px;"></div>
+    <div style="margin-top:10px;display:flex;gap:8px;" id="popActions"></div>
+</div>
+
+<script>
+const EVENTS_URL  = "{% url 'calendar_events_json' %}";
+const SAVE_URL    = "{% url 'calendar_event_save' %}";
+const DELETE_BASE = "/calendar/events/";
+const CSRF_TOKEN  = "{{ csrf_token }}";
+
+document.addEventListener('DOMContentLoaded', function() {
+    const calEl = document.getElementById('calendarEl');
+    const cal = new FullCalendar.Calendar(calEl, {
+        initialView: window.innerWidth < 600 ? 'listWeek' : 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        height: 'auto',
+        nowIndicator: true,
+        selectable: true,
+        editable: false,
+        events: {
+            url: EVENTS_URL,
+            method: 'GET',
+            failure: function() { console.warn('Failed to load calendar events'); }
+        },
+        select: function(info) {
+            openEventModal();
+            const pad = v => String(v).padStart(2,'0');
+            const fmt = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+            document.getElementById('evStart').value = fmt(info.start);
+            if (info.end) document.getElementById('evEnd').value = fmt(new Date(info.end - 1));
+        },
+        eventClick: function(info) {
+            const ev = info.event;
+            const props = ev.extendedProps;
+            const pop = document.getElementById('evPopover');
+            document.getElementById('popTitle').textContent = ev.title;
+            document.getElementById('popTime').textContent = ev.allDay ? ev.startStr : (ev.startStr.slice(0,16).replace('T',' ') + (ev.endStr ? ' → '+ev.endStr.slice(0,16).replace('T',' ') : ''));
+            document.getElementById('popLoc').textContent = props.location || '';
+            document.getElementById('popDesc').textContent = props.description || '';
+            const acts = document.getElementById('popActions');
+            acts.innerHTML = '';
+            if (props.editable && ev.id.startsWith('cal_')) {
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.style.cssText = 'padding:5px 12px;border:1px solid #fce7f30;border-radius:6px;background:#DC143Cafc;font-size:12px;cursor:pointer;';
+                editBtn.onclick = function() { pop.classList.remove('open'); openEventModal(ev); };
+                acts.appendChild(editBtn);
+            }
+            const rect = info.el.getBoundingClientRect();
+            pop.style.top = (rect.bottom + 8 + window.scrollY) + 'px';
+            pop.style.left = Math.min(rect.left, window.innerWidth - 310) + 'px';
+            pop.classList.add('open');
+        },
+        eventDidMount: function(info) {
+            info.el.style.cursor = 'pointer';
+        },
+        dayCellDidMount: function(info) {
+            info.el.style.cursor = 'pointer';
+        },
+        eventsSet: function(events) {
+            const now = new Date();
+            const todayStr = now.toISOString().slice(0,10);
+            const wStart = new Date(now); wStart.setDate(now.getDate() - now.getDay());
+            const wEnd = new Date(wStart); wEnd.setDate(wStart.getDate() + 7);
+            const mStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const mEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            let today=0, week=0, month=0;
+            events.forEach(function(ev) {
+                const s = ev.start;
+                if (!s) return;
+                const ds = s.toISOString().slice(0,10);
+                if (ds === todayStr) today++;
+                if (s >= wStart && s < wEnd) week++;
+                if (s >= mStart && s <= mEnd) month++;
+            });
+            const se = document.getElementById('statTotal');
+            const st = document.getElementById('statToday');
+            const sw = document.getElementById('statWeek');
+            const sm = document.getElementById('statMonth');
+            if (se) se.textContent = events.length;
+            if (st) st.textContent = today;
+            if (sw) sw.textContent = week;
+            if (sm) sm.textContent = month;
+        }
+    });
+    cal.render();
+    window._cal = cal;
+});
+
+function openEventModal(ev) {
+    document.getElementById('eventModal').classList.add('open');
+    if (ev) {
+        document.getElementById('modalTitle').textContent = 'Edit Event';
+        document.getElementById('eventId').value = ev.id.replace('cal_','');
+        document.getElementById('evTitle').value = ev.title;
+        document.getElementById('evType').value = ev.extendedProps.type || 'OTHER';
+        document.getElementById('evColor').value = ev.backgroundColor || '#DC143C';
+        const pad = v => String(v).padStart(2,'0');
+        const fmt = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+        document.getElementById('evStart').value = fmt(ev.start);
+        if (ev.end) document.getElementById('evEnd').value = fmt(ev.end);
+        document.getElementById('evLocation').value = ev.extendedProps.location || '';
+        document.getElementById('evDesc').value = ev.extendedProps.description || '';
+        document.getElementById('deleteEventBtn').style.display = 'block';
+    } else {
+        document.getElementById('modalTitle').textContent = 'New Event';
+        document.getElementById('eventId').value = '';
+        document.getElementById('eventForm').reset();
+        document.getElementById('evColor').value = '#DC143C';
+        document.getElementById('deleteEventBtn').style.display = 'none';
+    }
+}
+
+function closeEventModal() {
+    document.getElementById('eventModal').classList.remove('open');
+}
+
+function toggleAllDay(cb) {
+    const startEl = document.getElementById('evStart');
+    const endEl = document.getElementById('evEnd');
+    if (cb.checked) {
+        startEl.type = 'date';
+        endEl.type = 'date';
+    } else {
+        startEl.type = 'datetime-local';
+        endEl.type = 'datetime-local';
+    }
+}
+
+function deleteEvent() {
+    const id = document.getElementById('eventId').value;
+    if (!id || !confirm('Delete this event?')) return;
+    fetch(DELETE_BASE + id + '/delete/', {
+        method: 'POST',
+        headers: {'X-CSRFToken': CSRF_TOKEN, 'X-Requested-With': 'XMLHttpRequest'}
+    }).then(r => r.json()).then(d => {
+        if (d.ok) { closeEventModal(); window._cal && window._cal.refetchEvents(); }
+    });
+}
+
+document.getElementById('eventForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fd = new FormData(this);
+    const allDay = document.getElementById('evAllDay').checked;
+    fd.set('all_day', allDay ? 'true' : 'false');
+    fetch(SAVE_URL, {
+        method: 'POST',
+        headers: {'X-CSRFToken': CSRF_TOKEN, 'X-Requested-With': 'XMLHttpRequest'},
+        body: fd
+    }).then(r => r.json()).then(d => {
+        if (d.ok) { closeEventModal(); window._cal && window._cal.refetchEvents(); }
+        else alert('Error saving event: ' + (d.error || 'Unknown'));
+    });
+});
+
+document.getElementById('eventModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEventModal();
+});
+document.addEventListener('click', function(e) {
+    const pop = document.getElementById('evPopover');
+    if (!pop.contains(e.target) && !e.target.closest('.fc-event')) {
+        pop.classList.remove('open');
+    }
+});
+</script>
+{% endblock %}

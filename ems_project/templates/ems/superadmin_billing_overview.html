@@ -1,4 +1,4 @@
-{% extends 'ems/base_superadmin.html' %}
+﻿{% extends 'ems/base_superadmin.html' %}
 
 {% block title %}Billing Overview - System Owner{% endblock %}
 {% block nav_dashboard %}{% endblock %}
@@ -129,7 +129,7 @@
                                 {% elif company.id in expiring_soon_ids %}
                                     <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">Expiring Soon</span>
                                 {% elif company.id in trial_ids %}
-                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#dbeafe; color:#1d4ed8; font-size:11px; font-weight:600; text-transform:uppercase;">Trial</span>
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fce7f3; color:#DC143C; font-size:11px; font-weight:600; text-transform:uppercase;">Trial</span>
                                 {% else %}
                                     <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#dcfce7; color:#166534; font-size:11px; font-weight:600; text-transform:uppercase;">Active</span>
                                 {% endif %}

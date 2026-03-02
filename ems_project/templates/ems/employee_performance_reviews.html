@@ -1,0 +1,133 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}My Performance Reviews - BLU Suite EMS{% endblock %}
+{% block page_title %}My Performance Reviews{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2>My Performance Reviews</h2>
+        <p>View your evaluations, goals, and feedback from your managers.</p>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color:#fce7f3;color:#DC143C;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        </div>
+        <div class="stat-details"><h3>{{ total_reviews }}</h3><p>Total Reviews</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color:#fef3c7;color:#d97706;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="stat-details"><h3>{{ draft_count }}</h3><p>Awaiting Review</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color:#dcfce7;color:#16a34a;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="stat-details"><h3>{{ completed_count }}</h3><p>Completed</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color:#fce7f3;color:#DC143C;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        </div>
+        <div class="stat-details"><h3>{{ approved_count }}</h3><p>Approved</p></div>
+    </div>
+</div>
+
+<!-- Reviews List -->
+{% if reviews %}
+<div style="display:flex;flex-direction:column;gap:16px;">
+    {% for review in reviews %}
+    <div class="content-card" style="border-left:3px solid
+        {% if review.overall_rating == 'OUTSTANDING' or review.overall_rating == 'EXCEEDS_EXPECTATIONS' %}#DC143C
+        {% elif review.overall_rating == 'MEETS_EXPECTATIONS' %}#e2e8f0
+        {% elif review.overall_rating == 'BELOW_EXPECTATIONS' or review.overall_rating == 'UNSATISFACTORY' %}#dc2626
+        {% else %}#e2e8f0{% endif %};">
+        <div class="card-content" style="padding:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <h3 style="margin:0;font-size:15px;font-weight:700;">{{ review.title }}</h3>
+                    <p style="margin:4px 0 0;font-size:12px;color:#64748b;">
+                        {{ review.get_review_type_display }} &nbsp;·&nbsp;
+                        {{ review.review_period_start }} – {{ review.review_period_end }} &nbsp;·&nbsp;
+                        Reviewed by {{ review.reviewer.get_full_name|default:"—" }}
+                    </p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    {% if review.overall_rating %}
+                    <span style="font-size:12px;font-weight:600;padding:4px 12px;border-radius:4px;
+                        background:{% if review.overall_rating == 'OUTSTANDING' %}#dcfce7{% elif review.overall_rating == 'EXCEEDS_EXPECTATIONS' %}#d1fae5{% elif review.overall_rating == 'MEETS_EXPECTATIONS' %}#f0fdf4{% elif review.overall_rating == 'BELOW_EXPECTATIONS' %}#fef3c7{% else %}#fee2e2{% endif %};
+                        color:{% if review.overall_rating == 'OUTSTANDING' %}#166534{% elif review.overall_rating == 'EXCEEDS_EXPECTATIONS' %}#065f46{% elif review.overall_rating == 'MEETS_EXPECTATIONS' %}#166534{% elif review.overall_rating == 'BELOW_EXPECTATIONS' %}#92400e{% else %}#991b1b{% endif %};">
+                        {{ review.get_overall_rating_display }}
+                    </span>
+                    {% endif %}
+                    {% if review.status == 'APPROVED' %}
+                    <span style="background:#dcfce7;color:#166534;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600;">Approved</span>
+                    {% elif review.status == 'COMPLETED' %}
+                    <span style="background:#fce7f3;color:#9d174d;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600;">Completed</span>
+                    {% elif review.status == 'UNDER_REVIEW' %}
+                    <span style="background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600;">Under Review</span>
+                    {% elif review.status == 'SUBMITTED' %}
+                    <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600;">Submitted</span>
+                    {% else %}
+                    <span style="background:#f1f5f9;color:#64748b;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600;">Draft</span>
+                    {% endif %}
+                    <a href="{% url 'performance_review_detail' review.id %}" class="btn btn-sm" style="font-size:12px;padding:5px 14px;">
+                        View Details
+                    </a>
+                </div>
+            </div>
+
+            {% if review.goals.exists or review.reviewer_comments %}
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+                {% if review.reviewer_comments %}
+                <div>
+                    <p style="margin:0 0 6px;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Reviewer Notes</p>
+                    <p style="margin:0;font-size:13px;color:#374151;">{{ review.reviewer_comments|truncatewords:25 }}</p>
+                </div>
+                {% endif %}
+                {% if review.goals.exists %}
+                <div>
+                    <p style="margin:0 0 6px;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Goals Progress</p>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        {% for goal in review.goals.all|slice:":3" %}
+                        <div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                                <span style="font-size:12px;color:#374151;">{{ goal.title|truncatechars:30 }}</span>
+                                <span style="font-size:11px;font-weight:600;color:#64748b;">{{ goal.progress_percentage }}%</span>
+                            </div>
+                            <div style="height:4px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+                                <div style="height:100%;width:{{ goal.progress_percentage }}%;background:#DC143C;border-radius:4px;"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if review.goals.count > 3 %}
+                        <p style="margin:4px 0 0;font-size:11px;color:#94a3b8;">+{{ review.goals.count|add:"-3" }} more goals</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="content-card">
+    <div class="card-content" style="text-align:center;padding:60px 24px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block;opacity:0.25;color:#94a3b8;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <h3 style="margin:0 0 8px;font-size:16px;font-weight:600;color:#374151;">No Performance Reviews Yet</h3>
+        <p style="margin:0;font-size:14px;color:#64748b;">Your performance reviews will appear here once your manager initiates a review cycle.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

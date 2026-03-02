@@ -414,6 +414,35 @@
             border-color: var(--primary);
         }
 
+        .feature-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .feature-card-link:hover .feature-title {
+            color: var(--primary);
+        }
+
+        .feature-card-link:hover .feature-icon {
+            background: rgba(220, 20, 60, 0.08);
+        }
+
+        .feature-card-link:hover .feature-icon svg {
+            color: var(--primary);
+        }
+
+        .feature-cta {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.2px;
+        }
+
         .feature-icon {
             width: 48px;
             height: 48px;
@@ -1000,7 +1029,7 @@
             </div>
             
             <div class="features-grid">
-                <div class="feature-card">
+                <a href="/features/attendance/" class="feature-card feature-card-link">
                     <div class="feature-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
@@ -1011,9 +1040,10 @@
                     <p class="feature-description">
                         Real-time tracking with biometric integration, GPS verification, and automated reporting. Never miss a beat.
                     </p>
-                </div>
+                    <span class="feature-cta">Learn more →</span>
+                </a>
                 
-                <div class="feature-card">
+                <a href="/features/leave/" class="feature-card feature-card-link">
                     <div class="feature-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -1024,9 +1054,10 @@
                     <p class="feature-description">
                         Streamlined requests, automated approvals, and intelligent balance tracking. Make time off effortless.
                     </p>
-                </div>
+                    <span class="feature-cta">Learn more →</span>
+                </a>
                 
-                <div class="feature-card">
+                <a href="/features/payroll/" class="feature-card feature-card-link">
                     <div class="feature-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
@@ -1036,9 +1067,10 @@
                     <p class="feature-description">
                         Automated calculations, tax compliance, and instant payslip generation. Pay your team with confidence.
                     </p>
-                </div>
+                    <span class="feature-cta">Learn more →</span>
+                </a>
                 
-                <div class="feature-card">
+                <a href="/features/performance/" class="feature-card feature-card-link">
                     <div class="feature-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 3v18h18"/>
@@ -1049,9 +1081,10 @@
                     <p class="feature-description">
                         Data-driven evaluations, goal tracking, and 360° feedback. Develop your team systematically.
                     </p>
-                </div>
+                    <span class="feature-cta">Learn more →</span>
+                </a>
                 
-                <div class="feature-card">
+                <a href="/features/documents/" class="feature-card feature-card-link">
                     <div class="feature-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/>
@@ -1062,9 +1095,10 @@
                     <p class="feature-description">
                         Secure storage, version control, and instant access. Keep everything organized and compliant.
                     </p>
-                </div>
+                    <span class="feature-cta">Learn more →</span>
+                </a>
                 
-                <div class="feature-card">
+                <a href="/features/analytics/" class="feature-card feature-card-link">
                     <div class="feature-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 3v18h18"/>
@@ -1075,7 +1109,8 @@
                     <p class="feature-description">
                         Real-time insights, custom reports, and predictive analytics. Make decisions backed by data.
                     </p>
-                </div>
+                    <span class="feature-cta">Learn more →</span>
+                </a>
             </div>
         </div>
     </section>

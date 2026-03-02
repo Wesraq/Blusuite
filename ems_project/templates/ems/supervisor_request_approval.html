@@ -1,4 +1,4 @@
-{% extends 'ems/base_employee.html' %}
+﻿{% extends 'ems/base_employee.html' %}
 
 {% block title %}Request Approvals - EMS{% endblock %}
 
@@ -154,11 +154,11 @@
                             {% elif req.priority == 'MEDIUM' %}
                             <span style="padding: 4px 12px; background: #fef3c7; color: #92400e; border-radius: 12px; font-size: 12px; font-weight: 600;">MEDIUM</span>
                             {% else %}
-                            <span style="padding: 4px 12px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-size: 12px; font-weight: 600;">LOW</span>
+                            <span style="padding: 4px 12px; background: #fce7f3; color: #DC143C; border-radius: 12px; font-size: 12px; font-weight: 600;">LOW</span>
                             {% endif %}
                         </td>
                         <td style="text-align: center; padding: 12px;">
-                            <button type="button" onclick="toggleDetail('detail-{{ req.id }}')" style="padding: 6px 14px; background: #1d4ed8; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                            <button type="button" onclick="toggleDetail('detail-{{ req.id }}')" style="padding: 6px 14px; background: #DC143C; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;">
                                 View
                             </button>
                         </td>

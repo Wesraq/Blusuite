@@ -10,10 +10,10 @@
   .tab-nav {
     display: flex;
     gap: 8px;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #DC143Cf9 100%);
     padding: 8px;
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #fce7f30;
     margin-bottom: 32px;
     flex-wrap: wrap;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -36,12 +36,12 @@
   }
   .tab-btn:hover {
     background: rgba(255,255,255,0.7);
-    color: #334155;
+    color: #DC143C;
     transform: translateY(-2px);
   }
   .tab-btn.active {
     background: #fff;
-    color: #1d4ed8;
+    color: #DC143C;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     font-weight: 600;
   }
@@ -53,7 +53,7 @@
     transform: translateX(-50%);
     width: 40px;
     height: 3px;
-    background: #1d4ed8;
+    background: #DC143C;
     border-radius: 2px;
   }
   .tab-content {
@@ -73,7 +73,7 @@
     transition: all 0.3s ease;
   }
   input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="url"]:focus, select:focus, textarea:focus {
-    border-color: #1d4ed8;
+    border-color: #DC143C;
     box-shadow: 0 0 0 3px rgba(0,128,128,0.1);
     outline: none;
   }
@@ -86,7 +86,7 @@
     width: 60px;
     height: 60px;
     border-radius: 10px;
-    border: 3px solid #e2e8f0;
+    border: 3px solid #fce7f30;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -105,21 +105,21 @@
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    border: 2px solid #e2e8f0;
+    border: 2px solid #fce7f30;
     cursor: pointer;
     transition: all 0.2s ease;
   }
   .color-swatch:hover {
     transform: scale(1.15);
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    border-color: #1d4ed8;
+    border-color: #DC143C;
   }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="content-card">
-  <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-bottom: 2px solid #e2e8f0;">
+  <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-bottom: 2px solid #fce7f30;">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
       <div>
         <div class="card-title" style="font-size: 28px; color: #0f172a; margin-bottom: 8px;">{% if action == 'Create' %}Create New Company{% else %}Edit Company Profile{% endif %}</div>
@@ -128,7 +128,7 @@
       {% if company.company_id %}
       <div style="text-align: right;">
         <div style="font-size: 12px; color: #64748b; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Company ID</div>
-        <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; color: #1d4ed8; background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); padding: 10px 20px; border-radius: 8px; border: 2px solid #99f6e4; box-shadow: 0 2px 4px rgba(0,128,128,0.1);">{{ company.company_id }}</div>
+        <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; color: #DC143C; background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); padding: 10px 20px; border-radius: 8px; border: 2px solid #99f6e4; box-shadow: 0 2px 4px rgba(0,128,128,0.1);">{{ company.company_id }}</div>
       </div>
       {% endif %}
     </div>
@@ -174,7 +174,7 @@
     <div class="tab-content active" id="basic-info">
       <form method="POST" enctype="multipart/form-data" id="basicInfoForm">
         {% csrf_token %}
-        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e293b; display:flex; align-items:center; gap:8px;">
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e#DC143C; display:flex; align-items:center; gap:8px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
           </svg>
@@ -185,7 +185,7 @@
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
           <!-- Column 1: Company Info -->
           <div>
-            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Company Information</h4>
+            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Company Information</h4>
             <div style="margin-bottom: 20px;">
               <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Company Name <span style="color:#ef4444;">*</span></label>
               <input type="text" name="name" value="{% if company %}{{ company.name }}{% endif %}" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="Enter company name">
@@ -226,7 +226,7 @@
           
           <!-- Column 2: Contact Details -->
           <div>
-            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Contact Details</h4>
+            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Contact Details</h4>
             <div style="margin-bottom: 20px;">
               <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Email Address</label>
               <input type="email" name="email" value="{% if company %}{{ company.email }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="company@example.com">
@@ -251,7 +251,7 @@
           
           <!-- Column 3: Location -->
           <div>
-            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Location & Address</h4>
+            <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Location & Address</h4>
             <div style="margin-bottom: 20px;">
               <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Street Address <span style="color:#ef4444;">*</span></label>
               <textarea name="address" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; resize:vertical; min-height:80px; box-sizing:border-box;" placeholder="Enter full street address">{% if company %}{{ company.address }}{% endif %}</textarea>
@@ -276,8 +276,8 @@
           </div>
         </div>
         
-        <div style="background:#f0f9ff; padding:16px; border-radius:8px; border-left:4px solid #3b82f6; margin-top:20px;">
-          <p style="font-size:13px; color:#1e40af; margin:0; display:flex; align-items:center; gap:8px;">
+        <div style="background:#f0f9ff; padding:16px; border-radius:8px; border-left:4px solid #DC143C; margin-top:20px;">
+          <p style="font-size:13px; color:#DC143C; margin:0; display:flex; align-items:center; gap:8px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -287,8 +287,8 @@
           </p>
         </div>
         
-        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #e2e8f0;">
-          <button type="submit" class="btn" style="padding:10px 24px;">
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #fce7f30;">
+          <button type="submit" class="btn btn-primary" style="padding:10px 24px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:6px;">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
               <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -312,7 +312,7 @@
       <form method="POST" enctype="multipart/form-data" id="brandingForm">
         {% csrf_token %}
         <input type="hidden" name="action" value="company_profile">
-        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e293b; display:flex; align-items:center; gap:8px;">
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e#DC143C; display:flex; align-items:center; gap:8px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2"></rect>
             <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -324,29 +324,29 @@
         
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
           <!-- Logo Upload -->
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-              <div style="width:40px; height:40px; background:#3b82f6; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white;">
+              <div style="width:40px; height:40px; background:#DC143C; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 </svg>
               </div>
               <div>
-                <h4 style="font-size:14px; font-weight:600; margin:0; color:#1e293b;">Company Logo</h4>
+                <h4 style="font-size:14px; font-weight:600; margin:0; color:#1e#DC143C;">Company Logo</h4>
                 <p style="font-size:12px; color:#64748b; margin:0;">Primary brand identity</p>
               </div>
             </div>
             
             {% if company.logo %}
-            <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #e2e8f0; border-radius:8px; text-align:center;">
+            <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #fce7f30; border-radius:8px; text-align:center;">
               <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Current Logo:</p>
               <img src="{{ company.logo.url }}" alt="Logo" style="max-height:120px; max-width:100%; object-fit:contain;">
               <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
                 <button type="button" onclick="downloadImage('{{ company.logo.url }}', 'company-logo')" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:4px;">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
                   </svg>
                   Download
                 </button>
@@ -385,9 +385,9 @@
           
           <!-- Logo Preview & Usage -->
           <div>
-            <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:16px;">
-              <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e293b;">Logo Preview</h4>
-              <div id="logoPreview" style="padding:20px; background:white; border:1px solid #e2e8f0; border-radius:8px; text-align:center; min-height:150px; display:flex; align-items:center; justify-content:center;">
+            <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30; margin-bottom:16px;">
+              <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e#DC143C;">Logo Preview</h4>
+              <div id="logoPreview" style="padding:20px; background:white; border:1px solid #fce7f30; border-radius:8px; text-align:center; min-height:150px; display:flex; align-items:center; justify-content:center;">
                 {% if company.logo %}
                 <img src="{{ company.logo.url }}" style="max-height:120px; max-width:100%; object-fit:contain;">
                 {% else %}
@@ -396,8 +396,8 @@
               </div>
             </div>
             
-            <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
-              <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e293b;">Where Your Logo Appears</h4>
+            <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+              <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e#DC143C;">Where Your Logo Appears</h4>
               <div style="display:flex; flex-direction:column; gap:8px;">
                 <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -424,8 +424,8 @@
           </div>
         </div>
         
-        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #e2e8f0;">
-          <button type="submit" class="btn" style="padding:10px 24px;">
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #fce7f30;">
+          <button type="submit" class="btn btn-primary" style="padding:10px 24px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:6px;">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
               <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -449,7 +449,7 @@
       <form method="POST" enctype="multipart/form-data" id="documentsForm" action="{% url 'company_edit' company.id %}">
         {% csrf_token %}
         <input type="hidden" name="form_type" value="documents">
-        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e293b; display:flex; align-items:center; gap:8px;">
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:8px; color:#1e#DC143C; display:flex; align-items:center; gap:8px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
@@ -460,11 +460,11 @@
         
         <!-- Company Documents Section -->
         <div style="margin-bottom:32px;">
-          <h4 style="font-size:15px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Official Company Documents</h4>
+          <h4 style="font-size:15px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Official Company Documents</h4>
           <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
             
             <!-- Tax Certificate -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#10b981; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -473,7 +473,7 @@
                   </svg>
                 </div>
                 <div>
-                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">Tax Certificate</h5>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e#DC143C;">Tax Certificate</h5>
                   <p style="font-size:11px; color:#64748b; margin:0;">TPIN Certificate</p>
                 </div>
               </div>
@@ -482,16 +482,16 @@
             </div>
             
             <!-- Business Registration -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <div style="width:36px; height:36px; background:#3b82f6; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
+                <div style="width:36px; height:36px; background:#DC143C; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                   </svg>
                 </div>
                 <div>
-                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">Business Registration</h5>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e#DC143C;">Business Registration</h5>
                   <p style="font-size:11px; color:#64748b; margin:0;">PACRA Certificate</p>
                 </div>
               </div>
@@ -500,7 +500,7 @@
             </div>
             
             <!-- Trade License -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#f59e0b; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -509,7 +509,7 @@
                   </svg>
                 </div>
                 <div>
-                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">Trade License</h5>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e#DC143C;">Trade License</h5>
                   <p style="font-size:11px; color:#64748b; margin:0;">Trading License</p>
                 </div>
               </div>
@@ -518,7 +518,7 @@
             </div>
             
             <!-- NAPSA Certificate -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#8b5cf6; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -527,7 +527,7 @@
                   </svg>
                 </div>
                 <div>
-                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">NAPSA Certificate</h5>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e#DC143C;">NAPSA Certificate</h5>
                   <p style="font-size:11px; color:#64748b; margin:0;">Social Security</p>
                 </div>
               </div>
@@ -536,7 +536,7 @@
             </div>
             
             <!-- NHIMA Certificate -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#ec4899; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -545,7 +545,7 @@
                   </svg>
                 </div>
                 <div>
-                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">NHIMA Certificate</h5>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e#DC143C;">NHIMA Certificate</h5>
                   <p style="font-size:11px; color:#64748b; margin:0;">Health Insurance</p>
                 </div>
               </div>
@@ -554,7 +554,7 @@
             </div>
             
             <!-- Workers Compensation -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#06b6d4; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -563,7 +563,7 @@
                   </svg>
                 </div>
                 <div>
-                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e293b;">Workers Compensation</h5>
+                  <h5 style="font-size:13px; font-weight:600; margin:0; color:#1e#DC143C;">Workers Compensation</h5>
                   <p style="font-size:11px; color:#64748b; margin:0;">WCF Certificate</p>
                 </div>
               </div>
@@ -575,14 +575,14 @@
         </div>
         
         <!-- Stamps & Signatures Section -->
-        <h4 style="font-size:15px; font-weight:600; margin-bottom:16px; color:#1e293b; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">Stamps & Signatures</h4>
+        <h4 style="font-size:15px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Stamps & Signatures</h4>
         <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap:24px;">
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
-            <label style="display:block; margin-bottom:12px; font-weight:600; color:#1e293b; font-size:15px;">Company Stamp</label>
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#1e#DC143C; font-size:15px;">Company Stamp</label>
             <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Design your stamp or upload an image</p>
             
             {% if company.company_stamp %}
-            <div style="margin-bottom:16px; padding:16px; background:white; border:1px solid #e2e8f0; border-radius:8px; text-align:center;">
+            <div style="margin-bottom:16px; padding:16px; background:white; border:1px solid #fce7f30; border-radius:8px; text-align:center;">
               <p style="font-size:12px; color:#10b981; font-weight:600; margin-bottom:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Current Stamp</p>
               <img src="{{ company.company_stamp.url }}" alt="Company Stamp" style="max-height:120px; max-width:100%; object-fit:contain;">
             </div>
@@ -611,7 +611,7 @@
               </div>
               
               <!-- Stamp Designer Tool -->
-              <div id="stampDesigner" style="display:none; background:white; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+              <div id="stampDesigner" style="display:none; background:white; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
                 <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="13.5" cy="6.5" r=".5"></circle>
@@ -707,18 +707,18 @@
                       <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Font Size</label>
                       <div style="display:flex; align-items:center; gap:12px;">
                         <input type="range" id="stampFontSize" min="8" max="16" value="10" step="1" style="flex:1;">
-                        <span id="fontSizeValue" style="font-size:13px; font-weight:600; color:#1e293b; min-width:40px;">10px</span>
+                        <span id="fontSizeValue" style="font-size:13px; font-weight:600; color:#1e#DC143C; min-width:40px;">10px</span>
                       </div>
                     </div>
                     
                     <div style="margin-bottom:12px;">
                       <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Stamp Color</label>
                       <div style="display:flex; gap:8px; margin-bottom:8px;">
-                        <button type="button" onclick="setStampColor('#dc2626')" style="width:30px; height:30px; background:#dc2626; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
-                        <button type="button" onclick="setStampColor('#0369a1')" style="width:30px; height:30px; background:#0369a1; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
-                        <button type="button" onclick="setStampColor('#059669')" style="width:30px; height:30px; background:#059669; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
-                        <button type="button" onclick="setStampColor('#7c3aed')" style="width:30px; height:30px; background:#7c3aed; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
-                        <button type="button" onclick="setStampColor('#000000')" style="width:30px; height:30px; background:#000000; border:2px solid #e2e8f0; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#dc2626')" style="width:30px; height:30px; background:#dc2626; border:2px solid #fce7f30; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#0369a1')" style="width:30px; height:30px; background:#0369a1; border:2px solid #fce7f30; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#059669')" style="width:30px; height:30px; background:#059669; border:2px solid #fce7f30; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#7c3aed')" style="width:30px; height:30px; background:#7c3aed; border:2px solid #fce7f30; border-radius:4px; cursor:pointer;"></button>
+                        <button type="button" onclick="setStampColor('#000000')" style="width:30px; height:30px; background:#000000; border:2px solid #fce7f30; border-radius:4px; cursor:pointer;"></button>
                       </div>
                       <div style="display:flex; gap:8px; align-items:center;">
                         <input type="color" id="stampColor" value="#dc2626" style="width:50px; height:40px; border:none; border-radius:4px; cursor:pointer;">
@@ -731,7 +731,7 @@
                         <input type="checkbox" id="stampAddDate" style="margin-right:6px;">
                         Add Date Stamp
                       </label>
-                      <div id="dateStampOptions" style="display:none; margin-top:8px; padding:12px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0;">
+                      <div id="dateStampOptions" style="display:none; margin-top:8px; padding:12px; background:#f8fafc; border-radius:6px; border:1px solid #fce7f30;">
                         <div style="margin-bottom:8px;">
                           <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Format</label>
                           <select id="stampDateFormat" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;">
@@ -745,15 +745,15 @@
                           <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Size</label>
                           <div style="display:flex; align-items:center; gap:8px;">
                             <input type="range" id="stampDateSize" min="8" max="14" value="11" step="1" style="flex:1;">
-                            <span id="dateSizeValue" style="font-size:12px; font-weight:600; color:#1e293b; min-width:35px;">11px</span>
+                            <span id="dateSizeValue" style="font-size:12px; font-weight:600; color:#1e#DC143C; min-width:35px;">11px</span>
                           </div>
                         </div>
                         <div style="margin-bottom:8px;">
                           <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Color</label>
                           <div style="display:flex; gap:6px;">
-                            <button type="button" onclick="setDateColor('#dc2626')" style="width:24px; height:24px; background:#dc2626; border:2px solid #e2e8f0; border-radius:3px; cursor:pointer;"></button>
-                            <button type="button" onclick="setDateColor('#0369a1')" style="width:24px; height:24px; background:#0369a1; border:2px solid #e2e8f0; border-radius:3px; cursor:pointer;"></button>
-                            <button type="button" onclick="setDateColor('#059669')" style="width:24px; height:24px; background:#059669; border:2px solid #e2e8f0; border-radius:3px; cursor:pointer;"></button>
+                            <button type="button" onclick="setDateColor('#dc2626')" style="width:24px; height:24px; background:#dc2626; border:2px solid #fce7f30; border-radius:3px; cursor:pointer;"></button>
+                            <button type="button" onclick="setDateColor('#0369a1')" style="width:24px; height:24px; background:#0369a1; border:2px solid #fce7f30; border-radius:3px; cursor:pointer;"></button>
+                            <button type="button" onclick="setDateColor('#059669')" style="width:24px; height:24px; background:#059669; border:2px solid #fce7f30; border-radius:3px; cursor:pointer;"></button>
                             <input type="color" id="stampDateColor" value="#dc2626" style="width:30px; height:24px; border:1px solid #d1d5db; border-radius:3px; cursor:pointer;">
                           </div>
                         </div>
@@ -771,7 +771,7 @@
                   <div>
                     <div style="margin-bottom:16px; padding:20px; background:#f8fafc; border-radius:8px; text-align:center; min-height:350px; display:flex; flex-direction:column; justify-content:center;">
                       <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Live Preview:</p>
-                      <canvas id="stampCanvas" width="400" height="300" style="max-width:100%; border:1px solid #e2e8f0; background:white; margin:0 auto;"></canvas>
+                      <canvas id="stampCanvas" width="400" height="300" style="max-width:100%; border:1px solid #fce7f30; background:white; margin:0 auto;"></canvas>
                     </div>
                     
                     <div style="background:#fef3c7; padding:12px; border-radius:6px; margin-bottom:12px;">
@@ -798,7 +798,7 @@
               <!-- Upload Option -->
               <div id="stampUpload">
                 {% if company.company_stamp %}
-                <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #e2e8f0; border-radius:8px; text-align:center;">
+                <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #fce7f30; border-radius:8px; text-align:center;">
                   <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Current Stamp:</p>
                   <img src="{{ company.company_stamp.url }}" alt="Stamp" style="max-height:100px; max-width:100%; object-fit:contain;">
                 </div>
@@ -808,15 +808,15 @@
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
-            <label style="display:block; margin-bottom:12px; font-weight:600; color:#1e293b; font-size:15px;">Authorized Signatures</label>
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color:#1e#DC143C; font-size:15px;">Authorized Signatures</label>
             <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Assign digital signatures to authorized users</p>
             
             <!-- Company Default Signature -->
-            <div style="margin-bottom:20px; padding:16px; background:white; border-radius:8px; border:1px solid #e2e8f0;">
-              <h4 style="font-size:14px; font-weight:600; color:#1e293b; margin-bottom:12px;">Company Default Signature</h4>
+            <div style="margin-bottom:20px; padding:16px; background:white; border-radius:8px; border:1px solid #fce7f30;">
+              <h4 style="font-size:14px; font-weight:600; color:#1e#DC143C; margin-bottom:12px;">Company Default Signature</h4>
               {% if company.signature %}
-              <div style="margin-bottom:12px; padding:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; text-align:center;">
+              <div style="margin-bottom:12px; padding:12px; background:#f8fafc; border:1px solid #fce7f30; border-radius:6px; text-align:center;">
                 <img src="{{ company.signature.url }}" alt="Company Signature" style="max-height:60px; max-width:100%; object-fit:contain;">
               </div>
               {% endif %}
@@ -825,13 +825,13 @@
             
             <!-- User-Specific Signatures -->
             <div style="margin-bottom:16px;">
-              <h4 style="font-size:14px; font-weight:600; color:#1e293b; margin-bottom:12px;">User-Specific Signatures</h4>
+              <h4 style="font-size:14px; font-weight:600; color:#1e#DC143C; margin-bottom:12px;">User-Specific Signatures</h4>
               {% for user in company.user_set.all %}
               {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
-              <div style="margin-bottom:12px; padding:12px; background:white; border-radius:8px; border:1px solid #e2e8f0;">
+              <div style="margin-bottom:12px; padding:12px; background:white; border-radius:8px; border:1px solid #fce7f30;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                   <div>
-                    <span style="font-weight:600; color:#1e293b; font-size:13px;">{{ user.get_full_name|default:user.username }}</span>
+                    <span style="font-weight:600; color:#1e#DC143C; font-size:13px;">{{ user.get_full_name|default:user.username }}</span>
                     <span style="color:#64748b; font-size:12px; margin-left:8px;">({{ user.get_role_display }})</span>
                   </div>
                   {% if user.signature %}
@@ -856,8 +856,8 @@
             </p>
           </div>
         </div>
-        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #e2e8f0;">
-          <button type="submit" class="btn">Save Documents</button>
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:24px; border-top:1px solid #fce7f30;">
+          <button type="submit" class="btn btn-primary">Save Documents</button>
         </div>
       </form>
     </div>
@@ -866,19 +866,19 @@
     <div class="tab-content" id="colors">
       <form method="POST" id="colorsForm">
         {% csrf_token %}
-        <h3 style="font-size:16px; font-weight:600; margin-bottom:16px; color:#1e293b;">Corporate Colors & Theme</h3>
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:16px; color:#1e#DC143C;">Corporate Colors & Theme</h3>
         <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap:24px;">
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Primary Brand Color</label>
             <div class="color-picker-wrapper">
-              <input type="color" name="primary_color" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#3b82f6{% endif %}" id="primary_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <input type="color" name="primary_color" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#DC143C{% endif %}" id="primary_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#3b82f6{% endif %}" id="primary_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#DC143C{% endif %}" id="primary_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Main brand color</p>
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Secondary Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="secondary_color" value="{% if company.secondary_color %}{{ company.secondary_color }}{% else %}#10b981{% endif %}" id="secondary_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
@@ -888,17 +888,17 @@
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Text Color</label>
             <div class="color-picker-wrapper">
-              <input type="color" name="text_color" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e293b{% endif %}" id="text_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <input type="color" name="text_color" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e#DC143C{% endif %}" id="text_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e293b{% endif %}" id="text_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e#DC143C{% endif %}" id="text_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Primary text</p>
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Background Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="background_color" value="{% if company.background_color %}{{ company.background_color }}{% else %}#ffffff{% endif %}" id="bg_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
@@ -908,7 +908,7 @@
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Card Header Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="card_header_color" value="{% if company.card_header_color %}{{ company.card_header_color }}{% else %}#10b981{% endif %}" id="card_header_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
@@ -918,20 +918,20 @@
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #e2e8f0;">
+          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Button Color</label>
             <div class="color-picker-wrapper">
-              <input type="color" name="button_color" value="{% if company.button_color %}{{ company.button_color }}{% else %}#3b82f6{% endif %}" id="button_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
+              <input type="color" name="button_color" value="{% if company.button_color %}{{ company.button_color }}{% else %}#DC143C{% endif %}" id="button_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.button_color %}{{ company.button_color }}{% else %}#3b82f6{% endif %}" id="button_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.button_color %}{{ company.button_color }}{% else %}#DC143C{% endif %}" id="button_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Primary buttons</p>
               </div>
             </div>
           </div>
         </div>
-        <div style="margin-top:24px; padding:20px; background:white; border:1px solid #e2e8f0; border-radius:8px;">
-          <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e293b;">Live Preview</h4>
-          <div id="colorPreview" style="padding:24px; border-radius:8px; background:{% if company.primary_color %}{{ company.primary_color }}{% else %}#3b82f6{% endif %}; color:white; text-align:center; transition:all 0.3s ease;">
+        <div style="margin-top:24px; padding:20px; background:white; border:1px solid #fce7f30; border-radius:8px;">
+          <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e#DC143C;">Live Preview</h4>
+          <div id="colorPreview" style="padding:24px; border-radius:8px; background:{% if company.primary_color %}{{ company.primary_color }}{% else %}#DC143C{% endif %}; color:white; text-align:center; transition:all 0.3s ease;">
             <p style="font-size:20px; font-weight:600; margin-bottom:8px;">{{ company.name|default:"Your Company" }}</p>
             <p style="font-size:14px; opacity:0.9;">This is how your brand colors will appear</p>
             <div style="margin-top:16px; display:inline-flex; gap:12px;">
@@ -950,7 +950,7 @@
             <strong>Note:</strong> After saving, the page will reload to apply your new color scheme to the entire system.
           </p>
         </div>
-        <div style="display:flex; gap:12px; justify-content:space-between; margin-top:24px; padding-top:24px; border-top:1px solid #e2e8f0;">
+        <div style="display:flex; gap:12px; justify-content:space-between; margin-top:24px; padding-top:24px; border-top:1px solid #fce7f30;">
           <div style="display:flex; gap:8px;">
             <button type="button" class="btn btn-secondary" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; margin-right:6px;">
@@ -968,7 +968,7 @@
               Reset
             </button>
           </div>
-          <button type="submit" class="btn" onclick="return confirmColorSave()">Save Colors & Reload</button>
+          <button type="submit" class="btn btn-primary" onclick="return confirmColorSave()">Save Colors & Reload</button>
         </div>
       </form>
     </div>
@@ -1124,7 +1124,7 @@
     
     const ctx = canvas.getContext('2d');
     const topText = document.getElementById('stampTopText').value || 'EISCOMTECH LIMITED';
-    const middleText = document.getElementById('stampMiddleText').value || 'Tel: 0211 123456, Fax: 0211 654321\nzambia@eiscomtech.com';
+    const middleText = document.getElementById('stampMiddleText').value || 'Tel: 0211 123456, Fax: 0211 654321\nzambia@eicsomtech.com';
     const bottomText = document.getElementById('stampBottomText').value || 'P.O.Box 56879 Lusaka Zambia';
     const shape = document.getElementById('stampShape').value;
     const size = document.getElementById('stampSize').value;

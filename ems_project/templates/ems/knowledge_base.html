@@ -14,11 +14,11 @@
         <div class="card-content">
             <form method="get" style="display:flex; flex-direction:column; gap:12px; max-width:640px;">
                 <div>
-                    <label style="display:block; font-size: 13px; font-weight: 500; color:#374151; margin-bottom: 4px;">Search</label>
+                    <label style="display:block; font-size: 13px; font-weight: 500; color:#DC143C; margin-bottom: 4px;">Search</label>
                     <input type="text" name="search" value="{{ search_query }}" placeholder="Search articles" style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid #d1d5db; font-size:14px;" />
                 </div>
                 <div>
-                    <label style="display:block; font-size: 13px; font-weight: 500; color:#374151; margin-bottom: 4px;">Category</label>
+                    <label style="display:block; font-size: 13px; font-weight: 500; color:#DC143C; margin-bottom: 4px;">Category</label>
                     <select name="category" style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid #d1d5db; font-size:14px;">
                         <option value="">All categories</option>
                         {% for cat in categories %}
@@ -27,15 +27,15 @@
                     </select>
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <button type="submit" class="btn">Apply</button>
+                    <button type="submit" class="btn btn-primary">Apply</button>
                     <a href="/knowledge-base/" class="btn btn-secondary">Reset</a>
                 </div>
             </form>
             {% if categories %}
             <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;">
-                <a href="/knowledge-base/" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid {% if not category_filter %}#1d4ed8{% else %}#e5e7eb{% endif %}; background:{% if not category_filter %}#eff6ff{% else %}#f9fafb{% endif %}; color:{% if not category_filter %}#1d4ed8{% else %}#4b5563{% endif %}; text-decoration:none;">All topics</a>
+                <a href="/knowledge-base/" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid {% if not category_filter %}#DC143C{% else %}#e5e7eb{% endif %}; background:{% if not category_filter %}#eff6ff{% else %}#f9fafb{% endif %}; color:{% if not category_filter %}#DC143C{% else %}#4b5563{% endif %}; text-decoration:none;">All topics</a>
                 {% for cat in categories %}
-                <a href="?category={{ cat|urlencode }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid {% if category_filter == cat %}#1d4ed8{% else %}#e5e7eb{% endif %}; background:{% if category_filter == cat %}#eff6ff{% else %}#f9fafb{% endif %}; color:{% if category_filter == cat %}#1d4ed8{% else %}#4b5563{% endif %}; text-decoration:none;">{{ cat }}</a>
+                <a href="?category={{ cat|urlencode }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid {% if category_filter == cat %}#DC143C{% else %}#e5e7eb{% endif %}; background:{% if category_filter == cat %}#eff6ff{% else %}#f9fafb{% endif %}; color:{% if category_filter == cat %}#DC143C{% else %}#4b5563{% endif %}; text-decoration:none;">{{ cat }}</a>
                 {% endfor %}
             </div>
             {% endif %}
@@ -54,7 +54,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
                         <h4 style="margin:0; font-size:15px; font-weight:600; color:#111827;">{{ article.title }}</h4>
                         {% if article.category %}
-                        <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; padding:2px 8px; border-radius:999px; background:#eff6ff; color:#1d4ed8; white-space:nowrap;">{{ article.category }}</span>
+                        <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; padding:2px 8px; border-radius:999px; background:#eff6ff; color:#DC143C; white-space:nowrap;">{{ article.category }}</span>
                         {% endif %}
                     </div>
                     <p style="margin:0; font-size:13px; color:#4b5563;">
@@ -68,10 +68,10 @@
                         <span>
                             Updated {{ article.updated_at|date:"M j, Y" }}
                             {% if article.video_url or article.media_file %}
-                                · <span style="color:#2563eb;">Media available</span>
+                                · <span style="color:#DC143C;">Media available</span>
                             {% endif %}
                         </span>
-                        <a href="{% url 'knowledge_article_detail' slug=article.slug %}" style="display:inline-flex; align-items:center; gap:4px; color:#2563eb; text-decoration:none;">
+                        <a href="{% url 'knowledge_article_detail' slug=article.slug %}" style="display:inline-flex; align-items:center; gap:4px; color:#DC143C; text-decoration:none;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v4"/><path d="M10 14 21 3"/><path d="M19 21h-4a2 2 0 0 1-2-2v-4"/><path d="M3 10 14 21"/></svg>
                             <span>Learn more</span>
                         </a>

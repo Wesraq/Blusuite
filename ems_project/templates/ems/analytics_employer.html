@@ -1,4 +1,4 @@
-{% extends base_template|default:'ems/base_employer.html' %}
+﻿{% extends base_template|default:'ems/base_employer.html' %}
 
 {% block title %}Analytics Dashboard - EMS{% endblock %}
 {% block page_title %}Analytics & Reporting{% endblock %}
@@ -37,9 +37,9 @@
             <label class="control-label">To Date</label>
             <input type="date" id="date_to" name="date_to" value="{{ date_to }}" class="control-input">
         </div>
-        <button type="submit" class="btn">Apply Filter</button>
+        <button type="submit" class="btn btn-primary">Apply Filter</button>
         <a href="{% url 'analytics_dashboard' %}" class="btn btn-secondary" style="text-decoration: none;">Reset</a>
-        <button type="button" onclick="exportCSV()" class="btn" style="display: inline-flex; align-items: center; gap: 6px; background: #10b981;">
+        <button type="button" onclick="exportCSV()" class="btn" style="display: inline-flex; align-items: center; gap: 6px; background: #DC143C;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -53,7 +53,7 @@
 <!-- Main Statistics Grid -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="stat-details">
             <h3>{{ total_employees }}</h3>
             <p>Total Employees</p>
@@ -85,14 +85,14 @@
 <!-- Secondary Statistics Grid -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
         <div class="stat-details">
             <h3>{{ total_documents }}</h3>
             <p>Documents</p>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
         <div class="stat-details">
             <h3>{{ total_payrolls }}</h3>
             <p>Payrolls</p>
@@ -119,7 +119,7 @@
     <!-- Attendance Trend Chart -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
                 <line x1="12" y1="20" x2="12" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="14"></line>
@@ -136,7 +136,7 @@
     <!-- Leave Status Distribution -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
                             <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -154,7 +154,7 @@
     <!-- Leave Type Distribution -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="3" width="7" height="7"></rect>
                             <rect x="14" y="3" width="7" height="7"></rect>
                             <rect x="14" y="14" width="7" height="7"></rect>
@@ -172,7 +172,7 @@
     <!-- Performance Rating Distribution -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
             <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #1e293b;">Performance Ratings</h3>
@@ -187,7 +187,7 @@
     <!-- Training Status -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 10L12 4 2 10l10 6 10-6z"></path><path d="M6 12v5c0 1.1 2.69 2 6 2s6-.9 6-2v-5"></path></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><path d="M22 10L12 4 2 10l10 6 10-6z"></path><path d="M6 12v5c0 1.1 2.69 2 6 2s6-.9 6-2v-5"></path></svg>
             <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #1e293b;">Training Status</h3>
         </div>
         <div style="padding: 20px;">
@@ -200,7 +200,7 @@
     <!-- Activity Feed -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
@@ -240,7 +240,7 @@
     <!-- Attendance Summary -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                             <polyline points="17 6 23 6 23 12"></polyline>
             </svg>
@@ -265,7 +265,7 @@
     <!-- Leave Summary -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
                             <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -292,7 +292,7 @@
     <!-- Performance Summary -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
             <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #1e293b;">Performance Summary</h3>
@@ -383,7 +383,7 @@ function exportCSV() {
         labels: leaveStatusLabels, 
         datasets: [{ 
           data: leaveStatusData, 
-          backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#EF4444', '#8B5CF6'], 
+          backgroundColor: ['#F59E0B', '#DC143C', '#10B981', '#EF4444', '#8B5CF6'], 
           borderWidth: 0 
         }] 
       },
@@ -406,7 +406,7 @@ function exportCSV() {
         datasets: [{ 
           label: 'Requests',
           data: leaveTypeData, 
-          backgroundColor: '#3B82F6',
+          backgroundColor: '#DC143C',
           borderRadius: 8
         }] 
       },
@@ -429,7 +429,7 @@ function exportCSV() {
         datasets: [{ 
           label: 'Reviews',
           data: ratingData, 
-          backgroundColor: ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'],
+          backgroundColor: ['#EF4444', '#F59E0B', '#10B981', '#DC143C', '#8B5CF6'],
           borderRadius: 8
         }] 
       },
@@ -451,7 +451,7 @@ function exportCSV() {
         labels: trainingLabels, 
         datasets: [{ 
           data: trainingData, 
-          backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'], 
+          backgroundColor: ['#DC143C', '#10B981', '#F59E0B', '#EF4444'], 
           borderWidth: 0 
         }] 
       },

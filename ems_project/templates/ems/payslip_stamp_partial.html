@@ -1,0 +1,40 @@
+{# ── Company Stamp Partial ──
+   Usage: {% include "ems/payslip_stamp_partial.html" with co=company payroll=payroll %}
+   Renders the company stamp image if available, otherwise a circular CSS stamp.
+#}
+{% if co.company_stamp and co.show_company_stamp %}
+<img src="{{ co.company_stamp.url }}" alt="Company Stamp"
+     style="max-height:130px;max-width:180px;object-fit:contain;display:block;">
+{% else %}
+<div style="display:inline-block;position:relative;width:145px;height:145px;">
+    <div style="position:absolute;inset:0;border:3.5px solid #1a56a0;border-radius:50%;
+                display:flex;flex-direction:column;align-items:center;justify-content:center;
+                text-align:center;padding:12px;box-sizing:border-box;">
+        <div style="font-size:7.5px;font-weight:900;color:#1a56a0;text-transform:uppercase;
+                    line-height:1.25;margin-bottom:3px;word-break:break-word;">
+            {{ co.name|upper }}
+        </div>
+        {% if co.phone %}
+        <div style="font-size:7px;color:#1a56a0;line-height:1.3;">Tel: {{ co.phone }}</div>
+        {% endif %}
+        {% if co.alternative_phone %}
+        <div style="font-size:7px;color:#1a56a0;line-height:1.3;">Fax: {{ co.alternative_phone }}</div>
+        {% endif %}
+        <div style="background:#d91a1a;color:#fff;font-size:11px;font-weight:900;
+                    padding:2px 8px;margin:4px 0;letter-spacing:.4px;
+                    -webkit-print-color-adjust:exact;print-color-adjust:exact;">
+            {{ pay_date_formatted }}
+        </div>
+        {% if co.email %}
+        <div style="font-size:6.5px;color:#1a56a0;line-height:1.3;word-break:break-all;">
+            {{ co.email }}
+        </div>
+        {% endif %}
+        {% if co.city or co.country %}
+        <div style="font-size:7px;color:#1a56a0;margin-top:2px;">
+            {% if co.city %}{{ co.city }}{% endif %}{% if co.city and co.country %}, {% endif %}{% if co.country %}{{ co.country }}{% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

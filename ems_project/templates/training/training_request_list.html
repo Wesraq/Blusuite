@@ -40,21 +40,11 @@
   <div class="card-content">
     <!-- Filter Tabs -->
     <div style="display:flex; gap:12px; margin-bottom:24px; border-bottom:2px solid #e2e8f0;">
-      <a href="?status=" style="padding:12px 20px; text-decoration:none; font-weight:600; font-size:14px; border-bottom:3px solid {% if not status_filter %}#3b82f6{% else %}transparent{% endif %}; color:{% if not status_filter %}#3b82f6{% else %}#64748b{% endif %}; margin-bottom:-2px;">
-        All Requests
-      </a>
-      <a href="?status=PENDING" style="padding:12px 20px; text-decoration:none; font-weight:600; font-size:14px; border-bottom:3px solid {% if status_filter == 'PENDING' %}#f59e0b{% else %}transparent{% endif %}; color:{% if status_filter == 'PENDING' %}#f59e0b{% else %}#64748b{% endif %}; margin-bottom:-2px;">
-        Pending
-      </a>
-      <a href="?status=APPROVED" style="padding:12px 20px; text-decoration:none; font-weight:600; font-size:14px; border-bottom:3px solid {% if status_filter == 'APPROVED' %}#10b981{% else %}transparent{% endif %}; color:{% if status_filter == 'APPROVED' %}#10b981{% else %}#64748b{% endif %}; margin-bottom:-2px;">
-        Approved
-      </a>
-      <a href="?status=REJECTED" style="padding:12px 20px; text-decoration:none; font-weight:600; font-size:14px; border-bottom:3px solid {% if status_filter == 'REJECTED' %}#ef4444{% else %}transparent{% endif %}; color:{% if status_filter == 'REJECTED' %}#ef4444{% else %}#64748b{% endif %}; margin-bottom:-2px;">
-        Rejected
-      </a>
-      <a href="?status=COMPLETED" style="padding:12px 20px; text-decoration:none; font-weight:600; font-size:14px; border-bottom:3px solid {% if status_filter == 'COMPLETED' %}#8b5cf6{% else %}transparent{% endif %}; color:{% if status_filter == 'COMPLETED' %}#8b5cf6{% else %}#64748b{% endif %}; margin-bottom:-2px;">
-        Completed
-      </a>
+      <a href="?status=" class="ul-tab {% if not status_filter %}ul-tab-active{% endif %}">All Requests</a>
+      <a href="?status=PENDING" class="ul-tab {% if status_filter == 'PENDING' %}ul-tab-active{% endif %}">Pending</a>
+      <a href="?status=APPROVED" class="ul-tab {% if status_filter == 'APPROVED' %}ul-tab-active{% endif %}">Approved</a>
+      <a href="?status=REJECTED" class="ul-tab {% if status_filter == 'REJECTED' %}ul-tab-active{% endif %}">Rejected</a>
+      <a href="?status=COMPLETED" class="ul-tab {% if status_filter == 'COMPLETED' %}ul-tab-active{% endif %}">Completed</a>
     </div>
 
     <!-- Requests Table -->

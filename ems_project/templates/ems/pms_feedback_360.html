@@ -1,0 +1,200 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}360° Feedback – PMS{% endblock %}
+{% block page_title %}360° Feedback{% endblock %}
+
+{% block content %}
+<style>
+.pms-stat { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:18px 22px; display:flex; align-items:center; gap:16px; }
+.pms-stat-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pms-stat h3 { margin:0; font-size:22px; font-weight:700; color:#0f172a; }
+.pms-stat p { margin:2px 0 0; font-size:12px; color:#64748b; }
+.fb-card { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:18px 20px; margin-bottom:12px; }
+.fb-type-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.type-self { background:#fce7f3; color:#9d174d; }
+.type-manager { background:#ede9fe; color:#6d28d9; }
+.type-peer { background:#dbeafe; color:#1e40af; }
+.type-subordinate { background:#fef3c7; color:#92400e; }
+.type-customer { background:#dcfce7; color:#166534; }
+.star { color:#f59e0b; font-size:16px; }
+.star-empty { color:#e2e8f0; font-size:16px; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:#fff; border-radius:12px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,.18); }
+.modal-hd { display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid #e2e8f0; position:sticky; top:0; background:#fff; }
+.modal-hd h3 { margin:0; font-size:15px; font-weight:700; }
+.modal-close { background:none; border:none; font-size:22px; color:#94a3b8; cursor:pointer; }
+.modal-body { padding:20px 22px; display:flex; flex-direction:column; gap:12px; }
+.modal-ft { padding:14px 22px; border-top:1px solid #f1f5f9; display:flex; gap:10px; justify-content:flex-end; }
+.field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+.field input, .field select, .field textarea { width:100%; padding:8px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; color:#0f172a; box-sizing:border-box; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:#DC143C; outline:none; }
+.btn-primary { padding:9px 18px; background:#DC143C; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-secondary { padding:9px 18px; background:#f1f5f9; color:#374151; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-danger { padding:6px 12px; background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; }
+</style>
+
+<!-- Header -->
+<div class="page-header">
+    <div>
+        <h2>360° Feedback</h2>
+        <p>Multi-source feedback from peers, managers, and direct reports.</p>
+    </div>
+    <button onclick="document.getElementById('submitFeedbackModal').classList.add('open')" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Give Feedback
+    </button>
+</div>
+
+{% if messages %}{% for msg in messages %}
+<div style="padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;{% if msg.tags == 'error' %}background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;{% else %}background:#dcfce7;color:#166534;border:1px solid #86efac;{% endif %}">{{ msg }}</div>
+{% endfor %}{% endif %}
+
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-bottom:24px;">
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#fce7f3;color:#DC143C;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><h3>{{ total }}</h3><p>Total Feedback</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#ede9fe;color:#7c3aed;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><h3>{{ manager_count }}</h3><p>Manager</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#dbeafe;color:#2563eb;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div><div><h3>{{ peer_count }}</h3><p>Peer</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#fef3c7;color:#d97706;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><h3>{{ subordinate_count }}</h3><p>Subordinate</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#dcfce7;color:#16a34a;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div><h3>{{ self_count }}</h3><p>Self</p></div></div>
+</div>
+
+<!-- Filter -->
+<div class="content-card" style="padding:16px 20px;margin-bottom:20px;">
+    <form method="get" style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;">
+        <div style="flex:1;min-width:160px;">
+            <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">FEEDBACK TYPE</label>
+            <select name="feedback_type" onchange="this.form.submit()" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;">
+                <option value="">All Types</option>
+                {% for val, label in feedback_types %}<option value="{{ val }}" {% if type_filter == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        {% if type_filter %}<a href="{% url 'pms_feedback_360' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Clear</a>{% endif %}
+    </form>
+</div>
+
+<!-- Feedback List -->
+<div class="content-card">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 class="card-title">Feedback Entries</h3>
+        <span style="font-size:13px;color:#64748b;">{{ feedback_list|length }} entr{% if feedback_list|length != 1 %}ies{% else %}y{% endif %}</span>
+    </div>
+    <div class="card-content" style="padding:16px;">
+        {% if feedback_list %}
+        <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for fb in feedback_list %}
+        <div class="fb-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+                        <span class="fb-type-badge
+                            {% if fb.feedback_type == 'SELF' %}type-self
+                            {% elif fb.feedback_type == 'MANAGER' %}type-manager
+                            {% elif fb.feedback_type == 'PEER' %}type-peer
+                            {% elif fb.feedback_type == 'SUBORDINATE' %}type-subordinate
+                            {% else %}type-customer{% endif %}">{{ fb.get_feedback_type_display }}</span>
+                        {% if is_hr %}<span style="font-size:13px;font-weight:600;color:#0f172a;">{{ fb.review.employee.get_full_name }}</span>{% endif %}
+                        <span style="font-size:12px;color:#64748b;">{{ fb.review.title|truncatechars:40 }}</span>
+                    </div>
+                    <!-- Star rating -->
+                    <div style="margin-bottom:8px;">
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= fb.rating %}<span class="star">★</span>{% else %}<span class="star-empty">★</span>{% endif %}
+                        {% endfor %}
+                        <span style="font-size:12px;color:#64748b;margin-left:6px;">{{ fb.rating }}/5</span>
+                    </div>
+                    {% if not fb.is_anonymous and fb.provided_by %}
+                    <div style="font-size:12px;color:#64748b;margin-bottom:6px;">From: <strong>{{ fb.provided_by.get_full_name }}</strong>{% if fb.relationship_to_employee %} · {{ fb.relationship_to_employee }}{% endif %}</div>
+                    {% else %}
+                    <div style="font-size:12px;color:#64748b;margin-bottom:6px;">From: <em>Anonymous</em>{% if fb.relationship_to_employee %} · {{ fb.relationship_to_employee }}{% endif %}</div>
+                    {% endif %}
+                    {% if fb.strengths %}<div style="margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#374151;">STRENGTHS: </span><span style="font-size:13px;color:#475569;">{{ fb.strengths|truncatechars:150 }}</span></div>{% endif %}
+                    {% if fb.areas_for_improvement %}<div style="margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#374151;">IMPROVE: </span><span style="font-size:13px;color:#475569;">{{ fb.areas_for_improvement|truncatechars:150 }}</span></div>{% endif %}
+                    {% if fb.overall_comments %}<div><span style="font-size:11px;font-weight:600;color:#374151;">COMMENTS: </span><span style="font-size:13px;color:#475569;">{{ fb.overall_comments|truncatechars:200 }}</span></div>{% endif %}
+                    <div style="font-size:11px;color:#94a3b8;margin-top:8px;">{{ fb.created_at|date:"M d, Y" }}</div>
+                </div>
+                {% if is_hr %}
+                <form method="post" onsubmit="return confirm('Delete this feedback?');" style="flex-shrink:0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_feedback">
+                    <input type="hidden" name="feedback_id" value="{{ fb.id }}">
+                    <button type="submit" class="btn-danger">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div style="padding:48px 24px;text-align:center;color:#94a3b8;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <p style="margin:0;font-size:14px;">No feedback found{% if type_filter %} for this type{% endif %}.</p>
+            <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">Click "Give Feedback" to submit the first entry.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- PMS Nav -->
+<div class="content-card" style="margin-top:20px;padding:16px 20px;">
+    <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:12px;text-transform:uppercase;">PMS Modules</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <a href="{% url 'performance_reviews_list' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Reviews</a>
+        <a href="{% url 'pms_goals' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Goals</a>
+        <a href="{% url 'pms_metrics' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Metrics</a>
+        <a href="{% url 'pms_feedback_360' %}" style="padding:8px 14px;background:#DC143C;border-radius:6px;font-size:13px;color:#fff;text-decoration:none;font-weight:600;">360° Feedback</a>
+        <a href="{% url 'pms_self_assessment' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Self-Assessment</a>
+        {% if is_hr %}<a href="{% url 'pms_competencies' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Competencies</a>{% endif %}
+    </div>
+</div>
+
+<!-- Submit Feedback Modal -->
+<div class="modal-overlay" id="submitFeedbackModal">
+    <div class="modal">
+        <div class="modal-hd"><h3>Submit 360° Feedback</h3><button class="modal-close" onclick="document.getElementById('submitFeedbackModal').classList.remove('open')">×</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="submit_feedback">
+            <div class="modal-body">
+                <div class="field">
+                    <label>Review *</label>
+                    <select name="review_id" required>
+                        <option value="">Select review…</option>
+                        {% for r in reviews %}<option value="{{ r.id }}">{{ r.employee.get_full_name }} – {{ r.title|truncatechars:40 }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="field">
+                        <label>Feedback Type</label>
+                        <select name="feedback_type">
+                            {% for val, label in feedback_types %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Rating (1–5) *</label>
+                        <input type="number" name="rating" min="1" max="5" value="3" required>
+                    </div>
+                </div>
+                <div class="field"><label>Your Relationship</label><input type="text" name="relationship" placeholder="e.g. Direct Manager, Colleague…"></div>
+                <div class="field"><label>Strengths</label><textarea name="strengths" rows="2" placeholder="What does this person do well?"></textarea></div>
+                <div class="field"><label>Areas for Improvement</label><textarea name="areas_for_improvement" rows="2" placeholder="Where can they improve?"></textarea></div>
+                <div class="field"><label>Overall Comments</label><textarea name="overall_comments" rows="3"></textarea></div>
+                <div class="field"><label>Suggestions</label><textarea name="suggestions" rows="2"></textarea></div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" name="is_anonymous" value="1" id="chk_anon" style="width:auto;">
+                    <label for="chk_anon" style="font-size:13px;font-weight:400;color:#374151;cursor:pointer;">Submit anonymously</label>
+                </div>
+            </div>
+            <div class="modal-ft">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('submitFeedbackModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="btn-primary">Submit Feedback</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+</script>
+{% endblock %}

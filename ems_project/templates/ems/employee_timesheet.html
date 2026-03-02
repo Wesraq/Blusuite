@@ -1,0 +1,497 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+{% block title %}My Timesheets{% endblock %}
+{% block page_title %}My Timesheets{% endblock %}
+
+{% block content %}
+<style>
+/* ── Layout ─────────────────────────────────────────────── */
+.ts-wrap { padding:20px 24px; }
+.ts-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+.ts-title { font-size:22px; font-weight:800; color:#DC143C; margin:0; }
+.ts-subtitle { font-size:13px; color:#64748b; margin:3px 0 0; }
+
+/* ── Info banner: payroll wiring ─────────────────────────── */
+.ts-info-bar { display:flex; gap:10px; align-items:flex-start; background:#fce7f3; border:1px solid #bfdbfe; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:12px; color:#DC143C; line-height:1.5; }
+.ts-info-bar svg { flex-shrink:0; margin-top:1px; }
+
+/* ── Tabs ──────────────────────────────────────────────── */
+.ts-tabs { display:flex; gap:2px; border-bottom:2px solid #e2e8f0; margin-bottom:20px; }
+.ts-tab { padding:10px 20px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:none; color:#64748b; border-bottom:3px solid transparent; margin-bottom:-2px; transition:all .15s; border-radius:6px 6px 0 0; }
+.ts-tab:hover { background:#f8fafc; color:#DC143C; }
+.ts-tab.active { color:var(--company-button,#DC143C); border-bottom-color:var(--company-button,#DC143C); }
+.ts-pane { display:none; }
+.ts-pane.active { display:block; }
+
+/* ── Summary stat boxes ──────────────────────────────────── */
+.ts-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.ts-stat { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:14px 16px; text-align:center; }
+.ts-stat-label { font-size:11px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.ts-stat-val { font-size:24px; font-weight:800; color:#DC143C; line-height:1; }
+.ts-stat-sub { font-size:11px; color:#DC143C; margin-top:3px; }
+@media(max-width:640px){ .ts-stats{grid-template-columns:repeat(2,1fr);} }
+
+/* ── Weekly timetable form ───────────────────────────────── */
+.ts-form-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; }
+.ts-form-top { padding:16px 20px 0; border-bottom:1px solid #f1f5f9; }
+.ts-week-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding-bottom:14px; }
+.ts-week-label { font-size:12px; font-weight:600; color:#374151; white-space:nowrap; }
+.ts-week-input { border:1px solid #d1d5db; border-radius:7px; padding:7px 12px; font-size:13px; color:#DC143C; background:#f9fafb; cursor:pointer; }
+.ts-week-input:focus { outline:none; border-color:var(--company-button,#DC143C); }
+.ts-week-badge { background:#f1f5f9; border-radius:20px; padding:4px 10px; font-size:11px; font-weight:600; color:#64748b; }
+
+/* ── Timetable grid ──────────────────────────────────────── */
+.ts-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.ts-table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
+.ts-table th { background:#f8fafc; padding:10px 12px; text-align:center; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; border-bottom:2px solid #e2e8f0; white-space:nowrap; }
+.ts-table th.col-day { text-align:left; width:90px; }
+.ts-table th.col-att { width:80px; color:#DC143C; }
+.ts-table th.col-reg { width:90px; }
+.ts-table th.col-ot { width:90px; color:#DC143C; }
+.ts-table th.col-desc { }
+.ts-table td { padding:0; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+.ts-table tr:last-child td { border-bottom:none; }
+.ts-table tr.ts-weekend td { background:#fafbfc; }
+.ts-table tr.ts-weekend .ts-day-cell { opacity:.55; }
+
+.ts-day-cell { padding:10px 12px; display:flex; flex-direction:column; gap:2px; }
+.ts-day-name { font-weight:700; color:#DC143C; font-size:13px; }
+.ts-day-date { font-size:11px; color:#64748b; }
+
+.ts-att-cell { padding:8px 6px; text-align:center; }
+.ts-att-badge { display:inline-block; font-size:11px; font-weight:600; border-radius:20px; padding:3px 8px; }
+.ts-att-present { background:#dcfce7; color:#15803d; }
+.ts-att-absent { background:#f1f5f9; color:#DC143C; }
+.ts-att-hours { font-size:10px; color:#DC143C; font-weight:600; margin-top:2px; }
+
+.ts-input-cell { padding:6px 8px; text-align:center; }
+.ts-num-input { width:100%; max-width:76px; border:1px solid #e2e8f0; border-radius:7px; padding:7px 6px; font-size:13px; text-align:center; background:#f9fafb; transition:border-color .15s, background .15s; font-weight:600; color:#DC143C; }
+.ts-num-input:focus { border-color:var(--company-button,#DC143C); background:#fff; outline:none; box-shadow:0 0 0 3px rgba(220,20,60,.08); }
+.ts-num-input.has-value { background:#fce7f3; border-color:#DC143C; }
+.ts-num-input.has-ot { background:#fff7ed; border-color:#fdba74; }
+.ts-weekend .ts-num-input { background:#f8fafc; color:#DC143C; }
+
+.ts-desc-cell { padding:6px 8px 6px 4px; }
+.ts-desc-input { width:100%; border:1px solid #e2e8f0; border-radius:7px; padding:7px 10px; font-size:12px; background:#f9fafb; font-family:inherit; transition:border-color .15s; }
+.ts-desc-input:focus { border-color:var(--company-button,#DC143C); background:#fff; outline:none; }
+
+/* ── Row day-total indicator ─────────────────────────────── */
+.ts-row-total { padding:8px 12px; text-align:center; font-size:12px; font-weight:700; color:var(--company-button,#DC143C); background:#fff1f2; border-radius:6px; min-width:44px; display:inline-block; }
+
+/* ── Work type dropdown ──────────────────────────────────── */
+.ts-type-cell { padding:6px 8px; }
+.ts-type-select { width:100%; border:1px solid #e2e8f0; border-radius:7px; padding:7px 8px; font-size:12px; background:#f9fafb; color:#374151; font-family:inherit; transition:border-color .15s; }
+.ts-type-select:focus { border-color:var(--company-button,#DC143C); background:#fff; outline:none; }
+.ts-type-select.has-special { background:#fff7ed; border-color:#fdba74; }
+
+/* ── Totals bar ──────────────────────────────────────────── */
+.ts-totals-bar { display:flex; gap:16px; padding:16px 20px; background:#f8fafc; border-top:2px solid #e2e8f0; flex-wrap:wrap; align-items:center; }
+.ts-total-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.ts-total-label { font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
+.ts-total-num { font-size:20px; font-weight:800; }
+.ts-sep { width:1px; height:36px; background:#e2e8f0; }
+
+/* ── Notes & actions ─────────────────────────────────────── */
+.ts-form-footer { padding:16px 20px; border-top:1px solid #f1f5f9; }
+.ts-notes { width:100%; border:1px solid #e2e8f0; border-radius:8px; padding:10px 12px; font-size:13px; resize:vertical; min-height:56px; font-family:inherit; background:#f9fafb; box-sizing:border-box; margin-bottom:14px; }
+.ts-notes:focus { border-color:var(--company-button,#DC143C); background:#fff; outline:none; }
+.ts-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.ts-btn { display:inline-flex; align-items:center; gap:7px; padding:10px 20px; border-radius:8px; font-size:13px; font-weight:600; border:none; cursor:pointer; transition:all .15s; }
+.ts-btn-primary { background:var(--company-button,#DC143C); color:#fff; }
+.ts-btn-primary:hover { opacity:.9; }
+.ts-btn-secondary { background:#f8fafc; color:#374151; border:1px solid #e2e8f0; }
+.ts-btn-secondary:hover { background:#f1f5f9; }
+
+/* ── Payroll status panel ────────────────────────────────── */
+.ts-payroll-notice { display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border-radius:10px; font-size:12px; line-height:1.5; margin-bottom:20px; }
+.ts-payroll-approved { background:#dcfce7; border:1px solid #86efac; color:#15803d; }
+.ts-payroll-pending  { background:#fef3c7; border:1px solid #fcd34d; color:#78350f; }
+.ts-payroll-draft    { background:#f1f5f9; border:1px solid #cbd5e1; color:#475569; }
+
+/* ── History table ───────────────────────────────────────── */
+.ts-history { background:#fff; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; }
+.ts-history-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.ts-history table { width:100%; border-collapse:collapse; font-size:13px; min-width:700px; }
+.ts-history th { background:#f8fafc; padding:11px 14px; text-align:left; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:#64748b; border-bottom:2px solid #e2e8f0; white-space:nowrap; }
+.ts-history td { padding:12px 14px; border-bottom:1px solid #f1f5f9; color:#DC143C; vertical-align:middle; }
+.ts-history tr:last-child td { border-bottom:none; }
+.ts-history tr:hover td { background:#fafafa; }
+.ts-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+.badge-draft     { background:#f1f5f9; color:#64748b; }
+.badge-submitted { background:#fce7f3; color:#DC143C; }
+.badge-approved  { background:#dcfce7; color:#15803d; }
+.badge-rejected  { background:#fee2e2; color:#dc2626; }
+.ts-history-empty { text-align:center; padding:48px 20px; color:#DC143C; }
+.ts-week-bar { display:flex; align-items:center; gap:3px; }
+.ts-week-bar-fill { height:6px; border-radius:3px; background:var(--company-button,#DC143C); }
+.ts-week-bar-bg { height:6px; border-radius:3px; background:#e2e8f0; flex:1; }
+</style>
+
+<div class="ts-wrap">
+
+    <!-- Header -->
+    <div class="ts-header">
+        <div>
+            <h2 class="ts-title">My Timesheets</h2>
+            <p class="ts-subtitle">Track your weekly hours &mdash; submitted sheets are reviewed by HR and linked to payroll</p>
+        </div>
+        <a href="{% url 'employee_attendance_view' %}" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#64748b;text-decoration:none;padding:7px 14px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            View Attendance
+        </a>
+    </div>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:13px;
+        {% if msg.tags == 'success' %}background:#d1fae5;color:#065f46;border:1px solid #86efac;
+        {% elif msg.tags == 'error' %}background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;
+        {% else %}background:#fef3c7;color:#92400e;border:1px solid #fcd34d;{% endif %}">
+        {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Payroll wiring info -->
+    <div class="ts-info-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span><strong>Regular hours are captured automatically</strong> from your Attendance clock-in/out — you don&rsquo;t need to declare them here. Use this timesheet to record <strong>overtime, piece work, project work, commissions,</strong> or any other extra work done beyond your standard shift. HR will review and forward approved entries to the Accountant for payroll.</span>
+    </div>
+
+    <!-- Summary stats -->
+    <div class="ts-stats">
+        <div class="ts-stat">
+            <div class="ts-stat-label">Extra Hrs This Week</div>
+            <div class="ts-stat-val" id="statThisWeek" style="color:#DC143C;">0.0</div>
+            <div class="ts-stat-sub">overtime / special work</div>
+        </div>
+        <div class="ts-stat">
+            <div class="ts-stat-label">Days Declared</div>
+            <div class="ts-stat-val" id="statOT" style="color:var(--company-button,#DC143C);">0</div>
+            <div class="ts-stat-sub">days with extra work</div>
+        </div>
+        <div class="ts-stat">
+            <div class="ts-stat-label">Pending</div>
+            <div class="ts-stat-val" style="color:#d97706;">{{ my_timesheets|length|default:"0" }}</div>
+            <div class="ts-stat-sub">timesheets total</div>
+        </div>
+        <div class="ts-stat">
+            <div class="ts-stat-label">Approved</div>
+            <div class="ts-stat-val" style="color:#15803d;">{% with approved=my_timesheets %}{% for ts in approved %}{% if ts.status == 'APPROVED' %}+{% endif %}{% endfor %}{% endwith %}0</div>
+            <div class="ts-stat-sub">this month</div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="ts-tabs">
+        <button class="ts-tab active" onclick="showTab('submit',this)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Weekly Timesheet
+        </button>
+        <button class="ts-tab" onclick="showTab('history',this)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.6"/></svg>
+            History
+        </button>
+    </div>
+
+    <!-- ── SUBMIT TAB ──────────────────────────────────────── -->
+    <div id="tab-submit" class="ts-pane active">
+        <form method="post" id="tsForm" class="ts-form-card">
+            {% csrf_token %}
+
+            <div class="ts-form-top">
+                <div class="ts-week-row">
+                    <span class="ts-week-label">Week starting (Monday):</span>
+                    <input type="date" name="week_start" id="weekStart" class="ts-week-input"
+                           value="{{ this_monday|date:'Y-m-d' }}" onchange="updateDates(this.value)">
+                    <button type="button" onclick="prevWeek()" class="ts-btn ts-btn-secondary" style="padding:7px 12px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Prev
+                    </button>
+                    <button type="button" onclick="nextWeek()" class="ts-btn ts-btn-secondary" style="padding:7px 12px;">
+                        Next
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                    <span class="ts-week-badge" id="weekLabel">Loading…</span>
+                </div>
+            </div>
+
+            <!-- Timetable -->
+            <div class="ts-table-wrap">
+                <table class="ts-table">
+                    <thead>
+                        <tr>
+                            <th class="col-day" style="text-align:left;padding-left:14px;">Day</th>
+                            <th class="col-att">Clock-in Hrs</th>
+                            <th class="col-ot" style="width:100px;">Extra Hrs</th>
+                            <th style="width:130px;">Work Type</th>
+                            <th class="col-desc">Work Notes</th>
+                            <th style="width:60px;">OT Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dayRows">
+                        {% for day in week_days %}
+                        {% with forloop.counter0 as i %}
+                        <tr class="{% if i >= 5 %}ts-weekend{% endif %}" id="row-{{ i }}">
+                            <td>
+                                <div class="ts-day-cell" style="padding-left:14px;">
+                                    <span class="ts-day-name">{{ day|date:"l" }}</span>
+                                    <span class="ts-day-date day-date" data-offset="{{ i }}">{{ day|date:"M j, Y" }}</span>
+                                </div>
+                            </td>
+                            <td class="ts-att-cell">
+                                <div class="ts-att-badge {% if i < 5 %}ts-att-present{% else %}ts-att-absent{% endif %}" id="att-badge-{{ i }}">
+                                    {% if i < 5 %}✓{% else %}Off{% endif %}
+                                </div>
+                                <div class="ts-att-hours" id="att-hours-{{ i }}">{% if i < 5 %}&mdash;{% endif %}</div>
+                            </td>
+                            <input type="hidden" name="regular_{{ i }}" value="0">
+                            <td class="ts-input-cell">
+                                <input type="number" name="overtime_{{ i }}" min="0" max="24" step="0.5"
+                                       value="0" class="ts-num-input ot-input" data-idx="{{ i }}"
+                                       oninput="onHrsInput(this,'ot')">
+                            </td>
+                            <td class="ts-type-cell">
+                                <select name="work_type_{{ i }}" class="ts-type-select" data-idx="{{ i }}" onchange="onTypeChange(this)">
+                                    <option value="">— none —</option>
+                                    <option value="overtime">Overtime</option>
+                                    <option value="piecework">Piece Work</option>
+                                    <option value="project">Project Work</option>
+                                    <option value="commission">Commission</option>
+                                    <option value="standby">Stand-by / On-call</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </td>
+                            <td class="ts-desc-cell">
+                                <input type="text" name="desc_{{ i }}" class="ts-desc-input"
+                                       placeholder="{% if i < 5 %}Describe the extra work done…{% else %}Weekend note (optional){% endif %}">
+                            </td>
+                            <td style="padding:8px;text-align:center;">
+                                <span class="ts-row-total" id="row-total-{{ i }}">0.0</span>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals bar -->
+            <div class="ts-totals-bar">
+                <div class="ts-total-item">
+                    <span class="ts-total-label">Extra / OT Hours</span>
+                    <span class="ts-total-num" id="totalOt" style="color:#DC143C;">0.0</span>
+                </div>
+                <div class="ts-sep"></div>
+                <div class="ts-total-item">
+                    <span class="ts-total-label">Days with Extra Work</span>
+                    <span class="ts-total-num" id="totalDays" style="color:var(--company-button,#DC143C);">0</span>
+                </div>
+                <div style="margin-left:auto;font-size:12px;color:#DC143C;align-self:center;text-align:right;">
+                    Regular hours auto-captured from attendance<br>
+                    <span style="color:#DC143C;font-weight:600;">Only extra/overtime work needs to be declared here</span>
+                </div>
+            </div>
+
+            <!-- Footer: notes + actions -->
+            <div class="ts-form-footer">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">
+                    Additional Notes <span style="font-weight:400;color:#DC143C;">(visible to HR/Accountant)</span>
+                </label>
+                <textarea name="notes" class="ts-notes" placeholder="Any context about your week, leave taken, project work, etc…"></textarea>
+                <div class="ts-actions">
+                    <button type="submit" name="action" value="submit" class="ts-btn ts-btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        Submit for HR Approval
+                    </button>
+                    <button type="submit" name="action" value="save" class="ts-btn ts-btn-secondary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Save Draft
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Payroll workflow explanation -->
+        <div style="margin-top:16px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+            <div style="font-size:13px;font-weight:700;color:#DC143C;margin-bottom:12px;display:flex;align-items:center;gap:7px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Timesheet &rarr; Payroll Workflow
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;font-size:12px;">
+                <div style="text-align:center;padding:12px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+                    <div style="font-size:22px;margin-bottom:6px;">&#9998;</div>
+                    <div style="font-weight:700;color:#DC143C;margin-bottom:4px;">1. Submit</div>
+                    <div style="color:#64748b;">You enter your hours and submit</div>
+                </div>
+                <div style="text-align:center;padding:12px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+                    <div style="font-size:22px;margin-bottom:6px;">&#10003;</div>
+                    <div style="font-weight:700;color:#DC143C;margin-bottom:4px;">2. HR Review</div>
+                    <div style="color:#64748b;">HR approves or rejects with feedback</div>
+                </div>
+                <div style="text-align:center;padding:12px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+                    <div style="font-size:22px;margin-bottom:6px;">&#128203;</div>
+                    <div style="font-weight:700;color:#DC143C;margin-bottom:4px;">3. Payroll</div>
+                    <div style="color:#64748b;">Accountant uses approved hours for salary</div>
+                </div>
+                <div style="text-align:center;padding:12px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+                    <div style="font-size:22px;margin-bottom:6px;">&#128176;</div>
+                    <div style="font-weight:700;color:#DC143C;margin-bottom:4px;">4. Payslip</div>
+                    <div style="color:#64748b;">Regular + overtime pay on your payslip</div>
+                </div>
+            </div>
+            <div style="margin-top:12px;font-size:11px;color:#DC143C;border-top:1px solid #f1f5f9;padding-top:10px;">
+                <strong>Attendance &amp; Timesheet:</strong> Your clock-in/out records regular working hours automatically. Use this timesheet only for <strong>overtime, piece work, project bonuses, commissions,</strong> or any pay-relevant work beyond your standard shift.
+            </div>
+        </div>
+    </div>
+
+    <!-- ── HISTORY TAB ─────────────────────────────────────── -->
+    <div id="tab-history" class="ts-pane">
+        <div class="ts-history">
+            <div class="ts-history-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Week</th>
+                            <th>Regular Hrs</th>
+                            <th>Overtime</th>
+                            <th>Total</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>HR Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ts in my_timesheets %}
+                        <tr>
+                            <td style="font-weight:700;">
+                                {{ ts.week_start|date:"M j" }} &ndash; {{ ts.week_start|date:"M j, Y" }}
+                            </td>
+                            <td style="font-weight:600;color:#64748b;">{{ ts.total_regular_hours }} <span style="font-size:10px;">(att.)</span></td>
+                            <td style="color:#DC143C;font-weight:600;">{{ ts.total_overtime_hours }}</td>
+                            <td style="font-weight:800;">{{ ts.total_hours }}</td>
+                            <td style="min-width:80px;">
+                                <div class="ts-week-bar">
+                                    <div class="ts-week-bar-fill" style="width:{% widthratio ts.total_hours 48 100 %}%;max-width:100%;"></div>
+                                    <div class="ts-week-bar-bg"></div>
+                                </div>
+                                <div style="font-size:10px;color:#DC143C;margin-top:2px;">of 48h max</div>
+                            </td>
+                            <td>
+                                <span class="ts-badge badge-{{ ts.status|lower }}">
+                                    {% if ts.status == 'APPROVED' %}✓ {% elif ts.status == 'REJECTED' %}✗ {% elif ts.status == 'SUBMITTED' %}⟳ {% endif %}
+                                    {{ ts.get_status_display }}
+                                </span>
+                            </td>
+                            <td style="font-size:12px;color:#64748b;">
+                                {% if ts.submitted_at %}{{ ts.submitted_at|date:"M j, Y" }}{% else %}&mdash;{% endif %}
+                            </td>
+                            <td style="font-size:12px;max-width:160px;">
+                                {% if ts.status == 'REJECTED' and ts.rejection_reason %}
+                                <span style="color:#dc2626;">{{ ts.rejection_reason }}</span>
+                                {% elif ts.notes %}
+                                <span style="color:#64748b;overflow:hidden;display:block;text-overflow:ellipsis;white-space:nowrap;">{{ ts.notes }}</span>
+                                {% else %}&mdash;{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">
+                                <div class="ts-history-empty">
+                                    <div style="font-size:36px;margin-bottom:10px;">📋</div>
+                                    <div style="font-size:15px;font-weight:600;color:#475569;">No timesheets yet</div>
+                                    <div style="font-size:13px;color:#DC143C;margin-top:4px;">Submit your first weekly timesheet to get started.</div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /ts-wrap -->
+
+<script>
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+function showTab(name, btn) {
+    document.querySelectorAll('.ts-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.ts-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    if (btn) btn.classList.add('active');
+}
+
+function onHrsInput(inp, type) {
+    const v = parseFloat(inp.value) || 0;
+    if (type === 'ot') inp.classList.toggle('has-ot', v > 0);
+    const idx = inp.dataset.idx;
+    const ot  = parseFloat(document.querySelector(`.ot-input[data-idx="${idx}"]`).value) || 0;
+    const rowTot = document.getElementById('row-total-' + idx);
+    if (rowTot) rowTot.textContent = ot.toFixed(1);
+    recalc();
+}
+
+function onTypeChange(sel) {
+    sel.classList.toggle('has-special', sel.value !== '' && sel.value !== 'overtime');
+}
+
+function recalc() {
+    let ot = 0, days = 0;
+    document.querySelectorAll('.ot-input').forEach(i => {
+        const v = parseFloat(i.value) || 0;
+        ot += v;
+        if (v > 0) days++;
+    });
+    document.getElementById('totalOt').textContent = ot.toFixed(1);
+    const td = document.getElementById('totalDays');
+    if (td) td.textContent = days;
+    const sw = document.getElementById('statThisWeek');
+    const so = document.getElementById('statOT');
+    if (sw) sw.textContent = ot.toFixed(1);
+    if (so) so.textContent = days;
+}
+
+function getMonday(d) {
+    const dt = new Date(d);
+    const day = dt.getDay();
+    const diff = (day === 0) ? -6 : 1 - day;
+    dt.setDate(dt.getDate() + diff);
+    return dt;
+}
+
+function updateDates(val) {
+    if (!val) return;
+    const monday = getMonday(new Date(val));
+    document.querySelectorAll('.day-date').forEach(cell => {
+        const offset = parseInt(cell.dataset.offset);
+        const d = new Date(monday);
+        d.setDate(d.getDate() + offset);
+        cell.textContent = d.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    });
+    document.getElementById('weekStart').value = monday.toISOString().slice(0, 10);
+    const end = new Date(monday); end.setDate(end.getDate() + 6);
+    document.getElementById('weekLabel').textContent =
+        monday.toLocaleDateString('en-GB', {month:'short',day:'numeric'}) + ' – ' +
+        end.toLocaleDateString('en-GB', {month:'short',day:'numeric',year:'numeric'});
+}
+
+function prevWeek() {
+    const cur = new Date(document.getElementById('weekStart').value || new Date());
+    cur.setDate(cur.getDate() - 7);
+    updateDates(cur.toISOString().slice(0, 10));
+}
+function nextWeek() {
+    const cur = new Date(document.getElementById('weekStart').value || new Date());
+    cur.setDate(cur.getDate() + 7);
+    updateDates(cur.toISOString().slice(0, 10));
+}
+
+// Init on load
+updateDates(document.getElementById('weekStart').value);
+recalc();
+</script>
+{% endblock %}

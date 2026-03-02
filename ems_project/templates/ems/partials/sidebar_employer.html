@@ -4,7 +4,7 @@
             {% if user.company.logo %}
                 <img src="{{ user.company.logo.url }}" alt="Logo" class="sidebar-logo-img">
             {% else %}
-                {{ user.company.name|default:"MFI"|slice:":2"|upper }}
+                {% if user.company.name %}{{ user.company.name|upper|truncatechars:2 }}{% else %}MF{% endif %}
             {% endif %}
         </div>
         <div class="sidebar-company-name" style="flex: 1; min-width: 0;">
@@ -144,21 +144,39 @@
                     <span class="nav-text">Renewal Requests</span>
                 </a>
             </li>
-            <!-- PERFORMANCE MODULE DISABLED -->
-            <!--
-            {% if show_performance %}
+            <!-- PMS Module -->
             <li class="nav-item">
-                <a href="{% url 'performance_reviews_list' %}" class="nav-link {% if 'performance' in request.resolver_match.url_name %}active{% endif %}">
-                    <span class="nav-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
+                <a href="{% url 'performance_reviews_list' %}" class="nav-link {% if 'performance' in request.resolver_match.url_name or 'pms' in request.resolver_match.url_name %}active{% endif %}" onclick="togglePmsMenu(event)" style="justify-content:space-between;">
+                    <span style="display:flex;align-items:center;gap:10px;">
+                        <span class="nav-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        </span>
+                        <span class="nav-text">Performance (PMS)</span>
                     </span>
-                    <span class="nav-text">Performance</span>
+                    <svg id="pms-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .2s;flex-shrink:0;"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </a>
+                <ul id="pms-submenu" style="list-style:none;margin:0;padding:0 0 0 36px;display:{% if 'pms' in request.resolver_match.url_name or 'performance' in request.resolver_match.url_name %}block{% else %}none{% endif %};">
+                    <li><a href="{% url 'performance_reviews_list' %}" style="display:block;padding:6px 10px;font-size:12px;color:{% if request.resolver_match.url_name == 'performance_reviews_list' %}#DC143C{% else %}#64748b{% endif %};text-decoration:none;border-radius:6px;" class="{% if request.resolver_match.url_name == 'performance_reviews_list' %}active{% endif %}">Reviews</a></li>
+                    <li><a href="{% url 'performance_review_cycles' %}" style="display:block;padding:6px 10px;font-size:12px;color:{% if request.resolver_match.url_name == 'performance_review_cycles' %}#DC143C{% else %}#64748b{% endif %};text-decoration:none;border-radius:6px;">Review Cycles</a></li>
+                    <li><a href="{% url 'pms_goals' %}" style="display:block;padding:6px 10px;font-size:12px;color:{% if request.resolver_match.url_name == 'pms_goals' %}#DC143C{% else %}#64748b{% endif %};text-decoration:none;border-radius:6px;">Goals</a></li>
+                    <li><a href="{% url 'pms_metrics' %}" style="display:block;padding:6px 10px;font-size:12px;color:{% if request.resolver_match.url_name == 'pms_metrics' %}#DC143C{% else %}#64748b{% endif %};text-decoration:none;border-radius:6px;">Metrics / KPIs</a></li>
+                    <li><a href="{% url 'pms_feedback_360' %}" style="display:block;padding:6px 10px;font-size:12px;color:{% if request.resolver_match.url_name == 'pms_feedback_360' %}#DC143C{% else %}#64748b{% endif %};text-decoration:none;border-radius:6px;">360° Feedback</a></li>
+                    <li><a href="{% url 'pms_competencies' %}" style="display:block;padding:6px 10px;font-size:12px;color:{% if request.resolver_match.url_name == 'pms_competencies' %}#DC143C{% else %}#64748b{% endif %};text-decoration:none;border-radius:6px;">Competencies</a></li>
+                </ul>
             </li>
-            {% endif %}
-            -->
+            <script>
+            function togglePmsMenu(e) {
+                var sub = document.getElementById('pms-submenu');
+                var chev = document.getElementById('pms-chevron');
+                if (sub) {
+                    if (sub.style.display === 'none') {
+                        e.preventDefault();
+                        sub.style.display = 'block';
+                        if (chev) chev.style.transform = 'rotate(180deg)';
+                    }
+                }
+            }
+            </script>
             <li class="nav-item">
                 <a href="{% url 'onboarding_list' %}" class="nav-link {% if 'onboarding' in request.resolver_match.url_name %}active{% endif %}">
                     <span class="nav-icon">
@@ -184,6 +202,7 @@
                 </a>
             </li>
             
+
             <!-- Compensation & Benefits Section -->
             <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0;">Compensation</li>
             {% if show_payroll %}
@@ -218,6 +237,16 @@
                         </svg>
                     </span>
                     <span class="nav-text">Employee Requests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'finance_policy_settings' %}" class="nav-link {% if request.resolver_match.url_name == 'finance_policy_settings' %}active{% endif %}">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Finance Policy</span>
                 </a>
             </li>
             
@@ -280,7 +309,7 @@
             <!-- Communication Section -->
             <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Communication</li>
             <li class="nav-item">
-                <a href="{% url 'direct_messages_list' %}" class="nav-link {% if 'message' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'chat_home' %}" class="nav-link {% if request.resolver_match.url_name in 'chat_home,chat_conversation' %}active{% endif %}">
                     <span class="nav-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>

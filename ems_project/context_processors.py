@@ -47,11 +47,27 @@ def unread_counts(request):
         'expiring_contracts_count': 0,
         'pending_training_count': 0,
         'total_badge_count': 0,
+        'new_feed_posts_count': 0,
     }
 
     if request.user.is_authenticated:
         user = request.user
         
+        try:
+            # Feed: new posts in last 24 hours for the user's company
+            from datetime import timezone as _tz
+            from ems_project.models import FeedPost
+            _company = getattr(user, 'company', None)
+            _tenant = getattr(_company, 'tenant', None) if _company else None
+            if _tenant:
+                _since = date.today() - timedelta(hours=24)
+                context['new_feed_posts_count'] = FeedPost.objects.filter(
+                    tenant=_tenant,
+                    created_at__date__gte=_since,
+                ).exclude(author=user).count()
+        except Exception:
+            pass
+
         try:
             # Get unread notifications count
             from blu_staff.apps.notifications.models import Notification
@@ -62,7 +78,7 @@ def unread_counts(request):
             context['unread_notifications_count'] = unread_notifications
 
             # Get unread messages count (direct messages)
-            from communication.models import DirectMessage
+            from blu_staff.apps.communication.models import DirectMessage
             unread_messages = DirectMessage.objects.filter(
                 recipient=user,
                 is_read=False
@@ -83,7 +99,7 @@ def unread_counts(request):
         if is_hr and hasattr(user, 'company') and user.company:
             try:
                 # Pending leave requests
-                from attendance.models import LeaveRequest
+                from blu_staff.apps.attendance.models import LeaveRequest
                 context['pending_leave_count'] = LeaveRequest.objects.filter(
                     employee__company=user.company,
                     status='PENDING'
@@ -93,7 +109,7 @@ def unread_counts(request):
             
             try:
                 # Pending employee requests (petty cash, advances, etc.)
-                from requests.models import EmployeeRequest
+                from blu_staff.apps.requests.models import EmployeeRequest
                 context['pending_requests_count'] = EmployeeRequest.objects.filter(
                     employee__company=user.company,
                     status='PENDING'
@@ -103,7 +119,7 @@ def unread_counts(request):
             
             try:
                 # Pending documents
-                from documents.models import EmployeeDocument
+                from blu_staff.apps.documents.models import EmployeeDocument
                 context['pending_documents_count'] = EmployeeDocument.objects.filter(
                     employee__company=user.company,
                     approval_status='PENDING'
@@ -113,7 +129,7 @@ def unread_counts(request):
             
             try:
                 # Expiring contracts (next 30 days)
-                from accounts.models import EmployeeProfile
+                from blu_staff.apps.accounts.models import EmployeeProfile
                 today = date.today()
                 thirty_days = today + timedelta(days=30)
                 
@@ -128,7 +144,7 @@ def unread_counts(request):
             
             try:
                 # Pending training requests
-                from training.models import TrainingRequest
+                from blu_staff.apps.training.models import TrainingRequest
                 context['pending_training_count'] = TrainingRequest.objects.filter(
                     employee__company=user.company,
                     status='PENDING'
@@ -181,7 +197,7 @@ def company_settings_context(request):
     
     if request.user.is_authenticated and hasattr(request.user, 'company') and request.user.company:
         try:
-            from accounts.models import CompanySettings
+            from blu_staff.apps.accounts.models import CompanySettings
             settings = CompanySettings.get_for_company(request.user.company)
             context['company_settings'] = settings
             context['modules_enabled'] = {
@@ -202,6 +218,16 @@ def company_settings_context(request):
         except Exception:
             pass
     
+    # Expose sidebar visibility flags globally (every page needs these)
+    modules = context['modules_enabled']
+    context['show_attendance']     = modules.get('attendance', True)
+    context['show_leave']          = modules.get('leave', True)
+    context['show_payroll']        = modules.get('payroll', True)
+    context['show_performance']    = modules.get('performance', True)
+    context['show_documents']      = modules.get('documents', True)
+    context['show_reports']        = modules.get('reports', True)
+    context['show_analytics_suite']= True
+
     return context
 
 

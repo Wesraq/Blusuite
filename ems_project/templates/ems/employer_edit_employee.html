@@ -1,4 +1,4 @@
-{% extends base_template|default:'ems/base_employee.html' %}
+﻿{% extends base_template|default:'ems/base_employee.html' %}
 
 {% block title %}{% if is_supervisor_view %}View{% else %}Edit{% endif %} Employee - {{ employee.first_name }} {{ employee.last_name }} - EMS{% endblock %}
 
@@ -189,14 +189,14 @@
 
 <!-- Contract Expiry Warning -->
 {% if contract_expiry_warning %}
-<div style="background: {% if contract_expiry_warning.is_critical %}#fee2e2{% else %}#fef3c7{% endif %}; border: 1px solid {% if contract_expiry_warning.is_critical %}#ef4444{% else %}#f59e0b{% endif %}; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{% if contract_expiry_warning.is_critical %}#dc2626{% else %}#d97706{% endif %}" stroke-width="2">
+<div class="msg-alert {% if contract_expiry_warning.is_critical %}msg-error{% else %}msg-warning{% endif %}" style="border-radius: 8px; margin-bottom: 24px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
         <line x1="12" y1="9" x2="12" y2="13"></line>
         <line x1="12" y1="17" x2="12.01" y2="17"></line>
     </svg>
     <div>
-        <strong style="color: {% if contract_expiry_warning.is_critical %}#dc2626{% else %}#d97706{% endif %};">
+        <strong>
             {% if contract_expiry_warning.is_critical %}Critical: {% endif %}{{ contract_expiry_warning.type|default:"Contract" }} Expiry Warning
         </strong>
         <p style="margin: 4px 0 0 0; color: #64748b; font-size: 14px;">
@@ -211,10 +211,10 @@
     <div class="ee-card" style="padding: 16px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Profile</span>
-            <span style="font-size: 18px; font-weight: 700; color: {% if profile_completeness >= 80 %}#10b981{% elif profile_completeness >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">{{ profile_completeness }}%</span>
+            <span class="{% if profile_completeness >= 80 %}text-success{% elif profile_completeness >= 50 %}text-warning{% else %}text-error{% endif %}" style="font-size: 18px; font-weight: 700;">{{ profile_completeness }}%</span>
         </div>
         <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-            <div style="width: {{ profile_completeness }}%; height: 100%; background: {% if profile_completeness >= 80 %}#10b981{% elif profile_completeness >= 50 %}#f59e0b{% else %}#ef4444{% endif %}; border-radius: 2px;"></div>
+            <div class="{% if profile_completeness >= 80 %}status-icon-success{% elif profile_completeness >= 50 %}status-icon-warning{% else %}status-icon-error{% endif %}" style="width: {{ profile_completeness }}%; height: 100%; border-radius: 2px;"></div>
         </div>
         <p style="margin: 6px 0 0 0; font-size: 11px; color: #94a3b8;">{{ completed_fields }}/{{ total_fields }} fields</p>
     </div>
@@ -236,7 +236,7 @@
             <span class="ee-badge" style="background: #fef3c7; color: #d97706;">{{ pending_leaves }} pending</span>
             {% endif %}
         </div>
-        <div style="font-size: 22px; font-weight: 700; color: #3b82f6;">{{ approved_leaves }}</div>
+        <div style="font-size: 22px; font-weight: 700; color: #DC143C;">{{ approved_leaves }}</div>
         <div style="font-size: 11px; color: #64748b; margin-top: 4px;">{{ rejected_leaves }} rejected</div>
     </div>
 
@@ -250,7 +250,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Documents</span>
             {% if pending_documents > 0 %}
-            <span class="ee-badge" style="background: #dbeafe; color: #2563eb;">{{ pending_documents }} pending</span>
+            <span class="ee-badge" style="background: #fce7f3; color: #DC143C;">{{ pending_documents }} pending</span>
             {% endif %}
         </div>
         <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_documents }}</div>
@@ -274,7 +274,7 @@
                     {% if employee.profile_picture %}
                     <img id="profilePicPreview" src="{{ employee.profile_picture.url }}" alt="{{ employee.get_full_name }}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e2e8f0;">
                     {% else %}
-                    <div id="profilePicPreview" style="width: 80px; height: 80px; background: #3b82f6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; color: white; border: 3px solid #e2e8f0;">
+                    <div id="profilePicPreview" style="width: 80px; height: 80px; background: #DC143C; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; color: white; border: 3px solid #e2e8f0;">
                         {{ employee.first_name|first|upper }}{{ employee.last_name|first|upper }}
                     </div>
                     {% endif %}
@@ -674,9 +674,9 @@
                         </div>
                         
                         {% if employee_documents %}
-                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                        <div class="divider-list" style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
                             {% for doc in employee_documents %}
-                            <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center; {% if not forloop.last %}border-bottom: 1px solid #e2e8f0;{% endif %}">
+                            <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                                 <div style="flex: 1;">
                                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
@@ -751,11 +751,11 @@
                                 </select>
                                 <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 12px; color: #64748b;">
                                     <span>Only showing available (unassigned) assets.</span>
-                                    <a href="{% url 'assets:asset_create' %}" style="color: #3b82f6; text-decoration: none;">Add new asset</a>
+                                    <a href="{% url 'assets:asset_create' %}" style="color: #DC143C; text-decoration: none;">Add new asset</a>
                                     {% url 'asset_management' as asset_mgmt_url %}
                                     {% if asset_mgmt_url %}
                                         <span style="color: #cbd5e1;">•</span>
-                                        <a href="{{ asset_mgmt_url }}" style="color: #3b82f6; text-decoration: none;">Go to Asset Management</a>
+                                        <a href="{{ asset_mgmt_url }}" style="color: #DC143C; text-decoration: none;">Go to Asset Management</a>
                                     {% endif %}
                                     {% if unavailable_asset_count|default:0 > 0 %}
                                         <span style="color: #ef4444; margin-left: 4px;">({{ unavailable_asset_count }} not assignable)</span>
@@ -799,8 +799,8 @@
                             <div class="ee-card" style="padding: 16px;">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
                                     <div style="display: flex; gap: 12px;">
-                                        <div style="width: 48px; height: 48px; background: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                                        <div style="width: 48px; height: 48px; background: #fce7f3; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2">
                                                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                                                 <line x1="8" y1="21" x2="16" y2="21"></line>
                                                 <line x1="12" y1="17" x2="12" y2="21"></line>
@@ -861,7 +861,7 @@
                                     </div>
                                     <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
                                         {% if review.overall_rating >= 4 %}background: #d1fae5; color: #065f46;
-                                        {% elif review.overall_rating >= 3 %}background: #dbeafe; color: #1e40af;
+                                        {% elif review.overall_rating >= 3 %}background: #fce7f3; color: #DC143C;
                                         {% else %}background: #fef3c7; color: #92400e;
                                         {% endif %}">
                                         {{ review.overall_rating }}/5
@@ -1332,7 +1332,7 @@ function generateNewPassword() {
                         </svg>
                         <h2 style="margin: 16px 0 8px 0; color: #0f172a;">Password Reset Successful!</h2>
                     </div>
-                    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 2px dashed #3b82f6;">
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 2px dashed #DC143C;">
                         <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">New Password:</div>
                         <div id="passwordDisplay" style="font-family: monospace; font-size: 18px; font-weight: 700; color: #0f172a; letter-spacing: 1px;">${password}</div>
                     </div>
@@ -1353,7 +1353,7 @@ function generateNewPassword() {
                         <div style="font-weight: 600; color: #0f172a;">{{ employee.email }}</div>
                     </div>
                     <div style="display: flex; gap: 12px;">
-                        <button onclick="copyPasswordToClipboard('${password}')" style="flex: 1; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                        <button onclick="copyPasswordToClipboard('${password}')" style="flex: 1; padding: 12px; background: #DC143C; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="3" width="7" height="7"></rect>
                             <rect x="14" y="3" width="7" height="7"></rect>

@@ -1,170 +1,445 @@
 {% extends 'blu_projects/base_projects.html' %}
 
-{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Project - BLU Projects{% endblock %}
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Project – BLU Projects{% endblock %}
 
 {% block content %}
+<style>
+.pf-tabs { display:flex; gap:0; border-bottom:2px solid #e2e8f0; margin-bottom:22px; overflow-x:auto; }
+.pf-tab { padding:10px 18px; font-size:13px; font-weight:500; color:#64748b; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; white-space:nowrap; display:flex; align-items:center; gap:6px; }
+.pf-tab:hover { color:#0f172a; }
+.pf-tab.active { color:#1d4ed8; border-bottom-color:#1d4ed8; font-weight:600; }
+.pf-tab-badge { font-size:10px; background:#f1f5f9; color:#64748b; padding:1px 6px; border-radius:8px; }
+.pf-tab.active .pf-tab-badge { background:#dbeafe; color:#1d4ed8; }
+.pf-section { display:none; }
+.pf-section.active { display:block; }
+.pf-card { background:#fff; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:16px; overflow:hidden; }
+.pf-card-hd { padding:13px 20px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:8px; }
+.pf-card-hd h3 { margin:0; font-size:13px; font-weight:700; color:#0f172a; }
+.pf-card-hd span { font-size:11px; color:#94a3b8; }
+.pf-card-body { padding:20px; }
+.pf-grid { display:grid; gap:14px; }
+.pf-2 { grid-template-columns:1fr 1fr; }
+.pf-3 { grid-template-columns:1fr 1fr 1fr; }
+.pf-span2 { grid-column:span 2; }
+.pf-span3 { grid-column:span 3; }
+@media(max-width:640px){ .pf-2,.pf-3 { grid-template-columns:1fr; } .pf-span2,.pf-span3 { grid-column:span 1; } }
+.pf-field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px; }
+.pf-field input, .pf-field select, .pf-field textarea { width:100%; padding:9px 12px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; color:#0f172a; font-family:inherit; box-sizing:border-box; }
+.pf-field input:focus, .pf-field select:focus, .pf-field textarea:focus { border-color:#1d4ed8; outline:none; box-shadow:0 0 0 3px rgba(29,78,216,.08); }
+.pf-field .hint { font-size:11px; color:#94a3b8; margin-top:4px; }
+.pf-field .req { color:#dc2626; margin-left:2px; }
+.pf-type-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }
+.pf-type-card { border:2px solid #e2e8f0; border-radius:8px; padding:12px 10px; cursor:pointer; text-align:center; transition:all .12s; }
+.pf-type-card:hover { border-color:#1d4ed8; background:#f0f7ff; }
+.pf-type-card input { display:none; }
+.pf-type-card.selected { border-color:#1d4ed8; background:#eff6ff; }
+.pf-type-card .icon { font-size:20px; display:block; margin-bottom:4px; }
+.pf-type-card .lbl { font-size:12px; font-weight:600; color:#0f172a; }
+.pf-type-card .sub { font-size:10px; color:#64748b; margin-top:2px; }
+.team-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:4px; }
+.team-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:6px; font-size:13px; color:#0f172a; cursor:pointer; transition:background .1s; }
+.team-item:hover { background:#f8fafc; }
+.team-item input { width:16px; height:16px; accent-color:#1d4ed8; cursor:pointer; }
+.nav-bar { display:flex; justify-content:space-between; align-items:center; padding-top:16px; border-top:1px solid #f1f5f9; margin-top:8px; }
+.btn-prev, .btn-next { padding:9px 20px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-family:inherit; }
+.btn-prev { background:#fff; border:1px solid #e2e8f0; color:#475569; }
+.btn-next { background:#1d4ed8; border:none; color:#fff; }
+.btn-submit { padding:9px 22px; background:#16a34a; border:none; color:#fff; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-family:inherit; }
+.step-indicator { display:flex; gap:6px; align-items:center; }
+.step-dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; transition:background .2s; }
+.step-dot.done { background:#1d4ed8; }
+.cond-field { display:none; }
+.cond-field.show { display:block; }
+</style>
+
 <!-- Breadcrumb -->
-<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
-    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+<div style="font-size:12px;color:#64748b;margin-bottom:16px;display:flex;align-items:center;gap:4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color:#64748b;text-decoration:none;">Projects</a>
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
     {% if is_edit %}
-    <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #1d4ed8; text-decoration: none;">{{ project.name }}</a>
+    <a href="{% url 'blu_projects:project_detail' project.id %}" style="color:#1d4ed8;text-decoration:none;">{{ project.name }}</a>
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-    <span style="color: #0f172a;">Edit</span>
+    <span style="color:#0f172a;">Edit</span>
     {% else %}
-    <span style="color: #0f172a;">New Project</span>
+    <span style="color:#0f172a;">New Project</span>
     {% endif %}
 </div>
 
 <!-- Header -->
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
     <div>
-        <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">{% if is_edit %}Edit Project{% else %}Create New Project{% endif %}</h2>
-        <p style="margin: 0; font-size: 13px; color: #64748b;">{% if is_edit %}Update project details and team{% else %}Set up a new project with team and timeline{% endif %}</p>
+        <h2 style="margin:0 0 2px;font-size:20px;font-weight:700;color:#0f172a;">{% if is_edit %}Edit Project{% else %}Create New Project{% endif %}</h2>
+        <p style="margin:0;font-size:13px;color:#64748b;">{% if is_edit %}Update project details, team, and configuration{% else %}Define your project — works for NGOs, SMEs, Government, IT, Construction, and more{% endif %}</p>
     </div>
-    <a href="{% if is_edit %}{% url 'blu_projects:project_detail' project.id %}{% else %}{% url 'blu_projects:projects_list' %}{% endif %}" style="padding: 7px 14px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        Cancel
+    <a href="{% if is_edit %}{% url 'blu_projects:project_detail' project.id %}{% else %}{% url 'blu_projects:projects_list' %}{% endif %}" style="padding:7px 14px;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#475569;text-decoration:none;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>Cancel
     </a>
 </div>
 
-<form method="POST">
-    {% csrf_token %}
-    <!-- Section: Project Details -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Project Details</h3>
-        </div>
-        <div style="padding: 20px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                <div style="grid-column: span 2;">
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Project Name <span style="color: #dc2626;">*</span></label>
-                    <input type="text" name="name" value="{% if is_edit %}{{ project.name }}{% endif %}" required placeholder="Enter project name" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Project Code <span style="color: #dc2626;">*</span></label>
-                    <input type="text" name="code" value="{% if is_edit %}{{ project.code }}{% endif %}" required {% if is_edit %}readonly style="background: #f8fafc; cursor: not-allowed;"{% endif %} placeholder="e.g., PROJ-001" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Status</label>
-                    <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; cursor: pointer;">
-                        {% for value, label in status_choices %}
-                        <option value="{{ value }}" {% if is_edit and project.status == value %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Priority</label>
-                    <select name="priority" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; cursor: pointer;">
-                        {% for value, label in priority_choices %}
-                        <option value="{{ value }}" {% if is_edit and project.priority == value %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Project Manager</label>
-                    <select name="project_manager" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; cursor: pointer;">
-                        <option value="">Select Manager</option>
-                        {% for member in team_members %}
-                        <option value="{{ member.id }}" {% if is_edit and project.project_manager_id == member.id %}selected{% endif %}>{{ member.get_full_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div style="grid-column: span 2;">
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Description</label>
-                    <textarea name="description" rows="3" placeholder="Brief project description..." style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical;">{% if is_edit %}{{ project.description }}{% endif %}</textarea>
-                </div>
-            </div>
-        </div>
-    </div>
+<form method="POST" id="projectForm">
+{% csrf_token %}
 
-    <!-- Section: Timeline & Budget -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Timeline & Budget</h3>
-        </div>
-        <div style="padding: 20px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Start Date <span style="color: #dc2626;">*</span></label>
-                    <input type="date" name="start_date" value="{% if is_edit %}{{ project.start_date|date:'Y-m-d' }}{% endif %}" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">End Date <span style="color: #dc2626;">*</span></label>
-                    <input type="date" name="end_date" value="{% if is_edit %}{{ project.end_date|date:'Y-m-d' }}{% endif %}" required style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Budget</label>
-                    <input type="number" name="budget" value="{% if is_edit %}{{ project.budget }}{% endif %}" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Tab Navigation -->
+<div class="pf-tabs" id="pfTabs">
+    <div class="pf-tab active" data-tab="0">📋 Basics <span class="pf-tab-badge">Required</span></div>
+    <div class="pf-tab" data-tab="1">🏷️ Classification</div>
+    <div class="pf-tab" data-tab="2">📅 Timeline & Budget</div>
+    <div class="pf-tab" data-tab="3">🎯 Objectives & Scope</div>
+    <div class="pf-tab" data-tab="4">👥 Client / Beneficiary</div>
+    <div class="pf-tab" data-tab="5">🤝 Team</div>
+</div>
 
-    <!-- Section: Client Information -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Client Information</h3>
-            <span style="font-size: 11px; color: #94a3b8; margin-left: 4px;">(optional)</span>
-        </div>
-        <div style="padding: 20px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Client Name</label>
-                    <input type="text" name="client_name" value="{% if is_edit %}{{ project.client_name }}{% endif %}" placeholder="Company or individual" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+<!-- ===== TAB 0: BASICS ===== -->
+<div class="pf-section active" id="tab0">
+    <div class="pf-card">
+        <div class="pf-card-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg><h3>Project Identity</h3></div>
+        <div class="pf-card-body">
+            <div class="pf-grid pf-2">
+                <div class="pf-field pf-span2">
+                    <label>Project Name<span class="req">*</span></label>
+                    <input type="text" name="name" value="{% if is_edit %}{{ project.name }}{% endif %}" required placeholder="e.g., Community Health Initiative Phase 2">
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Client Contact</label>
-                    <input type="text" name="client_contact" value="{% if is_edit %}{{ project.client_contact }}{% endif %}" placeholder="Contact person" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                <div class="pf-field">
+                    <label>Project Code<span class="req">*</span></label>
+                    <input type="text" name="code" value="{% if is_edit %}{{ project.code }}{% endif %}" required {% if is_edit %}readonly style="background:#f8fafc;cursor:not-allowed;"{% endif %} placeholder="e.g., CHI-2025-001">
+                    <div class="hint">Unique reference code. Cannot be changed after creation.</div>
                 </div>
-                <div style="grid-column: span 2;">
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Client Email</label>
-                    <input type="email" name="client_email" value="{% if is_edit %}{{ project.client_email }}{% endif %}" placeholder="client@example.com" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                <div class="pf-field">
+                    <label>Project Manager</label>
+                    <select name="project_manager">
+                        <option value="">— Select Manager —</option>
+                        {% for m in team_members %}
+                        <option value="{{ m.id }}" {% if is_edit and project.project_manager_id == m.id %}selected{% endif %}>{{ m.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                {% if not is_edit %}
-                <div style="grid-column: span 2;">
-                    <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                        Invite Client Users
+                <div class="pf-field">
+                    <label>Status</label>
+                    <select name="status">
+                        {% for val,lbl in status_choices %}
+                        <option value="{{ val }}" {% if is_edit and project.status == val %}selected{% elif not is_edit and val == 'PLANNING' %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="pf-field">
+                    <label>Priority</label>
+                    <select name="priority">
+                        {% for val,lbl in priority_choices %}
+                        <option value="{{ val }}" {% if is_edit and project.priority == val %}selected{% elif not is_edit and val == 'MEDIUM' %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="pf-field">
+                    <label>Visibility</label>
+                    <select name="visibility">
+                        {% for val,lbl in visibility_choices %}
+                        <option value="{{ val }}" {% if is_edit and project.visibility == val %}selected{% elif not is_edit and val == 'INTERNAL' %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hint">Controls who can see this project</div>
+                </div>
+                <div class="pf-field pf-span2">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Brief overview of the project...">{% if is_edit %}{{ project.description }}{% endif %}</textarea>
+                </div>
+                <div class="pf-field pf-span2">
+                    <label>Tags</label>
+                    <input type="text" name="tags" value="{% if is_edit %}{{ project.tags }}{% endif %}" placeholder="rural, water, infrastructure, Q1-2025 (comma-separated)">
+                    <div class="hint">Comma-separated keywords for search and filtering</div>
+                </div>
+                <div class="pf-field">
+                    <label>Overall Risk Level</label>
+                    <select name="risk_level">
+                        {% for val,lbl in risk_level_choices %}
+                        <option value="{{ val }}" {% if is_edit and project.risk_level == val %}selected{% elif not is_edit and val == 'LOW' %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="pf-field" style="display:flex;align-items:center;gap:10px;padding-top:22px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;color:#374151;margin-bottom:0;">
+                        <input type="checkbox" name="is_template" {% if is_edit and project.is_template %}checked{% endif %} style="width:16px;height:16px;accent-color:#1d4ed8;">
+                        Save as reusable template
                     </label>
-                    <input type="text" name="client_emails" placeholder="client1@example.com, client2@example.com" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
-                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Comma-separated emails. Invitations will be sent for client portal access.</div>
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>
+    <div class="nav-bar"><div></div><button type="button" class="btn-next" onclick="goTab(1)">Next: Classification →</button></div>
+</div>
 
-    <!-- Section: Team Members -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Team Members</h3>
-        </div>
-        <div style="padding: 16px 20px; max-height: 240px; overflow-y: auto;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
-                {% for member in team_members %}
-                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; border-radius: 4px; font-size: 13px; color: #0f172a; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                    <input type="checkbox" name="team_members" value="{{ member.id }}" {% if is_edit and member in project.team_members.all %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: #1d4ed8;">
-                    {{ member.get_full_name }}
+<!-- ===== TAB 1: CLASSIFICATION ===== -->
+<div class="pf-section" id="tab1">
+    <div class="pf-card">
+        <div class="pf-card-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><h3>Project Type</h3><span>Choose the type that best describes your project</span></div>
+        <div class="pf-card-body">
+            <div class="pf-type-grid" id="typeGrid">
+                {% for val,lbl in project_type_choices %}
+                <label class="pf-type-card {% if is_edit and project.project_type == val %}selected{% elif not is_edit and val == 'INTERNAL' %}selected{% endif %}" onclick="selectType(this,'{{ val }}')">
+                    <input type="radio" name="project_type" value="{{ val }}" {% if is_edit and project.project_type == val %}checked{% elif not is_edit and val == 'INTERNAL' %}checked{% endif %}>
+                    <span class="icon">{% if val == 'INTERNAL' %}🏢{% elif val == 'CLIENT' %}🤝{% elif val == 'RESEARCH' %}🔬{% elif val == 'GRANT' %}💰{% elif val == 'GOVERNMENT' %}🏛️{% elif val == 'INFRASTRUCTURE' %}🏗️{% elif val == 'IT_SOFTWARE' %}💻{% elif val == 'CONSTRUCTION' %}🔧{% elif val == 'EVENT' %}📣{% elif val == 'HUMANITARIAN' %}❤️{% elif val == 'CSR' %}🌱{% else %}📁{% endif %}</span>
+                    <div class="lbl">{{ lbl }}</div>
                 </label>
                 {% endfor %}
             </div>
         </div>
     </div>
-
-    <!-- Actions -->
-    <div style="display: flex; gap: 8px; padding-top: 8px;">
-        <button type="submit" style="padding: 8px 20px; background: #1d4ed8; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: inherit;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            {% if is_edit %}Update Project{% else %}Create Project{% endif %}
-        </button>
-        <a href="{% if is_edit %}{% url 'blu_projects:project_detail' project.id %}{% else %}{% url 'blu_projects:projects_list' %}{% endif %}" style="padding: 8px 20px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center;">
-            Cancel
-        </a>
+    <div class="pf-card">
+        <div class="pf-card-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg><h3>Sector & Methodology</h3></div>
+        <div class="pf-card-body">
+            <div class="pf-grid pf-2">
+                <div class="pf-field">
+                    <label>Industry / Sector</label>
+                    <select name="sector">
+                        {% for val,lbl in sector_choices %}
+                        <option value="{{ val }}" {% if is_edit and project.sector == val %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hint">Your organisation's primary sector</div>
+                </div>
+                <div class="pf-field">
+                    <label>Project Methodology</label>
+                    <select name="methodology">
+                        {% for val,lbl in methodology_choices %}
+                        <option value="{{ val }}" {% if is_edit and project.methodology == val %}selected{% elif not is_edit and val == 'WATERFALL' %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hint">Agile for IT/software; Waterfall/PRINCE2 for infrastructure; Lean for NGOs</div>
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="nav-bar">
+        <button type="button" class="btn-prev" onclick="goTab(0)">← Back</button>
+        <button type="button" class="btn-next" onclick="goTab(2)">Next: Timeline & Budget →</button>
+    </div>
+</div>
+
+<!-- ===== TAB 2: TIMELINE & BUDGET ===== -->
+<div class="pf-section" id="tab2">
+    <div class="pf-card">
+        <div class="pf-card-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><h3>Project Timeline</h3></div>
+        <div class="pf-card-body">
+            <div class="pf-grid pf-3">
+                <div class="pf-field">
+                    <label>Planned Start Date<span class="req">*</span></label>
+                    <input type="date" name="start_date" value="{% if is_edit %}{{ project.start_date|date:'Y-m-d' }}{% endif %}" required>
+                </div>
+                <div class="pf-field">
+                    <label>Planned End Date<span class="req">*</span></label>
+                    <input type="date" name="end_date" value="{% if is_edit %}{{ project.end_date|date:'Y-m-d' }}{% endif %}" required>
+                </div>
+                <div class="pf-field">
+                    <label>Estimated Hours</label>
+                    <input type="number" name="estimated_hours" value="{% if is_edit %}{{ project.estimated_hours }}{% endif %}" min="0" step="0.5" placeholder="e.g., 500">
+                    <div class="hint">Total team hours budgeted</div>
+                </div>
+                {% if is_edit %}
+                <div class="pf-field">
+                    <label>Actual Start Date</label>
+                    <input type="date" name="actual_start_date" value="{% if project.actual_start_date %}{{ project.actual_start_date|date:'Y-m-d' }}{% endif %}">
+                </div>
+                <div class="pf-field">
+                    <label>Actual End Date</label>
+                    <input type="date" name="actual_end_date" value="{% if project.actual_end_date %}{{ project.actual_end_date|date:'Y-m-d' }}{% endif %}">
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="pf-card">
+        <div class="pf-card-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg><h3>Budget & Financials</h3></div>
+        <div class="pf-card-body">
+            <div class="pf-grid pf-3">
+                <div class="pf-field">
+                    <label>Currency</label>
+                    <select name="currency">
+                        {% for val,lbl in currency_choices %}
+                        <option value="{{ val }}" {% if is_edit and project.currency == val %}selected{% elif not is_edit and val == 'USD' %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="pf-field">
+                    <label>Total Budget</label>
+                    <input type="number" name="budget" value="{% if is_edit %}{{ project.budget }}{% endif %}" step="0.01" min="0" placeholder="0.00">
+                </div>
+                <div class="pf-field">
+                    <label>Funding Amount <span style="font-weight:400;color:#94a3b8;">(if grant-funded)</span></label>
+                    <input type="number" name="funding_amount" value="{% if is_edit %}{{ project.funding_amount }}{% endif %}" step="0.01" min="0" placeholder="0.00">
+                </div>
+                <div class="pf-field pf-span2">
+                    <label>Funding Source / Donor Organisation</label>
+                    <input type="text" name="funding_source" value="{% if is_edit %}{{ project.funding_source }}{% endif %}" placeholder="e.g., USAID, World Bank, European Union, Gates Foundation">
+                    <div class="hint">Primary funding body or donor — critical for NGOs and grant-funded projects</div>
+                </div>
+                <div class="pf-field">
+                    <label>Grant / Contract Reference</label>
+                    <input type="text" name="grant_reference" value="{% if is_edit %}{{ project.grant_reference }}{% endif %}" placeholder="e.g., AID-OAA-A-12-00001">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-bar">
+        <button type="button" class="btn-prev" onclick="goTab(1)">← Back</button>
+        <button type="button" class="btn-next" onclick="goTab(3)">Next: Objectives & Scope →</button>
+    </div>
+</div>
+
+<!-- ===== TAB 3: OBJECTIVES & SCOPE ===== -->
+<div class="pf-section" id="tab3">
+    <div class="pf-card">
+        <div class="pf-card-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg><h3>Goals, Objectives & Scope</h3><span>Defines success — especially important for NGO reporting and PRINCE2/PMI methodologies</span></div>
+        <div class="pf-card-body">
+            <div class="pf-grid">
+                <div class="pf-field">
+                    <label>Project Objectives / Expected Outcomes</label>
+                    <textarea name="objectives" rows="4" placeholder="What are the measurable goals? What outcomes should this project achieve?&#10;&#10;e.g.:&#10;• Provide clean water access to 5,000 beneficiaries&#10;• Reduce average response time by 40%&#10;• Launch MVP software by Q3 2025">{% if is_edit %}{{ project.objectives }}{% endif %}</textarea>
+                    <div class="hint">SMART objectives help measure project success and satisfy donor requirements</div>
+                </div>
+                <div class="pf-field">
+                    <label>Project Scope</label>
+                    <textarea name="scope" rows="4" placeholder="What is IN scope and OUT of scope?&#10;&#10;In scope: site preparation, foundation, structure, roofing&#10;Out of scope: furniture, landscaping, electrical fitout">{% if is_edit %}{{ project.scope }}{% endif %}</textarea>
+                    <div class="hint">Prevents scope creep and sets clear boundaries for all stakeholders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-bar">
+        <button type="button" class="btn-prev" onclick="goTab(2)">← Back</button>
+        <button type="button" class="btn-next" onclick="goTab(4)">Next: Client / Beneficiary →</button>
+    </div>
+</div>
+
+<!-- ===== TAB 4: CLIENT / BENEFICIARY ===== -->
+<div class="pf-section" id="tab4">
+    <div class="pf-card">
+        <div class="pf-card-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><h3>Client / Beneficiary Information</h3><span>For SMEs: client contact. For NGOs: beneficiary details. Optional for internal projects.</span></div>
+        <div class="pf-card-body">
+            <div class="pf-grid pf-2">
+                <div class="pf-field">
+                    <label>Client / Beneficiary Name</label>
+                    <input type="text" name="client_name" value="{% if is_edit %}{{ project.client_name }}{% endif %}" placeholder="Person or community name">
+                </div>
+                <div class="pf-field">
+                    <label>Client Organisation</label>
+                    <input type="text" name="client_organisation" value="{% if is_edit %}{{ project.client_organisation }}{% endif %}" placeholder="Company, Ministry, or Community group">
+                </div>
+                <div class="pf-field">
+                    <label>Contact Person</label>
+                    <input type="text" name="client_contact" value="{% if is_edit %}{{ project.client_contact }}{% endif %}" placeholder="Primary point of contact">
+                </div>
+                <div class="pf-field">
+                    <label>Phone</label>
+                    <input type="text" name="client_phone" value="{% if is_edit %}{{ project.client_phone }}{% endif %}" placeholder="+1 555 000 0000">
+                </div>
+                <div class="pf-field">
+                    <label>Email</label>
+                    <input type="email" name="client_email" value="{% if is_edit %}{{ project.client_email }}{% endif %}" placeholder="client@organisation.org">
+                </div>
+                <div class="pf-field">
+                    <label>Number of Beneficiaries</label>
+                    <input type="number" name="beneficiary_count" value="{% if is_edit %}{{ project.beneficiary_count }}{% endif %}" min="0" placeholder="e.g., 5000">
+                    <div class="hint">Total intended beneficiaries — required by many NGO funders</div>
+                </div>
+                {% if not is_edit %}
+                <div class="pf-field pf-span2">
+                    <label>Invite Client Users to Portal</label>
+                    <input type="text" name="client_emails" placeholder="client1@example.com, client2@example.com">
+                    <div class="hint">Comma-separated emails — invitations will be sent for client portal access</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="nav-bar">
+        <button type="button" class="btn-prev" onclick="goTab(3)">← Back</button>
+        <button type="button" class="btn-next" onclick="goTab(5)">Next: Team →</button>
+    </div>
+</div>
+
+<!-- ===== TAB 5: TEAM ===== -->
+<div class="pf-section" id="tab5">
+    <div class="pf-card">
+        <div class="pf-card-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><h3>Team Members</h3><span>Select everyone who will work on this project</span></div>
+        <div class="pf-card-body">
+            {% if team_members %}
+            <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center;">
+                <input type="text" id="teamSearch" placeholder="Search team members..." onkeyup="filterTeam(this.value)" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;width:280px;">
+                <button type="button" onclick="selectAll()" style="padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Select All</button>
+                <button type="button" onclick="deselectAll()" style="padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Clear</button>
+            </div>
+            <div class="team-grid" id="teamGrid" style="max-height:300px;overflow-y:auto;">
+                {% for member in team_members %}
+                <label class="team-item" data-name="{{ member.get_full_name|lower }}">
+                    <input type="checkbox" name="team_members" value="{{ member.id }}" {% if is_edit and member in project.team_members.all %}checked{% endif %}>
+                    <div>
+                        <div style="font-weight:500;">{{ member.get_full_name }}</div>
+                        <div style="font-size:11px;color:#64748b;">{{ member.email }}</div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:#64748b;font-size:13px;">No team members found. Invite employees via the EMS module first.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Final submit area -->
+    <div class="pf-card" style="background:#f0fdf4;border-color:#bbf7d0;">
+        <div class="pf-card-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <div style="font-size:14px;font-weight:700;color:#15803d;margin-bottom:2px;">Ready to {% if is_edit %}update{% else %}create{% endif %} the project?</div>
+                    <div style="font-size:12px;color:#16a34a;">Review all tabs before submitting. You can edit everything after creation.</div>
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <a href="{% if is_edit %}{% url 'blu_projects:project_detail' project.id %}{% else %}{% url 'blu_projects:projects_list' %}{% endif %}" class="btn-prev">Cancel</a>
+                    <button type="submit" class="btn-submit">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        {% if is_edit %}Update Project{% else %}Create Project{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-bar"><button type="button" class="btn-prev" onclick="goTab(4)">← Back</button><div></div></div>
+</div>
+
 </form>
+
+<script>
+const tabs = document.querySelectorAll('.pf-tab');
+const sections = document.querySelectorAll('.pf-section');
+let current = 0;
+
+function goTab(n) {
+    tabs[current].classList.remove('active');
+    sections[current].classList.remove('active');
+    current = n;
+    tabs[current].classList.add('active');
+    sections[current].classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+tabs.forEach(t => t.addEventListener('click', () => goTab(parseInt(t.dataset.tab))));
+
+function selectType(el, val) {
+    document.querySelectorAll('.pf-type-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+}
+
+function filterTeam(q) {
+    document.querySelectorAll('#teamGrid .team-item').forEach(item => {
+        item.style.display = item.dataset.name.includes(q.toLowerCase()) ? '' : 'none';
+    });
+}
+
+function selectAll() {
+    document.querySelectorAll('#teamGrid input[type=checkbox]').forEach(cb => cb.checked = true);
+}
+function deselectAll() {
+    document.querySelectorAll('#teamGrid input[type=checkbox]').forEach(cb => cb.checked = false);
+}
+</script>
 {% endblock %}

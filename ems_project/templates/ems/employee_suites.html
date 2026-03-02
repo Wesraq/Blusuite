@@ -1,4 +1,4 @@
-{% extends 'ems/base_employee.html' %}
+﻿{% extends 'ems/base_employee.html' %}
 {% load static %}
 
 {% block title %}My Suites - BLU Suite EMS{% endblock %}
@@ -18,7 +18,7 @@
 <!-- Suite Summary Stats -->
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 24px;">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #ede9fe; color: #7c3aed;">
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
         </div>
         <div class="stat-details">
@@ -27,7 +27,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;">
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
         </div>
         <div class="stat-details">
@@ -111,7 +111,7 @@
         <div style="padding: 20px; border-bottom: 1px solid #f1f5f9;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 44px; height: 44px; border-radius: 4px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 44px; height: 44px; border-radius: 4px; background: linear-gradient(135deg, #DC143C 0%, #B01030 100%); display: flex; align-items: center; justify-content: center;">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     </div>
                     <div>
@@ -121,7 +121,7 @@
                 </div>
                 <div style="display: flex; gap: 6px;">
                     {% if my_projects_count > 0 %}
-                    <div style="background: #dbeafe; color: #1d4ed8; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;">{{ my_projects_count }} project{{ my_projects_count|pluralize }}</div>
+                    <div style="background: #fce7f3; color: #DC143C; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;">{{ my_projects_count }} project{{ my_projects_count|pluralize }}</div>
                     {% endif %}
                     {% if my_tasks_pending > 0 %}
                     <div style="background: #fef3c7; color: #d97706; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;">{{ my_tasks_pending }} task{{ my_tasks_pending|pluralize }}</div>
@@ -133,10 +133,10 @@
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 {% for project in my_projects %}
                 <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f8fafc; border-radius: 4px; font-size: 13px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     <span style="flex: 1; color: #0f172a; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ project.name }}</span>
                     <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 3px; flex-shrink: 0;">
-                        <div style="width: {{ project.progress_percentage }}%; height: 100%; background: {% if project.progress_percentage >= 75 %}#16a34a{% elif project.progress_percentage >= 40 %}#3b82f6{% else %}#f59e0b{% endif %}; border-radius: 3px;"></div>
+                        <div style="width: {{ project.progress_percentage }}%; height: 100%; background: {% if project.progress_percentage >= 75 %}#16a34a{% elif project.progress_percentage >= 40 %}#DC143C{% else %}#f59e0b{% endif %}; border-radius: 3px;"></div>
                     </div>
                     <span style="color: #94a3b8; font-size: 11px; flex-shrink: 0; min-width: 28px; text-align: right;">{{ project.progress_percentage }}%</span>
                 </div>
@@ -148,7 +148,7 @@
                 <div style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">My Open Tasks</div>
                 {% for task in my_tasks_list %}
                 <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 12px; {% if task.is_overdue %}background: #fef2f2;{% endif %} border-radius: 4px; margin-bottom: 4px;">
-                    <span style="width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: {% if task.priority == 'URGENT' %}#dc2626{% elif task.priority == 'HIGH' %}#f59e0b{% else %}#3b82f6{% endif %};"></span>
+                    <span style="width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: {% if task.priority == 'URGENT' %}#dc2626{% elif task.priority == 'HIGH' %}#f59e0b{% else %}#DC143C{% endif %};"></span>
                     <span style="flex: 1; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ task.title }}</span>
                     <span style="color: #94a3b8; font-size: 10px; flex-shrink: 0;">{{ task.project.code }}</span>
                     {% if task.due_date %}
@@ -167,12 +167,12 @@
             {% endif %}
         </div>
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px;">
-            <a href="{% url 'blu_projects:my_tasks' %}" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #1d4ed8; font-weight: 600; font-size: 13px;">
+            <a href="{% url 'blu_projects:my_tasks' %}" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #DC143C; font-weight: 600; font-size: 13px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 My Tasks
             </a>
             <span style="color: #e2e8f0;">|</span>
-            <a href="{% url 'blu_projects:projects_home' %}" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #1d4ed8; font-weight: 600; font-size: 13px;">
+            <a href="{% url 'blu_projects:projects_home' %}" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #DC143C; font-weight: 600; font-size: 13px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                 Projects Dashboard
             </a>
@@ -191,8 +191,8 @@
     <div style="display: flex; flex-direction: column; gap: 8px;">
         {% for notif in suite_notifications %}
         <div style="display: flex; gap: 12px; padding: 12px; background: {% if not notif.is_read %}#fef2f2{% else %}#f8fafc{% endif %}; border-radius: 4px; {% if not notif.is_read %}border-left: 3px solid #E11D48;{% endif %}">
-            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: {% if notif.category == 'ASSET' %}#ede9fe{% else %}#dbeafe{% endif %}; border-radius: 4px; flex-shrink: 0;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{% if notif.category == 'ASSET' %}#7c3aed{% else %}#1d4ed8{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: {% if notif.category == 'ASSET' %}#ede9fe{% else %}#fce7f3{% endif %}; border-radius: 4px; flex-shrink: 0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{% if notif.category == 'ASSET' %}#7c3aed{% else %}#DC143C{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     {% if notif.category == 'ASSET' %}
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                     {% else %}
@@ -221,8 +221,8 @@
     <div style="display: flex; flex-direction: column; gap: 8px;">
         {% for activity in cross_suite_activities %}
         <div style="display: flex; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 4px;">
-            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: {% if activity.type == 'asset' %}#ede9fe{% elif activity.type == 'project' or activity.type == 'task' %}#dbeafe{% else %}#e0f2f1{% endif %}; border-radius: 4px; flex-shrink: 0;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{% if activity.type == 'asset' %}#7c3aed{% elif activity.type == 'project' or activity.type == 'task' %}#1d4ed8{% else %}#1d4ed8{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: {% if activity.type == 'asset' %}#ede9fe{% elif activity.type == 'project' or activity.type == 'task' %}#fce7f3{% else %}#e0f2f1{% endif %}; border-radius: 4px; flex-shrink: 0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{% if activity.type == 'asset' %}#7c3aed{% elif activity.type == 'project' or activity.type == 'task' %}#DC143C{% else %}#DC143C{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     {% if activity.type == 'asset' %}
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>
                     {% elif activity.type == 'project' %}

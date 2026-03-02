@@ -14,6 +14,11 @@ import os
 import sys
 from pathlib import Path
 
+# Python 3.14 creates longer implicit __context__ exception chains during Django
+# template attribute lookups. Django 4.2's get_exception_info recurses on those
+# chains and hits the default limit. Raise it here as a compatibility shim.
+sys.setrecursionlimit(10000)
+
 import dj_database_url
 from dotenv import load_dotenv
 

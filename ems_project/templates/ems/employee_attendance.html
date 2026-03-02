@@ -13,7 +13,7 @@
 </div>
 
 <!-- Clock In/Out Card -->
-<div style="background: linear-gradient(135deg, #1d4ed8 0%, #006666 100%); border-radius: 12px; padding: 24px; margin-bottom: 24px; color: white;">
+<div style="background: linear-gradient(135deg, #DC143C 0%, #006666 100%); border-radius: 12px; padding: 24px; margin-bottom: 24px; color: white;">
     <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
         <div>
             <div style="font-size: 14px; opacity: 0.85; margin-bottom: 4px;">Today's Status</div>
@@ -47,12 +47,12 @@
                 <input type="hidden" name="longitude" id="longitude">
                 <input type="hidden" name="location" id="location">
                 {% if not today_attendance or not today_attendance.check_in %}
-                    <button type="submit" name="action" value="clock_in" id="clock-in-btn" style="padding: 14px 28px; background: #ffffff; color: #1d4ed8; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                    <button type="submit" name="action" value="clock_in" id="clock-in-btn" style="padding: 14px 28px; background: #ffffff; color: #DC143C; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                         Clock In
                     </button>
                 {% elif today_attendance.check_in and not today_attendance.check_out %}
-                    <button type="submit" name="action" value="clock_out" id="clock-out-btn" style="padding: 14px 28px; background: #dc2626; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                    <button type="submit" name="action" value="clock_out" id="clock-out-btn" style="padding: 14px 28px; background: #DC143C; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
                         Clock Out
                     </button>
@@ -83,7 +83,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         </div>
         <div class="stat-details">
@@ -101,7 +101,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
+        <div class="stat-icon" style="background-color: #fee2e2; color: #DC143C;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </div>
         <div class="stat-details">
@@ -119,7 +119,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;">
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
         </div>
         <div class="stat-details">
@@ -134,7 +134,7 @@
     <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #0f172a;">Last 7 Days</h3>
     <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
         {% for day in weekly_trend %}
-        <div style="text-align: center; padding: 12px 4px; border-radius: 8px; background: {% if day.status == 'PRESENT' %}#d1fae5{% elif day.status == 'LATE' %}#fef3c7{% elif day.status == 'ABSENT' %}#fee2e2{% elif day.status == 'ON_LEAVE' %}#e0e7ff{% elif day.status == 'HALF_DAY' %}#fef9c3{% else %}#f8fafc{% endif %};">
+        <div style="text-align: center; padding: 12px 4px; border-radius: 8px; background: {% if day.status == 'PRESENT' %}#d1fae5{% elif day.status == 'LATE' %}#fef3c7{% elif day.status == 'ABSENT' %}#fee2e2{% elif day.status == 'ON_LEAVE' %}#fce7f3{% elif day.status == 'HALF_DAY' %}#fef9c3{% else %}#f8fafc{% endif %};">
             <div style="font-size: 12px; font-weight: 600; color: #64748b;">{{ day.day }}</div>
             <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ day.date|date:"M d" }}</div>
             <div style="margin-top: 8px;">
@@ -143,9 +143,9 @@
                 {% elif day.status == 'LATE' %}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 {% elif day.status == 'ABSENT' %}
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                 {% elif day.status == 'ON_LEAVE' %}
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
                 {% elif day.status == 'HALF_DAY' %}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20z"></path></svg>
                 {% else %}
@@ -193,13 +193,13 @@
                             <div style="font-size: 12px; color: #94a3b8;">{{ record.date|date:"l" }}</div>
                         </td>
                         <td style="padding: 12px 16px; color: #059669; font-weight: 500;">{{ record.check_in|date:"H:i"|default:"—" }}</td>
-                        <td style="padding: 12px 16px; color: #dc2626; font-weight: 500;">{{ record.check_out|date:"H:i"|default:"—" }}</td>
+                        <td style="padding: 12px 16px; color: #DC143C; font-weight: 500;">{{ record.check_out|date:"H:i"|default:"—" }}</td>
                         <td style="padding: 12px 16px;">
                             <span style="display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
                                 {% if record.status == 'PRESENT' %}background: #d1fae5; color: #065f46;
                                 {% elif record.status == 'LATE' %}background: #fef3c7; color: #92400e;
                                 {% elif record.status == 'ABSENT' %}background: #fee2e2; color: #991b1b;
-                                {% elif record.status == 'ON_LEAVE' %}background: #e0e7ff; color: #3730a3;
+                                {% elif record.status == 'ON_LEAVE' %}background: #fce7f3; color: #3730a3;
                                 {% elif record.status == 'HALF_DAY' %}background: #fef9c3; color: #854d0e;
                                 {% endif %}">
                                 {{ record.get_status_display }}

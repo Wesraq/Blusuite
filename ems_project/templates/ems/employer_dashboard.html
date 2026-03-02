@@ -1,4 +1,4 @@
-{% extends 'ems/base_employer.html' %}
+﻿{% extends 'ems/base_employer.html' %}
 
 {% block title %}{{ company.company_name|default:company.name }} Dashboard - EMS{% endblock %}
 
@@ -10,7 +10,7 @@
     <!-- Modern Tab Navigation -->
     <div style="border-bottom: 2px solid #e2e8f0; margin-bottom: 24px;">
         <div style="display: flex; gap: 8px;">
-            <button class="tab-btn active" onclick="showTab('overview')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; border-bottom: 2px solid #1d4ed8; color: #1d4ed8; font-weight: 600; margin-bottom: -2px;">Overview</button>
+            <button class="tab-btn active" onclick="showTab('overview')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; border-bottom: 2px solid #DC143C; color: #DC143C; font-weight: 600; margin-bottom: -2px;">Overview</button>
             <button class="tab-btn" onclick="showTab('employees')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; color: #64748b; font-weight: 600; margin-bottom: -2px;">Employees</button>
             <button class="tab-btn" onclick="showTab('company')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; color: #64748b; font-weight: 600; margin-bottom: -2px;">Company</button>
         </div>
@@ -459,7 +459,7 @@
                                     <small style="display: block; margin-top: 6px; color: #475569;">Secondary</small>
                                 </div>
                                 <div style="flex: 1; min-width: 90px;">
-                                    <div style="background-color: {{ company.button_color|default:'#3b82f6' }}; height: 34px; border-radius: 8px;"></div>
+                                    <div style="background-color: {{ company.button_color|default:'#DC143C' }}; height: 34px; border-radius: 8px;"></div>
                                     <small style="display: block; margin-top: 6px; color: #475569;">Buttons</small>
                                 </div>
                             </div>
@@ -531,8 +531,8 @@ function showTab(tabName) {
     // Add active class and styles to clicked tab button
     if (event && event.target) {
         event.target.classList.add('active');
-        event.target.style.borderBottom = '2px solid #1d4ed8';
-        event.target.style.color = '#1d4ed8';
+        event.target.style.borderBottom = '2px solid #DC143C';
+        event.target.style.color = '#DC143C';
     }
 }
 

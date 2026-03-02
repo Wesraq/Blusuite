@@ -92,8 +92,19 @@
                     <div>
                         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Currency</label>
                         <select name="currency" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                            <option value="ZMW">ZMW</option>
-                            <option value="USD">USD</option>
+                            <option value="ZMW" {% if currency_code == 'ZMW' %}selected{% endif %}>ZMW - Zambian Kwacha</option>
+                            <option value="MWK" {% if currency_code == 'MWK' %}selected{% endif %}>MWK - Malawian Kwacha</option>
+                            <option value="KES" {% if currency_code == 'KES' %}selected{% endif %}>KES - Kenyan Shilling</option>
+                            <option value="TZS" {% if currency_code == 'TZS' %}selected{% endif %}>TZS - Tanzanian Shilling</option>
+                            <option value="UGX" {% if currency_code == 'UGX' %}selected{% endif %}>UGX - Ugandan Shilling</option>
+                            <option value="ZAR" {% if currency_code == 'ZAR' %}selected{% endif %}>ZAR - South African Rand</option>
+                            <option value="NGN" {% if currency_code == 'NGN' %}selected{% endif %}>NGN - Nigerian Naira</option>
+                            <option value="GHS" {% if currency_code == 'GHS' %}selected{% endif %}>GHS - Ghanaian Cedi</option>
+                            <option value="ZWL" {% if currency_code == 'ZWL' %}selected{% endif %}>ZWL - Zimbabwean Dollar</option>
+                            <option value="BWP" {% if currency_code == 'BWP' %}selected{% endif %}>BWP - Botswana Pula</option>
+                            <option value="MZN" {% if currency_code == 'MZN' %}selected{% endif %}>MZN - Mozambican Metical</option>
+                            <option value="USD" {% if currency_code == 'USD' %}selected{% endif %}>USD - US Dollar</option>
+                            <option value="GBP" {% if currency_code == 'GBP' %}selected{% endif %}>GBP - British Pound</option>
                         </select>
                     </div>
                     <div>
@@ -168,7 +179,7 @@
             <!-- Action Buttons -->
             <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e2e8f0;">
                 <a href="{% url 'contracts:contracts_list' %}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn">Create Contract</button>
+                <button type="submit" class="btn btn-primary">Create Contract</button>
             </div>
         </form>
     </div>

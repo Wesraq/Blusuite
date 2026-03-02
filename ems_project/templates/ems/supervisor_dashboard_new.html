@@ -18,14 +18,14 @@
 <!-- Team Metrics -->
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #db2777;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="stat-details">
             <h3>{{ team_size|default:0 }}</h3>
             <p>Team Size</p>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dcfce7; color: #16a34a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+        <div class="stat-icon" style="background-color: #dcfce7; color: #db2777;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
         <div class="stat-details">
             <h3>{{ team_present_today|default:0 }}</h3>
             <p>Present Today</p>
@@ -39,7 +39,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #db2777;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
         <div class="stat-details">
             <h3>{{ team_avg_performance|default:0 }}</h3>
             <p>Team Performance</p>
@@ -59,25 +59,25 @@
         <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 18px; font-weight: 600;">Team Management</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
             <a href="{% url 'supervisor_team_attendance' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" fill="#1d4ed8" style="margin-bottom: 8px;">
+                <svg width="32" height="32" fill="#db2777" style="margin-bottom: 8px;">
                     <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
                 </svg>
                 <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Team Attendance</div>
             </a>
             <a href="{% url 'supervisor_request_approval' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" fill="#1d4ed8" style="margin-bottom: 8px;">
+                <svg width="32" height="32" fill="#db2777" style="margin-bottom: 8px;">
                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                 </svg>
                 <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Approve Requests</div>
             </a>
             <a href="{% url 'supervisor_team_performance' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" fill="#1d4ed8" style="margin-bottom: 8px;">
+                <svg width="32" height="32" fill="#db2777" style="margin-bottom: 8px;">
                     <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
                 </svg>
                 <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">Team Performance</div>
             </a>
             <a href="{% url 'employee_dashboard' %}" style="display: flex; flex-direction: column; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none;">
-                <svg width="32" height="32" fill="#1d4ed8" style="margin-bottom: 8px;">
+                <svg width="32" height="32" fill="#db2777" style="margin-bottom: 8px;">
                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
                 </svg>
                 <div style="font-size: 13px; font-weight: 600; color: #0f172a; text-align: center;">My Profile</div>
@@ -90,7 +90,7 @@
         <!-- Team Members -->
         <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
             <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                <svg width="20" height="20" fill="#1d4ed8">
+                <svg width="20" height="20" fill="#db2777">
                     <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                     <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
                     <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
@@ -101,7 +101,7 @@
                 {% if team_members %}
                     {% for member in team_members %}
                     <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 8px;">
-                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1d4ed8, #66b2b2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #db2777, #e57a8a); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">
                             {{ member.first_name|slice:":1" }}{{ member.last_name|slice:":1" }}
                         </div>
                         <div style="flex: 1;">
@@ -133,7 +133,7 @@
         <!-- Pending Approvals -->
         <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
             <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                <svg width="20" height="20" fill="#1d4ed8">
+                <svg width="20" height="20" fill="#db2777">
                     <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
                     <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
                 </svg>
@@ -165,7 +165,7 @@
         <!-- Team Attendance Overview -->
         <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
             <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                <svg width="20" height="20" fill="#1d4ed8">
+                <svg width="20" height="20" fill="#db2777">
                     <path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm5 8h-2v4h2v-4z"/>
                 </svg>
                 Team Attendance
@@ -188,7 +188,7 @@
                     <div style="font-size: 12px; color: #475569;">Half Day</div>
                 </div>
             </div>
-            <a href="{% url 'supervisor_team_attendance' %}" style="display: block; text-align: center; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #1d4ed8; font-weight: 600;">
+            <a href="{% url 'supervisor_team_attendance' %}" style="display: block; text-align: center; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #DC143C; font-weight: 600;">
                 View Full Attendance →
             </a>
         </div>
@@ -207,10 +207,10 @@
                     <div style="padding: 12px; background: #f8fafc; border-radius: 8px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                             <span style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ perf.employee.get_full_name }}</span>
-                            <span style="font-size: 13px; font-weight: 600; color: #1d4ed8;">{{ perf.rating }}/5</span>
+                            <span style="font-size: 13px; font-weight: 600; color: #DC143C;">{{ perf.rating }}/5</span>
                         </div>
                         <div style="background: #e2e8f0; height: 6px; border-radius: 999px; overflow: hidden;">
-                            <div style="background: #1d4ed8; height: 100%; width: {% widthratio perf.rating 5 100 %}%;"></div>
+                            <div style="background: #DC143C; height: 100%; width: {% widthratio perf.rating 5 100 %}%;"></div>
                         </div>
                     </div>
                     {% endfor %}
@@ -237,7 +237,7 @@
                 <div style="display: flex; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 8px;">
                     <div style="font-size: 20px;">
                         {% if activity.type == 'attendance' %}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
                             <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -285,7 +285,7 @@ a[href*="supervisor_team_performance"]:hover,
 a[href*="employee_dashboard"]:hover {
     transform: translateY(-4px) !important;
     box-shadow: 0 8px 24px rgba(0, 128, 128, 0.15) !important;
-    border-color: #1d4ed8 !important;
+    border-color: #DC143C !important;
     background: #f0fdfa !important;
 }
 
@@ -307,7 +307,7 @@ a[href] {
 
 /* Focus states for accessibility */
 a[href]:focus {
-    outline: 2px solid #1d4ed8;
+    outline: 2px solid #DC143C;
     outline-offset: 2px;
 }
 </style>

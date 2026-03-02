@@ -1,0 +1,202 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% block title %}File Manager{% endblock %}
+{% block page_title %}File Manager{% endblock %}
+
+{% block content %}
+<style>
+.fm-wrap { display:flex; gap:0; height:calc(100vh - 120px); overflow:hidden; }
+.fm-tree { width:240px; min-width:200px; border-right:1px solid #DC143C0; background:#DC143Cafc; overflow-y:auto; padding:12px 0; flex-shrink:0; }
+.fm-tree-header { padding:8px 16px 4px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#DC143C8; display:flex; justify-content:space-between; align-items:center; }
+.fm-tree-btn { background:none; border:none; cursor:pointer; color:#DC143C1; padding:2px 4px; border-radius:4px; font-size:13px; }
+.fm-tree-btn:hover { background:#DC143C0; }
+.fm-folder-item { display:flex; align-items:center; gap:6px; padding:7px 16px; font-size:13px; color:#DC143C1; cursor:pointer; text-decoration:none; border-left:3px solid transparent; transition:all .12s; }
+.fm-folder-item:hover { background:#fce7f3; color:#DC143C; }
+.fm-folder-item.active { background:#fce7f3; color:#DC143C; border-left-color:#DC143C; font-weight:600; }
+.fm-folder-icon { font-size:15px; }
+.fm-main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.fm-toolbar { display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid #DC143C0; flex-wrap:wrap; }
+.fm-breadcrumb { display:flex; align-items:center; gap:4px; font-size:13px; flex:1; min-width:0; }
+.fm-breadcrumb a { color:#DC143C; text-decoration:none; white-space:nowrap; }
+.fm-breadcrumb a:hover { text-decoration:underline; }
+.fm-breadcrumb span { color:#DC143C8; }
+.fm-btn { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:7px; font-size:12px; font-weight:500; border:none; cursor:pointer; white-space:nowrap; }
+.fm-btn-primary { background:#DC143C; color:#fff; }
+.fm-btn-ghost { background:#DC143Cafc; color:#DC143C1; border:1px solid #DC143C0; }
+.fm-search { border:1px solid #DC143C0; border-radius:7px; padding:7px 12px; font-size:13px; width:200px; }
+.fm-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:12px; padding:16px; overflow-y:auto; flex:1; align-content:start; }
+.fm-item { display:flex; flex-direction:column; align-items:center; padding:12px 8px 10px; border:1px solid #DC143C0; border-radius:10px; cursor:pointer; text-decoration:none; background:#fff; transition:all .15s; text-align:center; position:relative; }
+.fm-item:hover { border-color:#DC143C0; box-shadow:0 2px 8px rgba(220,20,60,.08); background:#fce7f3; }
+.fm-item-icon { font-size:32px; margin-bottom:6px; }
+.fm-item-name { font-size:11px; font-weight:500; color:#0f172a; word-break:break-word; line-height:1.3; max-width:100%; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.fm-item-meta { font-size:10px; color:#DC143C8; margin-top:3px; }
+.fm-item-del { display:none; position:absolute; top:4px; right:4px; background:#fee2e2; border:none; border-radius:4px; color:#dc2626; cursor:pointer; font-size:11px; padding:2px 5px; }
+.fm-item:hover .fm-item-del { display:block; }
+.fm-empty { padding:48px 24px; text-align:center; color:#DC143C8; }
+/* Modal */
+.fm-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:2000; align-items:center; justify-content:center; }
+.fm-modal-bg.open { display:flex; }
+.fm-modal { background:#fff; border-radius:12px; padding:22px; width:100%; max-width:420px; }
+.fm-modal h3 { margin:0 0 14px; font-size:15px; font-weight:700; }
+.fm-field { margin-bottom:12px; }
+.fm-field label { font-size:12px; font-weight:600; color:#DC143C1; display:block; margin-bottom:4px; }
+.fm-field input, .fm-field textarea, .fm-field select { width:100%; border:1px solid #DC143C0; border-radius:7px; padding:8px 12px; font-size:13px; box-sizing:border-box; }
+.fm-modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:4px; }
+@media(max-width:768px){ .fm-wrap{flex-direction:column;height:auto;} .fm-tree{width:100%;border-right:none;border-bottom:1px solid #DC143C0;max-height:180px;} .fm-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));} }
+</style>
+
+<div class="fm-wrap">
+    <!-- Left Panel: Folder Tree -->
+    <aside class="fm-tree">
+        <div class="fm-tree-header">
+            Folders
+            {% if is_admin %}
+            <button class="fm-tree-btn" onclick="openFolderModal(null)" title="New root folder">+</button>
+            {% endif %}
+        </div>
+        <a href="{% url 'file_manager' %}" class="fm-folder-item {% if not current_folder %}active{% endif %}">
+            <span class="fm-folder-icon">🏠</span> All Files
+        </a>
+        {% for folder in root_folders %}
+        <a href="{% url 'file_manager' %}?folder={{ folder.id }}" class="fm-folder-item {% if current_folder.id == folder.id %}active{% endif %}">
+            <span class="fm-folder-icon">📁</span> {{ folder.name }}
+        </a>
+        {% for child in folder.children.all %}
+        <a href="{% url 'file_manager' %}?folder={{ child.id }}" class="fm-folder-item {% if current_folder.id == child.id %}active{% endif %}" style="padding-left:28px;">
+            <span class="fm-folder-icon">📂</span> {{ child.name }}
+        </a>
+        {% endfor %}
+        {% empty %}
+        <div style="padding:16px;font-size:12px;color:#DC143C8;text-align:center;">No folders yet</div>
+        {% endfor %}
+    </aside>
+
+    <!-- Right Panel: Files -->
+    <div class="fm-main">
+        <div class="fm-toolbar">
+            <!-- Breadcrumb -->
+            <div class="fm-breadcrumb">
+                <a href="{% url 'file_manager' %}">Files</a>
+                {% for crumb in breadcrumbs %}
+                <span>/</span>
+                <a href="{% url 'file_manager' %}?folder={{ crumb.id }}">{{ crumb.name }}</a>
+                {% endfor %}
+            </div>
+            <!-- Search -->
+            <form method="get" style="display:flex;gap:6px;">
+                <input class="fm-search" name="q" placeholder="Search files…" value="{{ search }}">
+                {% if current_folder %}<input type="hidden" name="folder" value="{{ current_folder.id }}">{% endif %}
+                <button type="submit" class="fm-btn fm-btn-ghost">Search</button>
+            </form>
+            {% if is_admin %}
+            <button class="fm-btn fm-btn-ghost" onclick="openFolderModal({{ current_folder.id|default:'null' }})">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Folder
+            </button>
+            <button class="fm-btn fm-btn-primary" onclick="openUploadModal()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                Upload
+            </button>
+            {% endif %}
+        </div>
+
+        {% if messages %}{% for msg in messages %}
+        <div style="margin:10px 16px 0;padding:8px 12px;border-radius:7px;font-size:13px;background:#d1fae5;color:#065f46;border:1px solid #86efac;">{{ msg }}</div>
+        {% endfor %}{% endif %}
+
+        <div class="fm-grid">
+            <!-- Sub-folders in current location -->
+            {% for folder in sub_folders %}
+            <a href="{% url 'file_manager' %}?folder={{ folder.id }}" class="fm-item">
+                {% if is_admin %}
+                <form method="post" style="display:none;" id="del-folder-{{ folder.id }}">
+                    {% csrf_token %}<input type="hidden" name="action" value="delete_folder">
+                    <input type="hidden" name="folder_id" value="{{ folder.id }}">
+                </form>
+                <button type="button" class="fm-item-del" onclick="event.preventDefault();event.stopPropagation();if(confirm('Delete folder?'))document.getElementById('del-folder-{{ folder.id }}').submit();">✕</button>
+                {% endif %}
+                <span class="fm-item-icon">📁</span>
+                <div class="fm-item-name">{{ folder.name }}</div>
+            </a>
+            {% endfor %}
+
+            <!-- Files -->
+            {% for f in files %}
+            {% with ext=f.extension %}
+            <div class="fm-item" onclick="window.open('{{ f.file.url }}','_blank')">
+                {% if is_admin %}
+                <form method="post" style="display:none;" id="del-file-{{ f.id }}">
+                    {% csrf_token %}<input type="hidden" name="action" value="delete_file">
+                    <input type="hidden" name="file_id" value="{{ f.id }}">
+                </form>
+                <button type="button" class="fm-item-del" onclick="event.stopPropagation();if(confirm('Delete file?'))document.getElementById('del-file-{{ f.id }}').submit();">✕</button>
+                {% endif %}
+                <span class="fm-item-icon">
+                    {% if ext == '.pdf' %}📄{% elif ext in '.doc,.docx' %}📝{% elif ext in '.xls,.xlsx' %}📊{% elif ext in '.jpg,.jpeg,.png,.gif,.webp' %}🖼️{% elif ext in '.zip,.rar,.7z' %}🗜️{% elif ext in '.mp4,.mov,.avi' %}🎬{% elif ext in '.mp3,.wav' %}🎵{% else %}📎{% endif %}
+                </span>
+                <div class="fm-item-name">{{ f.name }}</div>
+                <div class="fm-item-meta">{{ f.size_display }}</div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            {% if not sub_folders %}
+            <div class="fm-empty" style="grid-column:1/-1;">
+                <div style="font-size:40px;margin-bottom:12px;">📂</div>
+                <div style="font-size:14px;font-weight:500;color:#DC143C8;">This folder is empty</div>
+                {% if is_admin %}<div style="font-size:12px;margin-top:6px;">Upload a file to get started</div>{% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- New Folder Modal -->
+<div class="fm-modal-bg" id="folderModal">
+    <div class="fm-modal">
+        <h3>New Folder</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_folder">
+            <input type="hidden" name="parent_id" id="newFolderParentId">
+            <div class="fm-field"><label>Folder Name *</label><input type="text" name="name" required autofocus placeholder="e.g. HR Documents"></div>
+            <div class="fm-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" name="is_shared" id="folderShared" checked style="width:auto;"><label for="folderShared" style="margin:0;font-weight:400;">Visible to all employees</label></div>
+            <div class="fm-modal-actions">
+                <button type="button" onclick="closeFolderModal()" style="padding:7px 14px;border:1px solid #DC143C0;border-radius:7px;background:#DC143Cafc;cursor:pointer;font-size:13px;">Cancel</button>
+                <button type="submit" class="fm-btn fm-btn-primary">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Upload File Modal -->
+<div class="fm-modal-bg" id="uploadModal">
+    <div class="fm-modal">
+        <h3>Upload File</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="upload">
+            {% if current_folder %}<input type="hidden" name="folder_id" value="{{ current_folder.id }}">{% endif %}
+            <div class="fm-field"><label>File *</label><input type="file" name="file" required></div>
+            <div class="fm-field"><label>Display Name</label><input type="text" name="name" placeholder="Leave blank to use filename"></div>
+            <div class="fm-field"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+            <div class="fm-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" name="is_shared" id="fileShared" checked style="width:auto;"><label for="fileShared" style="margin:0;font-weight:400;">Visible to all employees</label></div>
+            <div class="fm-modal-actions">
+                <button type="button" onclick="closeUploadModal()" style="padding:7px 14px;border:1px solid #DC143C0;border-radius:7px;background:#DC143Cafc;cursor:pointer;font-size:13px;">Cancel</button>
+                <button type="submit" class="fm-btn fm-btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openFolderModal(parentId) {
+    document.getElementById('newFolderParentId').value = parentId || '';
+    document.getElementById('folderModal').classList.add('open');
+}
+function closeFolderModal() { document.getElementById('folderModal').classList.remove('open'); }
+function openUploadModal() { document.getElementById('uploadModal').classList.add('open'); }
+function closeUploadModal() { document.getElementById('uploadModal').classList.remove('open'); }
+document.getElementById('folderModal').addEventListener('click', function(e){ if(e.target===this) closeFolderModal(); });
+document.getElementById('uploadModal').addEventListener('click', function(e){ if(e.target===this) closeUploadModal(); });
+</script>
+{% endblock %}

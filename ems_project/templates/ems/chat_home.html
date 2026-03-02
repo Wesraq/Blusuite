@@ -1,0 +1,101 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% block title %}Messages{% endblock %}
+{% block page_title %}Messages{% endblock %}
+
+{% block content %}
+<style>
+.chat-wrap { display:flex; gap:0; height:calc(100vh - 120px); overflow:hidden; }
+.chat-sidebar { width:300px; border-right:1px solid #fce7f30; display:flex; flex-direction:column; background:#fff; flex-shrink:0; }
+.chat-sidebar-header { padding:16px; border-bottom:1px solid #fce7f30; }
+.chat-sidebar-header h3 { margin:0 0 10px; font-size:16px; font-weight:700; color:#0f172a; }
+.chat-search { width:100%; border:1px solid #fce7f30; border-radius:8px; padding:8px 12px; font-size:13px; font-family:inherit; box-sizing:border-box; }
+.chat-search:focus { border-color:#DC143C; outline:none; }
+.chat-list { flex:1; overflow-y:auto; }
+.chat-item { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid #DC143Cf9; cursor:pointer; text-decoration:none; transition:background .12s; }
+.chat-item:hover { background:#f8fafc; }
+.chat-item.unread { background:#eff6ff; }
+.chat-avatar { width:40px; height:40px; border-radius:50%; background:#DC143C; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; }
+.chat-item-info { flex:1; min-width:0; }
+.chat-item-name { font-size:13px; font-weight:600; color:#0f172a; }
+.chat-item-preview { font-size:12px; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+.chat-item-time { font-size:11px; color:#94a3b8; white-space:nowrap; }
+.chat-unread-badge { background:#dc2626; color:#fff; border-radius:10px; padding:1px 6px; font-size:10px; font-weight:700; }
+.chat-main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc; }
+.chat-empty { text-align:center; color:#94a3b8; padding:32px; }
+.all-contacts { padding:16px; border-top:1px solid #fce7f30; }
+.all-contacts h4 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#94a3b8; margin:0 0 8px; }
+.contact-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border:1px solid #fce7f30; border-radius:20px; font-size:12px; color:#374151; text-decoration:none; margin:3px 4px 3px 0; transition:all .12s; }
+.contact-chip:hover { border-color:#DC143C; background:#eff6ff; color:#DC143C; }
+@media(max-width:768px){ .chat-wrap{flex-direction:column;height:auto;} .chat-sidebar{width:100%;max-height:280px;} .all-contacts{display:none;} }
+/* Dark theme */
+[data-theme$="-dark"] .chat-sidebar { background:#1a1d2e; border-right-color:#2d3148; }
+[data-theme$="-dark"] .chat-sidebar-header { border-bottom-color:#2d3148; }
+[data-theme$="-dark"] .chat-sidebar-header h3 { color:#DC143Cf9; }
+[data-theme$="-dark"] .chat-search { background:#252840; border-color:#2d3148; color:#DC143Cf9; }
+[data-theme$="-dark"] .chat-search::placeholder { color:#475569; }
+[data-theme$="-dark"] .chat-search:focus { border-color:#DC143C; }
+[data-theme$="-dark"] .chat-item { border-bottom-color:#2d3148; }
+[data-theme$="-dark"] .chat-item:hover { background:rgba(255,255,255,.07) !important; }
+[data-theme$="-dark"] .chat-item.unread { background:rgba(220,20,60,.12) !important; }
+[data-theme$="-dark"] .chat-item-name { color:#DC143Cf9; }
+[data-theme$="-dark"] .chat-item-preview { color:#64748b; }
+[data-theme$="-dark"] .chat-item-time { color:#475569; }
+[data-theme$="-dark"] .chat-main { background:#111318; }
+[data-theme$="-dark"] .all-contacts { border-top-color:#2d3148; }
+[data-theme$="-dark"] .contact-chip { border-color:#2d3148; color:#cbd5e1; }
+[data-theme$="-dark"] .contact-chip:hover { border-color:#DC143C; background:rgba(220,20,60,.12); color:#DC143C; }
+</style>
+
+<div class="chat-wrap">
+    <aside class="chat-sidebar">
+        <div class="chat-sidebar-header">
+            <h3>Messages</h3>
+            <input class="chat-search" id="chatSearch" placeholder="Search contacts…" oninput="filterContacts(this.value)">
+        </div>
+        <div class="chat-list" id="chatList">
+            {% for conv in recent %}
+            <a href="{% url 'chat_conversation' conv.user.id %}" class="chat-item {% if conv.unread %}unread{% endif %}" data-name="{{ conv.user.get_full_name|lower }}">
+                <div class="chat-avatar">{{ conv.user.first_name.0|default:'?' }}{{ conv.user.last_name.0|default:'' }}</div>
+                <div class="chat-item-info">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="chat-item-name">{{ conv.user.get_full_name }}</span>
+                        <span class="chat-item-time">{{ conv.last_msg.created_at|date:"g:i A" }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="chat-item-preview">{{ conv.last_msg.content|truncatechars:38 }}</span>
+                        {% if conv.unread %}<span class="chat-unread-badge">{{ conv.unread }}</span>{% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">No conversations yet</div>
+            {% endfor %}
+        </div>
+        <div class="all-contacts">
+            <h4>Start a conversation</h4>
+            {% for contact in all_contacts %}
+            <a href="{% url 'chat_conversation' contact.id %}" class="contact-chip">
+                {{ contact.get_full_name }}
+            </a>
+            {% endfor %}
+        </div>
+    </aside>
+
+    <div class="chat-main">
+        <div class="chat-empty">
+            <div style="font-size:48px;margin-bottom:12px;">💬</div>
+            <div style="font-size:15px;font-weight:500;color:#64748b;">Select a conversation</div>
+            <div style="font-size:13px;margin-top:6px;">Choose a contact from the left to start messaging</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterContacts(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#chatList .chat-item').forEach(function(el) {
+        el.style.display = el.dataset.name.includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

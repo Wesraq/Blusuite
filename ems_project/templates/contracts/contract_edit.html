@@ -111,8 +111,19 @@
                     <div>
                         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #1e293b;">Currency</label>
                         <select name="currency" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                            <option value="ZMW" {% if contract.currency == 'ZMW' %}selected{% endif %}>ZMW</option>
-                            <option value="USD" {% if contract.currency == 'USD' %}selected{% endif %}>USD</option>
+                            <option value="ZMW" {% if contract.currency == 'ZMW' or not contract.currency and currency_code == 'ZMW' %}selected{% endif %}>ZMW - Zambian Kwacha</option>
+                            <option value="MWK" {% if contract.currency == 'MWK' or not contract.currency and currency_code == 'MWK' %}selected{% endif %}>MWK - Malawian Kwacha</option>
+                            <option value="KES" {% if contract.currency == 'KES' or not contract.currency and currency_code == 'KES' %}selected{% endif %}>KES - Kenyan Shilling</option>
+                            <option value="TZS" {% if contract.currency == 'TZS' or not contract.currency and currency_code == 'TZS' %}selected{% endif %}>TZS - Tanzanian Shilling</option>
+                            <option value="UGX" {% if contract.currency == 'UGX' or not contract.currency and currency_code == 'UGX' %}selected{% endif %}>UGX - Ugandan Shilling</option>
+                            <option value="ZAR" {% if contract.currency == 'ZAR' or not contract.currency and currency_code == 'ZAR' %}selected{% endif %}>ZAR - South African Rand</option>
+                            <option value="NGN" {% if contract.currency == 'NGN' or not contract.currency and currency_code == 'NGN' %}selected{% endif %}>NGN - Nigerian Naira</option>
+                            <option value="GHS" {% if contract.currency == 'GHS' or not contract.currency and currency_code == 'GHS' %}selected{% endif %}>GHS - Ghanaian Cedi</option>
+                            <option value="ZWL" {% if contract.currency == 'ZWL' or not contract.currency and currency_code == 'ZWL' %}selected{% endif %}>ZWL - Zimbabwean Dollar</option>
+                            <option value="BWP" {% if contract.currency == 'BWP' or not contract.currency and currency_code == 'BWP' %}selected{% endif %}>BWP - Botswana Pula</option>
+                            <option value="MZN" {% if contract.currency == 'MZN' or not contract.currency and currency_code == 'MZN' %}selected{% endif %}>MZN - Mozambican Metical</option>
+                            <option value="USD" {% if contract.currency == 'USD' or not contract.currency and currency_code == 'USD' %}selected{% endif %}>USD - US Dollar</option>
+                            <option value="GBP" {% if contract.currency == 'GBP' or not contract.currency and currency_code == 'GBP' %}selected{% endif %}>GBP - British Pound</option>
                         </select>
                     </div>
                     <div>
@@ -219,7 +230,7 @@
             <!-- Action Buttons -->
             <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e2e8f0;">
                 <a href="{% url 'contracts:contract_detail' contract.id %}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn">Save Changes</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </form>
     </div>

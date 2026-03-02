@@ -1,0 +1,248 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Competency Framework – PMS{% endblock %}
+{% block page_title %}Competency Framework{% endblock %}
+
+{% block content %}
+<style>
+.cf-sidebar { background:#fff; border:1px solid #e2e8f0; border-radius:10px; }
+.cf-sidebar-hd { padding:14px 18px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; }
+.cf-sidebar-hd h3 { margin:0; font-size:14px; font-weight:700; color:#0f172a; }
+.fw-item { padding:12px 16px; border-bottom:1px solid #f1f5f9; cursor:pointer; transition:background .12s; display:flex; justify-content:space-between; align-items:center; }
+.fw-item:last-child { border-bottom:none; }
+.fw-item:hover { background:#f8fafc; }
+.fw-item.active { background:#fff5f7; border-left:3px solid #DC143C; }
+.cf-main { background:#fff; border:1px solid #e2e8f0; border-radius:10px; }
+.cf-main-hd { padding:18px 22px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.cf-main-hd h3 { margin:0; font-size:16px; font-weight:700; }
+.comp-card { border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px; overflow:hidden; }
+.comp-card-hd { padding:12px 16px; background:#f8fafc; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.comp-card-body { padding:14px 16px; }
+.type-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.type-technical { background:#fce7f3; color:#9d174d; }
+.type-behavioral { background:#ede9fe; color:#6d28d9; }
+.type-leadership { background:#fef3c7; color:#92400e; }
+.type-communication { background:#dcfce7; color:#166534; }
+.type-core_value { background:#dbeafe; color:#1e40af; }
+.level-row { display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid #f1f5f9; }
+.level-row:last-child { border-bottom:none; }
+.level-num { width:28px; height:28px; border-radius:50%; background:#DC143C; color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:#fff; border-radius:12px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,.18); }
+.modal-hd { display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid #e2e8f0; position:sticky; top:0; background:#fff; }
+.modal-hd h3 { margin:0; font-size:15px; font-weight:700; }
+.modal-close { background:none; border:none; font-size:22px; color:#94a3b8; cursor:pointer; }
+.modal-body { padding:20px 22px; display:flex; flex-direction:column; gap:12px; }
+.modal-ft { padding:14px 22px; border-top:1px solid #f1f5f9; display:flex; gap:10px; justify-content:flex-end; }
+.field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+.field input, .field select, .field textarea { width:100%; padding:8px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; color:#0f172a; box-sizing:border-box; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:#DC143C; outline:none; }
+.btn-primary { padding:9px 18px; background:#DC143C; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-secondary { padding:9px 18px; background:#f1f5f9; color:#374151; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-danger { padding:5px 10px; background:#fee2e2; color:#991b1b; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; }
+</style>
+
+<!-- Header -->
+<div class="page-header">
+    <div>
+        <h2>Competency Framework</h2>
+        <p>Define and manage competency frameworks for performance evaluations.</p>
+    </div>
+    <button onclick="document.getElementById('createFrameworkModal').classList.add('open')" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Framework
+    </button>
+</div>
+
+{% if messages %}{% for msg in messages %}
+<div style="padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;{% if msg.tags == 'error' %}background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;{% else %}background:#dcfce7;color:#166534;border:1px solid #86efac;{% endif %}">{{ msg }}</div>
+{% endfor %}{% endif %}
+
+<div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start;">
+
+    <!-- Frameworks Sidebar -->
+    <div class="cf-sidebar">
+        <div class="cf-sidebar-hd"><h3>Frameworks ({{ frameworks|length }})</h3></div>
+        {% if frameworks %}
+        {% for fw in frameworks %}
+        <a href="?framework={{ fw.id }}" style="text-decoration:none;">
+            <div class="fw-item {% if selected_framework and selected_framework.id == fw.id %}active{% endif %}">
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ fw.name }}</div>
+                    <div style="font-size:11px;color:#64748b;margin-top:2px;">{{ fw.competencies.count }} competenc{% if fw.competencies.count != 1 %}ies{% else %}y{% endif %}</div>
+                    <div style="display:flex;gap:6px;margin-top:4px;">
+                        {% if fw.is_default %}<span style="background:#fce7f3;color:#DC143C;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px;">Default</span>{% endif %}
+                        {% if fw.is_active %}<span style="background:#dcfce7;color:#166534;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px;">Active</span>{% else %}<span style="background:#f1f5f9;color:#64748b;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px;">Inactive</span>{% endif %}
+                    </div>
+                </div>
+                <form method="post" onclick="event.stopPropagation();" style="margin-left:auto;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="toggle_framework">
+                    <input type="hidden" name="framework_id" value="{{ fw.id }}">
+                    <button type="submit" style="background:none;border:none;cursor:pointer;padding:4px;" title="Toggle active">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                </form>
+            </div>
+        </a>
+        {% endfor %}
+        {% else %}
+        <div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">No frameworks yet.<br>Create one to get started.</div>
+        {% endif %}
+    </div>
+
+    <!-- Framework Detail -->
+    <div>
+        {% if selected_framework %}
+        <div class="cf-main">
+            <div class="cf-main-hd">
+                <div>
+                    <h3>{{ selected_framework.name }}</h3>
+                    {% if selected_framework.description %}<p style="margin:4px 0 0;font-size:13px;color:#64748b;">{{ selected_framework.description }}</p>{% endif %}
+                </div>
+                <button onclick="document.getElementById('addCompetencyModal').classList.add('open')" class="btn-primary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 14px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Competency
+                </button>
+            </div>
+
+            <div style="padding:20px;">
+                <!-- Group by type -->
+                {% regroup selected_framework.competencies.all by get_competency_type_display as type_groups %}
+                {% if type_groups %}
+                {% for group in type_groups %}
+                <div style="margin-bottom:24px;">
+                    <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;border-bottom:1px solid #f1f5f9;padding-bottom:6px;">{{ group.grouper }}</div>
+                    {% for comp in group.list %}
+                    <div class="comp-card">
+                        <div class="comp-card-hd">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <span style="font-size:14px;font-weight:600;color:#0f172a;">{{ comp.name }}</span>
+                                <span class="type-badge type-{{ comp.competency_type|lower }}">{{ comp.get_competency_type_display }}</span>
+                                {% if comp.is_required %}<span style="background:#fef3c7;color:#92400e;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px;">Required</span>{% endif %}
+                                <span style="font-size:11px;color:#64748b;">Weight: {{ comp.weight }}</span>
+                            </div>
+                            <form method="post" onsubmit="return confirm('Delete this competency?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_competency">
+                                <input type="hidden" name="competency_id" value="{{ comp.id }}">
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                        </div>
+                        <div class="comp-card-body">
+                            {% if comp.description %}<p style="margin:0 0 12px;font-size:13px;color:#475569;">{{ comp.description }}</p>{% endif %}
+                            {% if comp.level_1_description or comp.level_2_description or comp.level_3_description or comp.level_4_description or comp.level_5_description %}
+                            <div style="font-size:11px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:8px;">Proficiency Levels</div>
+                            {% if comp.level_1_description %}<div class="level-row"><div class="level-num">1</div><div><div style="font-size:11px;font-weight:600;color:#374151;">Developing</div><div style="font-size:13px;color:#475569;margin-top:2px;">{{ comp.level_1_description }}</div></div></div>{% endif %}
+                            {% if comp.level_2_description %}<div class="level-row"><div class="level-num">2</div><div><div style="font-size:11px;font-weight:600;color:#374151;">Competent</div><div style="font-size:13px;color:#475569;margin-top:2px;">{{ comp.level_2_description }}</div></div></div>{% endif %}
+                            {% if comp.level_3_description %}<div class="level-row"><div class="level-num">3</div><div><div style="font-size:11px;font-weight:600;color:#374151;">Proficient</div><div style="font-size:13px;color:#475569;margin-top:2px;">{{ comp.level_3_description }}</div></div></div>{% endif %}
+                            {% if comp.level_4_description %}<div class="level-row"><div class="level-num">4</div><div><div style="font-size:11px;font-weight:600;color:#374151;">Expert</div><div style="font-size:13px;color:#475569;margin-top:2px;">{{ comp.level_4_description }}</div></div></div>{% endif %}
+                            {% if comp.level_5_description %}<div class="level-row"><div class="level-num">5</div><div><div style="font-size:11px;font-weight:600;color:#374151;">Master</div><div style="font-size:13px;color:#475569;margin-top:2px;">{{ comp.level_5_description }}</div></div></div>{% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="padding:48px;text-align:center;color:#94a3b8;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    <p style="margin:0;font-size:14px;">No competencies yet.</p>
+                    <p style="margin:6px 0 0;font-size:13px;">Click "Add Competency" to define the first one.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="cf-main" style="padding:60px;text-align:center;color:#94a3b8;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 16px;display:block;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <p style="margin:0;font-size:15px;font-weight:600;color:#475569;">No Framework Selected</p>
+            <p style="margin:8px 0 0;font-size:13px;">Select a framework from the left or create a new one.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- PMS Nav -->
+<div class="content-card" style="margin-top:20px;padding:16px 20px;">
+    <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:12px;text-transform:uppercase;">PMS Modules</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <a href="{% url 'performance_reviews_list' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Reviews</a>
+        <a href="{% url 'pms_goals' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Goals</a>
+        <a href="{% url 'pms_metrics' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Metrics</a>
+        <a href="{% url 'pms_feedback_360' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">360° Feedback</a>
+        <a href="{% url 'pms_self_assessment' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Self-Assessment</a>
+        <a href="{% url 'pms_competencies' %}" style="padding:8px 14px;background:#DC143C;border-radius:6px;font-size:13px;color:#fff;text-decoration:none;font-weight:600;">Competencies</a>
+    </div>
+</div>
+
+<!-- Create Framework Modal -->
+<div class="modal-overlay" id="createFrameworkModal">
+    <div class="modal">
+        <div class="modal-hd"><h3>Create Competency Framework</h3><button class="modal-close" onclick="document.getElementById('createFrameworkModal').classList.remove('open')">×</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_framework">
+            <div class="modal-body">
+                <div class="field"><label>Framework Name *</label><input type="text" name="name" required placeholder="e.g. Leadership Framework 2025"></div>
+                <div class="field"><label>Description</label><textarea name="description" rows="3" placeholder="Describe the purpose of this framework…"></textarea></div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" name="is_default" value="1" id="chk_default" style="width:auto;">
+                    <label for="chk_default" style="font-size:13px;font-weight:400;color:#374151;cursor:pointer;">Set as default framework</label>
+                </div>
+            </div>
+            <div class="modal-ft">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('createFrameworkModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="btn-primary">Create Framework</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if selected_framework %}
+<!-- Add Competency Modal -->
+<div class="modal-overlay" id="addCompetencyModal">
+    <div class="modal">
+        <div class="modal-hd"><h3>Add Competency</h3><button class="modal-close" onclick="document.getElementById('addCompetencyModal').classList.remove('open')">×</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_competency">
+            <input type="hidden" name="framework_id" value="{{ selected_framework.id }}">
+            <div class="modal-body">
+                <div class="field"><label>Name *</label><input type="text" name="name" required placeholder="e.g. Communication Skills"></div>
+                <div class="field"><label>Description *</label><textarea name="description" rows="2" required placeholder="What this competency measures…"></textarea></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="field">
+                        <label>Type</label>
+                        <select name="competency_type">{% for val, label in competency_types %}<option value="{{ val }}">{{ label }}</option>{% endfor %}</select>
+                    </div>
+                    <div class="field"><label>Weight</label><input type="number" name="weight" value="100" min="1" max="500"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" name="is_required" value="1" id="chk_req" checked style="width:auto;">
+                    <label for="chk_req" style="font-size:13px;font-weight:400;color:#374151;cursor:pointer;">Required competency</label>
+                </div>
+                <div style="border-top:1px solid #f1f5f9;padding-top:12px;">
+                    <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">Proficiency Level Descriptions (optional)</div>
+                    <div class="field"><label>Level 1 – Developing</label><textarea name="level_1" rows="2"></textarea></div>
+                    <div class="field"><label>Level 2 – Competent</label><textarea name="level_2" rows="2"></textarea></div>
+                    <div class="field"><label>Level 3 – Proficient</label><textarea name="level_3" rows="2"></textarea></div>
+                    <div class="field"><label>Level 4 – Expert</label><textarea name="level_4" rows="2"></textarea></div>
+                    <div class="field"><label>Level 5 – Master</label><textarea name="level_5" rows="2"></textarea></div>
+                </div>
+            </div>
+            <div class="modal-ft">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('addCompetencyModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="btn-primary">Add Competency</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+</script>
+{% endblock %}

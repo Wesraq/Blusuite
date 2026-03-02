@@ -1,94 +1,520 @@
 {% extends 'blu_projects/base_projects.html' %}
 
-{% block title %}Settings - BLU Projects{% endblock %}
+{% block title %}Project Settings – BLU Projects{% endblock %}
 
 {% block content %}
+<style>
+.stg-wrap { display:grid; grid-template-columns:220px 1fr; gap:20px; align-items:start; }
+@media(max-width:700px){ .stg-wrap { grid-template-columns:1fr; } }
+.stg-nav { background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; }
+.stg-nav-item { display:flex; align-items:center; gap:10px; padding:11px 16px; font-size:13px; font-weight:500; color:#475569; cursor:pointer; border-left:3px solid transparent; transition:all .12s; border-bottom:1px solid #f1f5f9; }
+.stg-nav-item:last-child { border-bottom:none; }
+.stg-nav-item:hover { background:#f8fafc; color:#0f172a; }
+.stg-nav-item.active { background:#fff5f7; color:#DC143C; border-left-color:#DC143C; font-weight:600; }
+.stg-nav-item svg { flex-shrink:0; }
+.stg-panel { background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; display:none; }
+.stg-panel.active { display:block; }
+.stg-panel-hd { padding:18px 22px; border-bottom:1px solid #e2e8f0; }
+.stg-panel-hd h3 { margin:0 0 2px; font-size:16px; font-weight:700; color:#0f172a; }
+.stg-panel-hd p { margin:0; font-size:13px; color:#64748b; }
+.stg-panel-body { padding:22px; }
+.stg-section { margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid #f1f5f9; }
+.stg-section:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+.stg-section h4 { margin:0 0 14px; font-size:13px; font-weight:700; color:#374151; text-transform:uppercase; letter-spacing:.4px; }
+.stg-field { margin-bottom:14px; }
+.stg-field:last-child { margin-bottom:0; }
+.stg-field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px; }
+.stg-field input[type=text], .stg-field input[type=number], .stg-field input[type=email], .stg-field select, .stg-field textarea { width:100%; padding:9px 12px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; color:#0f172a; box-sizing:border-box; font-family:inherit; }
+.stg-field input:focus, .stg-field select:focus, .stg-field textarea:focus { border-color:#1d4ed8; outline:none; box-shadow:0 0 0 3px rgba(29,78,216,.08); }
+.stg-field .hint { font-size:11px; color:#94a3b8; margin-top:4px; }
+.stg-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(max-width:500px){ .stg-row { grid-template-columns:1fr; } }
+.toggle-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f8fafc; }
+.toggle-row:last-child { border-bottom:none; }
+.toggle-info strong { display:block; font-size:13px; color:#0f172a; }
+.toggle-info span { font-size:12px; color:#64748b; }
+.toggle { position:relative; display:inline-block; width:40px; height:22px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; inset:0; background:#e2e8f0; border-radius:22px; transition:.2s; }
+.toggle-slider:before { position:absolute; content:""; height:16px; width:16px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.2s; }
+input:checked + .toggle-slider { background:#1d4ed8; }
+input:checked + .toggle-slider:before { transform:translateX(18px); }
+.stat-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px 16px; }
+.stat-box .val { font-size:22px; font-weight:700; color:#0f172a; }
+.stat-box .lbl { font-size:11px; color:#64748b; margin-top:2px; }
+.role-badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; background:#dbeafe; color:#1e40af; }
+.save-bar { display:flex; gap:10px; margin-top:20px; padding-top:20px; border-top:1px solid #f1f5f9; }
+.btn-save { padding:9px 20px; background:#1d4ed8; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-family:inherit; }
+.btn-cancel { padding:9px 20px; background:#fff; color:#475569; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+.danger-zone { border:1px solid #fca5a5; border-radius:8px; padding:16px 20px; background:#fff5f5; }
+.danger-zone h4 { margin:0 0 8px; color:#dc2626; font-size:13px; }
+.btn-danger { padding:8px 16px; background:#dc2626; color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.info-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f8fafc; font-size:13px; }
+.info-row:last-child { border-bottom:none; }
+.info-row .lbl { color:#64748b; font-weight:500; }
+.info-row .val { color:#0f172a; font-weight:600; }
+</style>
+
 <!-- Breadcrumb -->
-<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
-    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+<div style="font-size:12px;color:#64748b;margin-bottom:16px;display:flex;align-items:center;gap:4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color:#64748b;text-decoration:none;">Projects</a>
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-    <span style="color: #0f172a;">Settings</span>
+    <span style="color:#0f172a;">Settings</span>
 </div>
 
 <!-- Header -->
-<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-    <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;">
+    <div style="width:40px;height:40px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     </div>
     <div>
-        <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">Project Settings</h2>
-        <p style="margin: 0; font-size: 13px; color: #64748b;">Configure project module preferences</p>
+        <h2 style="margin:0 0 2px;font-size:20px;font-weight:700;color:#0f172a;">Project Settings</h2>
+        <p style="margin:0;font-size:13px;color:#64748b;">{{ company.name }} · Configure your project management module</p>
     </div>
 </div>
 
-<div style="max-width: 640px;">
-    <!-- General Settings -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">General Settings</h3>
+{% csrf_token %}
+<div class="stg-wrap">
+    <!-- Left nav -->
+    <div class="stg-nav">
+        <div class="stg-nav-item {% if active_tab == 'general' %}active{% endif %}" onclick="showTab('general', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            General
         </div>
-        <div style="padding: 16px 20px;">
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; margin-bottom: 2px; font-size: 12px; font-weight: 600; color: #0f172a;">Company Name</label>
-                <p style="margin: 0; font-size: 13px; color: #64748b;">{{ company.name }}</p>
-            </div>
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; margin-bottom: 2px; font-size: 12px; font-weight: 600; color: #0f172a;">Default Project Status</label>
-                <p style="margin: 0; font-size: 13px; color: #64748b;">Planning</p>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 2px; font-size: 12px; font-weight: 600; color: #0f172a;">Default Task Priority</label>
-                <p style="margin: 0; font-size: 13px; color: #64748b;">Medium</p>
-            </div>
+        <div class="stg-nav-item {% if active_tab == 'workflow' %}active{% endif %}" onclick="showTab('workflow', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            Workflow
         </div>
-    </div>
-
-    <!-- Notifications -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Notifications</h3>
+        <div class="stg-nav-item {% if active_tab == 'time' %}active{% endif %}" onclick="showTab('time', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Time & Budget
         </div>
-        <div style="padding: 16px 20px;">
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0f172a; margin-bottom: 10px; cursor: pointer;">
-                <input type="checkbox" checked style="accent-color: #1d4ed8;"> Email notifications for new tasks
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0f172a; margin-bottom: 10px; cursor: pointer;">
-                <input type="checkbox" checked style="accent-color: #1d4ed8;"> Email notifications for task updates
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0f172a; cursor: pointer;">
-                <input type="checkbox" style="accent-color: #1d4ed8;"> Daily task summary
-            </label>
+        <div class="stg-nav-item {% if active_tab == 'notifications' %}active{% endif %}" onclick="showTab('notifications', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Notifications
+        </div>
+        <div class="stg-nav-item {% if active_tab == 'permissions' %}active{% endif %}" onclick="showTab('permissions', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            Permissions
+        </div>
+        <div class="stg-nav-item {% if active_tab == 'integrations' %}active{% endif %}" onclick="showTab('integrations', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line></svg>
+            Integrations
+        </div>
+        <div class="stg-nav-item {% if active_tab == 'overview' %}active{% endif %}" onclick="showTab('overview', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            Module Stats
         </div>
     </div>
 
-    <!-- Time Tracking -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Time Tracking</h3>
-        </div>
-        <div style="padding: 16px 20px;">
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #0f172a;">Default Hourly Rate</label>
-                <input type="number" value="0.00" step="0.01" placeholder="0.00" style="width: 200px; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; font-family: inherit;">
-            </div>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0f172a; cursor: pointer;">
-                <input type="checkbox" checked style="accent-color: #1d4ed8;"> Require time entry descriptions
-            </label>
-        </div>
-    </div>
+    <!-- Right panels -->
+    <div>
 
-    <!-- Actions -->
-    <div style="display: flex; gap: 8px; padding-top: 8px;">
-        <button style="padding: 8px 20px; background: #1d4ed8; color: white; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: inherit;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-            Save Settings
-        </button>
-        <button style="padding: 8px 20px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;">
-            Cancel
-        </button>
-    </div>
+        <!-- General -->
+        <div class="stg-panel {% if active_tab == 'general' or not active_tab %}active{% endif %}" id="tab-general">
+            <div class="stg-panel-hd">
+                <h3>General Settings</h3>
+                <p>Core project module configuration for {{ company.name }}</p>
+            </div>
+            <div class="stg-panel-body">
+                <div class="stg-section">
+                    <h4>Organisation</h4>
+                    <div class="stg-row">
+                        <div class="stg-field">
+                            <label>Company Name</label>
+                            <input type="text" value="{{ company.name }}" readonly style="background:#f8fafc;">
+                            <div class="hint">Managed in EMS Settings</div>
+                        </div>
+                        <div class="stg-field">
+                            <label>Module Name</label>
+                            <input type="text" value="Projects Suite" placeholder="Projects Suite">
+                        </div>
+                    </div>
+                    <div class="stg-field">
+                        <label>Project ID Prefix</label>
+                        <input type="text" value="PRJ" placeholder="PRJ" style="max-width:120px;">
+                        <div class="hint">Used in project reference codes e.g. PRJ-001</div>
+                    </div>
+                </div>
+                <div class="stg-section">
+                    <h4>Defaults</h4>
+                    <div class="stg-row">
+                        <div class="stg-field">
+                            <label>Default Project Status</label>
+                            <select>
+                                <option value="PLANNING" selected>Planning</option>
+                                <option value="ACTIVE">Active</option>
+                            </select>
+                        </div>
+                        <div class="stg-field">
+                            <label>Default Task Priority</label>
+                            <select>
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM" selected>Medium</option>
+                                <option value="HIGH">High</option>
+                                <option value="CRITICAL">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="stg-row">
+                        <div class="stg-field">
+                            <label>Fiscal Year Start</label>
+                            <select>
+                                <option>January</option><option>April</option><option>July</option><option>October</option>
+                            </select>
+                        </div>
+                        <div class="stg-field">
+                            <label>Date Format</label>
+                            <select>
+                                <option>DD/MM/YYYY</option><option>MM/DD/YYYY</option><option>YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="save-bar">
+                    <button class="btn-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Changes</button>
+                    <button class="btn-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow -->
+        <div class="stg-panel {% if active_tab == 'workflow' %}active{% endif %}" id="tab-workflow">
+            <div class="stg-panel-hd">
+                <h3>Workflow Configuration</h3>
+                <p>Control project and task lifecycle rules</p>
+            </div>
+            <div class="stg-panel-body">
+                <div class="stg-section">
+                    <h4>Task Workflow</h4>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Require task approval before completion</strong><span>Tasks must be approved by a manager before marking DONE</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Allow task reassignment</strong><span>Team members can reassign tasks to others</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Auto-close tasks on project completion</strong><span>All open tasks are closed when project is completed</span></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Enable task dependencies</strong><span>Allow blocking relationships between tasks</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                </div>
+                <div class="stg-section">
+                    <h4>Project Workflow</h4>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Require PM approval for new projects</strong><span>Projects must be approved by an admin before becoming Active</span></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Archive completed projects automatically</strong><span>Projects are archived 30 days after completion</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Enable project templates</strong><span>Allow creation of reusable project templates</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                </div>
+                <div class="stg-section">
+                    <h4>SLA & Deadlines</h4>
+                    <div class="stg-row">
+                        <div class="stg-field">
+                            <label>Task overdue warning (days before)</label>
+                            <input type="number" value="3" min="1" max="30">
+                        </div>
+                        <div class="stg-field">
+                            <label>Project deadline reminder (days before)</label>
+                            <input type="number" value="7" min="1" max="60">
+                        </div>
+                    </div>
+                </div>
+                <div class="save-bar">
+                    <button class="btn-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Changes</button>
+                    <button class="btn-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time & Budget -->
+        <div class="stg-panel {% if active_tab == 'time' %}active{% endif %}" id="tab-time">
+            <div class="stg-panel-hd">
+                <h3>Time Tracking &amp; Budget</h3>
+                <p>Configure how time and costs are tracked across projects</p>
+            </div>
+            <div class="stg-panel-body">
+                <div class="stg-section">
+                    <h4>Time Tracking</h4>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Enable time tracking</strong><span>Team members can log hours against tasks</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Require time entry descriptions</strong><span>All logged hours must include a description</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Allow future-dated time entries</strong><span>Team members can log time for future dates</span></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+                    <div class="stg-row" style="margin-top:14px;">
+                        <div class="stg-field">
+                            <label>Standard working hours/day</label>
+                            <input type="number" value="8" min="1" max="24">
+                        </div>
+                        <div class="stg-field">
+                            <label>Max billable hours/week</label>
+                            <input type="number" value="40" min="1" max="168">
+                        </div>
+                    </div>
+                </div>
+                <div class="stg-section">
+                    <h4>Budget &amp; Costs</h4>
+                    <div class="stg-row">
+                        <div class="stg-field">
+                            <label>Default Currency</label>
+                            <select>
+                                <option value="ZMW" {% if time_settings.default_currency == 'ZMW' %}selected{% endif %}>ZMW – Zambian Kwacha</option>
+                        <option value="USD" {% if time_settings.default_currency == 'USD' %}selected{% endif %}>USD – US Dollar</option>
+                        <option value="EUR" {% if time_settings.default_currency == 'EUR' %}selected{% endif %}>EUR – Euro</option>
+                        <option value="GBP" {% if time_settings.default_currency == 'GBP' %}selected{% endif %}>GBP – British Pound</option>
+                        <option value="ZAR" {% if time_settings.default_currency == 'ZAR' %}selected{% endif %}>ZAR – South African Rand</option>
+                        <option value="KES" {% if time_settings.default_currency == 'KES' %}selected{% endif %}>KES – Kenyan Shilling</option>
+                        <option value="NGN" {% if time_settings.default_currency == 'NGN' %}selected{% endif %}>NGN – Nigerian Naira</option>
+                        <option value="GHS" {% if time_settings.default_currency == 'GHS' %}selected{% endif %}>GHS – Ghanaian Cedi</option>
+                        <option value="UGX" {% if time_settings.default_currency == 'UGX' %}selected{% endif %}>UGX – Ugandan Shilling</option>
+                        <option value="TZS" {% if time_settings.default_currency == 'TZS' %}selected{% endif %}>TZS – Tanzanian Shilling</option>
+                        <option value="ETB" {% if time_settings.default_currency == 'ETB' %}selected{% endif %}>ETB – Ethiopian Birr</option>
+                        <option value="RWF" {% if time_settings.default_currency == 'RWF' %}selected{% endif %}>RWF – Rwandan Franc</option>
+                        <option value="MWK" {% if time_settings.default_currency == 'MWK' %}selected{% endif %}>MWK – Malawian Kwacha</option>
+                        <option value="MZN" {% if time_settings.default_currency == 'MZN' %}selected{% endif %}>MZN – Mozambican Metical</option>
+                        <option value="BWP" {% if time_settings.default_currency == 'BWP' %}selected{% endif %}>BWP – Botswana Pula</option>
+                        <option value="AUD" {% if time_settings.default_currency == 'AUD' %}selected{% endif %}>AUD – Australian Dollar</option>
+                        <option value="CAD" {% if time_settings.default_currency == 'CAD' %}selected{% endif %}>CAD – Canadian Dollar</option>
+                        <option value="INR" {% if time_settings.default_currency == 'INR' %}selected{% endif %}>INR – Indian Rupee</option>
+                        <option value="AED" {% if time_settings.default_currency == 'AED' %}selected{% endif %}>AED – UAE Dirham</option>
+                        <option value="JPY" {% if time_settings.default_currency == 'JPY' %}selected{% endif %}>JPY – Japanese Yen</option>
+                        <option value="CNY" {% if time_settings.default_currency == 'CNY' %}selected{% endif %}>CNY – Chinese Yuan</option>
+                        <option value="CHF" {% if time_settings.default_currency == 'CHF' %}selected{% endif %}>CHF – Swiss Franc</option>
+                            </select>
+                        </div>
+                        <div class="stg-field">
+                            <label>Default Hourly Rate</label>
+                            <input type="number" value="0.00" step="0.01" placeholder="0.00">
+                            <div class="hint">Used when no rate is specified on a project</div>
+                        </div>
+                    </div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Enable budget tracking</strong><span>Track estimated vs actual costs per project</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Alert when budget exceeds 80%</strong><span>Send warning notifications when nearing budget limit</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                </div>
+                <div class="save-bar">
+                    <button class="btn-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Changes</button>
+                    <button class="btn-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="stg-panel {% if active_tab == 'notifications' %}active{% endif %}" id="tab-notifications">
+            <div class="stg-panel-hd">
+                <h3>Notification Preferences</h3>
+                <p>Control what triggers alerts and how they are delivered</p>
+            </div>
+            <div class="stg-panel-body">
+                <div class="stg-section">
+                    <h4>Task Notifications</h4>
+                    <div class="toggle-row"><div class="toggle-info"><strong>New task assigned</strong><span>Notify assignee when a task is created for them</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Task status changed</strong><span>Notify task owner on any status update</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Task comment added</strong><span>Notify task participants when a comment is posted</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Task due in 24 hours</strong><span>Send reminder to assignee one day before due date</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Task overdue</strong><span>Alert assignee and manager when a task is overdue</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                </div>
+                <div class="stg-section">
+                    <h4>Project Notifications</h4>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Project status changed</strong><span>Notify all project members on status updates</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Team member added/removed</strong><span>Notify new/removed team members</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Milestone reached</strong><span>Celebrate milestone completions with the team</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Weekly project digest</strong><span>Send weekly summary of project activity every Monday</span></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+                </div>
+                <div class="stg-section">
+                    <h4>Delivery Channels</h4>
+                    <div class="toggle-row"><div class="toggle-info"><strong>In-app notifications</strong><span>Show alerts in the notification bell</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Email notifications</strong><span>Send emails for critical alerts</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+                </div>
+                <div class="save-bar">
+                    <button class="btn-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Changes</button>
+                    <button class="btn-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Permissions -->
+        <div class="stg-panel {% if active_tab == 'permissions' %}active{% endif %}" id="tab-permissions">
+            <div class="stg-panel-hd">
+                <h3>Roles &amp; Permissions</h3>
+                <p>Define what each role can do in the Projects Suite</p>
+            </div>
+            <div class="stg-panel-body">
+                <div class="stg-section">
+                    <h4>Role Capabilities</h4>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                            <thead>
+                                <tr style="background:#f8fafc;">
+                                    <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:1px solid #e2e8f0;">Capability</th>
+                                    <th style="padding:10px 12px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:1px solid #e2e8f0;text-align:center;">Admin</th>
+                                    <th style="padding:10px 12px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:1px solid #e2e8f0;text-align:center;">Manager</th>
+                                    <th style="padding:10px 12px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:1px solid #e2e8f0;text-align:center;">Member</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in permission_rows %}
+                                <tr style="border-bottom:1px solid #f1f5f9;">
+                                    <td style="padding:10px 12px;color:#0f172a;">{{ row.label }}</td>
+                                    <td style="padding:10px 12px;text-align:center;"><input type="checkbox" name="{{ row.label|lower|slugify }}_admin" {% if row.admin %}checked{% endif %} style="width:15px;height:15px;accent-color:#1d4ed8;"></td>
+                                    <td style="padding:10px 12px;text-align:center;"><input type="checkbox" name="{{ row.label|lower|slugify }}_manager" {% if row.manager %}checked{% endif %} style="width:15px;height:15px;accent-color:#1d4ed8;"></td>
+                                    <td style="padding:10px 12px;text-align:center;"><input type="checkbox" name="{{ row.label|lower|slugify }}_member" {% if row.member %}checked{% endif %} style="width:15px;height:15px;accent-color:#1d4ed8;"></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td style="padding:10px 12px;color:#0f172a;">Create Projects</td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" disabled style="accent-color:#1d4ed8;"></td></tr>
+                                <tr><td style="padding:10px 12px;color:#0f172a;">Delete Projects</td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" disabled style="accent-color:#1d4ed8;"></td></tr>
+                                <tr><td style="padding:10px 12px;color:#0f172a;">Create Tasks</td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td></tr>
+                                <tr><td style="padding:10px 12px;color:#0f172a;">Assign Team Members</td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" disabled style="accent-color:#1d4ed8;"></td></tr>
+                                <tr><td style="padding:10px 12px;color:#0f172a;">View All Projects</td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" disabled style="accent-color:#1d4ed8;"></td></tr>
+                                <tr><td style="padding:10px 12px;color:#0f172a;">Log Time</td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td></tr>
+                                <tr><td style="padding:10px 12px;color:#0f172a;">View Reports</td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" disabled style="accent-color:#1d4ed8;"></td></tr>
+                                <tr><td style="padding:10px 12px;color:#0f172a;">Manage Settings</td><td style="text-align:center;"><input type="checkbox" checked disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" disabled style="accent-color:#1d4ed8;"></td><td style="text-align:center;"><input type="checkbox" disabled style="accent-color:#1d4ed8;"></td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="save-bar">
+                    <button class="btn-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Permissions</button>
+                    <button class="btn-cancel">Cancel</button>
+                </div>
+                <div class="stg-section">
+                    <h4>Your Access</h4>
+                    <div class="info-row"><span class="lbl">Your Role</span><span class="val"><span class="role-badge">{% if is_admin %}Administrator{% else %}Member{% endif %}</span></span></div>
+                    <div class="info-row"><span class="lbl">Logged in as</span><span class="val">{{ user.get_full_name }} · {{ user.email }}</span></div>
+                    <div class="info-row"><span class="lbl">Company</span><span class="val">{{ company.name }}</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integrations -->
+        <div class="stg-panel {% if active_tab == 'integrations' %}active{% endif %}" id="tab-integrations">
+            <div class="stg-panel-hd">
+                <h3>Integrations</h3>
+                <p>Connect Projects Suite with external tools and services</p>
+            </div>
+            <div class="stg-panel-body">
+                <div class="stg-section">
+                    <h4>Available Integrations</h4>
+                    {% for intg in integrations %}
+                    <div class="toggle-row">
+                        <div class="toggle-info"><strong>{{ intg.name }}</strong><span>{{ intg.description }}</span></div>
+                        <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#f1f5f9;color:#64748b;">Coming Soon</span>
+                    </div>
+                    {% empty %}
+                    <div class="toggle-row"><div class="toggle-info"><strong>Slack</strong><span>Post project updates and task alerts to Slack channels</span></div><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#f1f5f9;color:#64748b;">Coming Soon</span></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Microsoft Teams</strong><span>Share project notifications in Teams channels</span></div><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#f1f5f9;color:#64748b;">Coming Soon</span></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Google Drive</strong><span>Attach Google Drive files to projects and tasks</span></div><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#f1f5f9;color:#64748b;">Coming Soon</span></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>GitHub / GitLab</strong><span>Link commits and pull requests to tasks</span></div><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#f1f5f9;color:#64748b;">Coming Soon</span></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Jira Import</strong><span>Import projects and tasks from Jira</span></div><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#f1f5f9;color:#64748b;">Coming Soon</span></div>
+                    <div class="toggle-row"><div class="toggle-info"><strong>Zapier / Make (Integromat)</strong><span>Automate workflows with 5000+ apps</span></div><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#f1f5f9;color:#64748b;">Coming Soon</span></div>
+                    {% endfor %}
+                </div>
+                <div class="stg-section">
+                    <h4>Webhooks</h4>
+                    <div class="stg-field">
+                        <label>Webhook URL</label>
+                        <input type="text" placeholder="https://your-endpoint.com/webhook">
+                        <div class="hint">POST payloads will be sent to this URL on project/task events</div>
+                    </div>
+                    <div class="stg-field">
+                        <label>Secret Token</label>
+                        <input type="text" placeholder="Optional HMAC secret for verification">
+                    </div>
+                    <button class="btn-save" style="margin-top:8px;">Save Webhook</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stg-panel {% if active_tab == 'overview' %}active{% endif %}" id="tab-overview">
+            <div class="stg-panel-hd">
+                <h3>Module Statistics</h3>
+                <p>Overview of your Projects Suite usage</p>
+            </div>
+            <div class="stg-panel-body">
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:22px;">
+                    <div class="stat-box"><div class="val">{{ stats.total_projects|default:"—" }}</div><div class="lbl">Total Projects</div></div>
+                    <div class="stat-box"><div class="val">{{ stats.active_projects|default:"—" }}</div><div class="lbl">Active</div></div>
+                    <div class="stat-box"><div class="val">{{ stats.total_tasks|default:"—" }}</div><div class="lbl">Total Tasks</div></div>
+                    <div class="stat-box"><div class="val">{{ stats.completed_tasks|default:"—" }}</div><div class="lbl">Tasks Done</div></div>
+                    <div class="stat-box"><div class="val">{{ stats.total_members|default:"—" }}</div><div class="lbl">Team Members</div></div>
+                    <div class="stat-box"><div class="val">{{ stats.hours_logged|default:"0" }}h</div><div class="lbl">Hours Logged</div></div>
+                </div>
+                <div class="stg-section">
+                    <h4>Module Info</h4>
+                    <div class="info-row"><span class="lbl">Module Version</span><span class="val">BLU Projects v1.0</span></div>
+                    <div class="info-row"><span class="lbl">Company</span><span class="val">{{ company.name }}</span></div>
+                    <div class="info-row"><span class="lbl">Administrator</span><span class="val">{{ user.get_full_name }}</span></div>
+                    <div class="info-row"><span class="lbl">Data Storage</span><span class="val">Database (Django ORM)</span></div>
+                </div>
+                <div class="danger-zone">
+                    <h4 style="display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Danger Zone</h4>
+                    <p style="margin:0 0 12px;font-size:13px;color:#dc2626;">These actions are irreversible. Proceed with extreme caution.</p>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="btn-danger" onclick="return confirm('Archive ALL completed projects? This cannot be undone.')">Archive All Completed Projects</button>
+                        <button class="btn-danger" onclick="return confirm('This will permanently delete all task history. Are you sure?')" style="background:#7f1d1d;">Purge Task History</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /right panels -->
 </div>
+
+<script>
+function showTab(name, el) {
+    document.querySelectorAll('.stg-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.stg-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    var panel = document.getElementById('tab-' + name);
+    if (panel) panel.classList.add('active');
+    if (el) el.classList.add('active');
+}
+// Wrap all save-bar buttons to POST with section name
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.stg-panel').forEach(function(panel) {
+        var tabName = panel.id.replace('tab-', '');
+        var saveBtn = panel.querySelector('.btn-save');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '';
+                // CSRF
+                var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+                if (csrf) form.appendChild(csrf.cloneNode());
+                // Section
+                var sec = document.createElement('input');
+                sec.type = 'hidden'; sec.name = 'section'; sec.value = tabName;
+                form.appendChild(sec);
+                // Collect inputs/selects/checkboxes within this panel
+                panel.querySelectorAll('input, select, textarea').forEach(function(inp) {
+                    if (!inp.name) return;
+                    if (inp.type === 'checkbox') {
+                        if (inp.checked) {
+                            var h = document.createElement('input');
+                            h.type='hidden'; h.name=inp.name; h.value='on';
+                            form.appendChild(h);
+                        }
+                    } else {
+                        var h = document.createElement('input');
+                        h.type='hidden'; h.name=inp.name; h.value=inp.value;
+                        form.appendChild(h);
+                    }
+                });
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+        var cancelBtn = panel.querySelector('.btn-cancel');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Just re-activate this tab visually
+                showTab(tabName, panel.previousElementSibling);
+            });
+        }
+    });
+    // Open correct tab from URL
+    var urlParams = new URLSearchParams(window.location.search);
+    var tab = urlParams.get('tab');
+    if (tab) {
+        var navItems = document.querySelectorAll('.stg-nav-item');
+        navItems.forEach(function(n) {
+            if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + tab + "'")) {
+                showTab(tab, n);
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

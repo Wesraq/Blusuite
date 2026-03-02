@@ -1,4 +1,4 @@
-{% extends 'ems/blusuite_base.html' %}
+﻿{% extends 'ems/blusuite_base.html' %}
 {% load static %}
 
 {% block title %}Company Settings · BluSuite{% endblock %}
@@ -1362,7 +1362,7 @@ function showSettingsMessage(message, type) {
         display: flex; align-items: center; gap: 10px;
         ${type === 'success' ? 'background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;' : ''}
         ${type === 'error' ? 'background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;' : ''}
-        ${type === 'info' ? 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;' : ''}
+        ${type === 'info' ? 'background: #eff6ff; color: #DC143C; border: 1px solid #bfdbfe;' : ''}
     `;
     const icon = type === 'success' ? '&#10003;' : type === 'error' ? '&#10007;' : '&#9432;';
     banner.innerHTML = '<span style="font-size:18px;">' + icon + '</span><span>' + message + '</span>';

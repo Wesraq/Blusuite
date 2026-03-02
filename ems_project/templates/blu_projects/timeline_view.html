@@ -1,134 +1,178 @@
 {% extends 'blu_projects/base_projects.html' %}
 
-{% block title %}Timeline View - BLU Projects{% endblock %}
+{% block title %}Gantt Timeline – BLU Projects{% endblock %}
 
 {% block content %}
+<style>
+.tl-stat { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:14px 18px; display:flex; align-items:center; gap:12px; }
+.tl-stat-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.tl-stat h4 { margin:0; font-size:20px; font-weight:700; color:#0f172a; }
+.tl-stat p { margin:2px 0 0; font-size:11px; color:#64748b; }
+.gantt-wrap { background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; }
+.gantt-hd { padding:14px 20px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.gantt-hd h3 { margin:0; font-size:14px; font-weight:700; color:#0f172a; }
+.gantt-row { display:grid; grid-template-columns:200px 1fr; border-bottom:1px solid #f1f5f9; min-height:52px; }
+.gantt-row:last-child { border-bottom:none; }
+.gantt-row:hover { background:#fafafa; }
+.gantt-label { padding:10px 14px; display:flex; flex-direction:column; justify-content:center; border-right:1px solid #f1f5f9; }
+.gantt-label a { font-size:13px; font-weight:600; color:#0f172a; text-decoration:none; }
+.gantt-label a:hover { color:#DC143C; }
+.gantt-label-meta { font-size:10px; color:#94a3b8; margin-top:2px; }
+.gantt-track { position:relative; padding:10px 8px; display:flex; align-items:center; overflow:hidden; }
+.gantt-bg { position:absolute; inset:0; background:repeating-linear-gradient(90deg, transparent, transparent calc(10% - 1px), #f1f5f9 calc(10% - 1px), #f1f5f9 10%); pointer-events:none; }
+.gantt-bar { position:absolute; height:24px; border-radius:4px; display:flex; align-items:center; padding:0 8px; font-size:10px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; transition:filter .15s; z-index:1; }
+.gantt-bar:hover { filter:brightness(1.1); }
+.gantt-today-line { position:absolute; top:0; bottom:0; width:2px; background:#DC143C; opacity:.7; z-index:2; }
+.gantt-today-label { position:absolute; top:2px; font-size:9px; font-weight:700; color:#DC143C; background:#fff; padding:1px 4px; border-radius:3px; border:1px solid #DC143C; z-index:3; transform:translateX(-50%); white-space:nowrap; }
+.status-badge { display:inline-block; padding:2px 8px; border-radius:12px; font-size:10px; font-weight:600; }
+.s-active { background:#d1fae5; color:#065f46; }
+.s-planning { background:#f1f5f9; color:#475569; }
+.s-completed { background:#dbeafe; color:#1e40af; }
+.s-on_hold { background:#fee2e2; color:#991b1b; }
+.s-cancelled { background:#fef3c7; color:#92400e; }
+.filter-btn { padding:6px 14px; border-radius:6px; font-size:12px; font-weight:600; text-decoration:none; border:1px solid #e2e8f0; }
+.filter-btn.active { background:#0f172a; color:#fff; border-color:#0f172a; }
+.filter-btn:not(.active) { background:#fff; color:#64748b; }
+.detail-panel { background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; }
+.detail-panel-hd { padding:14px 20px; border-bottom:1px solid #f1f5f9; }
+</style>
+
 <!-- Breadcrumb -->
-<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
-    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+<div style="font-size:12px;color:#64748b;margin-bottom:16px;display:flex;align-items:center;gap:4px;">
+    <a href="{% url 'blu_projects:projects_list' %}" style="color:#64748b;text-decoration:none;">Projects</a>
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-    <span style="color: #0f172a;">Timeline</span>
+    <span style="color:#0f172a;">Timeline</span>
 </div>
 
 <!-- Header -->
-<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-        </div>
-        <div>
-            <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">Project Timeline</h2>
-            <p style="margin: 0; font-size: 13px; color: #64748b;">Visual timeline of {{ total_projects }} project{{ total_projects|pluralize }}</p>
-        </div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h2 style="margin:0 0 2px;font-size:20px;font-weight:700;color:#0f172a;">Project Timeline</h2>
+        <p style="margin:0;font-size:13px;color:#64748b;">Gantt view · {{ gantt_start|date:"M Y" }} – {{ gantt_end|date:"M Y" }}</p>
     </div>
-    <!-- Status Filter -->
-    <div style="display: flex; gap: 6px;">
-        <a href="?status=" style="padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; {% if not status_filter %}background: #1d4ed8; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">All</a>
-        <a href="?status=ACTIVE" style="padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; {% if status_filter == 'ACTIVE' %}background: #1d4ed8; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">Active</a>
-        <a href="?status=PLANNING" style="padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; {% if status_filter == 'PLANNING' %}background: #1d4ed8; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">Planning</a>
-        <a href="?status=COMPLETED" style="padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; {% if status_filter == 'COMPLETED' %}background: #1d4ed8; color: white;{% else %}background: #f1f5f9; color: #64748b;{% endif %}">Completed</a>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <a href="?status=" class="filter-btn {% if not status_filter %}active{% endif %}">All</a>
+        <a href="?status=ACTIVE" class="filter-btn {% if status_filter == 'ACTIVE' %}active{% endif %}">Active</a>
+        <a href="?status=PLANNING" class="filter-btn {% if status_filter == 'PLANNING' %}active{% endif %}">Planning</a>
+        <a href="?status=ON_HOLD" class="filter-btn {% if status_filter == 'ON_HOLD' %}active{% endif %}">On Hold</a>
+        <a href="?status=COMPLETED" class="filter-btn {% if status_filter == 'COMPLETED' %}active{% endif %}">Completed</a>
+        {% if is_admin %}<a href="{% url 'blu_projects:project_create' %}" style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;background:#DC143C;color:#fff;text-decoration:none;border:none;">+ New Project</a>{% endif %}
     </div>
 </div>
 
-<!-- Summary Stats -->
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px; display: flex; align-items: center; gap: 12px;">
-        <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-        </div>
-        <div>
-            <div style="font-size: 20px; font-weight: 700; color: #0f172a;">{{ total_projects }}</div>
-            <div style="font-size: 11px; color: #64748b;">Total Projects</div>
-        </div>
-    </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px; display: flex; align-items: center; gap: 12px;">
-        <div style="width: 36px; height: 36px; border-radius: 4px; background: #d1fae5; display: flex; align-items: center; justify-content: center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        </div>
-        <div>
-            <div style="font-size: 20px; font-weight: 700; color: #059669;">{{ active_projects }}</div>
-            <div style="font-size: 11px; color: #64748b;">Active</div>
-        </div>
-    </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px; display: flex; align-items: center; gap: 12px;">
-        <div style="width: 36px; height: 36px; border-radius: 4px; background: #e0e7ff; display: flex; align-items: center; justify-content: center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-        </div>
-        <div>
-            <div style="font-size: 20px; font-weight: 700; color: #4f46e5;">{{ completed_projects }}</div>
-            <div style="font-size: 11px; color: #64748b;">Completed</div>
-        </div>
-    </div>
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px;">
+    <div class="tl-stat"><div class="tl-stat-icon" style="background:#dbeafe;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div><div><h4>{{ total_projects }}</h4><p>Total</p></div></div>
+    <div class="tl-stat"><div class="tl-stat-icon" style="background:#d1fae5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><div><h4>{{ active_projects }}</h4><p>Active</p></div></div>
+    <div class="tl-stat"><div class="tl-stat-icon" style="background:#f1f5f9;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div><div><h4>{{ planning_projects }}</h4><p>Planning</p></div></div>
+    <div class="tl-stat"><div class="tl-stat-icon" style="background:#e0e7ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div><div><h4>{{ completed_projects }}</h4><p>Completed</p></div></div>
+    <div class="tl-stat"><div class="tl-stat-icon" style="background:#fee2e2;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg></div><div><h4>{{ on_hold_projects }}</h4><p>On Hold</p></div></div>
 </div>
 
-<!-- Timeline -->
-<div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
-    <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Project Timeline</h3>
+{% if projects_gantt %}
+<!-- Gantt Chart -->
+<div class="gantt-wrap" style="margin-bottom:20px;">
+    <div class="gantt-hd">
+        <h3>Gantt Chart</h3>
+        <div style="display:flex;align-items:center;gap:16px;font-size:11px;color:#64748b;">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:4px;background:#DC143C;border-radius:2px;display:inline-block;"></span> Today</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#1d4ed8;border-radius:2px;display:inline-block;"></span> Active</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#94a3b8;border-radius:2px;display:inline-block;"></span> Planning</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#4f46e5;border-radius:2px;display:inline-block;"></span> Completed</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#dc2626;border-radius:2px;display:inline-block;"></span> Overdue</span>
         </div>
-        <span style="font-size: 11px; color: #94a3b8;">Sorted by start date</span>
     </div>
-    {% if projects %}
-    <div style="padding: 24px 24px 24px 56px; position: relative;">
-        <div style="position: absolute; left: 34px; top: 24px; bottom: 24px; width: 2px; background: linear-gradient(to bottom, #1d4ed8, #93c5fd);"></div>
-        {% for project in projects %}
-        <div style="position: relative; margin-bottom: 24px; padding-left: 24px;">
-            <div style="position: absolute; left: -26px; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px {% if project.status == 'ACTIVE' %}#059669{% elif project.status == 'COMPLETED' %}#4f46e5{% elif project.status == 'ON_HOLD' %}#dc2626{% else %}#94a3b8{% endif %}; background: {% if project.status == 'ACTIVE' %}#059669{% elif project.status == 'COMPLETED' %}#4f46e5{% elif project.status == 'ON_HOLD' %}#dc2626{% else %}#94a3b8{% endif %};"></div>
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px 18px; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'" onmouseout="this.style.boxShadow='none'">
-                <div style="display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 8px;">
-                    <h4 style="margin: 0; font-size: 15px; font-weight: 700;">
-                        <a href="{% url 'blu_projects:project_detail' project.id %}" style="color: #0f172a; text-decoration: none;">{{ project.name }}</a>
-                    </h4>
-                    {% if project.status == 'ACTIVE' %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #d1fae5; color: #065f46; white-space: nowrap;">Active</span>
-                    {% elif project.status == 'PLANNING' %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #f1f5f9; color: #475569; white-space: nowrap;">Planning</span>
-                    {% elif project.status == 'ON_HOLD' %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #fee2e2; color: #991b1b; white-space: nowrap;">On Hold</span>
-                    {% elif project.status == 'COMPLETED' %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #dbeafe; color: #1e40af; white-space: nowrap;">Completed</span>
-                    {% else %}<span style="padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #f1f5f9; color: #475569; white-space: nowrap;">{{ project.get_status_display }}</span>{% endif %}
-                </div>
-                {% if project.description %}<p style="margin: 0 0 10px; font-size: 12px; color: #64748b; line-height: 1.5;">{{ project.description|truncatewords:25 }}</p>{% endif %}
-                <!-- Progress bar -->
-                {% if project.total_tasks > 0 %}
-                <div style="margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <span style="font-size: 11px; color: #64748b;">Progress</span>
-                        <span style="font-size: 11px; font-weight: 600; color: #0f172a;">{{ project.completed_tasks }}/{{ project.total_tasks }} tasks</span>
-                    </div>
-                    <div style="height: 4px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
-                        <div style="height: 100%; border-radius: 999px; background: #1d4ed8; width: {% widthratio project.completed_tasks project.total_tasks 100 %}%;"></div>
-                    </div>
-                </div>
-                {% endif %}
-                <!-- Meta row -->
-                <div style="display: flex; gap: 16px; align-items: center; font-size: 11px; color: #94a3b8; flex-wrap: wrap;">
-                    <span style="display: flex; align-items: center; gap: 4px;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        {{ project.start_date|date:"M j, Y"|default:"No start date" }}
-                    </span>
-                    <span style="display: flex; align-items: center; gap: 4px;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        {{ project.end_date|date:"M j, Y"|default:"No end date" }}
-                    </span>
-                    <span style="display: flex; align-items: center; gap: 4px;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                        {{ project.member_count }} member{{ project.member_count|pluralize }}
-                    </span>
-                    <span style="display: flex; align-items: center; gap: 4px;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-                        {{ project.total_tasks }} task{{ project.total_tasks|pluralize }}
-                    </span>
-                </div>
+
+    <!-- Date axis header -->
+    <div style="display:grid;grid-template-columns:200px 1fr;border-bottom:2px solid #e2e8f0;">
+        <div style="padding:8px 14px;font-size:11px;font-weight:700;color:#64748b;background:#f8fafc;border-right:1px solid #e2e8f0;">PROJECT</div>
+        <div style="position:relative;background:#f8fafc;overflow:hidden;">
+            <div style="display:flex;height:32px;">
+                <div style="flex:1;padding:8px 4px;font-size:10px;font-weight:600;color:#94a3b8;text-align:left;border-right:1px solid #e2e8f0;">{{ gantt_start|date:"M j, Y" }}</div>
+                <div style="flex:1;padding:8px 4px;font-size:10px;font-weight:600;color:#94a3b8;text-align:center;border-right:1px solid #e2e8f0;">← Timeline →</div>
+                <div style="flex:1;padding:8px 4px;font-size:10px;font-weight:600;color:#94a3b8;text-align:right;">{{ gantt_end|date:"M j, Y" }}</div>
             </div>
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div style="text-align: center; padding: 60px 20px;">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px; display: block;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
-        <p style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: #475569;">No projects found</p>
-        <p style="margin: 0; font-size: 12px; color: #94a3b8;">{% if status_filter %}Try clearing the filter or create a new project.{% else %}Create your first project to see it on the timeline.{% endif %}</p>
+
+    {% for item in projects_gantt %}
+    {% with p=item.project %}
+    <div class="gantt-row">
+        <div class="gantt-label">
+            <a href="{% url 'blu_projects:project_detail' p.id %}">{{ p.name|truncatechars:28 }}</a>
+            <div class="gantt-label-meta">
+                <span class="status-badge s-{{ p.status|lower }}">{{ p.get_status_display }}</span>
+                &nbsp;{{ p.member_count }} member{{ p.member_count|pluralize }}
+            </div>
+        </div>
+        <div class="gantt-track" id="track-{{ p.id }}">
+            <div class="gantt-bg"></div>
+            <!-- Today marker -->
+            <div class="gantt-today-line" id="today-{{ p.id }}" style="display:none;"></div>
+            <!-- Project bar -->
+            <div class="gantt-bar"
+                style="left:{{ item.left_pct }}%;width:{{ item.width_pct }}%;
+                background:{% if item.overdue %}#dc2626{% elif p.status == 'ACTIVE' %}#1d4ed8{% elif p.status == 'COMPLETED' %}#4f46e5{% elif p.status == 'ON_HOLD' %}#f59e0b{% else %}#94a3b8{% endif %};"
+                title="{{ p.name }} · {{ p.start_date|date:'M j, Y' }} – {{ p.end_date|date:'M j, Y' }}{% if p.total_tasks %} · {{ p.completed_tasks }}/{{ p.total_tasks }} tasks{% endif %}{% if item.overdue %} · OVERDUE{% endif %}"
+                onclick="window.location='{% url 'blu_projects:project_detail' p.id %}'">
+                {{ p.name|truncatechars:22 }}
+            </div>
+        </div>
     </div>
-    {% endif %}
+    {% endwith %}
+    {% endfor %}
 </div>
+
+<!-- Project detail cards -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;">
+    {% for item in projects_gantt %}
+    {% with p=item.project %}
+    <div class="detail-panel">
+        <div class="detail-panel-hd" style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <a href="{% url 'blu_projects:project_detail' p.id %}" style="font-size:14px;font-weight:700;color:#0f172a;text-decoration:none;">{{ p.name }}</a>
+                {% if item.overdue %}<span style="margin-left:6px;font-size:10px;font-weight:700;color:#dc2626;background:#fee2e2;padding:2px 6px;border-radius:10px;">OVERDUE</span>{% endif %}
+            </div>
+            <span class="status-badge s-{{ p.status|lower }}">{{ p.get_status_display }}</span>
+        </div>
+        <div style="padding:14px 20px;">
+            {% if p.description %}<p style="margin:0 0 12px;font-size:13px;color:#64748b;line-height:1.5;">{{ p.description|truncatewords:20 }}</p>{% endif %}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+                <div style="background:#f8fafc;border-radius:6px;padding:8px 10px;">
+                    <div style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.3px;">Start</div>
+                    <div style="font-size:13px;font-weight:600;color:#0f172a;margin-top:2px;">{{ p.start_date|date:"M j, Y"|default:"—" }}</div>
+                </div>
+                <div style="background:#f8fafc;border-radius:6px;padding:8px 10px;">
+                    <div style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.3px;">End</div>
+                    <div style="font-size:13px;font-weight:600;color:{% if item.overdue %}#dc2626{% else %}#0f172a{% endif %};margin-top:2px;">{{ p.end_date|date:"M j, Y"|default:"—" }}</div>
+                </div>
+            </div>
+            {% if p.total_tasks > 0 %}
+            <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-size:11px;color:#64748b;">Task Progress</span>
+                    <span style="font-size:11px;font-weight:600;color:#0f172a;">{{ p.completed_tasks }}/{{ p.total_tasks }}</span>
+                </div>
+                <div style="height:5px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
+                    <div style="height:100%;border-radius:999px;background:{% if p.status == 'COMPLETED' %}#4f46e5{% elif item.overdue %}#dc2626{% else %}#1d4ed8{% endif %};width:{% widthratio p.completed_tasks p.total_tasks 100 %}%;"></div>
+                </div>
+            </div>
+            {% endif %}
+            <div style="display:flex;gap:12px;font-size:11px;color:#94a3b8;">
+                <span>👥 {{ p.member_count }} member{{ p.member_count|pluralize }}</span>
+                <span>✅ {{ p.completed_tasks }}/{{ p.total_tasks }} tasks</span>
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="gantt-wrap" style="padding:60px;text-align:center;color:#94a3b8;">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+    <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#475569;">No projects found</p>
+    <p style="margin:0;font-size:12px;">{% if status_filter %}Clear the filter or <a href="{% url 'blu_projects:project_create' %}" style="color:#1d4ed8;">create a project</a>.{% else %}Create your first project to see it on the timeline.{% endif %}</p>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'ems/base_superadmin.html' %}
+﻿{% extends 'ems/base_superadmin.html' %}
 
 {% block title %}Support Center - EMS{% endblock %}
 {% block nav_support %} active{% endblock %}
@@ -101,7 +101,7 @@
                     </select>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <button type="submit" class="btn">Apply</button>
+                    <button type="submit" class="btn btn-primary">Apply</button>
                     <a href="{% url 'superadmin_support_center' %}" class="btn btn-secondary">Reset</a>
                 </div>
             </form>
@@ -140,7 +140,7 @@
                                 {% elif ticket.priority == 'HIGH' %}
                                     <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">High</span>
                                 {% elif ticket.priority == 'LOW' %}
-                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e0f2fe; color:#1d4ed8; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e0f2fe; color:#DC143C; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
                                 {% else %}
                                     <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Normal</span>
                                 {% endif %}

@@ -1,0 +1,199 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Employee Salaries - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<style>
+.esl-table { width:100%; border-collapse:collapse; }
+.esl-table thead th { background:#f8fafc; padding:10px 14px; text-align:left; font-size:11px; font-weight:700; color:#DC143C; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid #DC143C; }
+.esl-table tbody tr { border-bottom:1px solid #DC143C; transition:background .1s; }
+.esl-table tbody tr:last-child { border-bottom:none; }
+.esl-table tbody tr:hover { background:#fafafa; }
+.esl-table td { padding:11px 14px; font-size:13px; color:#374151; vertical-align:middle; }
+.badge-set  { padding:2px 10px; border-radius:999px; font-size:11px; font-weight:600; background:#DC143C; color:#fff; }
+.badge-none { padding:2px 10px; border-radius:999px; font-size:11px; font-weight:600; background:#fef3c7; color:#92400e; }
+.sal-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+.sal-modal-overlay.open { display:flex; }
+.sal-modal { background:#fff; border-radius:12px; width:100%; max-width:480px; padding:0; box-shadow:0 8px 32px rgba(0,0,0,.18); }
+.sal-modal-hd { display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid #DC143C; }
+.sal-modal-hd h3 { margin:0; font-size:15px; font-weight:700; color:#0f172a; }
+.sal-modal-close { background:none; border:none; font-size:22px; color:#94a3b8; cursor:pointer; line-height:1; }
+.sal-modal-body { padding:20px 22px; display:grid; gap:14px; }
+.sal-field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+.sal-field input, .sal-field select { width:100%; padding:8px 10px; border:1px solid #DC143C; border-radius:6px; font-size:13px; color:#0f172a; }
+.sal-field input:focus, .sal-field select:focus { border-color:#DC143C; outline:none; }
+.sal-modal-ft { padding:14px 22px; border-top:1px solid #DC143C; display:flex; gap:10px; justify-content:flex-end; }
+.sal-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h2>Employee Salaries</h2>
+        <p>{{ set_count }} of {{ total }} employee{{ total|pluralize }} have a salary structure set</p>
+    </div>
+    <div>
+        <a href="{% url 'payroll_list' %}" style="padding:8px 16px;background:#DC143C;color:#fff;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">← Back to Payroll</a>
+    </div>
+</div>
+
+{% if messages %}
+<div style="margin-bottom:16px;">
+    {% for message in messages %}
+    <div style="padding:10px 14px;border-radius:7px;font-size:13px;margin-bottom:6px;
+        background:{% if 'success' in message.tags %}#d1fae5{% elif 'error' in message.tags %}#fee2e2{% else %}#fce7f3{% endif %};
+        color:{% if 'success' in message.tags %}#065f46{% elif 'error' in message.tags %}#991b1b{% else %}#DC143C{% endif %};
+        border:1px solid {% if 'success' in message.tags %}#86efac{% elif 'error' in message.tags %}#fca5a5{% else %}#DC143C{% endif %};">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div style="background:#fff;border:1px solid #DC143C;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+    <form method="get" style="display:flex;gap:8px;align-items:center;flex:1;min-width:200px;">
+        <input type="text" name="q" value="{{ search }}" placeholder="Search by name or job title…"
+               style="flex:1;max-width:300px;padding:8px 12px;border:1px solid #DC143C;border-radius:6px;font-size:13px;">
+        <button type="submit" style="padding:8px 14px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Search</button>
+        {% if search %}<a href="{% url 'employee_salary_list' %}" style="font-size:12px;color:#DC143C;text-decoration:none;">Clear</a>{% endif %}
+    </form>
+</div>
+
+<div style="background:#fff;border:1px solid #DC143C;border-radius:12px;overflow:hidden;">
+    {% if employee_salaries %}
+    <table class="esl-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Employee</th>
+                <th>Job Title / Dept</th>
+                <th>Base Salary</th>
+                <th>Currency</th>
+                <th>Frequency</th>
+                <th>Effective Date</th>
+                <th>Status</th>
+                <th style="width:80px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in employee_salaries %}
+            <tr>
+                <td style="color:#94a3b8;font-size:12px;">{{ forloop.counter }}</td>
+                <td>
+                    <div style="font-weight:600;color:#0f172a;">{{ row.employee.get_full_name }}</div>
+                    <div style="font-size:11px;color:#94a3b8;">{{ row.employee.email }}</div>
+                </td>
+                <td>
+                    <div style="font-size:13px;">{{ row.employee.employee_profile.job_title|default:"—" }}</div>
+                    <div style="font-size:11px;color:#94a3b8;">{{ row.employee.employee_profile.department|default:"" }}</div>
+                </td>
+                <td style="font-weight:700;">
+                    {% if row.salary %}{{ row.salary.base_salary|floatformat:2 }}{% else %}<span style="color:#94a3b8;font-weight:400;">Not set</span>{% endif %}
+                </td>
+                <td>{% if row.salary %}{{ row.salary.currency }}{% else %}—{% endif %}</td>
+                <td>{% if row.salary %}{{ row.salary.get_payment_frequency_display }}{% else %}—{% endif %}</td>
+                <td>{% if row.salary %}{{ row.salary.effective_date|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                <td>
+                    {% if row.salary %}<span class="badge-set">Active</span>
+                    {% else %}<span class="badge-none">Not Set</span>{% endif %}
+                </td>
+                <td>
+                    <button type="button" class="btn-set-salary"
+                        data-emp-id="{{ row.employee.id }}"
+                        data-emp-name="{{ row.employee.get_full_name }}"
+                        data-salary="{% if row.salary %}{{ row.salary.base_salary }}{% endif %}"
+                        data-currency="{% if row.salary %}{{ row.salary.currency }}{% else %}USD{% endif %}"
+                        data-freq="{% if row.salary %}{{ row.salary.payment_frequency }}{% else %}MONTHLY{% endif %}"
+                        data-date="{% if row.salary %}{{ row.salary.effective_date|date:'Y-m-d' }}{% else %}{{ today }}{% endif %}"
+                        data-notes="{% if row.salary %}{{ row.salary.notes }}{% endif %}"
+                        style="padding:5px 12px;background:#DC143C;color:#fff;border:1px solid #DC143C;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+                        {% if row.salary %}Edit{% else %}Set Salary{% endif %}
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:48px 24px;color:#94a3b8;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <p style="font-size:14px;margin:0;">{% if search %}No employees matched "{{ search }}"{% else %}No employees found{% endif %}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Set / Edit Salary Modal -->
+<div id="salaryModal" class="sal-modal-overlay">
+    <div class="sal-modal">
+        <div class="sal-modal-hd">
+            <h3 id="salModalTitle">Set Salary Structure</h3>
+            <button class="sal-modal-close" onclick="closeSalModal()">&times;</button>
+        </div>
+        <form method="post" action="{% url 'employee_salary_list' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="set_salary">
+            <input type="hidden" name="employee_id" id="salEmpId">
+            <div class="sal-modal-body">
+                <div id="salEmpName" style="font-size:13px;font-weight:600;color:#374151;padding:8px 12px;background:#f8fafc;border-radius:6px;"></div>
+                <div class="sal-row-2">
+                    <div class="sal-field">
+                        <label>Base Salary *</label>
+                        <input type="number" name="base_salary" id="salBaseSalary" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+                    <div class="sal-field">
+                        <label>Currency *</label>
+                        <input type="text" name="currency" id="salCurrency" maxlength="3" placeholder="USD" required style="text-transform:uppercase;">
+                    </div>
+                </div>
+                <div class="sal-row-2">
+                    <div class="sal-field">
+                        <label>Payment Frequency *</label>
+                        <select name="payment_frequency" id="salFreq" required>
+                            {% for val, label in freq_choices %}
+                            <option value="{{ val }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="sal-field">
+                        <label>Effective Date *</label>
+                        <input type="date" name="effective_date" id="salDate" required>
+                    </div>
+                </div>
+                <div class="sal-field">
+                    <label>Notes</label>
+                    <input type="text" name="notes" id="salNotes" placeholder="Optional notes…">
+                </div>
+            </div>
+            <div class="sal-modal-ft">
+                <button type="button" onclick="closeSalModal()" style="padding:8px 16px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button type="submit" style="padding:8px 18px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.btn-set-salary').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.getElementById('salModalTitle').textContent = this.dataset.salary ? 'Edit Salary Structure' : 'Set Salary Structure';
+        document.getElementById('salEmpId').value   = this.dataset.empId;
+        document.getElementById('salEmpName').textContent = this.dataset.empName;
+        document.getElementById('salBaseSalary').value = this.dataset.salary || '';
+        document.getElementById('salCurrency').value  = this.dataset.currency || 'USD';
+        document.getElementById('salDate').value      = this.dataset.date || '{{ today }}';
+        document.getElementById('salNotes').value     = this.dataset.notes || '';
+        var freq = document.getElementById('salFreq');
+        for (var i = 0; i < freq.options.length; i++) {
+            freq.options[i].selected = (freq.options[i].value === this.dataset.freq);
+        }
+        document.getElementById('salaryModal').classList.add('open');
+    });
+});
+function closeSalModal() {
+    document.getElementById('salaryModal').classList.remove('open');
+}
+document.getElementById('salaryModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSalModal();
+});
+</script>
+{% endblock %}

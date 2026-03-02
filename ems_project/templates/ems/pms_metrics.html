@@ -1,0 +1,203 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}KPI Metrics – PMS{% endblock %}
+{% block page_title %}Performance Metrics{% endblock %}
+
+{% block content %}
+<style>
+.pms-stat { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:18px 22px; display:flex; align-items:center; gap:16px; }
+.pms-stat-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pms-stat h3 { margin:0; font-size:22px; font-weight:700; color:#0f172a; }
+.pms-stat p { margin:2px 0 0; font-size:12px; color:#64748b; }
+.metric-card { background:#fff; border:1px solid #e2e8f0; padding:18px 20px; transition:box-shadow .15s; }
+.metric-card:hover { box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.metric-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-achieved { background:#dcfce7; color:#166534; }
+.badge-pending { background:#fef3c7; color:#92400e; }
+.kpi-bar-wrap { background:#f1f5f9; border-radius:20px; height:8px; overflow:hidden; margin-top:8px; }
+.kpi-bar-fill { height:8px; border-radius:20px; transition:width .4s; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:#fff; border-radius:12px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,.18); }
+.modal-hd { display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid #e2e8f0; position:sticky; top:0; background:#fff; }
+.modal-hd h3 { margin:0; font-size:15px; font-weight:700; }
+.modal-close { background:none; border:none; font-size:22px; color:#94a3b8; cursor:pointer; }
+.modal-body { padding:20px 22px; display:flex; flex-direction:column; gap:12px; }
+.modal-ft { padding:14px 22px; border-top:1px solid #f1f5f9; display:flex; gap:10px; justify-content:flex-end; }
+.field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+.field input, .field select, .field textarea { width:100%; padding:8px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; color:#0f172a; box-sizing:border-box; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:#DC143C; outline:none; }
+.btn-primary { padding:9px 18px; background:#DC143C; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-secondary { padding:9px 18px; background:#f1f5f9; color:#374151; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+</style>
+
+<!-- Header -->
+<div class="page-header">
+    <div>
+        <h2>Performance Metrics</h2>
+        <p>Track KPIs and quantitative performance targets.</p>
+    </div>
+    {% if is_hr %}
+    <button onclick="document.getElementById('addMetricModal').classList.add('open')" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Metric
+    </button>
+    {% endif %}
+</div>
+
+{% if messages %}{% for msg in messages %}
+<div style="padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;{% if msg.tags == 'error' %}background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;{% else %}background:#dcfce7;color:#166534;border:1px solid #86efac;{% endif %}">{{ msg }}</div>
+{% endfor %}{% endif %}
+
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px;">
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#fce7f3;color:#DC143C;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div><h3>{{ total }}</h3><p>Total Metrics</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#dcfce7;color:#16a34a;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h3>{{ achieved }}</h3><p>Achieved</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#fee2e2;color:#dc2626;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div><h3>{{ not_achieved }}</h3><p>Not Achieved</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#fef3c7;color:#d97706;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div><div><h3>{{ avg_achievement }}%</h3><p>Avg Achievement</p></div></div>
+</div>
+
+<!-- Filter -->
+<div class="content-card" style="padding:16px 20px;margin-bottom:20px;">
+    <form method="get" style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;">
+        <div style="flex:1;min-width:140px;">
+            <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">METRIC TYPE</label>
+            <select name="metric_type" onchange="this.form.submit()" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;">
+                <option value="">All Types</option>
+                {% for val, label in metric_types %}<option value="{{ val }}" {% if type_filter == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        {% if type_filter %}<a href="{% url 'pms_metrics' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Clear</a>{% endif %}
+    </form>
+</div>
+
+<!-- Metrics List -->
+<div class="content-card">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 class="card-title">KPI Metrics</h3>
+        <span style="font-size:13px;color:#64748b;">{{ metrics|length }} metric{% if metrics|length != 1 %}s{% endif %}</span>
+    </div>
+    <div class="card-content" style="padding:0 0 8px;">
+        {% if metrics %}
+        {% for m in metrics %}
+        {% with pct=m.achievement_percentage|floatformat:"0" %}
+        <div class="metric-card" style="border-radius:0;border-left:none;border-right:none;border-top:none;{% if forloop.first %}border-top:1px solid #e2e8f0;{% endif %}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                        <span style="font-size:14px;font-weight:600;color:#0f172a;">{{ m.name }}</span>
+                        <span class="metric-badge {% if m.is_achieved %}badge-achieved{% else %}badge-pending{% endif %}">{% if m.is_achieved %}Achieved{% else %}Pending{% endif %}</span>
+                        <span style="background:#f1f5f9;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;color:#475569;">{{ m.get_metric_type_display }}</span>
+                    </div>
+                    {% if m.description %}<p style="margin:0 0 8px;font-size:13px;color:#475569;">{{ m.description|truncatechars:100 }}</p>{% endif %}
+                    <div style="display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:#64748b;margin-bottom:6px;">
+                        {% if is_hr %}<span>👤 {{ m.review.employee.get_full_name }}</span>{% endif %}
+                        <span>🎯 Target: <strong>{{ m.target_value }} {{ m.unit }}</strong></span>
+                        {% if m.actual_value is not None %}<span>✅ Actual: <strong>{{ m.actual_value }} {{ m.unit }}</strong></span>{% endif %}
+                        <span>⚖️ Weight: {{ m.weight }}</span>
+                    </div>
+                    {% if m.actual_value is not None %}
+                    <div class="kpi-bar-wrap">
+                        <div class="kpi-bar-fill" style="width:{% if pct|add:0 > 100 %}100{% else %}{{ pct }}{% endif %}%;background:{% if m.is_achieved %}#16a34a{% else %}#DC143C{% endif %};"></div>
+                    </div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">{{ pct }}% of target</div>
+                    {% else %}
+                    <div style="font-size:12px;color:#94a3b8;margin-top:4px;">No actual value recorded yet.</div>
+                    {% endif %}
+                </div>
+                <button onclick="openUpdateMetric({{ m.id }},'{{ m.actual_value|default:'' }}')"
+                    style="padding:6px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:600;color:#374151;cursor:pointer;white-space:nowrap;">
+                    Update
+                </button>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+        {% else %}
+        <div style="padding:48px 24px;text-align:center;color:#94a3b8;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <p style="margin:0;font-size:14px;">No metrics found{% if type_filter %} for this type{% endif %}.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- PMS Nav -->
+<div class="content-card" style="margin-top:20px;padding:16px 20px;">
+    <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:12px;text-transform:uppercase;">PMS Modules</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <a href="{% url 'performance_reviews_list' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Reviews</a>
+        <a href="{% url 'pms_goals' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Goals</a>
+        <a href="{% url 'pms_metrics' %}" style="padding:8px 14px;background:#DC143C;border-radius:6px;font-size:13px;color:#fff;text-decoration:none;font-weight:600;">Metrics</a>
+        <a href="{% url 'pms_feedback_360' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">360° Feedback</a>
+        <a href="{% url 'pms_self_assessment' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Self-Assessment</a>
+        {% if is_hr %}<a href="{% url 'pms_competencies' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Competencies</a>{% endif %}
+    </div>
+</div>
+
+<!-- Update Metric Modal -->
+<div class="modal-overlay" id="updateMetricModal">
+    <div class="modal">
+        <div class="modal-hd"><h3>Update Actual Value</h3><button class="modal-close" onclick="document.getElementById('updateMetricModal').classList.remove('open')">×</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_metric">
+            <input type="hidden" name="metric_id" id="upd_metric_id">
+            <div class="modal-body">
+                <div class="field"><label>Actual Value</label><input type="number" name="actual_value" id="upd_metric_actual" step="0.01"></div>
+            </div>
+            <div class="modal-ft">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('updateMetricModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if is_hr %}
+<!-- Add Metric Modal -->
+<div class="modal-overlay" id="addMetricModal">
+    <div class="modal">
+        <div class="modal-hd"><h3>Add KPI Metric</h3><button class="modal-close" onclick="document.getElementById('addMetricModal').classList.remove('open')">×</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_metric">
+            <div class="modal-body">
+                <div class="field">
+                    <label>Review *</label>
+                    <select name="review_id" required>
+                        <option value="">Select review…</option>
+                        {% for r in reviews %}<option value="{{ r.id }}">{{ r.employee.get_full_name }} – {{ r.title|truncatechars:40 }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="field"><label>Metric Name *</label><input type="text" name="name" required></div>
+                <div class="field"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+                <div class="field">
+                    <label>Type</label>
+                    <select name="metric_type">{% for val, label in metric_types %}<option value="{{ val }}">{{ label }}</option>{% endfor %}</select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="field"><label>Target Value *</label><input type="number" name="target_value" step="0.01" required></div>
+                    <div class="field"><label>Unit</label><input type="text" name="unit" placeholder="e.g. %, hrs, USD"></div>
+                </div>
+                <div class="field"><label>Weight (1–100)</label><input type="number" name="weight" value="100" min="1" max="100"></div>
+            </div>
+            <div class="modal-ft">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('addMetricModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="btn-primary">Add Metric</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function openUpdateMetric(id, actual) {
+    document.getElementById('upd_metric_id').value = id;
+    document.getElementById('upd_metric_actual').value = actual;
+    document.getElementById('updateMetricModal').classList.add('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+</script>
+{% endblock %}

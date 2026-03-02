@@ -1,0 +1,152 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% block title %}Timesheet &ndash; {{ timesheet.employee.get_full_name }}{% endblock %}
+{% block page_title %}Timesheet Detail{% endblock %}
+
+{% block content %}
+<style>
+.tsd-page { padding:24px; max-width:900px; }
+.tsd-back { font-size:13px; color:#DC143C; text-decoration:none; display:inline-flex; align-items:center; gap:5px; margin-bottom:18px; }
+.tsd-back:hover { color:#DC143C; }
+.tsd-header { background:#fff; border:1px solid #DC143C; border-radius:12px; padding:20px 24px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; }
+.tsd-name { font-size:18px; font-weight:700; color:#DC143C; margin-bottom:2px; }
+.tsd-sub  { font-size:13px; color:#DC143C; }
+.tsd-badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; }
+.badge-draft     { background:#f1f5f9; color:#64748b; }
+.badge-submitted { background:#fce7f3; color:#DC143C; }
+.badge-approved  { background:#dcfce7; color:#15803d; }
+.badge-rejected  { background:#fee2e2; color:#dc2626; }
+.tsd-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
+.tsd-stat { background:#fff; border:1px solid #DC143C; border-radius:10px; padding:14px 16px; text-align:center; }
+.tsd-stat-label { font-size:11px; color:#DC143C; font-weight:600; text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+.tsd-stat-val { font-size:22px; font-weight:700; color:#DC143C; }
+.tsd-table { background:#fff; border:1px solid #DC143C; border-radius:10px; overflow:hidden; margin-bottom:18px; }
+.tsd-table table { width:100%; border-collapse:collapse; font-size:13px; }
+.tsd-table th { background:#DC143C; padding:10px 16px; text-align:left; font-weight:600; color:#fff; font-size:11px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid #DC143C; }
+.tsd-table td { padding:12px 16px; border-bottom:1px solid #DC143C; color:#DC143C; }
+.tsd-table tr:last-child td { border-bottom:none; }
+.tsd-actions { background:#fff; border:1px solid #DC143C; border-radius:10px; padding:20px; }
+.tsd-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:7px; font-size:13px; font-weight:500; border:none; cursor:pointer; text-decoration:none; }
+.tsd-btn-approve { background:#DC143C; color:#fff; }
+.tsd-btn-reject  { background:#DC143C; color:#fff; }
+.tsd-btn-back    { background:#DC143C; color:#fff; border:1px solid #DC143C; }
+@media(max-width:640px){ .tsd-stats{grid-template-columns:1fr 1fr;} .tsd-page{padding:12px;} }
+</style>
+
+<div class="tsd-page">
+    <a href="{% url 'timesheets_list' %}" class="tsd-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Timesheets
+    </a>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:10px 14px;border-radius:7px;margin-bottom:14px;font-size:13px;
+        {% if msg.tags == 'success' %}background:#DC143C;color:#fff;border:1px solid #DC143C;
+        {% elif msg.tags == 'error' %}background:#DC143C;color:#fff;border:1px solid #DC143C;
+        {% else %}background:#DC143C;color:#fff;border:1px solid #DC143C;{% endif %}">
+        {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Header -->
+    <div class="tsd-header">
+        <div>
+            <div class="tsd-name">{{ timesheet.employee.get_full_name }}</div>
+            <div class="tsd-sub">{{ timesheet.employee.employee_profile.job_title|default:"Employee" }} &nbsp;&bull;&nbsp; Week commencing {{ timesheet.week_start|date:"l, M j, Y" }}</div>
+            {% if timesheet.notes %}
+            <div style="margin-top:8px;font-size:13px;color:#DC143C;background:#DC143C;border-radius:6px;padding:8px 12px;border-left:3px solid #DC143C;">{{ timesheet.notes }}</div>
+            {% endif %}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <span class="tsd-badge badge-{{ timesheet.status|lower }}">{{ timesheet.get_status_display }}</span>
+            {% if timesheet.submitted_at %}
+            <span style="font-size:11px;color:#DC143C;">Submitted {{ timesheet.submitted_at|date:"M j, Y H:i" }}</span>
+            {% endif %}
+            {% if timesheet.reviewed_by %}
+            <span style="font-size:11px;color:#DC143C;">Reviewed by {{ timesheet.reviewed_by.get_full_name }} &bull; {{ timesheet.reviewed_at|date:"M j, Y H:i" }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if timesheet.status == 'REJECTED' and timesheet.rejection_reason %}
+    <div style="background:#DC143C;border:1px solid #DC143C;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#fff;">
+        <strong>Rejection reason:</strong> {{ timesheet.rejection_reason }}
+    </div>
+    {% endif %}
+
+    <!-- Stats -->
+    <div class="tsd-stats">
+        <div class="tsd-stat">
+            <div class="tsd-stat-label">Regular Hours</div>
+            <div class="tsd-stat-val">{{ timesheet.total_regular_hours }}</div>
+        </div>
+        <div class="tsd-stat">
+            <div class="tsd-stat-label">Overtime Hours</div>
+            <div class="tsd-stat-val" style="color:#DC143C;">{{ timesheet.total_overtime_hours }}</div>
+        </div>
+        <div class="tsd-stat">
+            <div class="tsd-stat-label">Total Hours</div>
+            <div class="tsd-stat-val" style="color:#DC143C;">{{ timesheet.total_hours }}</div>
+        </div>
+    </div>
+
+    <!-- Daily entries -->
+    <div class="tsd-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Date</th>
+                    <th>Regular Hrs</th>
+                    <th>Overtime Hrs</th>
+                    <th>Total</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td style="font-weight:600;">{{ entry.date|date:"l" }}</td>
+                    <td>{{ entry.date|date:"M j, Y" }}</td>
+                    <td>{{ entry.regular_hours }}</td>
+                    <td style="color:#DC143C;">{{ entry.overtime_hours }}</td>
+                    <td style="font-weight:600;">{{ entry.regular_hours|add:entry.overtime_hours }}</td>
+                    <td style="color:#DC143C;font-size:12px;">{{ entry.description|default:"&mdash;" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align:center;padding:24px;color:#DC143C;">No daily entries recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Actions -->
+    {% if can_approve %}
+    <div class="tsd-actions">
+        <h4 style="margin:0 0 14px;font-size:14px;color:#DC143C;">Review Action</h4>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;">
+            <form method="post" action="{% url 'timesheet_action' timesheet.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="approve">
+                <button type="submit" class="tsd-btn tsd-btn-approve" onclick="return confirm('Approve this timesheet?')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Approve
+                </button>
+            </form>
+            <form method="post" action="{% url 'timesheet_action' timesheet.id %}" style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                <input type="text" name="rejection_reason" placeholder="Reason for rejection (optional)" style="border:1px solid #DC143C;border-radius:6px;padding:8px 12px;font-size:13px;min-width:260px;">
+                <button type="submit" class="tsd-btn tsd-btn-reject" onclick="return confirm('Reject this timesheet?')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Reject
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

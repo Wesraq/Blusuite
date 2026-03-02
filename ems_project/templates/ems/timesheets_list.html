@@ -1,0 +1,162 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% block title %}Timesheets{% endblock %}
+{% block page_title %}Timesheets{% endblock %}
+
+{% block content %}
+<style>
+.ts-page { padding: 24px; }
+.ts-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+.ts-kpi { background:#fff; border:1px solid #fce7f3; border-radius:10px; padding:16px; }
+.ts-kpi-label { font-size:11px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+.ts-kpi-val { font-size:22px; font-weight:700; color:#0f172a; }
+.ts-filters { background:#fff; border:1px solid #fce7f3; border-radius:10px; padding:16px; margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+.ts-filters label { font-size:11px; font-weight:600; color:#DC143C; display:block; margin-bottom:4px; }
+.ts-filters input, .ts-filters select { border:1px solid #fce7f3; border-radius:6px; padding:7px 10px; font-size:13px; color:#0f172a; }
+.ts-filters button { background:#DC143C; color:#fff; border:none; border-radius:6px; padding:8px 16px; font-size:13px; cursor:pointer; font-weight:500; align-self:flex-end; }
+.ts-table { background:#fff; border:1px solid #fce7f3; border-radius:10px; overflow:hidden; }
+.ts-table table { width:100%; border-collapse:collapse; font-size:13px; }
+.ts-table th { background:#DC143C; padding:10px 14px; text-align:left; font-weight:600; color:#DC143C; font-size:11px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid #fce7f3; }
+.ts-table td { padding:12px 14px; border-bottom:1px solid #f1f5f9; color:#0f172a; vertical-align:middle; }
+.ts-table tr:last-child td { border-bottom:none; }
+.ts-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-draft     { background:#f1f5f9; color:#64748b; }
+.badge-submitted { background:#fce7f3; color:#DC143C; }
+.badge-approved  { background:#dcfce7; color:#15803d; }
+.badge-rejected  { background:#fee2e2; color:#dc2626; }
+.ts-btn { display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:500; text-decoration:none; border:none; cursor:pointer; }
+.ts-btn-primary { background:#DC143C; color:#fff; }
+.ts-btn-ghost { background:#DC143C; color:#DC143C; border:1px solid #fce7f3; }
+@media(max-width:768px){ .ts-page{padding:12px;} .ts-table table{min-width:700px;} .ts-table{overflow-x:auto;} }
+</style>
+
+<div class="ts-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+            <h2 style="margin:0;font-size:20px;font-weight:700;color:#0f172a;">Timesheets</h2>
+            <p style="margin:4px 0 0;font-size:13px;color:#64748b;">Review and approve employee weekly timesheets</p>
+        </div>
+    </div>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:10px 14px;border-radius:7px;margin-bottom:14px;font-size:13px;
+        {% if msg.tags == 'success' %}background:#d1fae5;color:#065f46;border:1px solid #DC143C;
+        {% elif msg.tags == 'error' %}background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;
+        {% else %}background:#fef3c7;color:#92400e;border:1px solid #fcd34d;{% endif %}">
+        {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- KPIs -->
+    <div class="ts-kpis">
+        <div class="ts-kpi" style="border-top:3px solid #64748b;">
+            <div class="ts-kpi-label">Total</div>
+            <div class="ts-kpi-val">{{ total }}</div>
+        </div>
+        <div class="ts-kpi" style="border-top:3px solid #DC143C;">
+            <div class="ts-kpi-label">Pending Review</div>
+            <div class="ts-kpi-val" style="color:#DC143C;">{{ pending_count }}</div>
+        </div>
+        <div class="ts-kpi" style="border-top:3px solid #059669;">
+            <div class="ts-kpi-label">Approved</div>
+            <div class="ts-kpi-val" style="color:#059669;">{{ approved_count }}</div>
+        </div>
+        <div class="ts-kpi" style="border-top:3px solid #94a3b8;">
+            <div class="ts-kpi-label">Draft</div>
+            <div class="ts-kpi-val" style="color:#94a3b8;">{{ draft_count }}</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <form method="get" class="ts-filters">
+        <div>
+            <label>Search</label>
+            <input type="text" name="search" value="{{ search }}" placeholder="Employee name..." style="width:180px;">
+        </div>
+        <div>
+            <label>Status</label>
+            <select name="status">
+                <option value="">All Statuses</option>
+                <option value="DRAFT" {% if status_filter == 'DRAFT' %}selected{% endif %}>Draft</option>
+                <option value="SUBMITTED" {% if status_filter == 'SUBMITTED' %}selected{% endif %}>Submitted</option>
+                <option value="APPROVED" {% if status_filter == 'APPROVED' %}selected{% endif %}>Approved</option>
+                <option value="REJECTED" {% if status_filter == 'REJECTED' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+        <div>
+            <label>Employee</label>
+            <select name="employee">
+                <option value="">All Employees</option>
+                {% for emp in employees %}
+                <option value="{{ emp.id }}" {% if employee_filter == emp.id|stringformat:'s' %}selected{% endif %}>{{ emp.get_full_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Week From</label>
+            <input type="date" name="week_from" value="{{ week_from }}">
+        </div>
+        <div>
+            <label>Week To</label>
+            <input type="date" name="week_to" value="{{ week_to }}">
+        </div>
+        <button type="submit">Filter</button>
+        <a href="{% url 'timesheets_list' %}" style="align-self:flex-end;font-size:12px;color:#64748b;text-decoration:none;padding:8px 6px;">Clear</a>
+    </form>
+
+    <!-- Table -->
+    <div class="ts-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Week Commencing</th>
+                    <th>Regular Hrs</th>
+                    <th>Overtime Hrs</th>
+                    <th>Total Hrs</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Reviewed By</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ts in timesheets %}
+                <tr>
+                    <td>
+                        <div style="font-weight:600;">{{ ts.employee.get_full_name }}</div>
+                        <div style="font-size:11px;color:#64748b;">{{ ts.employee.employee_profile.job_title|default:"" }}</div>
+                    </td>
+                    <td>{{ ts.week_start|date:"M j, Y" }}</td>
+                    <td>{{ ts.total_regular_hours }}</td>
+                    <td>{{ ts.total_overtime_hours }}</td>
+                    <td style="font-weight:600;">{{ ts.total_hours }}</td>
+                    <td>
+                        <span class="ts-badge badge-{{ ts.status|lower }}">{{ ts.get_status_display }}</span>
+                    </td>
+                    <td style="color:#64748b;font-size:12px;">
+                        {% if ts.submitted_at %}{{ ts.submitted_at|date:"M j" }}{% else %}&mdash;{% endif %}
+                    </td>
+                    <td style="font-size:12px;color:#64748b;">
+                        {% if ts.reviewed_by %}{{ ts.reviewed_by.get_full_name }}{% else %}&mdash;{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'timesheet_detail' ts.id %}" class="ts-btn ts-btn-ghost">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align:center;padding:40px;color:#94a3b8;">
+                        No timesheets found.
+                        {% if not status_filter and not search %}
+                        Employees can submit timesheets from their portal.
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

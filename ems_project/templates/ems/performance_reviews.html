@@ -1,0 +1,260 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Performance Reviews - BLU Suite EMS{% endblock %}
+{% block page_title %}Performance Reviews{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2>Performance Reviews</h2>
+        <p>Manage employee performance evaluations, goals, and 360° feedback.</p>
+    </div>
+    <button onclick="showCreateModal()" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        New Review
+    </button>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color:#fce7f3;color:#DC143C;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        </div>
+        <div class="stat-details"><h3>{{ total_reviews }}</h3><p>Total Reviews</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color:#fef3c7;color:#d97706;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="stat-details"><h3>{{ draft_count }}</h3><p>In Progress</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color:#dcfce7;color:#16a34a;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="stat-details"><h3>{{ completed_count }}</h3><p>Completed</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color:#fce7f3;color:#DC143C;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        </div>
+        <div class="stat-details"><h3>{{ approved_count }}</h3><p>Approved</p></div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="content-card" style="padding:20px;margin-bottom:24px;">
+    <form method="get" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;align-items:end;">
+        <div class="filter-group">
+            <label class="control-label">Search Employee</label>
+            <input type="text" name="search" value="{{ search_query }}" class="control-input" placeholder="Name or email...">
+        </div>
+        <div class="filter-group">
+            <label class="control-label">Status</label>
+            <select name="status" class="control-input">
+                <option value="">All Statuses</option>
+                {% for val, label in status_choices %}
+                <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="control-label">Review Type</label>
+            <select name="review_type" class="control-input">
+                <option value="">All Types</option>
+                {% for val, label in review_types %}
+                <option value="{{ val }}" {% if review_type_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="control-label">Rating</label>
+            <select name="rating" class="control-input">
+                <option value="">All Ratings</option>
+                {% for val, label in overall_ratings %}
+                <option value="{{ val }}" {% if rating_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="control-label">From Date</label>
+            <input type="date" name="date_from" value="{{ date_from }}" class="control-input">
+        </div>
+        <div class="filter-group">
+            <label class="control-label">To Date</label>
+            <input type="date" name="date_to" value="{{ date_to }}" class="control-input">
+        </div>
+        <div class="filter-group" style="display:flex;gap:8px;align-items:flex-end;">
+            <button type="submit" style="flex:1;padding:9px 16px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Filter</button>
+            <a href="{% url 'performance_reviews_list' %}" class="btn" style="flex:1;text-align:center;">Clear</a>
+        </div>
+        <div class="filter-group" style="display:flex;gap:8px;align-items:flex-end;">
+            <a href="?{{ request.GET.urlencode }}&format=csv" class="btn" style="width:100%;text-align:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 5 17 10"></polyline><line x1="12" y1="5" x2="12" y2="16"></line></svg>
+                Export CSV
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Reviews Table -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">Reviews ({{ reviews|length }})</div>
+    </div>
+    <div class="card-content">
+        <div class="table-responsive">
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Review Type</th>
+                        <th>Period</th>
+                        <th>Review Date</th>
+                        <th>Rating</th>
+                        <th>Status</th>
+                        <th>Reviewer</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in reviews %}
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="width:32px;height:32px;border-radius:50%;background:#fce7f3;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#DC143C;flex-shrink:0;">
+                                    {{ review.employee.first_name|first }}{{ review.employee.last_name|first }}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600;font-size:13px;">{{ review.employee.get_full_name }}</div>
+                                    {% if review.employee.employee_profile.job_title %}
+                                    <div style="font-size:11px;color:#64748b;">{{ review.employee.employee_profile.job_title }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td><span style="font-size:12px;">{{ review.get_review_type_display }}</span></td>
+                        <td style="font-size:12px;color:#64748b;">{{ review.review_period_start }} – {{ review.review_period_end }}</td>
+                        <td style="font-size:12px;">{{ review.review_date }}</td>
+                        <td>
+                            {% if review.overall_rating == 'OUTSTANDING' %}
+                            <span class="badge" style="background:#dcfce7;color:#166534;font-size:11px;">Outstanding</span>
+                            {% elif review.overall_rating == 'EXCEEDS_EXPECTATIONS' %}
+                            <span class="badge" style="background:#d1fae5;color:#065f46;font-size:11px;">Exceeds</span>
+                            {% elif review.overall_rating == 'MEETS_EXPECTATIONS' %}
+                            <span class="badge" style="background:#f0fdf4;color:#166534;font-size:11px;">Meets</span>
+                            {% elif review.overall_rating == 'BELOW_EXPECTATIONS' %}
+                            <span class="badge" style="background:#fef3c7;color:#92400e;font-size:11px;">Below</span>
+                            {% elif review.overall_rating == 'UNSATISFACTORY' %}
+                            <span class="badge" style="background:#fee2e2;color:#991b1b;font-size:11px;">Unsatisfactory</span>
+                            {% else %}
+                            <span class="badge" style="background:#f1f5f9;color:#64748b;font-size:11px;">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if review.status == 'APPROVED' %}
+                            <span class="badge" style="background:#dcfce7;color:#166534;font-size:11px;">Approved</span>
+                            {% elif review.status == 'COMPLETED' %}
+                            <span class="badge" style="background:#fce7f3;color:#9d174d;font-size:11px;">Completed</span>
+                            {% elif review.status == 'UNDER_REVIEW' %}
+                            <span class="badge" style="background:#fef3c7;color:#92400e;font-size:11px;">Under Review</span>
+                            {% elif review.status == 'SUBMITTED' %}
+                            <span class="badge" style="background:#f0fdf4;color:#166534;font-size:11px;">Submitted</span>
+                            {% else %}
+                            <span class="badge" style="background:#f1f5f9;color:#64748b;font-size:11px;">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:12px;">{{ review.reviewer.get_full_name|default:"—" }}</td>
+                        <td>
+                            <a href="{% url 'performance_review_detail' review.id %}" class="btn btn-sm" style="font-size:11px;padding:4px 10px;">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align:center;padding:48px;color:#64748b;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px;display:block;opacity:0.3;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            No performance reviews found.{% if search_query or status_filter %} Try adjusting your filters.{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create Review Modal -->
+<div id="createModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:4px;padding:32px;max-width:520px;width:90%;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <h3 style="margin:0;font-size:18px;font-weight:700;">Create Performance Review</h3>
+            <button onclick="hideCreateModal()" style="background:none;border:none;cursor:pointer;color:#64748b;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form method="post" action="{% url 'performance_review_create' %}">
+            {% csrf_token %}
+            <div style="display:flex;flex-direction:column;gap:16px;">
+                <div>
+                    <label class="control-label" style="display:block;margin-bottom:4px;">Employee</label>
+                    <select name="employee" class="control-input" required>
+                        <option value="">Select employee...</option>
+                        {% for emp in employees %}
+                        <option value="{{ emp.id }}">{{ emp.get_full_name }} – {{ emp.employee_profile.job_title|default:emp.email }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="control-label" style="display:block;margin-bottom:4px;">Review Title</label>
+                    <input type="text" name="title" class="control-input" placeholder="e.g. Q1 2026 Performance Review" required>
+                </div>
+                <div>
+                    <label class="control-label" style="display:block;margin-bottom:4px;">Review Type</label>
+                    <select name="review_type" class="control-input" required>
+                        {% for val, label in review_types %}
+                        <option value="{{ val }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label class="control-label" style="display:block;margin-bottom:4px;">Period Start</label>
+                        <input type="date" name="review_period_start" class="control-input" required>
+                    </div>
+                    <div>
+                        <label class="control-label" style="display:block;margin-bottom:4px;">Period End</label>
+                        <input type="date" name="review_period_end" class="control-input" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="control-label" style="display:block;margin-bottom:4px;">Review Date</label>
+                    <input type="date" name="review_date" class="control-input" required>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button type="button" onclick="hideCreateModal()" class="btn" style="flex:1;">Cancel</button>
+                <button type="submit" style="flex:1;padding:9px 16px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Create Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showCreateModal() {
+    const modal = document.getElementById('createModal');
+    modal.style.display = 'flex';
+}
+function hideCreateModal() {
+    const modal = document.getElementById('createModal');
+    modal.style.display = 'none';
+}
+document.getElementById('createModal').addEventListener('click', function(e) {
+    if (e.target === this) hideCreateModal();
+});
+</script>
+{% endblock %}

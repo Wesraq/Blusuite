@@ -1,988 +1,835 @@
-{% extends base_template|default:'ems/base_employer.html' %}
+﻿{% extends base_template|default:'ems/base_employer.html' %}
 {% load static %}
 
-{% block title %}{% if user.role == 'EMPLOYEE' and user.employee_profile.employee_role != 'ACCOUNTANT' and user.employee_profile.employee_role != 'ACCOUNTS' %}My Payslips{% else %}Payroll Management{% endif %} - BLU Suite EMS{% endblock %}
+{% block title %}{% if has_payroll_access %}Payroll Management{% else %}My Payslips{% endif %} - BLU Suite EMS{% endblock %}
+
+{% block extra_css %}
+<style>
+.pr-page { display: flex; flex-direction: column; gap: 0; }
+.pr-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.pr-header-left h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; color: #0f172a; }
+.pr-header-left p { margin: 0; font-size: 14px; color: #64748b; }
+.pr-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.pr-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all .15s; text-decoration: none; }
+.pr-btn-primary { background: #DC143C; color: #fff; border-color: #DC143C; }
+.pr-btn-primary:hover { background: #B01030; }
+.pr-btn-success { background: #059669; color: #fff; border-color: #059669; }
+.pr-btn-success:hover { background: #047857; }
+.pr-btn-secondary { background: #fff; color: #374151; border-color: #d1d5db; }
+.pr-btn-secondary:hover { background: #f9fafb; }
+.pr-btn-sm { padding: 6px 12px; font-size: 12px; }
+.pr-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.pr-stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; }
+.pr-stat-icon { width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pr-stat-body { min-width: 0; }
+.pr-stat-val { font-size: 20px; font-weight: 700; color: #0f172a; line-height: 1.1; }
+.pr-stat-lbl { font-size: 12px; color: #64748b; margin-top: 2px; }
+.pr-tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 0; }
+.pr-tab { padding: 11px 20px; font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all .15s; display: inline-flex; align-items: center; gap: 7px; }
+.pr-tab.active { color: #DC143C; border-bottom-color: #DC143C; }
+.pr-tab:hover:not(.active) { color: #374151; }
+.pr-panel { background: #fff; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 10px 10px; }
+.pr-toolbar { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.pr-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pr-filter-input { padding: 7px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #fff; color: #0f172a; outline: none; }
+.pr-filter-input:focus { border-color: #DC143C; }
+.pr-table-wrap { overflow-x: auto; }
+.pr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pr-table th { text-align: left; padding: 11px 14px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+.pr-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #0f172a; }
+.pr-table tr:hover td { background: #fafbfc; }
+.pr-table tr:last-child td { border-bottom: none; }
+.pr-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.pr-badge-draft { background: #f1f5f9; color: #475569; }
+.pr-badge-pending { background: #fef3c7; color: #92400e; }
+.pr-badge-approved { background: #fce7f3; color: #DC143C; }
+.pr-badge-paid { background: #d1fae5; color: #065f46; }
+.pr-badge-cancelled { background: #fee2e2; color: #991b1b; }
+.pr-name { font-weight: 600; color: #0f172a; margin-bottom: 2px; }
+.pr-meta { font-size: 11px; color: #94a3b8; }
+.pr-amount { font-weight: 700; }
+.pr-amount-pos { color: #059669; }
+.pr-amount-neg { color: #dc2626; }
+.pr-empty { text-align: center; padding: 64px 24px; }
+.pr-empty svg { color: #cbd5e1; margin: 0 auto 14px; display: block; }
+.pr-empty h3 { margin: 0 0 8px; font-size: 18px; font-weight: 600; color: #64748b; }
+.pr-empty p { margin: 0 0 20px; font-size: 14px; color: #94a3b8; }
+.pr-batch-bar { display: none; align-items: center; gap: 12px; padding: 10px 18px; background: #fce7f3; border-bottom: 1px solid #fca5a5; font-size: 13px; color: #DC143C; }
+.pr-batch-bar.visible { display: flex; }
+.cfg-section { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px 24px; margin-bottom: 20px; }
+.cfg-section-title { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0 0 16px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px; }
+.cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.cfg-field label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+.cfg-field input, .cfg-field select, .cfg-field textarea { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #fff; color: #0f172a; box-sizing: border-box; }
+.cfg-field small { font-size: 11px; color: #94a3b8; margin-top: 3px; display: block; }
+.cfg-field input[type=checkbox] { width: auto; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+.modal-box { background: #fff; border-radius: 12px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,.15); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
+.modal-hd { padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.modal-hd h3 { margin: 0; font-size: 17px; font-weight: 700; color: #0f172a; }
+.modal-close { background: none; border: none; font-size: 22px; color: #94a3b8; cursor: pointer; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+.modal-close:hover { background: #f1f5f9; color: #475569; }
+.modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.modal-ft { padding: 16px 24px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: flex-end; flex-shrink: 0; background: #f8fafc; }
+.form-row { display: grid; gap: 14px; margin-bottom: 14px; }
+.form-row-2 { grid-template-columns: 1fr 1fr; }
+.form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #fff; color: #0f172a; box-sizing: border-box; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #DC143C; }
+.section-divider { font-size: 13px; font-weight: 700; color: #374151; padding: 6px 0; margin: 14px 0 6px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 6px; }
+.calc-summary { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; text-align: center; margin: 12px 0; }
+.calc-summary-item .val { font-size: 18px; font-weight: 700; }
+.calc-summary-item .lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+.info-box { background: #fce7f3; border: 1px solid #fca5a5; border-left: 4px solid #DC143C; border-radius: 6px; padding: 12px 16px; font-size: 13px; color: #DC143C; margin-bottom: 14px; }
+@media (max-width: 640px) {
+    .pr-stats { grid-template-columns: 1fr 1fr; }
+    .form-row-3 { grid-template-columns: 1fr; }
+    .form-row-2 { grid-template-columns: 1fr; }
+    .pr-header-actions { width: 100%; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
+<div class="pr-page">
 
-<!-- Page Header -->
-<div class="page-header">
-    <div>
-        <h2>{% if user.role == 'EMPLOYEE' and user.employee_profile.employee_role != 'ACCOUNTANT' and user.employee_profile.employee_role != 'ACCOUNTS' %}My Payslips{% else %}Payroll Management{% endif %}</h2>
-        <p>{% if user.role == 'EMPLOYEE' and user.employee_profile.employee_role != 'ACCOUNTANT' and user.employee_profile.employee_role != 'ACCOUNTS' %}View and download your salary payslips{% else %}Manage employee payroll and compensation{% endif %}</p>
+<!-- Header -->
+<div class="pr-header">
+    <div class="pr-header-left">
+        <h2>{% if has_payroll_access %}Payroll Management{% else %}My Payslips{% endif %}</h2>
+        <p>{% if has_payroll_access %}Manage employee payroll, deductions, and compensation{% else %}View your salary history and payslip documents{% endif %}</p>
     </div>
+    {% if has_payroll_access %}
+    <div class="pr-header-actions">
+        <button onclick="showGeneratePayrollModal()" class="pr-btn pr-btn-success">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Run Payroll
+        </button>
+        <button onclick="showCreatePayrollModal()" class="pr-btn pr-btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Entry
+        </button>
+        <button onclick="showImportCSVModal()" class="pr-btn pr-btn-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import
+        </button>
+        <button onclick="exportCSV()" class="pr-btn pr-btn-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+        </button>
+    </div>
+    {% endif %}
 </div>
 
-{% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' or user.employee_profile.employee_role == 'ACCOUNTANT' or user.employee_profile.employee_role == 'ACCOUNTS' %}
-<!-- Tab Navigation for Admin/Accountant -->
-<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px 12px 0 0; margin-top: 24px; padding: 16px 20px; border-bottom: 2px solid #e2e8f0;">
-    <div style="display: flex; gap: 8px;">
-        <button onclick="showTab('payroll')" id="payrollTab" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; background: #1d4ed8; color: white; display: inline-flex; align-items: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            Payroll Records
-        </button>
-        <button onclick="showTab('config')" id="configTab" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; background: #f8fafc; color: #64748b; display: inline-flex; align-items: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 1v6m0 6v6"></path>
-            </svg>
-            Configuration
-        </button>
-    </div>
-</div>
-
-<!-- Payroll Records Tab -->
-<div id="payrollContent" style="background: white; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; padding: 20px;">
-{% endif %}
-
-<!-- Statistics Cards -->
-<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' or user.employee_profile.employee_role == 'ACCOUNTANT' or user.employee_profile.employee_role == 'ACCOUNTS' %}margin-top: 0;{% else %}margin-top: 24px;{% endif %}">
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+<!-- Summary Cards -->
+<div class="pr-stats">
+    <div class="pr-stat">
+        <div class="pr-stat-icon" style="background:#fce7f3;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         </div>
-        <div class="stat-details">
-            <h3>{{ total_payrolls }}</h3>
-            <p>Total {% if user.role == 'EMPLOYEE' %}Payslips{% else %}Payrolls{% endif %}</p>
+        <div class="pr-stat-body">
+            <div class="pr-stat-val">{{ total_payrolls }}</div>
+            <div class="pr-stat-lbl">Total Records</div>
         </div>
     </div>
-    {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' or user.employee_profile.employee_role == 'ACCOUNTANT' or user.employee_profile.employee_role == 'ACCOUNTS' %}
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+    {% if has_payroll_access %}
+    <div class="pr-stat">
+        <div class="pr-stat-icon" style="background:#f1f5f9;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
         </div>
-        <div class="stat-details">
-            <h3>{{ draft_count }}</h3>
-            <p>Draft</p>
+        <div class="pr-stat-body">
+            <div class="pr-stat-val">{{ draft_count }}</div>
+            <div class="pr-stat-lbl">Draft</div>
+        </div>
+    </div>
+    <div class="pr-stat" style="{% if pending_approval_count > 0 %}border-color:#fcd34d;{% endif %}">
+        <div class="pr-stat-icon" style="background:#fef3c7;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="pr-stat-body">
+            <div class="pr-stat-val" style="{% if pending_approval_count > 0 %}color:#d97706;{% endif %}">{{ pending_approval_count }}</div>
+            <div class="pr-stat-lbl">Pending Approval</div>
+        </div>
+    </div>
+    <div class="pr-stat">
+        <div class="pr-stat-icon" style="background:#fce7f3;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="pr-stat-body">
+            <div class="pr-stat-val">{{ approved_count }}</div>
+            <div class="pr-stat-lbl">Approved</div>
         </div>
     </div>
     {% endif %}
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #d1fae5; color: #059669;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <div class="pr-stat">
+        <div class="pr-stat-icon" style="background:#d1fae5;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
-        <div class="stat-details">
-            <h3>{{ paid_count }}</h3>
-            <p>Paid</p>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-        </div>
-        <div class="stat-details">
-            <h3>{{ total_earned|floatformat:2 }}</h3>
-            <p>Total {% if user.role == 'EMPLOYEE' %}Earned{% else %}Paid{% endif %}</p>
+        <div class="pr-stat-body">
+            <div class="pr-stat-val">{{ currency_code }} {{ total_earned|floatformat:0 }}</div>
+            <div class="pr-stat-lbl">Total Paid (Net)</div>
         </div>
     </div>
 </div>
 
-<!-- Filters -->
-{% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' or user.employee_profile.employee_role == 'ACCOUNTANT' or user.employee_profile.employee_role == 'ACCOUNTS' %}
-<div class="content-card" style="margin-top: 24px; padding: 20px;">
-    <form method="get" id="payroll-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
-        <div class="filter-group">
-            <label for="search" class="control-label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.35-4.35"></path>
-                        </svg> Search</label>
-            <input type="text" id="search" name="search" class="control-input" placeholder="Employee..." value="{{ search_query }}">
-        </div>
-        <div class="filter-group">
-            <label for="status" class="control-label">Status</label>
-            <select id="status" name="status" class="control-input">
+<!-- Tab Navigation -->
+<div class="pr-tabs">
+    <button class="pr-tab active" id="tabRecords" onclick="showTab('records')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Payroll Records
+    </button>
+    {% if has_payroll_access %}
+    <button class="pr-tab" id="tabConfig" onclick="showTab('config')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Configuration
+    </button>
+    {% endif %}
+</div>
+
+<!-- Records Panel -->
+<div id="panelRecords" class="pr-panel">
+    <!-- Filters toolbar -->
+    {% if has_payroll_access %}
+    <div class="pr-toolbar">
+        <form method="get" id="payroll-filters" class="pr-filters">
+            <input type="text" name="search" class="pr-filter-input" placeholder="Search employee..." value="{{ search_query }}" style="width:180px;">
+            <select name="status" class="pr-filter-input">
                 <option value="">All Statuses</option>
                 {% for value, label in status_choices %}
-                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
+            <input type="date" name="date_from" class="pr-filter-input" value="{{ date_from }}" title="From">
+            <input type="date" name="date_to" class="pr-filter-input" value="{{ date_to }}" title="To">
+            <button type="submit" class="pr-btn pr-btn-secondary pr-btn-sm">Filter</button>
+            <a href="{% url 'payroll_list' %}" class="pr-btn pr-btn-secondary pr-btn-sm">Reset</a>
+        </form>
+        <div style="font-size:13px; color:#64748b;">{{ payrolls|length }} record{{ payrolls|length|pluralize }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Batch action bar -->
+    <div id="batchBar" class="pr-batch-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span id="batchCount">0</span> record(s) selected
+        <div style="display:flex;gap:6px;margin-left:8px;">
+            <button onclick="batchAction('approve')" class="pr-btn pr-btn-primary pr-btn-sm">Approve</button>
+            <button onclick="batchAction('mark_paid')" class="pr-btn pr-btn-success pr-btn-sm">Mark as Paid</button>
         </div>
-        <div class="filter-group">
-            <label for="date_from" class="control-label">From Date</label>
-            <input type="date" id="date_from" name="date_from" class="control-input" value="{{ date_from }}">
+        <button onclick="clearSelection()" style="margin-left:auto;background:none;border:none;color:#DC143C;cursor:pointer;font-size:12px;">Clear</button>
+    </div>
+
+    {% if payrolls %}
+    <div class="pr-table-wrap">
+        <table class="pr-table">
+            <thead>
+                <tr>
+                    {% if has_payroll_access %}
+                    <th style="width:36px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" style="cursor:pointer;"></th>
+                    <th>Employee</th>
+                    {% endif %}
+                    <th>Pay Period</th>
+                    <th>Pay Date</th>
+                    <th style="text-align:right;">Gross Pay</th>
+                    <th style="text-align:right;">Deductions</th>
+                    <th style="text-align:right;">Net Pay</th>
+                    <th>Status</th>
+                    <th style="text-align:center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in payrolls %}
+                <tr>
+                    {% if has_payroll_access %}
+                    <td><input type="checkbox" class="row-check" value="{{ record.id }}" onchange="updateBatchBar()" style="cursor:pointer;"></td>
+                    <td>
+                        <div class="pr-name">{{ record.employee.get_full_name }}</div>
+                        <div class="pr-meta">{{ record.employee.employee_profile.job_title|default:"&mdash;" }}</div>
+                    </td>
+                    {% endif %}
+                    <td>
+                        <div style="font-weight:600;color:#0f172a;">{{ record.period_start|date:"M j" }} &ndash; {{ record.period_end|date:"M j, Y" }}</div>
+                    </td>
+                    <td style="color:#475569;">{{ record.pay_date|date:"M j, Y" }}</td>
+                    <td style="text-align:right;font-weight:600;">{{ record.currency }} {{ record.gross_pay|floatformat:2 }}</td>
+                    <td style="text-align:right;" class="pr-amount-neg">-{{ record.currency }} {{ record.total_deductions|floatformat:2 }}</td>
+                    <td style="text-align:right;" class="pr-amount pr-amount-pos">{{ record.currency }} {{ record.net_pay|floatformat:2 }}</td>
+                    <td>
+                        {% if record.status == 'DRAFT' %}<span class="pr-badge pr-badge-draft">Draft</span>
+                        {% elif record.status == 'PENDING_APPROVAL' %}<span class="pr-badge pr-badge-pending">Pending</span>
+                        {% elif record.status == 'APPROVED' %}<span class="pr-badge pr-badge-approved">Approved</span>
+                        {% elif record.status == 'PAID' %}<span class="pr-badge pr-badge-paid">Paid</span>
+                        {% elif record.status == 'CANCELLED' %}<span class="pr-badge pr-badge-cancelled">Cancelled</span>
+                        {% else %}<span class="pr-badge pr-badge-draft">{{ record.get_status_display }}</span>{% endif %}
+                    </td>
+                    <td style="text-align:center;">
+                        <div style="display:inline-flex;gap:6px;align-items:center;">
+                            <a href="{% url 'payroll_detail' record.id %}" class="pr-btn pr-btn-secondary pr-btn-sm" title="View Payslip">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                View
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="pr-empty">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <h3>No Payroll Records</h3>
+        <p>{% if has_payroll_access %}Generate payroll for your employees to get started.{% else %}No payslips have been issued yet.{% endif %}</p>
+        {% if has_payroll_access %}
+        <button onclick="showGeneratePayrollModal()" class="pr-btn pr-btn-success">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Run Payroll Now
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Configuration Panel -->
+{% if has_payroll_access %}
+<div id="panelConfig" class="pr-panel" style="display:none; padding: 24px;">
+    <form method="POST" action="{% url 'payroll_list' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_payroll_config">
+
+        <!-- PAYE -->
+        <div class="cfg-section">
+            <div class="cfg-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Income Tax
+            </div>
+            <div class="cfg-grid" style="margin-bottom:12px;">
+                <div class="cfg-field">
+                    <label><input type="checkbox" name="paye_enabled" {% if payroll_settings.paye_enabled %}checked{% endif %}> &nbsp;Enable Income Tax</label>
+                </div>
+            </div>
+            <div class="cfg-field">
+                <label>Tax Brackets (JSON)</label>
+                <textarea name="paye_tax_brackets" rows="5" style="font-family:monospace;font-size:12px;">{% if paye_tax_brackets_json %}{{ paye_tax_brackets_json }}{% else %}[
+  {"min": 0, "max": 4800, "rate": 0},
+  {"min": 4800, "max": 50000, "rate": 25},
+  {"min": 50000, "max": null, "rate": 37.5}
+]{% endif %}</textarea>
+                <small>Format: [{"min": 0, "max": 4800, "rate": 0}, {"min": 4800, "max": 50000, "rate": 25}]</small>
+            </div>
         </div>
-        <div class="filter-group">
-            <label for="date_to" class="control-label">To Date</label>
-            <input type="date" id="date_to" name="date_to" class="control-input" value="{{ date_to }}">
+
+        <!-- NAPSA -->
+        <div class="cfg-section">
+            <div class="cfg-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Social Security
+            </div>
+            <div class="cfg-grid">
+                <div class="cfg-field">
+                    <label><input type="checkbox" name="napsa_enabled" {% if payroll_settings.napsa_enabled %}checked{% endif %}> &nbsp;Enable Social Security</label>
+                </div>
+                <div class="cfg-field">
+                    <label>Employee %</label>
+                    <input type="number" name="napsa_employee_percentage" step="0.01" value="{{ payroll_settings.napsa_employee_percentage|default:'5.0' }}">
+                </div>
+                <div class="cfg-field">
+                    <label>Employer %</label>
+                    <input type="number" name="napsa_employer_percentage" step="0.01" value="{{ payroll_settings.napsa_employer_percentage|default:'5.0' }}">
+                </div>
+            </div>
         </div>
-        <div style="display: flex; gap: 8px; align-items: end;">
-            <button class="btn" type="submit">Apply Filters</button>
-            <a class="btn btn-secondary" href="{% url 'payroll_list' %}">Reset</a>
+
+        <!-- NHIMA -->
+        <div class="cfg-section">
+            <div class="cfg-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Health Insurance
+            </div>
+            <div class="cfg-grid">
+                <div class="cfg-field">
+                    <label><input type="checkbox" name="nhima_enabled" {% if payroll_settings.nhima_enabled %}checked{% endif %}> &nbsp;Enable Health Insurance</label>
+                </div>
+                <div class="cfg-field">
+                    <label>Employee %</label>
+                    <input type="number" name="nhima_employee_percentage" step="0.01" value="{{ payroll_settings.nhima_employee_percentage|default:'1.0' }}">
+                </div>
+                <div class="cfg-field">
+                    <label>Employer %</label>
+                    <input type="number" name="nhima_employer_percentage" step="0.01" value="{{ payroll_settings.nhima_employer_percentage|default:'1.0' }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Late/Absent Deductions -->
+        <div class="cfg-section">
+            <div class="cfg-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Late &amp; Absence Deductions
+            </div>
+            <div class="cfg-grid">
+                <div class="cfg-field">
+                    <label>Late Deduction Type</label>
+                    <select name="late_deduction_type">
+                        <option value="PERCENTAGE" {% if payroll_settings.late_deduction_type == 'PERCENTAGE' or not payroll_settings.late_deduction_type %}selected{% endif %}>% of Daily Rate</option>
+                        <option value="HOURLY_RATE" {% if payroll_settings.late_deduction_type == 'HOURLY_RATE' %}selected{% endif %}>Hourly Rate</option>
+                    </select>
+                </div>
+                <div class="cfg-field">
+                    <label>Late Deduction %</label>
+                    <input type="number" name="late_deduction_percentage" step="0.01" value="{{ payroll_settings.late_deduction_percentage|default:'5.0' }}">
+                    <small>% of daily rate per late occurrence</small>
+                </div>
+                <div class="cfg-field">
+                    <label>Working Days/Month</label>
+                    <input type="number" name="working_days_per_month" value="{{ payroll_settings.working_days_per_month|default:'22' }}">
+                    <small>For daily rate calculation</small>
+                </div>
+                <div class="cfg-field">
+                    <label>Absent Deduction Type</label>
+                    <select name="absent_deduction_type">
+                        <option value="DAILY_RATE" {% if payroll_settings.absent_deduction_type == 'DAILY_RATE' or not payroll_settings.absent_deduction_type %}selected{% endif %}>Full Daily Rate</option>
+                        <option value="PERCENTAGE" {% if payroll_settings.absent_deduction_type == 'PERCENTAGE' %}selected{% endif %}>% of Daily Rate</option>
+                    </select>
+                </div>
+                <div class="cfg-field">
+                    <label>Absent Deduction %</label>
+                    <input type="number" name="absent_deduction_percentage" step="0.01" value="{{ payroll_settings.absent_deduction_percentage|default:'100.0' }}">
+                    <small>100 = full day's pay deducted</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salary Advance -->
+        <div class="cfg-section">
+            <div class="cfg-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Salary Advance Settings
+            </div>
+            <div class="cfg-grid">
+                <div class="cfg-field">
+                    <label>Minimum Advance %</label>
+                    <input type="number" name="advance_min_percentage" step="0.01" min="0" max="100" value="{{ payroll_settings.advance_min_percentage|default:'35.0' }}">
+                    <small>Min % of monthly salary</small>
+                </div>
+                <div class="cfg-field">
+                    <label>Maximum Advance %</label>
+                    <input type="number" name="advance_max_percentage" step="0.01" min="0" max="100" value="{{ payroll_settings.advance_max_percentage|default:'40.0' }}">
+                    <small>Max % of monthly salary</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gratuity -->
+        <div class="cfg-section">
+            <div class="cfg-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                Gratuity (End of Service Benefit)
+            </div>
+            <div class="cfg-grid">
+                <div class="cfg-field">
+                    <label><input type="checkbox" name="gratuity_enabled" {% if payroll_settings.gratuity_enabled %}checked{% endif %}> &nbsp;Enable Gratuity</label>
+                </div>
+                <div class="cfg-field">
+                    <label>Monthly Accrual %</label>
+                    <input type="number" name="gratuity_percentage" step="0.01" value="{{ payroll_settings.gratuity_percentage|default:'8.33' }}">
+                    <small>8.33% = 1 month per year</small>
+                </div>
+                <div class="cfg-field">
+                    <label>Eligibility (Months)</label>
+                    <input type="number" name="gratuity_eligibility_months" value="{{ payroll_settings.gratuity_eligibility_months|default:'12' }}">
+                    <small>Minimum service period</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Currency -->
+        <div class="cfg-section">
+            <div class="cfg-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Default Currency
+            </div>
+            <div class="cfg-grid">
+                <div class="cfg-field">
+                    <label>Currency</label>
+                    <select name="default_currency">
+                        <option value="ZMW" {% if payroll_settings.currency == 'ZMW' %}selected{% endif %}>ZMW &ndash; Zambian Kwacha</option>
+                        <option value="MWK" {% if payroll_settings.currency == 'MWK' %}selected{% endif %}>MWK &ndash; Malawian Kwacha</option>
+                        <option value="KES" {% if payroll_settings.currency == 'KES' %}selected{% endif %}>KES &ndash; Kenyan Shilling</option>
+                        <option value="TZS" {% if payroll_settings.currency == 'TZS' %}selected{% endif %}>TZS &ndash; Tanzanian Shilling</option>
+                        <option value="UGX" {% if payroll_settings.currency == 'UGX' %}selected{% endif %}>UGX &ndash; Ugandan Shilling</option>
+                        <option value="ZAR" {% if payroll_settings.currency == 'ZAR' %}selected{% endif %}>ZAR &ndash; South African Rand</option>
+                        <option value="NGN" {% if payroll_settings.currency == 'NGN' %}selected{% endif %}>NGN &ndash; Nigerian Naira</option>
+                        <option value="GHS" {% if payroll_settings.currency == 'GHS' %}selected{% endif %}>GHS &ndash; Ghanaian Cedi</option>
+                        <option value="ZWL" {% if payroll_settings.currency == 'ZWL' %}selected{% endif %}>ZWL &ndash; Zimbabwean Dollar</option>
+                        <option value="BWP" {% if payroll_settings.currency == 'BWP' %}selected{% endif %}>BWP &ndash; Botswana Pula</option>
+                        <option value="MZN" {% if payroll_settings.currency == 'MZN' %}selected{% endif %}>MZN &ndash; Mozambican Metical</option>
+                        <option value="USD" {% if payroll_settings.currency == 'USD' %}selected{% endif %}>USD &ndash; US Dollar</option>
+                        <option value="GBP" {% if payroll_settings.currency == 'GBP' %}selected{% endif %}>GBP &ndash; British Pound</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+            <button type="submit" class="pr-btn pr-btn-primary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Configuration
+            </button>
         </div>
     </form>
 </div>
 {% endif %}
 
-<!-- Action Buttons -->
-<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; flex-wrap: wrap; gap: 12px;">
-    <div style="display: flex; gap: 8px;">
-        {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' or user.employee_profile.employee_role == 'ACCOUNTANT' or user.employee_profile.employee_role == 'ACCOUNTS' %}
-        <button type="button" class="btn btn-success" onclick="showGeneratePayrollModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
-            Bulk Generate
-        </button>
-        <button type="button" class="btn btn-primary" onclick="showCreatePayrollModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Create Payroll
-        </button>
-        <button type="button" class="btn btn-secondary" onclick="showImportCSVModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            Import CSV
-        </button>
-        <button type="button" class="btn btn-secondary" onclick="exportCSV()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            Export CSV
-        </button>
-        {% endif %}
-    </div>
-</div>
+</div><!-- end pr-page -->
 
-<!-- Payroll Table -->
-<div class="content-card" style="max-width: 100%; margin-top: 28px;">
-    <div class="card-header" style="padding-bottom:12px; margin-bottom:8px; border-bottom:1px solid #e2e8f0;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
-                <line x1="2" y1="10" x2="22" y2="10"></line>
-            </svg>
-            <div>
-                <div class="card-title">{% if user.role == 'EMPLOYEE' and user.employee_profile.employee_role != 'ACCOUNTANT' and user.employee_profile.employee_role != 'ACCOUNTS' %}My Payroll Records{% else %}Employee Payroll Records{% endif %}</div>
-                <div class="card-subtitle">Track salary payments and deductions</div>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        {% if payrolls %}
-            <div class="table-responsive">
-                <table class="attendance-table">
-                    <thead>
-                        <tr>
-                            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' or user.employee_profile.employee_role == 'ACCOUNTANT' or user.employee_profile.employee_role == 'ACCOUNTS' %}<th>Employee</th>{% endif %}
-                            <th>Period</th>
-                            <th>Base Pay</th>
-                            <th>Overtime</th>
-                            <th>Bonus</th>
-                            <th>Gross Pay</th>
-                            <th>Deductions</th>
-                            <th>Net Pay</th>
-                            <th>Status</th>
-                            <th>Pay Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in payrolls %}
-                            <tr>
-                                {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' or user.employee_profile.employee_role == 'ACCOUNTANT' or user.employee_profile.employee_role == 'ACCOUNTS' %}
-                                    <td>
-                                        <div style="font-weight: 500;">{{ record.employee.first_name }} {{ record.employee.last_name }}</div>
-                                        <div style="font-size: 12px; color: #64748b;">{{ record.employee.employee_profile.job_title|default:'No position assigned' }}</div>
-                                    </td>
-                                {% endif %}
-                                <td>
-                                    <div style="font-size: 12px;">{{ record.period_start|date:'M d' }} - {{ record.period_end|date:'M d, Y' }}</div>
-                                </td>
-                                <td>{{ record.currency }} {{ record.base_pay|floatformat:2 }}</td>
-                                <td>{{ record.currency }} {{ record.overtime_pay|floatformat:2 }}</td>
-                                <td>{{ record.currency }} {{ record.bonus|floatformat:2 }}</td>
-                                <td style="font-weight: 600;">{{ record.currency }} {{ record.gross_pay|floatformat:2 }}</td>
-                                <td style="color: #ef4444;">{{ record.currency }} {{ record.total_deductions|floatformat:2 }}</td>
-                                <td style="font-weight: 700; color: #047857;">{{ record.currency }} {{ record.net_pay|floatformat:2 }}</td>
-                                <td><span class="status {{ record.status|lower }}">{{ record.get_status_display }}</span></td>
-                                <td>{{ record.pay_date|date:'M d, Y' }}</td>
-                                <td>
-                                    <a href="{% url 'payroll_detail' record.id %}" class="btn btn-primary" style="padding: 8px 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                        </svg>
-                                        View
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div style="text-align: center; padding: 60px 40px; color: #64748b;">
-                <div style="margin-bottom: 20px;">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto;">
-                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                </div>
-                <h3 style="color: #1e293b; margin-bottom: 12px;">No Payroll Records Found</h3>
-                <p style="margin-bottom: 24px;">{% if user.role == 'EMPLOYEE' and user.employee_profile.employee_role != 'ACCOUNTANT' and user.employee_profile.employee_role != 'ACCOUNTS' %}No payroll records have been generated yet.{% else %}Get started by generating payroll records for your employees.{% endif %}</p>
-                {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' or user.employee_profile.employee_role == 'ACCOUNTANT' or user.employee_profile.employee_role == 'ACCOUNTS' %}
-                <button class="btn btn-primary" onclick="showGeneratePayrollModal()" style="background: #10b981; border-color: #10b981; padding: 12px 32px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="16"></line>
-                        <line x1="8" y1="12" x2="16" y2="12"></line>
-                    </svg>
-                    Generate Payroll Now
-                </button>
-                {% endif %}
-            </div>
-        {% endif %}
-    </div>
-</div>
-</div>
+<!-- â•â• MODALS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 
-<!-- Payroll Configuration Tab -->
-<div id="configContent" style="display: none;">
-    <div class="content-card" style="max-width: 100%;">
-        <div class="card-header">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M12 1v6m0 6v6m5.2-13.2L13.4 7.6m-2.8 5.6L7.8 16m13.2-5.2L19.2 13.4m-5.6 2.8L16 19.2m-5.2-13.2L13.4 7.6m-2.8 5.6L7.8 16"></path>
-                </svg>
-                <div>
-                    <div class="card-title">Payroll Configuration</div>
-                    <div class="card-subtitle">Configure statutory deductions, tax brackets, and payroll settings</div>
-                </div>
-            </div>
+<!-- Run Payroll Modal -->
+<div id="generatePayrollModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:560px;">
+        <div class="modal-hd">
+            <h3>Run Payroll</h3>
+            <button class="modal-close" onclick="closeModal('generatePayrollModal')">&times;</button>
         </div>
-        <div class="card-body">
-            <form method="POST" action="{% url 'payroll_list' %}">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="update_payroll_config">
-                
-                <!-- PAYE Configuration -->
-                <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="20" x2="18" y2="10"></line>
-                            <line x1="12" y1="20" x2="12" y2="4"></line>
-                            <line x1="6" y1="20" x2="6" y2="14"></line>
-                        </svg>
-                        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #1e293b;">PAYE (Pay As You Earn) Tax</h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                        <div>
-                            <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                <input type="checkbox" name="paye_enabled" {% if payroll_settings.paye_enabled %}checked{% endif %} style="width: 18px; height: 18px;">
-                                <span style="font-weight: 600; color: #1e293b;">Enable PAYE Tax</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div style="margin-top: 16px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Tax Brackets (JSON Format)</label>
-                        <textarea name="paye_tax_brackets" rows="6" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; font-family: monospace; background: white; color: #1e293b;">{% if paye_tax_brackets_json %}{{ paye_tax_brackets_json }}{% else %}[
-  {"min": 0, "max": 4800, "rate": 0},
-  {"min": 4800, "max": 50000, "rate": 25},
-  {"min": 50000, "max": null, "rate": 37.5}
-]{% endif %}</textarea>
-                        <small style="color: #64748b;">Format: [{"min": 0, "max": 4800, "rate": 0}, {"min": 4800, "max": 50000, "rate": 25}]</small>
-                    </div>
-                </div>
-                
-                <!-- NAPSA Configuration -->
-                <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                        </svg>
-                        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #1e293b;">NAPSA (Social Security)</h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                        <div>
-                            <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                <input type="checkbox" name="napsa_enabled" {% if payroll_settings.napsa_enabled %}checked{% endif %} style="width: 18px; height: 18px;">
-                                <span style="font-weight: 600; color: #1e293b;">Enable NAPSA</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Employee %</label>
-                            <input type="number" name="napsa_employee_percentage" step="0.01" value="{{ payroll_settings.napsa_employee_percentage|default:'5.0' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Employer %</label>
-                            <input type="number" name="napsa_employer_percentage" step="0.01" value="{{ payroll_settings.napsa_employer_percentage|default:'5.0' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- NHIMA Configuration -->
-                <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                        </svg>
-                        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #1e293b;">NHIMA (Health Insurance)</h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                        <div>
-                            <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                <input type="checkbox" name="nhima_enabled" {% if payroll_settings.nhima_enabled %}checked{% endif %} style="width: 18px; height: 18px;">
-                                <span style="font-weight: 600; color: #1e293b;">Enable NHIMA</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Employee %</label>
-                            <input type="number" name="nhima_employee_percentage" step="0.01" value="{{ payroll_settings.nhima_employee_percentage|default:'1.0' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Employer %</label>
-                            <input type="number" name="nhima_employer_percentage" step="0.01" value="{{ payroll_settings.nhima_employer_percentage|default:'1.0' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Late/Absent Deductions -->
-                <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #1e293b;">Late & Absence Deductions</h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Late Deduction Type</label>
-                            <select name="late_deduction_type" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                                <option value="PERCENTAGE" {% if payroll_settings.late_deduction_type == 'PERCENTAGE' or not payroll_settings.late_deduction_type %}selected{% endif %}>% of Daily Rate</option>
-                                <option value="HOURLY_RATE" {% if payroll_settings.late_deduction_type == 'HOURLY_RATE' %}selected{% endif %}>Hourly Rate</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Late Deduction %</label>
-                            <input type="number" name="late_deduction_percentage" step="0.01" value="{{ payroll_settings.late_deduction_percentage|default:'5.0' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                            <small style="color: #64748b;">% of daily rate per late occurrence</small>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Working Days/Month</label>
-                            <input type="number" name="working_days_per_month" value="{{ payroll_settings.working_days_per_month|default:'22' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                            <small style="color: #64748b;">For daily rate calculation</small>
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Absent Deduction Type</label>
-                            <select name="absent_deduction_type" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                                <option value="DAILY_RATE" {% if payroll_settings.absent_deduction_type == 'DAILY_RATE' or not payroll_settings.absent_deduction_type %}selected{% endif %}>Full Daily Rate</option>
-                                <option value="PERCENTAGE" {% if payroll_settings.absent_deduction_type == 'PERCENTAGE' %}selected{% endif %}>% of Daily Rate</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Absent Deduction %</label>
-                            <input type="number" name="absent_deduction_percentage" step="0.01" value="{{ payroll_settings.absent_deduction_percentage|default:'100.0' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                            <small style="color: #64748b;">% of daily rate (100 = full day's pay)</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Salary Advance Configuration -->
-                <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #1e293b;">Salary Advance Settings</h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Minimum Advance %</label>
-                            <input type="number" name="advance_min_percentage" step="0.01" min="0" max="100" value="{{ payroll_settings.advance_min_percentage|default:'35.0' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                            <small style="color: #64748b;">Minimum % of monthly salary employees can request</small>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Maximum Advance %</label>
-                            <input type="number" name="advance_max_percentage" step="0.01" min="0" max="100" value="{{ payroll_settings.advance_max_percentage|default:'40.0' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                            <small style="color: #64748b;">Maximum % of monthly salary employees can request</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Gratuity Configuration -->
-                <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                            <polyline points="2 17 12 22 22 17"></polyline>
-                            <polyline points="2 12 12 17 22 12"></polyline>
-                        </svg>
-                        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #1e293b;">Gratuity (End of Service Benefit)</h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                        <div>
-                            <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                <input type="checkbox" name="gratuity_enabled" {% if payroll_settings.gratuity_enabled %}checked{% endif %} style="width: 18px; height: 18px;">
-                                <span style="font-weight: 600; color: #1e293b;">Enable Gratuity</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Monthly Accrual %</label>
-                            <input type="number" name="gratuity_percentage" step="0.01" value="{{ payroll_settings.gratuity_percentage|default:'8.33' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                            <small style="color: #64748b;">% of basic salary (8.33% = 1 month/year)</small>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Eligibility (Months)</label>
-                            <input type="number" name="gratuity_eligibility_months" value="{{ payroll_settings.gratuity_eligibility_months|default:'12' }}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                            <small style="color: #64748b;">Minimum service period required</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Currency Configuration -->
-                <div style="background: #f8fafc; padding: 24px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="1" x2="12" y2="23"></line>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
-                        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #1e293b;">Default Currency</h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px;">
-                        <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Currency</label>
-                            <select name="default_currency" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #1e293b;">
-                                <option value="ZMW" {% if payroll_settings.currency == 'ZMW' or not payroll_settings.currency %}selected{% endif %}>ZMW (Zambian Kwacha)</option>
-                                <option value="USD" {% if payroll_settings.currency == 'USD' %}selected{% endif %}>USD (US Dollar)</option>
-                                <option value="EUR" {% if payroll_settings.currency == 'EUR' %}selected{% endif %}>EUR (Euro)</option>
-                                <option value="GBP" {% if payroll_settings.currency == 'GBP' %}selected{% endif %}>GBP (British Pound)</option>
-                            </select>
-                        </div>
-                        <div style="display: flex; align-items: flex-end;">
-                            <small style="color: #64748b;">Default currency used when generating payroll if employee salary structure doesn't specify one</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px;">Save Configuration</div>
-                        <div style="font-size: 13px; color: #64748b;">Changes will apply to all future payroll calculations</div>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="padding: 12px 32px; display: flex; align-items: center; gap: 8px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                            <polyline points="7 3 7 8 15 8"></polyline>
-                        </svg>
-                        Save Configuration
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Generate Payroll Modal -->
-<div id="generatePayrollModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-        <div style="padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="margin: 0; font-size: 20px; font-weight: 600; color: #1e293b;">Generate Payroll</h2>
-            <button onclick="closeGeneratePayrollModal()" style="background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer;">×</button>
-        </div>
-        <form method="POST" action="{% url 'payroll_list' %}" style="padding: 24px;">
+        <form method="POST" action="{% url 'payroll_list' %}">
             {% csrf_token %}
             <input type="hidden" name="action" value="generate_payroll">
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Pay Period</label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div>
-                        <label style="display: block; font-size: 13px; color: #64748b; margin-bottom: 4px;">From</label>
-                        <input type="date" name="period_start" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px;">
+            <div class="modal-body">
+                <div class="form-row form-row-2">
+                    <div class="form-group">
+                        <label>Period Start *</label>
+                        <input type="date" name="period_start" required>
                     </div>
-                    <div>
-                        <label style="display: block; font-size: 13px; color: #64748b; margin-bottom: 4px;">To</label>
-                        <input type="date" name="period_end" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                    <div class="form-group">
+                        <label>Period End *</label>
+                        <input type="date" name="period_end" required>
                     </div>
                 </div>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Pay Date</label>
-                <input type="date" name="pay_date" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px;">
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Generate For</label>
-                <select name="employee_selection" id="employeeSelection" onchange="toggleEmployeeList()" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    <option value="all">All Active Employees</option>
-                    <option value="specific">Specific Employees</option>
-                </select>
-            </div>
-            
-            <div id="employeeListDiv" style="display: none; margin-bottom: 20px;">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">Select Employees</label>
-                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
-                    {% for emp in employees %}
-                    <label style="display: block; padding: 8px; cursor: pointer; border-radius: 4px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <input type="checkbox" name="selected_employees" value="{{ emp.id }}" style="margin-right: 8px;">
-                        {{ emp.get_full_name }} - {{ emp.employee_profile.job_title|default:"No Position" }}
-                    </label>
-                    {% endfor %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pay Date *</label>
+                        <input type="date" name="pay_date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Generate For</label>
+                        <select name="employee_selection" id="employeeSelection" onchange="toggleEmployeeList()">
+                            <option value="all">All Active Employees on Payroll</option>
+                            <option value="specific">Specific Employees</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="employeeListDiv" style="display:none;">
+                    <div class="form-group">
+                        <label>Select Employees</label>
+                        <div style="max-height:200px;overflow-y:auto;border:1px solid #d1d5db;border-radius:6px;padding:8px;">
+                            {% for emp in employees %}
+                            <label style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                                <input type="checkbox" name="selected_employees" value="{{ emp.id }}">
+                                <span style="font-size:13px;">{{ emp.get_full_name }} &ndash; <span style="color:#64748b;">{{ emp.employee_profile.job_title|default:"No Position" }}</span></span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    Payroll is generated from each employee's salary structure. Income tax, social security, and health insurance deductions are calculated automatically based on configuration.
                 </div>
             </div>
-            
-            <div style="background: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: #1e40af; margin-bottom: 8px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                    </svg>
-                    Note
-                </div>
-                <div style="font-size: 13px; color: #1e40af;">
-                    Payroll will be generated based on employee salary structures. Deductions (PAYE, NAPSA, NHIMA) will be calculated automatically.
-                </div>
-            </div>
-            
-            <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                <button type="button" onclick="closeGeneratePayrollModal()" class="btn btn-secondary">Cancel</button>
-                <button type="submit" class="btn btn-primary" style="background: #10b981; border-color: #10b981;">Generate Payroll</button>
+            <div class="modal-ft">
+                <button type="button" class="pr-btn pr-btn-secondary" onclick="closeModal('generatePayrollModal')">Cancel</button>
+                <button type="submit" class="pr-btn pr-btn-success">Run Payroll</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Create Payroll Modal (Manual Entry) -->
-<div id="createPayrollModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto; padding: 20px 0;">
-    <div class="content-card" style="width: 90%; max-width: 900px; margin: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 90vh; display: flex; flex-direction: column;">
-        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-            <div>
-                <div class="card-title">Create Payroll Record</div>
-                <div class="card-subtitle">Add individual payroll entry with earnings and deductions</div>
-            </div>
-            <button type="button" onclick="closeCreatePayrollModal()" style="background: none; border: none; font-size: 28px; color: hsl(var(--muted-foreground)); cursor: pointer; line-height: 1;">×</button>
+<!-- Add Payroll Entry Modal -->
+<div id="createPayrollModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:860px;">
+        <div class="modal-hd">
+            <h3>Add Payroll Entry</h3>
+            <button class="modal-close" onclick="closeModal('createPayrollModal')">&times;</button>
         </div>
-        <form method="POST" action="{% url 'payroll_list' %}" style="overflow-y: auto; flex: 1;">
-            <div class="card-content">
+        <form method="POST" action="{% url 'payroll_list' %}">
             {% csrf_token %}
             <input type="hidden" name="action" value="create_payroll">
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px;">Employee *</label>
-                    <select id="employeeSelect" name="employee_id" required onchange="loadEmployeeSalary()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                        <option value="">Select Employee</option>
-                        {% for emp in employees %}
-                        <option value="{{ emp.id }}" data-salary="{{ emp.employee_profile.salary|default:'0' }}">{{ emp.get_full_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px;">Period Start *</label>
-                    <input type="date" name="period_start" required class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px;">Period End *</label>
-                    <input type="date" name="period_end" required class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px;">Pay Date *</label>
-                    <input type="date" name="pay_date" required class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px;">Currency *</label>
-                    <select name="currency" required class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                        <option value="ZMW">ZMW</option>
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="GBP">GBP</option>
-                    </select>
-                </div>
-            </div>
-            
-            <!-- Earnings Section -->
-            <div style="display: flex; align-items: center; gap: 8px; margin: 12px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #10b981;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-                <h3 style="font-size: 14px; font-weight: 600; color: #10b981; margin: 0;">Earnings</h3>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px;">
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Base Salary *</label>
-                    <input id="basePay" type="number" name="base_pay" step="0.01" required onchange="autoCalculateDeductions()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Overtime</label>
-                    <input id="overtime" type="number" name="overtime_pay" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Bonus</label>
-                    <input id="bonus" type="number" name="bonus" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Commission</label>
-                    <input id="commission" type="number" name="commission" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Allowances</label>
-                    <input id="allowances" type="number" name="allowances" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Gratuity</label>
-                    <input id="gratuity" type="number" name="gratuity" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; align-items: flex-end; min-width: 0;">
-                    <div style="width: 100%; padding: 8px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 4px; font-weight: 600; color: #166534; font-size: 13px; box-sizing: border-box;">
-                        Gross: <span id="grossPayDisplay">0.00</span>
+            <div class="modal-body">
+                <div class="form-row form-row-3">
+                    <div class="form-group">
+                        <label>Employee *</label>
+                        <select id="employeeSelect" name="employee_id" required onchange="loadEmployeeSalary()">
+                            <option value="">Select employee&rdquo;¦</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}" data-salary="{{ emp.employee_profile.salary|default:'0' }}">{{ emp.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Period Start *</label>
+                        <input type="date" name="period_start" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Period End *</label>
+                        <input type="date" name="period_end" required>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Deductions Section -->
-            <div style="display: flex; align-items: center; justify-content: space-between; margin: 12px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #ef4444;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                        <polyline points="17 6 23 6 23 12"></polyline>
-                    </svg>
-                    <h3 style="font-size: 14px; font-weight: 600; color: #ef4444; margin: 0;">Deductions</h3>
-                </div>
-                <button type="button" onclick="autoCalculateDeductions()" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="23 4 23 10 17 10"></polyline>
-                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                    </svg>
-                    Auto-Calculate
-                </button>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px;">
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">PAYE</label>
-                    <input id="tax" type="number" name="tax" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">NAPSA</label>
-                    <input id="napsa" type="number" name="social_security" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">NHIMA</label>
-                    <input id="nhima" type="number" name="insurance" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Late Deduction</label>
-                    <input id="lateDeduction" type="number" name="late_deduction" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Absent Deduction</label>
-                    <input id="absentDeduction" type="number" name="absent_deduction" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-                <div style="min-width: 0;">
-                    <label class="control-label" style="margin-bottom: 6px; font-size: 13px;">Other</label>
-                    <input id="other" type="number" name="other_deductions" step="0.01" value="0" onchange="calculateTotals()" class="control-input" style="padding: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
-            </div>
-            
-            <!-- Summary Section -->
-            <div style="background: hsl(var(--muted)); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid hsl(var(--border));">
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; text-align: center;">
-                    <div style="min-width: 0;">
-                        <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">Gross Pay</div>
-                        <div style="font-size: 18px; font-weight: 700; color: #10b981;" id="summaryGross">0.00</div>
+                <div class="form-row form-row-2">
+                    <div class="form-group">
+                        <label>Pay Date *</label>
+                        <input type="date" name="pay_date" required>
                     </div>
-                    <div style="min-width: 0;">
-                        <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">Total Deductions</div>
-                        <div style="font-size: 18px; font-weight: 700; color: #ef4444;" id="summaryDeductions">0.00</div>
-                    </div>
-                    <div style="min-width: 0;">
-                        <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">Net Pay</div>
-                        <div style="font-size: 18px; font-weight: 700; color: hsl(var(--foreground));" id="summaryNet">0.00</div>
+                    <div class="form-group">
+                        <label>Currency *</label>
+                        <select name="currency" required>
+                            <option value="ZMW" {% if currency_code == 'ZMW' %}selected{% endif %}>ZMW</option>
+                            <option value="MWK" {% if currency_code == 'MWK' %}selected{% endif %}>MWK</option>
+                            <option value="KES" {% if currency_code == 'KES' %}selected{% endif %}>KES</option>
+                            <option value="TZS" {% if currency_code == 'TZS' %}selected{% endif %}>TZS</option>
+                            <option value="UGX" {% if currency_code == 'UGX' %}selected{% endif %}>UGX</option>
+                            <option value="ZAR" {% if currency_code == 'ZAR' %}selected{% endif %}>ZAR</option>
+                            <option value="NGN" {% if currency_code == 'NGN' %}selected{% endif %}>NGN</option>
+                            <option value="GHS" {% if currency_code == 'GHS' %}selected{% endif %}>GHS</option>
+                            <option value="ZWL" {% if currency_code == 'ZWL' %}selected{% endif %}>ZWL</option>
+                            <option value="BWP" {% if currency_code == 'BWP' %}selected{% endif %}>BWP</option>
+                            <option value="MZN" {% if currency_code == 'MZN' %}selected{% endif %}>MZN</option>
+                            <option value="USD" {% if currency_code == 'USD' %}selected{% endif %}>USD</option>
+                            <option value="GBP" {% if currency_code == 'GBP' %}selected{% endif %}>GBP</option>
+                        </select>
                     </div>
                 </div>
+
+                <!-- Earnings -->
+                <div class="section-divider" style="color:#059669;border-color:#86efac;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Earnings
+                </div>
+                <div class="form-row form-row-3">
+                    <div class="form-group">
+                        <label>Base Salary *</label>
+                        <input id="basePay" type="number" name="base_pay" step="0.01" required onchange="autoCalculateDeductions()">
+                    </div>
+                    <div class="form-group">
+                        <label>Overtime</label>
+                        <input id="overtime" type="number" name="overtime_pay" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Bonus</label>
+                        <input id="bonus" type="number" name="bonus" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Commission</label>
+                        <input id="commission" type="number" name="commission" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Allowances</label>
+                        <input id="allowances" type="number" name="allowances" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Gratuity</label>
+                        <input id="gratuity" type="number" name="gratuity" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                </div>
+
+                <!-- Deductions -->
+                <div class="section-divider" style="color:#dc2626;border-color:#fca5a5;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    Deductions
+                    <button type="button" onclick="autoCalculateDeductions()" style="margin-left:auto;background:#dcfce7;color:#166534;border:none;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;">Auto-Calculate</button>
+                </div>
+                <div class="form-row form-row-3">
+                    <div class="form-group">
+                        <label>Income Tax</label>
+                        <input id="tax" type="number" name="tax" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Social Security</label>
+                        <input id="napsa" type="number" name="social_security" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Health Insurance</label>
+                        <input id="nhima" type="number" name="insurance" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Late Deduction</label>
+                        <input id="lateDeduction" type="number" name="late_deduction" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Absent Deduction</label>
+                        <input id="absentDeduction" type="number" name="absent_deduction" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                    <div class="form-group">
+                        <label>Other</label>
+                        <input id="other" type="number" name="other_deductions" step="0.01" value="0" onchange="calculateTotals()">
+                    </div>
+                </div>
+
+                <!-- Live Summary -->
+                <div class="calc-summary">
+                    <div class="calc-summary-item">
+                        <div class="val" style="color:#059669;" id="summaryGross">0.00</div>
+                        <div class="lbl">Gross Pay</div>
+                    </div>
+                    <div class="calc-summary-item">
+                        <div class="val" style="color:#dc2626;" id="summaryDeductions">0.00</div>
+                        <div class="lbl">Deductions</div>
+                    </div>
+                    <div class="calc-summary-item">
+                        <div class="val" style="color:#DC143C;" id="summaryNet">0.00</div>
+                        <div class="lbl">Net Pay</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea name="notes" rows="2" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;resize:vertical;"></textarea>
+                </div>
             </div>
-            
-            <div style="margin-bottom: 12px;">
-                <label class="control-label" style="margin-bottom: 6px;">Notes (Optional)</label>
-                <textarea name="notes" rows="2" class="control-input" style="padding: 8px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
-            </div>
-            </div>
-            
-            <div style="padding: 16px 24px; border-top: 1px solid hsl(var(--border)); display: flex; gap: 12px; justify-content: flex-end; flex-shrink: 0; background: hsl(var(--muted));">
-                <button type="button" onclick="closeCreatePayrollModal()" class="btn btn-secondary">Cancel</button>
-                <button type="submit" class="btn btn-primary">Create Payroll</button>
+            <div class="modal-ft">
+                <button type="button" class="pr-btn pr-btn-secondary" onclick="closeModal('createPayrollModal')">Cancel</button>
+                <button type="submit" class="pr-btn pr-btn-primary">Create Entry</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Import CSV Modal -->
-<div id="importCSVModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="content-card" style="width: 90%; max-width: 600px; margin: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <div class="card-title">Import Payroll from CSV</div>
-                <div class="card-subtitle">Upload a CSV file to create multiple payroll records</div>
-            </div>
-            <button type="button" onclick="closeImportCSVModal()" style="background: none; border: none; font-size: 28px; color: hsl(var(--muted-foreground)); cursor: pointer; line-height: 1;">×</button>
+<div id="importCSVModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:560px;">
+        <div class="modal-hd">
+            <h3>Import from CSV</h3>
+            <button class="modal-close" onclick="closeModal('importCSVModal')">&times;</button>
         </div>
         <form method="POST" action="{% url 'payroll_list' %}" enctype="multipart/form-data">
-            <div class="card-content">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="import_csv">
-                
-                <div style="margin-bottom: 20px;">
-                    <label class="control-label" style="margin-bottom: 8px;">Select CSV File *</label>
-                    <input type="file" name="csv_file" accept=".csv" required class="control-input" style="width: 100%; padding: 10px;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="import_csv">
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label>CSV File *</label>
+                    <input type="file" name="csv_file" accept=".csv" required style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;">
                 </div>
-                
-                <div style="background: hsl(var(--muted)); padding: 16px; border-radius: 8px; border-left: 4px solid hsl(var(--primary)); margin-bottom: 20px;">
-                    <div style="font-weight: 600; color: hsl(var(--foreground)); margin-bottom: 8px;">CSV Format Requirements</div>
-                    <div style="font-size: 13px; color: hsl(var(--muted-foreground)); line-height: 1.6;">
-                        <p style="margin: 0 0 8px 0;">Your CSV file should have the following columns:</p>
-                        <code style="display: block; background: hsl(var(--background)); padding: 8px; border-radius: 4px; font-family: monospace; font-size: 12px; overflow-x: auto;">
-                            employee_id,period_start,period_end,pay_date,base_pay,overtime_pay,bonus,commission,allowances,gratuity,tax,napsa,nhima,late_deduction,absent_deduction,other_deductions,currency,notes
-                        </code>
-                        <p style="margin: 8px 0 0 0;"><strong>Example:</strong></p>
-                        <code style="display: block; background: hsl(var(--background)); padding: 8px; border-radius: 4px; font-family: monospace; font-size: 12px; overflow-x: auto;">
-                            1,2025-01-01,2025-01-31,2025-02-05,5000.00,0,0,0,0,416.50,500,250,27,0,0,0,ZMW,January salary
-                        </code>
-                    </div>
+                <div class="info-box">
+                    <strong style="display:block;margin-bottom:6px;">Required CSV columns:</strong>
+                    <code style="display:block;font-size:11px;line-height:1.6;word-break:break-all;">employee_id, period_start, period_end, pay_date, base_pay, overtime_pay, bonus, commission, allowances, gratuity, tax, napsa, nhima, late_deduction, absent_deduction, other_deductions, currency, notes</code>
                 </div>
-                
-                <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" onclick="closeImportCSVModal()" class="btn btn-secondary">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Import CSV</button>
-                </div>
+            </div>
+            <div class="modal-ft">
+                <button type="button" class="pr-btn pr-btn-secondary" onclick="closeModal('importCSVModal')">Cancel</button>
+                <button type="submit" class="pr-btn pr-btn-primary">Import</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-function showGeneratePayrollModal() {
-    document.getElementById('generatePayrollModal').style.display = 'flex';
+const payrollSettings = {{ payroll_settings_json|default:'null'|safe }};
+
+function showTab(tab) {
+    document.getElementById('panelRecords').style.display = tab === 'records' ? 'block' : 'none';
+    const cfg = document.getElementById('panelConfig');
+    if (cfg) cfg.style.display = tab === 'config' ? 'block' : 'none';
+    document.getElementById('tabRecords').classList.toggle('active', tab === 'records');
+    const tabCfg = document.getElementById('tabConfig');
+    if (tabCfg) tabCfg.classList.toggle('active', tab === 'config');
 }
 
-function closeGeneratePayrollModal() {
-    document.getElementById('generatePayrollModal').style.display = 'none';
-}
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function showGeneratePayrollModal() { document.getElementById('generatePayrollModal').style.display = 'flex'; }
+function showCreatePayrollModal() { document.getElementById('createPayrollModal').style.display = 'flex'; }
+function showImportCSVModal() { document.getElementById('importCSVModal').style.display = 'flex'; }
 
-function showCreatePayrollModal() {
-    document.getElementById('createPayrollModal').style.display = 'flex';
-}
-
-function closeCreatePayrollModal() {
-    document.getElementById('createPayrollModal').style.display = 'none';
-}
-
-function showImportCSVModal() {
-    document.getElementById('importCSVModal').style.display = 'flex';
-}
-
-function closeImportCSVModal() {
-    document.getElementById('importCSVModal').style.display = 'none';
-}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.style.display = 'none'; });
+});
 
 function toggleEmployeeList() {
-    const selection = document.getElementById('employeeSelection').value;
-    const employeeListDiv = document.getElementById('employeeListDiv');
-    employeeListDiv.style.display = selection === 'specific' ? 'block' : 'none';
+    const v = document.getElementById('employeeSelection').value;
+    document.getElementById('employeeListDiv').style.display = v === 'specific' ? 'block' : 'none';
 }
-
-// Close modals on outside click
-document.getElementById('generatePayrollModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeGeneratePayrollModal();
-    }
-});
-
-document.getElementById('createPayrollModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeCreatePayrollModal();
-    }
-});
-
-document.getElementById('importCSVModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeImportCSVModal();
-    }
-});
 
 function exportCSV() {
     const form = document.getElementById('payroll-filters');
+    if (!form) return;
     const params = new URLSearchParams(new FormData(form));
-    params.set('format', 'csv');
-    window.location.href = `${window.location.pathname}?${params.toString()}`;
+    params.set('export', 'csv');
+    window.location.href = window.location.pathname + '?' + params.toString();
 }
 
-// Tab switching
-function showTab(tab) {
-    const payrollTab = document.getElementById('payrollTab');
-    const configTab = document.getElementById('configTab');
-    const payrollContent = document.getElementById('payrollContent');
-    const configContent = document.getElementById('configContent');
-    
-    if (tab === 'payroll') {
-        payrollContent.style.display = 'block';
-        configContent.style.display = 'none';
-        
-        // Update payroll tab styling
-        payrollTab.style.borderBottom = '2px solid #1d4ed8';
-        payrollTab.style.color = '#1d4ed8';
-        payrollTab.classList.add('active');
-        
-        // Update config tab styling
-        configTab.style.borderBottom = '2px solid transparent';
-        configTab.style.color = '#64748b';
-        configTab.classList.remove('active');
-    } else if (tab === 'config') {
-        payrollContent.style.display = 'none';
-        configContent.style.display = 'block';
-        
-        // Update config tab styling
-        configTab.style.borderBottom = '2px solid #1d4ed8';
-        configTab.style.color = '#1d4ed8';
-        configTab.classList.add('active');
-        
-        // Update payroll tab styling
-        payrollTab.style.borderBottom = '2px solid transparent';
-        payrollTab.style.color = '#64748b';
-        payrollTab.classList.remove('active');
+function toggleSelectAll(cb) {
+    document.querySelectorAll('.row-check').forEach(c => c.checked = cb.checked);
+    updateBatchBar();
+}
+function updateBatchBar() {
+    const checked = document.querySelectorAll('.row-check:checked').length;
+    const bar = document.getElementById('batchBar');
+    if (bar) {
+        bar.classList.toggle('visible', checked > 0);
+        document.getElementById('batchCount').textContent = checked;
     }
 }
+function clearSelection() {
+    document.querySelectorAll('.row-check, #selectAll').forEach(c => c.checked = false);
+    updateBatchBar();
+}
+function batchAction(action) {
+    const ids = [...document.querySelectorAll('.row-check:checked')].map(c => c.value);
+    if (!ids.length) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = window.location.pathname;
+    form.innerHTML = `<input name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}"><input name="action" value="batch_${action}">`;
+    ids.forEach(id => { const i = document.createElement('input'); i.name='payroll_ids'; i.value=id; form.appendChild(i); });
+    document.body.appendChild(form);
+    form.submit();
+}
 
-// Payroll settings from backend
-const payrollSettings = {{ payroll_settings_json|safe }};
-
-// Load employee salary when selecting employee
 function loadEmployeeSalary() {
-    const select = document.getElementById('employeeSelect');
-    const selectedOption = select.options[select.selectedIndex];
-    const salary = selectedOption.getAttribute('data-salary');
-    
-    if (salary && salary !== '0') {
-        document.getElementById('basePay').value = salary;
-        autoCalculateDeductions();
-    }
+    const sel = document.getElementById('employeeSelect');
+    const salary = sel.options[sel.selectedIndex]?.getAttribute('data-salary');
+    if (salary && salary !== '0') { document.getElementById('basePay').value = salary; autoCalculateDeductions(); }
 }
 
-// Auto-calculate deductions based on configuration
 function autoCalculateDeductions() {
-    if (!payrollSettings) {
-        calculateTotals();
-        return;
-    }
-    
-    // Get base pay
-    const basePay = parseFloat(document.getElementById('basePay').value) || 0;
-    
-    // Calculate Gratuity
+    if (!payrollSettings) { calculateTotals(); return; }
+    const base = parseFloat(document.getElementById('basePay').value) || 0;
+    let napsa = 0, nhima = 0, paye = 0;
     if (payrollSettings.gratuity_enabled) {
-        const gratuity = (basePay * payrollSettings.gratuity_percentage / 100);
-        document.getElementById('gratuity').value = gratuity.toFixed(2);
+        document.getElementById('gratuity').value = (base * payrollSettings.gratuity_percentage / 100).toFixed(2);
     }
-    
-    // Calculate NAPSA
-    let napsa = 0;
     if (payrollSettings.napsa_enabled) {
-        napsa = (basePay * payrollSettings.napsa_employee_percentage / 100);
+        napsa = base * payrollSettings.napsa_employee_percentage / 100;
         document.getElementById('napsa').value = napsa.toFixed(2);
     }
-    
-    // Calculate NHIMA
-    let nhima = 0;
     if (payrollSettings.nhima_enabled) {
-        nhima = (basePay * payrollSettings.nhima_employee_percentage / 100);
+        nhima = base * payrollSettings.nhima_employee_percentage / 100;
         document.getElementById('nhima').value = nhima.toFixed(2);
     }
-    
-    // Calculate PAYE (progressive tax brackets)
-    let paye = 0;
     if (payrollSettings.paye_enabled && payrollSettings.paye_tax_brackets) {
-        const taxableIncome = basePay - napsa - nhima;
-        
-        for (const bracket of payrollSettings.paye_tax_brackets) {
-            if (taxableIncome > bracket.min) {
-                const maxAmount = bracket.max !== null ? bracket.max : taxableIncome;
-                const taxableAmount = Math.min(taxableIncome, maxAmount) - bracket.min;
-                if (taxableAmount > 0) {
-                    paye += (taxableAmount * bracket.rate / 100);
-                }
+        const taxable = base - napsa - nhima;
+        for (const b of payrollSettings.paye_tax_brackets) {
+            if (taxable > b.min) {
+                const cap = b.max !== null ? b.max : taxable;
+                const amt = Math.min(taxable, cap) - b.min;
+                if (amt > 0) paye += amt * b.rate / 100;
             }
         }
         document.getElementById('tax').value = paye.toFixed(2);
     }
-    
-    // Now calculate totals
     calculateTotals();
 }
 
-// Calculate totals in real-time
 function calculateTotals() {
-    // Get all earning values
-    const basePay = parseFloat(document.getElementById('basePay').value) || 0;
-    const overtime = parseFloat(document.getElementById('overtime').value) || 0;
-    const bonus = parseFloat(document.getElementById('bonus').value) || 0;
-    const commission = parseFloat(document.getElementById('commission').value) || 0;
-    const allowances = parseFloat(document.getElementById('allowances').value) || 0;
-    const gratuity = parseFloat(document.getElementById('gratuity').value) || 0;
-    
-    // Calculate gross pay
-    const grossPay = basePay + overtime + bonus + commission + allowances + gratuity;
-    
-    // Get all deduction values
-    const tax = parseFloat(document.getElementById('tax').value) || 0;
-    const napsa = parseFloat(document.getElementById('napsa').value) || 0;
-    const nhima = parseFloat(document.getElementById('nhima').value) || 0;
-    const lateDeduction = parseFloat(document.getElementById('lateDeduction').value) || 0;
-    const absentDeduction = parseFloat(document.getElementById('absentDeduction').value) || 0;
-    const other = parseFloat(document.getElementById('other').value) || 0;
-    
-    // Calculate total deductions
-    const totalDeductions = tax + napsa + nhima + lateDeduction + absentDeduction + other;
-    
-    // Calculate net pay
-    const netPay = grossPay - totalDeductions;
-    
-    // Update displays
-    document.getElementById('grossPayDisplay').textContent = grossPay.toFixed(2);
-    document.getElementById('summaryGross').textContent = grossPay.toFixed(2);
-    document.getElementById('summaryDeductions').textContent = totalDeductions.toFixed(2);
-    document.getElementById('summaryNet').textContent = netPay.toFixed(2);
+    const g = v => parseFloat(document.getElementById(v)?.value) || 0;
+    const gross = g('basePay') + g('overtime') + g('bonus') + g('commission') + g('allowances') + g('gratuity');
+    const ded = g('tax') + g('napsa') + g('nhima') + g('lateDeduction') + g('absentDeduction') + g('other');
+    const net = gross - ded;
+    document.getElementById('summaryGross').textContent = gross.toFixed(2);
+    document.getElementById('summaryDeductions').textContent = ded.toFixed(2);
+    document.getElementById('summaryNet').textContent = net.toFixed(2);
 }
 </script>
 
-<style>
-    @media (max-width: 640px) {
-        #payroll-filters {
-            grid-template-columns: 1fr !important;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-        }
-        
-        .table-responsive {
-            font-size: 13px;
-        }
-    }
-</style>
-</div>
 {% endblock %}

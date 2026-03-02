@@ -1,4 +1,4 @@
-from rest_framework import serializers
+﻿from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from blu_staff.apps.accounts.models import User, EmployeeProfile, EmployerProfile
 from blu_staff.apps.attendance.models import Attendance, LeaveRequest

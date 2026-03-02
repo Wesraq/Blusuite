@@ -73,234 +73,433 @@
     <!-- Budget -->
     {% if project.budget %}
     <div style="font-size: 12px; color: #64748b;">
-        Budget: <strong style="color: #0f172a;">${{ project.budget|floatformat:0 }}</strong>
+        Budget: <strong style="color: #0f172a;">{{ project.currency }} {{ project.budget|floatformat:0 }}</strong>
     </div>
     {% endif %}
 </div>
 
+<style>
+.pd-tabs{display:flex;gap:0;border-bottom:2px solid #e2e8f0;margin-bottom:20px;overflow-x:auto;}
+.pd-tab{padding:10px 16px;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.pd-tab:hover{color:#0f172a;}
+.pd-tab.active{color:#1d4ed8;border-bottom-color:#1d4ed8;font-weight:600;}
+.pd-tab .badge{font-size:10px;background:#f1f5f9;color:#64748b;padding:1px 6px;border-radius:8px;}
+.pd-tab.active .badge{background:#dbeafe;color:#1d4ed8;}
+.pd-section{display:none;}
+.pd-section.active{display:block;}
+.kanban-board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;overflow-x:auto;min-width:900px;}
+.kanban-col{background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;display:flex;flex-direction:column;min-height:200px;}
+.kanban-col-hd{padding:10px 12px;font-size:12px;font-weight:700;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;}
+.kanban-col-body{padding:8px;flex:1;display:flex;flex-direction:column;gap:6px;}
+.kanban-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px;font-size:12px;}
+.kanban-card:hover{border-color:#1d4ed8;box-shadow:0 2px 8px rgba(29,78,216,.1);}
+.kanban-card-title{font-weight:600;color:#0f172a;margin-bottom:6px;line-height:1.3;}
+.risk-score-1,.risk-score-2,.risk-score-3{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:12px;font-weight:700;}
+.risk-LOW{background:#f0fdf4;color:#16a34a;}
+.risk-MEDIUM{background:#fef3c7;color:#d97706;}
+.risk-HIGH{background:#fff7ed;color:#ea580c;}
+.risk-CRITICAL{background:#fef2f2;color:#dc2626;}
+.sh-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.info-item{background:#f8fafc;border-radius:6px;padding:12px 14px;}
+.info-item .lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.info-item .val{font-size:13px;font-weight:600;color:#0f172a;}
+.pf-card-body{padding:18px 20px;}
+</style>
+
 <!-- Stats Row -->
-<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px;">
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 14px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 700; color: #0f172a;">{{ task_stats.total }}</div>
-        <div style="font-size: 11px; color: #64748b;">Total Tasks</div>
+<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;">
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;text-align:center;">
+        <div style="font-size:20px;font-weight:700;color:#0f172a;">{{ task_stats.total }}</div>
+        <div style="font-size:11px;color:#64748b;">Total Tasks</div>
     </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 14px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 700; color: #64748b;">{{ task_stats.todo }}</div>
-        <div style="font-size: 11px; color: #64748b;">To Do</div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;text-align:center;">
+        <div style="font-size:20px;font-weight:700;color:#64748b;">{{ task_stats.todo }}</div>
+        <div style="font-size:11px;color:#64748b;">To Do</div>
     </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 14px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 700; color: #d97706;">{{ task_stats.in_progress }}</div>
-        <div style="font-size: 11px; color: #64748b;">In Progress</div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;text-align:center;">
+        <div style="font-size:20px;font-weight:700;color:#d97706;">{{ task_stats.in_progress }}</div>
+        <div style="font-size:11px;color:#64748b;">In Progress</div>
     </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 14px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 700; color: #16a34a;">{{ task_stats.completed }}</div>
-        <div style="font-size: 11px; color: #64748b;">Completed</div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;text-align:center;">
+        <div style="font-size:20px;font-weight:700;color:#16a34a;">{{ task_stats.completed }}</div>
+        <div style="font-size:11px;color:#64748b;">Completed</div>
     </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 14px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 700; color: #3b82f6;">{{ total_hours|floatformat:1 }}h</div>
-        <div style="font-size: 11px; color: #64748b;">Hours Logged</div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;text-align:center;">
+        <div style="font-size:20px;font-weight:700;color:#3b82f6;">{{ total_hours|floatformat:1 }}h</div>
+        <div style="font-size:11px;color:#64748b;">Hours Logged</div>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;text-align:center;">
+        <div style="font-size:20px;font-weight:700;color:{% if risk_summary.total %}#ea580c{% else %}#16a34a{% endif %};">{{ risk_summary.open }}</div>
+        <div style="font-size:11px;color:#64748b;">Open Risks</div>
     </div>
 </div>
 
-<!-- Tasks Table -->
-<div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
-    <div style="padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Tasks ({{ task_stats.total }})</h3>
-        <a href="{% url 'blu_projects:task_create' project.id %}" style="font-size: 12px; color: #1d4ed8; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            Add Task
-        </a>
+<!-- ====================== TABBED INTERFACE ====================== -->
+<div class="pd-tabs" id="pdTabs">
+    <div class="pd-tab active" data-tab="0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+        Overview
     </div>
-    {% if tasks %}
-    <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="border-bottom: 1px solid #f1f5f9; background: #f8fafc;">
-                    <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Task</th>
-                    <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Status</th>
-                    <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Priority</th>
-                    <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Assigned To</th>
-                    <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Due Date</th>
-                    <th style="padding: 10px 12px; text-align: center; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for task in tasks %}
-                <tr style="border-bottom: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                    <td style="padding: 10px 16px;">
-                        <a href="{% url 'blu_projects:task_detail' task.id %}" style="color: #0f172a; text-decoration: none; font-weight: 600; font-size: 13px;">
-                            {{ task.title }}
-                        </a>
+    <div class="pd-tab" data-tab="1">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        Tasks <span class="badge">{{ task_stats.total }}</span>
+    </div>
+    <div class="pd-tab" data-tab="2">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"></rect><rect x="10" y="3" width="5" height="12" rx="1"></rect><rect x="17" y="3" width="5" height="15" rx="1"></rect></svg>
+        Kanban
+    </div>
+    <div class="pd-tab" data-tab="3">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        Risks <span class="badge">{{ risk_summary.total }}</span>
+    </div>
+    <div class="pd-tab" data-tab="4">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Stakeholders <span class="badge">{{ stakeholders.count }}</span>
+    </div>
+    <div class="pd-tab" data-tab="5">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        Docs &amp; Activity
+    </div>
+</div>
+
+<!-- ===== TAB 0: OVERVIEW ===== -->
+<div class="pd-section active" id="pdTab0">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            <!-- Project Info Card -->
+            <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+                <div style="padding:13px 20px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:700;color:#0f172a;">Project Details</div>
+                <div class="pf-card-body">
+                    <div class="info-grid">
+                        <div class="info-item"><div class="lbl">Type</div><div class="val">{{ project.get_project_type_display }}</div></div>
+                        <div class="info-item"><div class="lbl">Sector</div><div class="val">{{ project.get_sector_display }}</div></div>
+                        <div class="info-item"><div class="lbl">Methodology</div><div class="val">{{ project.get_methodology_display }}</div></div>
+                        <div class="info-item"><div class="lbl">Risk Level</div><div class="val">{{ project.get_risk_level_display }}</div></div>
+                        <div class="info-item"><div class="lbl">Visibility</div><div class="val">{{ project.get_visibility_display }}</div></div>
+                        <div class="info-item"><div class="lbl">Currency</div><div class="val">{{ project.currency }}</div></div>
+                        {% if project.funding_source %}
+                        <div class="info-item"><div class="lbl">Funding Source</div><div class="val">{{ project.funding_source }}</div></div>
+                        {% endif %}
+                        {% if project.grant_reference %}
+                        <div class="info-item"><div class="lbl">Grant Ref</div><div class="val">{{ project.grant_reference }}</div></div>
+                        {% endif %}
+                        {% if project.beneficiary_count %}
+                        <div class="info-item"><div class="lbl">Beneficiaries</div><div class="val">{{ project.beneficiary_count|default:"—" }}</div></div>
+                        {% endif %}
+                        {% if project.tags %}
+                        <div class="info-item" style="grid-column:span 2;"><div class="lbl">Tags</div><div class="val" style="font-weight:400;font-size:12px;">{{ project.tags }}</div></div>
+                        {% endif %}
+                    </div>
+                    {% if project.objectives %}
+                    <div style="margin-top:14px;">
+                        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">Objectives</div>
+                        <div style="font-size:13px;color:#0f172a;white-space:pre-wrap;line-height:1.6;">{{ project.objectives }}</div>
+                    </div>
+                    {% endif %}
+                    {% if project.scope %}
+                    <div style="margin-top:14px;">
+                        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">Scope</div>
+                        <div style="font-size:13px;color:#0f172a;white-space:pre-wrap;line-height:1.6;">{{ project.scope }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Milestones -->
+            <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+                <div style="padding:13px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:13px;font-weight:700;color:#0f172a;">Milestones ({{ milestones.count }})</span>
+                    <a href="{% url 'blu_projects:milestone_create' project.id %}" style="font-size:12px;color:#1d4ed8;text-decoration:none;font-weight:600;">+ Add</a>
+                </div>
+                <div style="padding:8px;">
+                    {% for ms in milestones %}
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;margin-bottom:2px;background:{% if ms.status == 'COMPLETED' %}#f0fdf4{% else %}#f8fafc{% endif %};">
+                        {% if ms.status == 'COMPLETED' %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        {% else %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>{% endif %}
+                        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ ms.name }}</div>{% if ms.due_date %}<div style="font-size:11px;color:#64748b;">Due {{ ms.due_date|date:"M j, Y" }}</div>{% endif %}</div>
+                        <span style="font-size:10px;padding:2px 6px;border-radius:999px;font-weight:600;background:#f1f5f9;color:#475569;">{{ ms.get_status_display }}</span>
+                    </div>
+                    {% empty %}<div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px;">No milestones defined</div>{% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- Right sidebar -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            <!-- Budget -->
+            {% if project.budget %}
+            <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+                <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;">Budget Utilisation</div>
+                <div style="font-size:24px;font-weight:700;color:#0f172a;">{{ project.currency }} {{ project.budget|floatformat:0 }}</div>
+                <div style="font-size:11px;color:#64748b;margin-bottom:10px;">Total Budget</div>
+                <div style="background:#e2e8f0;border-radius:999px;height:8px;overflow:hidden;margin-bottom:6px;">
+                    <div style="height:100%;border-radius:999px;background:{% if budget_pct > 90 %}#dc2626{% elif budget_pct > 70 %}#d97706{% else %}#16a34a{% endif %};width:{{ budget_pct|floatformat:0 }}%;"></div>
+                </div>
+                <div style="font-size:12px;color:#64748b;">{{ budget_pct|floatformat:0 }}% spent</div>
+                {% if project.funding_amount %}
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;font-size:12px;color:#64748b;">Funded: <strong style="color:#0f172a;">{{ project.currency }} {{ project.funding_amount|floatformat:0 }}</strong></div>
+                {% endif %}
+            </div>
+            {% endif %}
+            <!-- Client/Beneficiary -->
+            {% if project.client_name or project.client_organisation %}
+            <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+                <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px;">Client / Beneficiary</div>
+                {% if project.client_name %}<div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:2px;">{{ project.client_name }}</div>{% endif %}
+                {% if project.client_organisation %}<div style="font-size:12px;color:#64748b;margin-bottom:6px;">{{ project.client_organisation }}</div>{% endif %}
+                {% if project.client_email %}<div style="font-size:12px;color:#1d4ed8;margin-bottom:2px;"><a href="mailto:{{ project.client_email }}" style="color:#1d4ed8;text-decoration:none;">{{ project.client_email }}</a></div>{% endif %}
+                {% if project.client_phone %}<div style="font-size:12px;color:#64748b;">{{ project.client_phone }}</div>{% endif %}
+            </div>
+            {% endif %}
+            <!-- Team -->
+            <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+                <div style="padding:13px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:700;color:#0f172a;">Team ({{ team_members.count }})</div>
+                <div style="padding:8px;">
+                    {% for m in team_members %}
+                    <div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:6px;">
+                        <div style="width:28px;height:28px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;color:#1d4ed8;font-weight:700;font-size:11px;flex-shrink:0;">{{ m.first_name|slice:":1"|upper }}{{ m.last_name|slice:":1"|upper }}</div>
+                        <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;color:#0f172a;">{{ m.get_full_name }}</div><div style="font-size:10px;color:#94a3b8;">{{ m.email }}</div></div>
+                        {% if m == project.project_manager %}<span style="font-size:10px;padding:1px 6px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-weight:600;">PM</span>{% endif %}
+                    </div>
+                    {% empty %}<div style="text-align:center;padding:16px;color:#94a3b8;font-size:12px;">No team members</div>{% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TAB 1: TASK LIST ===== -->
+<div class="pd-section" id="pdTab1">
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+        <div style="padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:14px;font-weight:700;color:#0f172a;">All Tasks ({{ task_stats.total }})</span>
+            <a href="{% url 'blu_projects:task_create' project.id %}" style="font-size:12px;color:white;background:#1d4ed8;text-decoration:none;font-weight:600;padding:7px 14px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Add Task
+            </a>
+        </div>
+        {% if all_tasks %}
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;">
+                <thead><tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;">
+                    <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.03em;">Task</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.03em;">Status</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.03em;">Priority</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.03em;">Assigned</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.03em;">Due</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.03em;">Pts</th>
+                    <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.03em;">Update</th>
+                </tr></thead>
+                <tbody>{% for task in all_tasks %}
+                <tr style="border-bottom:1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:10px 16px;">
+                        <a href="{% url 'blu_projects:task_detail' task.id %}" style="color:#0f172a;text-decoration:none;font-weight:600;font-size:13px;">{{ task.title }}</a>
+                        {% if task.label %}<span style="font-size:10px;background:#f1f5f9;color:#475569;padding:1px 6px;border-radius:8px;margin-left:6px;">{{ task.label }}</span>{% endif %}
                     </td>
-                    <td style="padding: 10px 12px;">
-                        <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600;
-                            {% if task.status == 'COMPLETED' %}background: #f0fdf4; color: #16a34a;
-                            {% elif task.status == 'IN_PROGRESS' %}background: #fef3c7; color: #d97706;
-                            {% elif task.status == 'IN_REVIEW' %}background: #f5f3ff; color: #7c3aed;
-                            {% elif task.status == 'BLOCKED' %}background: #fef2f2; color: #dc2626;
-                            {% else %}background: #f8fafc; color: #64748b;{% endif %}">
-                            {{ task.get_status_display }}
-                        </span>
-                    </td>
-                    <td style="padding: 10px 12px;">
-                        <span style="font-size: 12px; font-weight: 600;
-                            {% if task.priority == 'CRITICAL' %}color: #dc2626;
-                            {% elif task.priority == 'HIGH' %}color: #ea580c;
-                            {% elif task.priority == 'MEDIUM' %}color: #2563eb;
-                            {% else %}color: #64748b;{% endif %}">
-                            {{ task.get_priority_display }}
-                        </span>
-                    </td>
-                    <td style="padding: 10px 12px; font-size: 12px; color: #475569;">
-                        {% if task.assigned_to %}{{ task.assigned_to.get_full_name }}{% else %}<span style="color: #cbd5e1;">Unassigned</span>{% endif %}
-                    </td>
-                    <td style="padding: 10px 12px; font-size: 12px; {% if task.is_overdue %}color: #dc2626; font-weight: 600;{% else %}color: #475569;{% endif %}">
-                        {% if task.due_date %}{{ task.due_date|date:"M j, Y" }}{% else %}<span style="color: #cbd5e1;">&mdash;</span>{% endif %}
-                    </td>
-                    <td style="padding: 10px 12px; text-align: center;">
-                        <form method="POST" action="{% url 'blu_projects:task_update_status' task.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <select name="status" onchange="this.form.submit()" style="padding: 3px 6px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 11px; cursor: pointer;">
-                                {% for value, label in task.STATUS_CHOICES %}
-                                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
+                    <td style="padding:10px 12px;"><span style="font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;background:{% if task.status == 'COMPLETED' %}#f0fdf4{% elif task.status == 'IN_PROGRESS' %}#fef3c7{% elif task.status == 'IN_REVIEW' %}#f5f3ff{% elif task.status == 'BLOCKED' %}#fef2f2{% else %}#f8fafc{% endif %};color:{% if task.status == 'COMPLETED' %}#16a34a{% elif task.status == 'IN_PROGRESS' %}#d97706{% elif task.status == 'IN_REVIEW' %}#7c3aed{% elif task.status == 'BLOCKED' %}#dc2626{% else %}#64748b{% endif %};">{{ task.get_status_display }}</span></td>
+                    <td style="padding:10px 12px;font-size:12px;font-weight:600;color:{% if task.priority == 'CRITICAL' %}#dc2626{% elif task.priority == 'HIGH' %}#ea580c{% elif task.priority == 'MEDIUM' %}#2563eb{% else %}#64748b{% endif %};">{{ task.get_priority_display }}</td>
+                    <td style="padding:10px 12px;font-size:12px;color:#475569;">{% if task.assigned_to %}{{ task.assigned_to.get_full_name }}{% else %}<span style="color:#cbd5e1;">—</span>{% endif %}</td>
+                    <td style="padding:10px 12px;font-size:12px;color:{% if task.is_overdue %}#dc2626{% else %}#475569{% endif %};">{% if task.due_date %}{{ task.due_date|date:"M j, Y" }}{% else %}—{% endif %}</td>
+                    <td style="padding:10px 12px;font-size:12px;color:#64748b;text-align:center;">{% if task.story_points %}{{ task.story_points }}{% else %}—{% endif %}</td>
+                    <td style="padding:10px 12px;text-align:center;">
+                        <form method="POST" action="{% url 'blu_projects:task_update_status' task.id %}" style="display:inline;">{% csrf_token %}
+                            <select name="status" onchange="this.form.submit()" style="padding:3px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:11px;cursor:pointer;">
+                                {% for val,lbl in task.STATUS_CHOICES %}<option value="{{ val }}" {% if task.status == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
                             </select>
                         </form>
                     </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div style="text-align: center; padding: 40px; color: #94a3b8; font-size: 13px;">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 8px; display: block; opacity: 0.5;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-        No tasks yet. Add your first task to get started.
-    </div>
-    {% endif %}
-</div>
-
-<!-- Bottom Grid: Milestones + Team + Activity -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-    <!-- Left: Milestones + Team -->
-    <div style="display: flex; flex-direction: column; gap: 16px;">
-        <!-- Milestones -->
-        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
-            <div style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9;">
-                <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-                    Milestones ({{ milestones.count }})
-                </h3>
-            </div>
-            <div style="padding: 8px;">
-                {% for milestone in milestones %}
-                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 4px; margin-bottom: 2px;">
-                    {% if milestone.status == 'COMPLETED' %}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    {% else %}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
-                    {% endif %}
-                    <div style="flex: 1;">
-                        <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ milestone.name }}</div>
-                        {% if milestone.due_date %}
-                        <div style="font-size: 11px; color: #64748b;">Due {{ milestone.due_date|date:"M j, Y" }}</div>
-                        {% endif %}
-                    </div>
-                    <span style="font-size: 10px; padding: 2px 6px; border-radius: 999px; font-weight: 600;
-                        {% if milestone.status == 'COMPLETED' %}background: #f0fdf4; color: #16a34a;
-                        {% elif milestone.status == 'IN_PROGRESS' %}background: #fef3c7; color: #d97706;
-                        {% else %}background: #f8fafc; color: #64748b;{% endif %}">
-                        {{ milestone.get_status_display }}
-                    </span>
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">No milestones defined</div>
-                {% endfor %}
-            </div>
+                </tr>{% endfor %}</tbody>
+            </table>
         </div>
-
-        <!-- Team Members -->
-        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
-            <div style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9;">
-                <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    Team ({{ team_members.count }})
-                </h3>
-            </div>
-            <div style="padding: 8px;">
-                {% for member in team_members %}
-                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 4px; margin-bottom: 2px;">
-                    <div style="width: 30px; height: 30px; border-radius: 50%; background: #dbeafe; display: flex; align-items: center; justify-content: center; color: #1d4ed8; font-weight: 700; font-size: 12px; flex-shrink: 0;">
-                        {{ member.first_name|slice:":1"|upper }}{{ member.last_name|slice:":1"|upper }}
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ member.get_full_name }}</div>
-                        <div style="font-size: 11px; color: #94a3b8;">{{ member.email }}</div>
-                    </div>
-                    {% if member == project.project_manager %}
-                    <span style="font-size: 10px; padding: 2px 6px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-weight: 600;">PM</span>
-                    {% endif %}
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">No team members assigned</div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Right: Activity + Documents -->
-    <div style="display: flex; flex-direction: column; gap: 16px;">
-        <!-- Recent Activity -->
-        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
-            <div style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9;">
-                <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                    Activity
-                </h3>
-            </div>
-            <div style="padding: 8px; max-height: 400px; overflow-y: auto;">
-                {% for activity in recent_activities %}
-                <div style="display: flex; gap: 10px; padding: 8px 12px; margin-bottom: 2px;">
-                    <span style="width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 6px;
-                        {% if activity.action == 'CREATED' %}background: #16a34a;
-                        {% elif activity.action == 'TASK_COMPLETED' %}background: #16a34a;
-                        {% elif activity.action == 'TASK_ADDED' %}background: #3b82f6;
-                        {% else %}background: #94a3b8;{% endif %}"></span>
-                    <div style="flex: 1;">
-                        <div style="font-size: 12px; color: #0f172a;">{{ activity.description }}</div>
-                        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">
-                            {% if activity.user %}{{ activity.user.get_full_name }} &middot; {% endif %}{{ activity.created_at|timesince }} ago
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">No activity yet</div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Documents -->
-        {% if documents %}
-        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
-            <div style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9;">
-                <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #0f172a;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                    Documents
-                </h3>
-            </div>
-            <div style="padding: 8px;">
-                {% for doc in documents %}
-                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 4px; margin-bottom: 2px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                    <div style="flex: 1;">
-                        <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ doc.name }}</div>
-                        <div style="font-size: 11px; color: #94a3b8;">{{ doc.created_at|timesince }} ago</div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+        {% else %}
+        <div style="text-align:center;padding:48px;color:#94a3b8;font-size:13px;">No tasks yet. <a href="{% url 'blu_projects:task_create' project.id %}" style="color:#1d4ed8;">Add your first task →</a></div>
         {% endif %}
     </div>
 </div>
+
+<!-- ===== TAB 2: KANBAN BOARD ===== -->
+<div class="pd-section" id="pdTab2">
+    <div style="overflow-x:auto;">
+        <div class="kanban-board">
+            {% for col_key, col_label, col_color, col_tasks in kanban_data %}
+            <div class="kanban-col">
+                <div class="kanban-col-hd" style="border-top:3px solid {{ col_color }};">
+                    <span>{{ col_label }}</span>
+                    <span style="font-size:11px;background:#fff;border:1px solid #e2e8f0;border-radius:999px;padding:1px 8px;">{{ col_tasks|length }}</span>
+                </div>
+                <div class="kanban-col-body">
+                    {% for task in col_tasks %}
+                    <div class="kanban-card">
+                        <div class="kanban-card-title"><a href="{% url 'blu_projects:task_detail' task.id %}" style="color:#0f172a;text-decoration:none;">{{ task.title }}</a></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+                            <span style="font-size:10px;font-weight:600;">{{ task.get_priority_display }}</span>
+                            {% if task.assigned_to %}<span style="font-size:10px;background:#dbeafe;color:#1d4ed8;padding:1px 6px;border-radius:999px;">{{ task.assigned_to.first_name }}</span>{% endif %}
+                        </div>
+                        {% if task.due_date %}<div style="font-size:10px;color:#94a3b8;margin-top:4px;">Due {{ task.due_date|date:"M j" }}</div>{% endif %}
+                    </div>
+                    {% empty %}
+                    <div style="text-align:center;padding:20px;color:#cbd5e1;font-size:11px;">Empty</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div style="margin-top:14px;text-align:right;">
+        <a href="{% url 'blu_projects:task_create' project.id %}" style="font-size:12px;color:white;background:#1d4ed8;text-decoration:none;font-weight:600;padding:7px 14px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Add Task
+        </a>
+    </div>
+</div>
+
+<!-- ===== TAB 3: RISK REGISTER ===== -->
+<div class="pd-section" id="pdTab3">
+    <!-- Add Risk Form -->
+    <details style="margin-bottom:14px;">
+        <summary style="cursor:pointer;padding:12px 16px;background:white;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:600;color:#1d4ed8;list-style:none;display:flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Log New Risk
+        </summary>
+        <div style="background:white;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:20px;">
+            <form method="POST" action="{% url 'blu_projects:risk_create' project.id %}">{% csrf_token %}
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+                    <div style="grid-column:span 3;"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Risk Title<span style="color:#dc2626;">*</span></label><input type="text" name="title" required placeholder="e.g., Key stakeholder withdrawal" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;box-sizing:border-box;"></div>
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Category</label><select name="category" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;"><option value="FINANCIAL">Financial</option><option value="OPERATIONAL">Operational</option><option value="STRATEGIC">Strategic</option><option value="COMPLIANCE">Compliance</option><option value="REPUTATIONAL">Reputational</option><option value="TECHNICAL">Technical</option><option value="ENVIRONMENTAL">Environmental</option><option value="OTHER">Other</option></select></div>
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Probability (1–5)</label><input type="number" name="probability" min="1" max="5" value="2" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;box-sizing:border-box;"></div>
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Impact (1–5)</label><input type="number" name="impact" min="1" max="5" value="2" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;box-sizing:border-box;"></div>
+                    <div style="grid-column:span 3;"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Mitigation Plan</label><textarea name="mitigation_plan" rows="2" placeholder="How will this risk be mitigated?" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea></div>
+                    <div style="grid-column:span 3;"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Contingency Plan</label><textarea name="contingency_plan" rows="2" placeholder="What to do if the risk materialises?" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea></div>
+                </div>
+                <button type="submit" style="padding:8px 18px;background:#dc2626;color:white;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Add to Risk Register</button>
+            </form>
+        </div>
+    </details>
+    <!-- Risk Table -->
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+        {% if risks %}
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;">
+                <thead><tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;">
+                    <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Risk</th>
+                    <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Score</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Category</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Status</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Mitigation</th>
+                    <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Actions</th>
+                </tr></thead>
+                <tbody>{% for risk in risks %}
+                <tr style="border-bottom:1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:10px 16px;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ risk.title }}</div>{% if risk.description %}<div style="font-size:11px;color:#64748b;margin-top:2px;">{{ risk.description|truncatechars:80 }}</div>{% endif %}</td>
+                    <td style="padding:10px 12px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-size:13px;font-weight:700;background:{% if risk.risk_score >= 15 %}#fef2f2{% elif risk.risk_score >= 9 %}#fff7ed{% elif risk.risk_score >= 4 %}#fef3c7{% else %}#f0fdf4{% endif %};color:{% if risk.risk_score >= 15 %}#dc2626{% elif risk.risk_score >= 9 %}#ea580c{% elif risk.risk_score >= 4 %}#d97706{% else %}#16a34a{% endif %};">{{ risk.risk_score }}</span></td>
+                    <td style="padding:10px 12px;font-size:12px;color:#64748b;">{{ risk.get_category_display }}</td>
+                    <td style="padding:10px 12px;"><span style="font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;background:{% if risk.status == 'CLOSED' %}#f0fdf4{% elif risk.status == 'OPEN' %}#fef2f2{% else %}#fef3c7{% endif %};color:{% if risk.status == 'CLOSED' %}#16a34a{% elif risk.status == 'OPEN' %}#dc2626{% else %}#d97706{% endif %};">{{ risk.get_status_display }}</span></td>
+                    <td style="padding:10px 12px;font-size:12px;color:#475569;">{% if risk.mitigation_plan %}{{ risk.mitigation_plan|truncatechars:60 }}{% else %}<span style="color:#cbd5e1;">None</span>{% endif %}</td>
+                    <td style="padding:10px 12px;text-align:center;display:flex;gap:6px;justify-content:center;">
+                        <form method="POST" action="{% url 'blu_projects:risk_delete' risk.id %}" style="display:inline;" onsubmit="return confirm('Delete this risk?');">{% csrf_token %}<button type="submit" style="padding:4px 8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit;">Delete</button></form>
+                    </td>
+                </tr>{% endfor %}</tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:48px;color:#94a3b8;font-size:13px;">No risks logged yet. Use the form above to add risks to the register.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ===== TAB 4: STAKEHOLDERS ===== -->
+<div class="pd-section" id="pdTab4">
+    <!-- Add Stakeholder Form -->
+    <details style="margin-bottom:14px;">
+        <summary style="cursor:pointer;padding:12px 16px;background:white;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:600;color:#1d4ed8;list-style:none;display:flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Add Stakeholder
+        </summary>
+        <div style="background:white;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:20px;">
+            <form method="POST" action="{% url 'blu_projects:stakeholder_create' project.id %}">{% csrf_token %}
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Name<span style="color:#dc2626;">*</span></label><input type="text" name="name" required placeholder="Full name" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;box-sizing:border-box;"></div>
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Organisation</label><input type="text" name="organisation" placeholder="Company / Ministry" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;box-sizing:border-box;"></div>
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Role</label><select name="role" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;"><option value="SPONSOR">Sponsor</option><option value="CLIENT">Client</option><option value="END_USER">End User</option><option value="REGULATOR">Regulator</option><option value="PARTNER">Partner</option><option value="SUPPLIER">Supplier</option><option value="DONOR">Donor</option><option value="COMMUNITY">Community</option><option value="OTHER">Other</option></select></div>
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Email</label><input type="email" name="email" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;box-sizing:border-box;"></div>
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Influence</label><select name="influence" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;"><option value="HIGH">High</option><option value="MEDIUM" selected>Medium</option><option value="LOW">Low</option></select></div>
+                    <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Interest</label><select name="interest" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;"><option value="HIGH">High</option><option value="MEDIUM" selected>Medium</option><option value="LOW">Low</option></select></div>
+                    <div style="grid-column:span 3;"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Engagement Strategy</label><textarea name="engagement_strategy" rows="2" style="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;" placeholder="How will you manage/engage this stakeholder?"></textarea></div>
+                </div>
+                <button type="submit" style="padding:8px 18px;background:#1d4ed8;color:white;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Add Stakeholder</button>
+            </form>
+        </div>
+    </details>
+    <!-- Stakeholder Table -->
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+        {% if stakeholders %}
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;">
+                <thead><tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;">
+                    <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Stakeholder</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Role</th>
+                    <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Influence</th>
+                    <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Interest</th>
+                    <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Engagement</th>
+                    <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Strategy</th>
+                    <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Actions</th>
+                </tr></thead>
+                <tbody>{% for sh in stakeholders %}
+                <tr style="border-bottom:1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:10px 16px;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ sh.name }}</div>{% if sh.organisation %}<div style="font-size:11px;color:#64748b;">{{ sh.organisation }}</div>{% endif %}{% if sh.email %}<div style="font-size:11px;color:#1d4ed8;"><a href="mailto:{{ sh.email }}" style="color:#1d4ed8;text-decoration:none;">{{ sh.email }}</a></div>{% endif %}</td>
+                    <td style="padding:10px 12px;font-size:12px;color:#475569;">{{ sh.get_role_display }}</td>
+                    <td style="padding:10px 12px;text-align:center;"><span style="font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;background:{% if sh.influence == 'HIGH' %}#fef2f2{% elif sh.influence == 'MEDIUM' %}#fef3c7{% else %}#f0fdf4{% endif %};color:{% if sh.influence == 'HIGH' %}#dc2626{% elif sh.influence == 'MEDIUM' %}#d97706{% else %}#16a34a{% endif %};">{{ sh.get_influence_display }}</span></td>
+                    <td style="padding:10px 12px;text-align:center;"><span style="font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;background:{% if sh.interest == 'HIGH' %}#eff6ff{% elif sh.interest == 'MEDIUM' %}#f5f3ff{% else %}#f8fafc{% endif %};color:{% if sh.interest == 'HIGH' %}#1d4ed8{% elif sh.interest == 'MEDIUM' %}#7c3aed{% else %}#64748b{% endif %};">{{ sh.get_interest_display }}</span></td>
+                    <td style="padding:10px 12px;text-align:center;font-size:12px;color:#475569;">{{ sh.get_engagement_display }}</td>
+                    <td style="padding:10px 12px;font-size:12px;color:#475569;">{% if sh.engagement_strategy %}{{ sh.engagement_strategy|truncatechars:60 }}{% else %}<span style="color:#cbd5e1;">—</span>{% endif %}</td>
+                    <td style="padding:10px 12px;text-align:center;">
+                        <form method="POST" action="{% url 'blu_projects:stakeholder_delete' sh.id %}" style="display:inline;" onsubmit="return confirm('Remove this stakeholder?');">{% csrf_token %}<button type="submit" style="padding:4px 8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit;">Remove</button></form>
+                    </td>
+                </tr>{% endfor %}</tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:48px;color:#94a3b8;font-size:13px;">No stakeholders logged. Use the form above to map key stakeholders.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ===== TAB 5: DOCS & ACTIVITY ===== -->
+<div class="pd-section" id="pdTab5">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <!-- Documents -->
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+            <div style="padding:13px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:700;color:#0f172a;">Documents</div>
+            <div style="padding:8px;">
+                {% for doc in documents %}
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:6px;margin-bottom:2px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ doc.name }}</div><div style="font-size:11px;color:#94a3b8;">{{ doc.created_at|timesince }} ago</div></div>
+                </div>
+                {% empty %}<div style="text-align:center;padding:32px;color:#94a3b8;font-size:12px;">No documents uploaded</div>{% endfor %}
+            </div>
+        </div>
+        <!-- Activity -->
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+            <div style="padding:13px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:700;color:#0f172a;">Activity Log</div>
+            <div style="padding:8px;max-height:400px;overflow-y:auto;">
+                {% for activity in recent_activities %}
+                <div style="display:flex;gap:10px;padding:8px 12px;margin-bottom:2px;">
+                    <span style="width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;background:{% if activity.action == 'CREATED' or activity.action == 'TASK_COMPLETED' %}#16a34a{% elif activity.action == 'TASK_ADDED' %}#3b82f6{% else %}#94a3b8{% endif %};"></span>
+                    <div style="flex:1;"><div style="font-size:12px;color:#0f172a;">{{ activity.description }}</div><div style="font-size:10px;color:#94a3b8;margin-top:2px;">{% if activity.user %}{{ activity.user.get_full_name }} · {% endif %}{{ activity.created_at|timesince }} ago</div></div>
+                </div>
+                {% empty %}<div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px;">No activity yet</div>{% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const pdTabs = document.querySelectorAll('.pd-tab');
+const pdSections = document.querySelectorAll('.pd-section');
+let pdCurrent = 0;
+function pdGoTab(n) {
+    pdTabs[pdCurrent].classList.remove('active');
+    pdSections[pdCurrent].classList.remove('active');
+    pdCurrent = n;
+    pdTabs[pdCurrent].classList.add('active');
+    pdSections[pdCurrent].classList.add('active');
+}
+pdTabs.forEach(t => t.addEventListener('click', () => pdGoTab(parseInt(t.dataset.tab))));
+</script>
 {% endblock %}

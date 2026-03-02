@@ -149,8 +149,8 @@ class Company(models.Model):
     button_color = models.CharField(max_length=7, default='#3b82f6', help_text="Primary button color")
     
     # Payslip Design Settings
-    payslip_layout = models.CharField(max_length=20, default='modern', choices=[
-        ('modern', 'Modern'), ('classic', 'Classic'), ('detailed', 'Detailed'), ('compact', 'Compact')
+    payslip_layout = models.CharField(max_length=20, default='classic', choices=[
+        ('classic', 'Classic'), ('modern', 'Modern'), ('compact', 'Compact'), ('detailed', 'Detailed')
     ])
     payslip_orientation = models.CharField(max_length=10, default='portrait', choices=[
         ('portrait', 'Portrait'), ('landscape', 'Landscape')

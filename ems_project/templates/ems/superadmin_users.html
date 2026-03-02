@@ -1,4 +1,4 @@
-{% extends 'ems/base_superadmin.html' %}
+﻿{% extends 'ems/base_superadmin.html' %}
 
 {% block title %}User Management - BLU Suite Admin{% endblock %}
 {% block nav_users %} active{% endblock %}
@@ -41,11 +41,11 @@
         <div class="card-content">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <div style="font-size: 28px; font-weight: 600; color: #2563eb;">{{ company_admins.count }}</div>
+                    <div style="font-size: 28px; font-weight: 600; color: #DC143C;">{{ company_admins.count }}</div>
                     <div style="font-size: 13px; color: #64748b;">Company Admins</div>
                 </div>
                 <div style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
@@ -138,7 +138,7 @@
                     <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
                 </select>
                 
-                <button type="submit" class="btn" style="padding: 10px 20px;">Filter</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Filter</button>
                 <a href="?search=" class="btn btn-secondary" style="padding: 10px 20px;">Clear</a>
             </form>
             
@@ -343,7 +343,7 @@
 
 .role-admin {
     background: #eff6ff;
-    color: #2563eb;
+    color: #DC143C;
 }
 
 .role-employee {

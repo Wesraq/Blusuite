@@ -1,0 +1,234 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Goals Management – PMS{% endblock %}
+{% block page_title %}Goals Management{% endblock %}
+
+{% block content %}
+<style>
+.pms-stat { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:18px 22px; display:flex; align-items:center; gap:16px; }
+.pms-stat-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pms-stat h3 { margin:0; font-size:22px; font-weight:700; color:#0f172a; }
+.pms-stat p { margin:2px 0 0; font-size:12px; color:#64748b; }
+.goal-card { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:18px 20px; margin-bottom:12px; transition:box-shadow .15s; }
+.goal-card:hover { box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.goal-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-completed { background:#dcfce7; color:#166534; }
+.badge-in-progress { background:#fef3c7; color:#92400e; }
+.badge-not-started { background:#f1f5f9; color:#475569; }
+.badge-cancelled { background:#fee2e2; color:#991b1b; }
+.badge-critical { background:#fee2e2; color:#991b1b; }
+.badge-high { background:#fce7f3; color:#9d174d; }
+.badge-medium { background:#fef3c7; color:#92400e; }
+.badge-low { background:#f0fdf4; color:#166534; }
+.progress-bar-wrap { background:#f1f5f9; border-radius:20px; height:6px; overflow:hidden; margin-top:8px; }
+.progress-bar-fill { height:6px; border-radius:20px; background:#DC143C; transition:width .3s; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:#fff; border-radius:12px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,.18); }
+.modal-hd { display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid #e2e8f0; position:sticky; top:0; background:#fff; }
+.modal-hd h3 { margin:0; font-size:15px; font-weight:700; }
+.modal-close { background:none; border:none; font-size:22px; color:#94a3b8; cursor:pointer; }
+.modal-body { padding:20px 22px; display:flex; flex-direction:column; gap:12px; }
+.modal-ft { padding:14px 22px; border-top:1px solid #f1f5f9; display:flex; gap:10px; justify-content:flex-end; }
+.field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+.field input, .field select, .field textarea { width:100%; padding:8px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; color:#0f172a; box-sizing:border-box; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:#DC143C; outline:none; }
+.btn-primary { padding:9px 18px; background:#DC143C; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-secondary { padding:9px 18px; background:#f1f5f9; color:#374151; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+</style>
+
+<!-- Header -->
+<div class="page-header">
+    <div>
+        <h2>Goals Management</h2>
+        <p>Track and manage performance goals across review cycles.</p>
+    </div>
+    {% if is_hr %}
+    <button onclick="document.getElementById('addGoalModal').classList.add('open')" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Goal
+    </button>
+    {% endif %}
+</div>
+
+<!-- Messages -->
+{% if messages %}{% for msg in messages %}
+<div style="padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;{% if msg.tags == 'error' %}background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;{% else %}background:#dcfce7;color:#166534;border:1px solid #86efac;{% endif %}">{{ msg }}</div>
+{% endfor %}{% endif %}
+
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px;">
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#fce7f3;color:#DC143C;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><h3>{{ total }}</h3><p>Total Goals</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#fef3c7;color:#d97706;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><h3>{{ in_progress }}</h3><p>In Progress</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#dcfce7;color:#16a34a;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h3>{{ completed }}</h3><p>Completed</p></div></div>
+    <div class="pms-stat"><div class="pms-stat-icon" style="background:#f1f5f9;color:#64748b;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><h3>{{ not_started }}</h3><p>Not Started</p></div></div>
+</div>
+
+<!-- Filters -->
+<div class="content-card" style="padding:16px 20px;margin-bottom:20px;">
+    <form method="get" style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;">
+        <div style="flex:1;min-width:140px;">
+            <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">STATUS</label>
+            <select name="status" onchange="this.form.submit()" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;">
+                <option value="">All Statuses</option>
+                {% for val, label in status_choices %}<option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div style="flex:1;min-width:140px;">
+            <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">PRIORITY</label>
+            <select name="priority" onchange="this.form.submit()" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;">
+                <option value="">All Priorities</option>
+                {% for val, label in priority_choices %}<option value="{{ val }}" {% if priority_filter == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        {% if status_filter or priority_filter %}
+        <a href="{% url 'pms_goals' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Goals List -->
+<div class="content-card">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 class="card-title">Goals</h3>
+        <span style="font-size:13px;color:#64748b;">{{ goals|length }} result{% if goals|length != 1 %}s{% endif %}</span>
+    </div>
+    <div class="card-content" style="padding:0 0 8px;">
+        {% if goals %}
+        {% for goal in goals %}
+        <div class="goal-card" style="margin:0;border-radius:0;border-left:none;border-right:none;border-top:none;{% if forloop.first %}border-top:1px solid #e2e8f0;{% endif %}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                        <span style="font-size:14px;font-weight:600;color:#0f172a;">{{ goal.title }}</span>
+                        <span class="goal-badge badge-{{ goal.status|lower|cut:'_' }}
+                            {% if goal.status == 'COMPLETED' %}badge-completed
+                            {% elif goal.status == 'IN_PROGRESS' %}badge-in-progress
+                            {% elif goal.status == 'NOT_STARTED' %}badge-not-started
+                            {% else %}badge-cancelled{% endif %}">{{ goal.get_status_display }}</span>
+                        <span class="goal-badge
+                            {% if goal.priority == 'CRITICAL' %}badge-critical
+                            {% elif goal.priority == 'HIGH' %}badge-high
+                            {% elif goal.priority == 'MEDIUM' %}badge-medium
+                            {% else %}badge-low{% endif %}">{{ goal.get_priority_display }}</span>
+                    </div>
+                    {% if goal.description %}<p style="margin:0 0 6px;font-size:13px;color:#475569;">{{ goal.description|truncatechars:120 }}</p>{% endif %}
+                    <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#64748b;">
+                        {% if is_hr %}<span>👤 {{ goal.review.employee.get_full_name }}</span>{% endif %}
+                        <span>📋 {{ goal.review.title|truncatechars:40 }}</span>
+                        {% if goal.target_completion_date %}<span>📅 Due {{ goal.target_completion_date }}</span>{% endif %}
+                        {% if goal.category %}<span>🏷 {{ goal.category }}</span>{% endif %}
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" style="width:{{ goal.progress_percentage }}%;"></div>
+                    </div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">{{ goal.progress_percentage }}% complete</div>
+                </div>
+                <button onclick="openUpdateGoal({{ goal.id }},'{{ goal.status }}',{{ goal.progress_percentage }},'{{ goal.challenges|escapejs }}')"
+                    style="padding:6px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:600;color:#374151;cursor:pointer;white-space:nowrap;">
+                    Update
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="padding:48px 24px;text-align:center;color:#94a3b8;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <p style="margin:0;font-size:14px;">No goals found{% if status_filter or priority_filter %} for this filter{% endif %}.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- PMS Nav -->
+<div class="content-card" style="margin-top:20px;padding:16px 20px;">
+    <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:12px;text-transform:uppercase;">PMS Modules</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <a href="{% url 'performance_reviews_list' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Reviews</a>
+        <a href="{% url 'pms_goals' %}" style="padding:8px 14px;background:#DC143C;border-radius:6px;font-size:13px;color:#fff;text-decoration:none;font-weight:600;">Goals</a>
+        <a href="{% url 'pms_metrics' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Metrics</a>
+        <a href="{% url 'pms_feedback_360' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">360° Feedback</a>
+        <a href="{% url 'pms_self_assessment' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Self-Assessment</a>
+        {% if is_hr %}<a href="{% url 'pms_competencies' %}" style="padding:8px 14px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#374151;text-decoration:none;">Competencies</a>{% endif %}
+    </div>
+</div>
+
+<!-- Update Goal Modal -->
+<div class="modal-overlay" id="updateGoalModal">
+    <div class="modal">
+        <div class="modal-hd"><h3>Update Goal</h3><button class="modal-close" onclick="document.getElementById('updateGoalModal').classList.remove('open')">×</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_goal">
+            <input type="hidden" name="goal_id" id="update_goal_id">
+            <div class="modal-body">
+                <div class="field">
+                    <label>Status</label>
+                    <select name="status" id="update_goal_status">
+                        {% for val, label in status_choices %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Progress (%)</label>
+                    <input type="number" name="progress_percentage" id="update_goal_progress" min="0" max="100">
+                </div>
+                <div class="field">
+                    <label>Challenges</label>
+                    <textarea name="challenges" id="update_goal_challenges" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-ft">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('updateGoalModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if is_hr %}
+<!-- Add Goal Modal -->
+<div class="modal-overlay" id="addGoalModal">
+    <div class="modal">
+        <div class="modal-hd"><h3>Add Goal</h3><button class="modal-close" onclick="document.getElementById('addGoalModal').classList.remove('open')">×</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_goal">
+            <div class="modal-body">
+                <div class="field">
+                    <label>Review *</label>
+                    <select name="review_id" required>
+                        <option value="">Select review…</option>
+                        {% for r in reviews %}<option value="{{ r.id }}">{{ r.employee.get_full_name }} – {{ r.title|truncatechars:40 }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="field"><label>Goal Title *</label><input type="text" name="title" required></div>
+                <div class="field"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+                <div class="field"><label>Category</label><input type="text" name="category" placeholder="e.g. Sales, Leadership…"></div>
+                <div class="field">
+                    <label>Priority</label>
+                    <select name="priority">{% for val, label in priority_choices %}<option value="{{ val }}" {% if val == 'MEDIUM' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+                </div>
+                <div class="field"><label>Target Completion Date</label><input type="date" name="target_completion_date"></div>
+                <div class="field"><label>Success Criteria</label><textarea name="success_criteria" rows="2"></textarea></div>
+            </div>
+            <div class="modal-ft">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('addGoalModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="btn-primary">Add Goal</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function openUpdateGoal(id, status, progress, challenges) {
+    document.getElementById('update_goal_id').value = id;
+    document.getElementById('update_goal_status').value = status;
+    document.getElementById('update_goal_progress').value = progress;
+    document.getElementById('update_goal_challenges').value = challenges;
+    document.getElementById('updateGoalModal').classList.add('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+</script>
+{% endblock %}

@@ -15,7 +15,7 @@
 <!-- Statistics Cards -->
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 24px;">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 15 2 10l10-5 10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
         </div>
         <div class="stat-details">
@@ -42,7 +42,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;">
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
         </div>
         <div class="stat-details">
@@ -193,6 +193,7 @@
                             <th>Provider</th>
                             <th>Cost</th>
                             <th>Mandatory</th>
+                            {% if user.role == 'EMPLOYEE' %}<th style="width:110px;">Action</th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -210,13 +211,26 @@
                                 <td>{{ currency_symbol }} {{ program.cost|floatformat:2 }}</td>
                                 <td>
                                     {% if program.is_mandatory %}
-                                        <span style="color: #ef4444; font-weight: 500;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Required</span>
+                                        <span style="color: #ef4444; font-weight: 500;">Required</span>
                                     {% else %}
                                         <span style="color: #64748b;">Optional</span>
                                     {% endif %}
                                 </td>
+                                {% if user.role == 'EMPLOYEE' %}
+                                <td>
+                                    {% with pid=program.id|stringformat:"s" %}
+                                    {% if pid in enrolled_program_ids %}
+                                        <span class="status active" style="font-size:11px;">Enrolled</span>
+                                    {% else %}
+                                        <form method="post" action="{% url 'employee_training_self_enroll' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="program_id" value="{{ program.id }}">
+                                            <button type="submit" class="btn btn-primary" style="font-size:11px;padding:4px 10px;">Enroll</button>
+                                        </form>
+                                    {% endif %}
+                                    {% endwith %}
+                                </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -224,7 +238,8 @@
             </div>
         {% else %}
             <div style="text-align: center; padding: 40px; color: #64748b;">
-                <p>No training programs available.</p>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><path d="M22 10 12 15 2 10l10-5 10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                <p>No training programs available yet. Contact HR to add programs.</p>
             </div>
         {% endif %}
     </div>
@@ -285,20 +300,170 @@
 {% endif %}
 
 {% if can_manage_training %}
+<style>
+.tp-modal .modal-content { max-width: 780px; width: 95vw; max-height: 90vh; overflow-y: auto; }
+.tp-section { margin-bottom: 20px; }
+.tp-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: #94a3b8; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 14px; }
+.tp-grid { display: grid; gap: 14px; }
+.tp-grid-2 { grid-template-columns: 1fr 1fr; }
+.tp-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.tp-field { display: flex; flex-direction: column; gap: 4px; }
+.tp-field label { font-size: 12px; font-weight: 600; color: #374151; }
+.tp-field .helptext { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.tp-field input, .tp-field select, .tp-field textarea { border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; font-size: 13px; color: #0f172a; background: #fff; width: 100%; font-family: inherit; transition: border-color .15s; }
+.tp-field input:focus, .tp-field select:focus, .tp-field textarea:focus { border-color: #DC143C; outline: none; box-shadow: 0 0 0 3px rgba(220,20,60,.08); }
+.tp-check-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; }
+.tp-check-row input[type=checkbox] { width: 16px; height: 16px; accent-color: #DC143C; cursor: pointer; flex-shrink: 0; }
+.tp-check-row label { font-size: 13px; font-weight: 500; color: #0f172a; cursor: pointer; margin: 0; }
+.tp-cert-name { display: none; }
+.tp-cert-name.show { display: flex; }
+@media(max-width:600px){ .tp-grid-2,.tp-grid-3{ grid-template-columns:1fr; } }
+</style>
+
 <!-- Training Program Modal -->
-<div id="training-program-modal" class="modal-overlay" style="display: none;">
+<div id="training-program-modal" class="modal-overlay tp-modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Create Training Program</h3>
+            <div>
+                <h3 style="margin:0 0 2px;font-size:17px;font-weight:700;">Create Training Program</h3>
+                <p style="margin:0;font-size:12px;color:#64748b;">Define a new training program for your team</p>
+            </div>
             <button type="button" class="modal-close" data-close="training-program-modal">×</button>
         </div>
-        <form id="training-program-form">
+        <form id="training-program-form" style="padding: 0 24px 24px;">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-            {{ training_program_form.non_field_errors }}
-            {{ training_program_form.as_p }}
-            <div class="modal-actions">
+            {% if training_program_form.non_field_errors %}
+            <div style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:6px;padding:10px 14px;margin:14px 0;font-size:13px;">{{ training_program_form.non_field_errors }}</div>
+            {% endif %}
+
+            <!-- Basic Info -->
+            <div class="tp-section" style="margin-top:16px;">
+                <div class="tp-section-title">Basic Information</div>
+                <div class="tp-grid" style="margin-bottom:14px;">
+                    <div class="tp-field">
+                        <label>Program Title <span style="color:#DC143C">*</span></label>
+                        {{ training_program_form.title }}
+                        {% if training_program_form.title.errors %}<span style="font-size:11px;color:#dc2626">{{ training_program_form.title.errors|join:", " }}</span>{% endif %}
+                    </div>
+                </div>
+                <div class="tp-grid" style="margin-bottom:14px;">
+                    <div class="tp-field">
+                        <label>Description</label>
+                        {{ training_program_form.description }}
+                    </div>
+                </div>
+                <div class="tp-grid tp-grid-2">
+                    <div class="tp-field">
+                        <label>Program Type <span style="color:#DC143C">*</span></label>
+                        {{ training_program_form.program_type }}
+                    </div>
+                    <div class="tp-field">
+                        <label>Department</label>
+                        {{ training_program_form.department }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule & Logistics -->
+            <div class="tp-section">
+                <div class="tp-section-title">Schedule &amp; Logistics</div>
+                <div class="tp-grid tp-grid-3" style="margin-bottom:14px;">
+                    <div class="tp-field">
+                        <label>Duration (Hours) <span style="color:#DC143C">*</span></label>
+                        {{ training_program_form.duration_hours }}
+                    </div>
+                    <div class="tp-field">
+                        <label>Start Date</label>
+                        {{ training_program_form.start_date }}
+                    </div>
+                    <div class="tp-field">
+                        <label>End Date</label>
+                        {{ training_program_form.end_date }}
+                    </div>
+                </div>
+                <div class="tp-grid tp-grid-2">
+                    <div class="tp-field">
+                        <label>Location / Venue</label>
+                        {{ training_program_form.location }}
+                        <span class="helptext">Physical location or online platform</span>
+                    </div>
+                    <div class="tp-field">
+                        <label>Max Capacity</label>
+                        {{ training_program_form.max_capacity }}
+                        <span class="helptext">Leave blank for unlimited</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Provider & Cost -->
+            <div class="tp-section">
+                <div class="tp-section-title">Provider &amp; Cost</div>
+                <div class="tp-grid tp-grid-3">
+                    <div class="tp-field">
+                        <label>Provider</label>
+                        {{ training_program_form.provider }}
+                    </div>
+                    <div class="tp-field">
+                        <label>Instructor</label>
+                        {{ training_program_form.instructor }}
+                    </div>
+                    <div class="tp-field">
+                        <label>Cost ({{ currency_symbol }})</label>
+                        {{ training_program_form.cost }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content & Requirements -->
+            <div class="tp-section">
+                <div class="tp-section-title">Content &amp; Requirements</div>
+                <div class="tp-grid" style="margin-bottom:14px;">
+                    <div class="tp-field">
+                        <label>Learning Objectives</label>
+                        {{ training_program_form.learning_objectives }}
+                    </div>
+                </div>
+                <div class="tp-grid tp-grid-2">
+                    <div class="tp-field">
+                        <label>Prerequisites</label>
+                        {{ training_program_form.prerequisites }}
+                    </div>
+                    <div class="tp-field">
+                        <label>Materials / Resources</label>
+                        {{ training_program_form.materials_required }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="tp-section">
+                <div class="tp-section-title">Settings</div>
+                <div class="tp-grid tp-grid-2" style="margin-bottom:14px;">
+                    <div class="tp-check-row">
+                        {{ training_program_form.is_mandatory }}
+                        <label for="{{ training_program_form.is_mandatory.id_for_label }}">Mandatory Training</label>
+                    </div>
+                    <div class="tp-check-row">
+                        {{ training_program_form.requires_approval }}
+                        <label for="{{ training_program_form.requires_approval.id_for_label }}">Requires Approval</label>
+                    </div>
+                </div>
+                <div class="tp-check-row" style="margin-bottom:10px;">
+                    {{ training_program_form.certification_offered }}
+                    <label for="{{ training_program_form.certification_offered.id_for_label }}">Offers Certification upon Completion</label>
+                </div>
+                <div class="tp-field tp-cert-name" id="tp-cert-name-wrap">
+                    <label>Certification Name</label>
+                    {{ training_program_form.certification_name }}
+                </div>
+            </div>
+
+            <div class="modal-actions" style="border-top:1px solid #f1f5f9;padding-top:16px;margin-top:4px;">
                 <button type="button" class="btn btn-secondary" data-close="training-program-modal">Cancel</button>
-                <button type="submit" class="btn">Save Program</button>
+                <button type="submit" class="btn btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px"><polyline points="20 6 9 17 4 12"/></svg>
+                    Save Program
+                </button>
             </div>
         </form>
     </div>
@@ -306,18 +471,26 @@
 
 <!-- Training Enrollment Modal -->
 <div id="training-enrollment-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:520px;">
         <div class="modal-header">
             <h3>Enroll Employee in Training</h3>
             <button type="button" class="modal-close" data-close="training-enrollment-modal">×</button>
         </div>
-        <form id="training-enrollment-form">
+        <form id="training-enrollment-form" style="padding:0 24px 24px;">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
             {{ training_enrollment_form.non_field_errors }}
-            {{ training_enrollment_form.as_p }}
-            <div class="modal-actions">
+            <div style="display:grid;gap:14px;margin-top:16px;">
+            {% for field in training_enrollment_form %}
+            <div class="tp-field">
+                <label>{{ field.label }}{% if field.field.required %} <span style="color:#DC143C">*</span>{% endif %}</label>
+                {{ field }}
+                {% if field.errors %}<span style="font-size:11px;color:#dc2626">{{ field.errors|join:", " }}</span>{% endif %}
+            </div>
+            {% endfor %}
+            </div>
+            <div class="modal-actions" style="border-top:1px solid #f1f5f9;padding-top:16px;margin-top:16px;">
                 <button type="button" class="btn btn-secondary" data-close="training-enrollment-modal">Cancel</button>
-                <button type="submit" class="btn">Save Enrollment</button>
+                <button type="submit" class="btn btn-primary">Save Enrollment</button>
             </div>
         </form>
     </div>
@@ -427,6 +600,19 @@
                 }
             });
         });
+
+        // Certification name toggle
+        var certCheck = document.getElementById('{{ training_program_form.certification_offered.id_for_label }}');
+        var certWrap  = document.getElementById('tp-cert-name-wrap');
+        function toggleCertName() {
+            if (certCheck && certWrap) {
+                certWrap.classList.toggle('show', certCheck.checked);
+            }
+        }
+        if (certCheck) {
+            certCheck.addEventListener('change', toggleCertName);
+            toggleCertName();
+        }
     });
 </script>
 

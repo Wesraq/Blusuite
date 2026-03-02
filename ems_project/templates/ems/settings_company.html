@@ -355,7 +355,7 @@
     border-radius: 8px;
     margin-bottom: 20px;
     font-size: 13px;
-    color: #1e40af;
+    color: #DC143C;
     line-height: 1.5;
   }
 
@@ -624,7 +624,7 @@
   }
 
   .integration-feedback[data-state="success"] {
-    color: #047857;
+    color: #DC143C;
   }
 
   .integration-feedback[data-state="error"] {
@@ -632,7 +632,7 @@
   }
 
   .integration-feedback[data-state="info"] {
-    color: #1d4ed8;
+    color: #DC143C;
   }
 
   .integration-error-message {
@@ -905,7 +905,7 @@
 
   .toast.success { border-left: 4px solid #10b981; }
   .toast.error { border-left: 4px solid #ef4444; }
-  .toast.info { border-left: 4px solid #3b82f6; }
+  .toast.info { border-left: 4px solid #DC143C; }
 
   @keyframes slideIn {
     from {
@@ -976,8 +976,8 @@
   }
 
   .action-btn.edit {
-    background: #dbeafe;
-    color: #1e40af;
+    background: #fce7f3;
+    color: #DC143C;
   }
 
   .action-btn.edit:hover {
@@ -1156,7 +1156,7 @@
   <div class="stats-grid" style="margin-bottom: 24px;">
 
     <div class="stat-card">
-      <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg></div>
@@ -1186,7 +1186,7 @@
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon" style="background-color: #e0e7ff; color: #6366f1;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
                         </svg></div>
       <div class="stat-details">
@@ -1309,7 +1309,7 @@
             <div class="preview-box">{{ employee_id_preview }}</div>
           </div>
           <div style="display:flex; gap:10px;">
-            <button type="submit" class="btn">Save</button>
+            <button type="submit" class="btn btn-primary">Save</button>
           </div>
         </form>
       </div>
@@ -1327,7 +1327,7 @@
               {% csrf_token %}
               <input type="hidden" name="action" value="department">
               {{ department_form.name }}
-              <button type="submit" class="btn" style="white-space:nowrap;">Add</button>
+              <button type="submit" class="btn btn-primary" style="white-space:nowrap;">Add</button>
             </form>
             {% if departments %}
             <ul class="list">
@@ -1360,7 +1360,7 @@
               <input type="hidden" name="action" value="position">
               {{ position_form.name }}
               {{ position_form.department }}
-              <button type="submit" class="btn">Add</button>
+              <button type="submit" class="btn btn-primary">Add</button>
             </form>
             {% if positions %}
             <ul class="list">
@@ -1398,7 +1398,7 @@
               <input type="hidden" name="action" value="pay_grade">
               {{ pay_grade_form.name }}
               {{ pay_grade_form.description }}
-              <button type="submit" class="btn">Add</button>
+              <button type="submit" class="btn btn-primary">Add</button>
             </form>
             {% if pay_grades %}
             <ul class="list">
@@ -1550,7 +1550,7 @@
         </div>
         
         <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
-          <button type="submit" class="btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Notification Settings</button>
+          <button type="submit" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Notification Settings</button>
         </div>
       </form>
     </div>
@@ -1599,6 +1599,70 @@
             <p style="font-size: 13px; color: #6b7280;">Customize your payslip template</p>
           </div>
 
+          <!-- Always-visible Template Selector -->
+          <div style="padding: 12px 20px 14px; border-bottom: 1px solid #e5e7eb; background: #f8fafc;">
+            <div style="font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">Payslip Layout</div>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;" id="settingsTemplateGrid">
+              <!-- Classic: Company name left + PAYSLIP right header, two-column employee/pay grid -->
+              <div class="settings-tpl-card" data-layout="classic" onclick="selectSettingsLayout(this,'classic')" style="border:2px solid #e2e8f0;border-radius:8px;padding:6px 6px 8px;cursor:pointer;text-align:center;background:#fff;transition:all .15s;">
+                <div style="border:1px solid #bbb;border-radius:3px;overflow:hidden;margin-bottom:5px;background:#fff;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 4px;border-bottom:2px solid #4472c4;">
+                    <div><div style="height:3px;background:#1e3a5f;width:22px;margin-bottom:1px;border-radius:1px;"></div><div style="height:1.5px;background:#aaa;width:16px;"></div></div>
+                    <div style="font-size:5px;font-weight:900;color:#4472c4;letter-spacing:1px;">PAYSLIP</div>
+                  </div>
+                  <div style="display:flex;border-bottom:1px solid #ddd;">
+                    <div style="flex:1;padding:2px 3px;border-right:1px solid #ddd;"><div style="background:#4472c4;height:3px;margin-bottom:2px;"></div><div style="height:1px;background:#ddd;margin-bottom:1px;"></div><div style="height:1px;background:#ddd;margin-bottom:1px;"></div><div style="height:1px;background:#ddd;"></div></div>
+                    <div style="flex:1;padding:2px 3px;"><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;"><div style="background:#888;height:3px;"></div><div style="background:#888;height:3px;"></div><div style="background:#888;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div><div style="background:#888;height:3px;"></div><div style="background:#888;height:3px;"></div><div style="background:#888;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div></div></div>
+                  </div>
+                  <div style="background:#4472c4;height:4px;"></div><div style="background:#e8eef7;height:3px;"></div>
+                  <div style="padding:1px 3px;"><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;"></div></div>
+                  <div style="display:flex;justify-content:flex-end;padding:1px 3px;background:#f5f5f5;"><div style="height:2.5px;background:#888;width:16px;border-radius:1px;"></div></div>
+                  <div style="background:#4472c4;height:4px;"></div>
+                  <div style="padding:1px 3px;"><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;"></div></div>
+                  <div style="background:#888;height:5px;"></div>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#1e293b;">Classic</div>
+                <div style="font-size:9px;color:#64748b;">Spreadsheet Style</div>
+              </div>
+              <!-- Corporate: logo + dark teal banner, full-width teal headers, large NET PAY -->
+              <div class="settings-tpl-card" data-layout="modern" onclick="selectSettingsLayout(this,'modern')" style="border:2px solid #e2e8f0;border-radius:8px;padding:6px 6px 8px;cursor:pointer;text-align:center;background:#fff;transition:all .15s;">
+                <div style="border:2px solid #1a5f6b;border-radius:3px;overflow:hidden;margin-bottom:5px;background:#fff;">
+                  <div style="display:flex;align-items:stretch;border-bottom:2px solid #1a5f6b;">
+                    <div style="padding:3px 4px;background:#f0f8f9;border-right:1px solid #ccc;display:flex;align-items:center;"><div style="width:10px;height:10px;background:#ddd;border:1px solid #bbb;border-radius:1px;"></div></div>
+                    <div style="flex:1;background:#e8f5f7;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:3px 4px;"><div style="background:#1a5f6b;color:#fff;padding:1px 4px;font-size:5px;font-weight:900;letter-spacing:1px;">PAYSLIP</div><div style="height:2px;background:#1a5f6b;width:18px;margin-top:1px;"></div><div style="height:1px;background:#aaa;width:12px;margin-top:1px;"></div></div>
+                  </div>
+                  <div style="display:flex;border-bottom:1px solid #ccc;">
+                    <div style="flex:1;padding:2px 3px;border-right:1px solid #ccc;"><div style="font-size:4px;color:#888;font-weight:700;">EMPLOYEE</div><div style="height:2px;background:#1a5f6b;width:100%;margin-bottom:1px;"></div><div style="height:1px;background:#ddd;margin-bottom:1px;"></div><div style="height:1px;background:#ddd;"></div></div>
+                    <div style="flex:1;padding:2px 3px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;"><div style="background:#1a5f6b;height:3px;"></div><div style="background:#1a5f6b;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div><div style="background:#1a5f6b;height:3px;"></div><div style="background:#1a5f6b;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div><div style="background:#f0f0f0;height:3px;"></div></div></div>
+                  </div>
+                  <div style="background:#1a5f6b;height:5px;"></div>
+                  <div style="padding:1px 3px;"><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;"></div></div>
+                  <div style="background:#1a5f6b;height:5px;margin-top:1px;"></div>
+                  <div style="padding:1px 3px;"><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;"></div></div>
+                  <div style="background:#1a5f6b;padding:2px 3px;display:flex;justify-content:flex-end;align-items:center;gap:3px;"><div style="height:2px;background:rgba(255,255,255,0.6);width:12px;"></div><div style="height:4px;background:#fff;width:18px;border-radius:1px;"></div></div>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#1e293b;">Corporate</div>
+                <div style="font-size:9px;color:#64748b;">Logo + Teal Headers</div>
+              </div>
+              <!-- Minimal: centered title, no color backgrounds, bold underline sections -->
+              <div class="settings-tpl-card" data-layout="compact" onclick="selectSettingsLayout(this,'compact')" style="border:2px solid #e2e8f0;border-radius:8px;padding:6px 6px 8px;cursor:pointer;text-align:center;background:#fff;transition:all .15s;">
+                <div style="border:1px solid #e0e0e0;border-radius:3px;overflow:hidden;margin-bottom:5px;background:#fff;padding:4px;">
+                  <div style="text-align:center;border-bottom:1px solid #e0e0e0;padding-bottom:3px;margin-bottom:3px;"><div style="font-size:5px;font-weight:800;color:#111;letter-spacing:.5px;">Payslip</div><div style="height:2px;background:#333;width:18px;margin:1px auto 0;"></div><div style="height:1px;background:#bbb;width:24px;margin:1px auto 0;"></div></div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:3px;"><div style="height:1px;background:#ddd;margin-bottom:1px;"></div><div style="height:1px;background:#ddd;margin-bottom:1px;"></div><div style="height:1px;background:#ddd;"></div><div style="height:1px;background:#ddd;"></div></div>
+                  <div style="border-bottom:1.5px solid #333;padding-bottom:1px;margin-bottom:2px;"><div style="font-size:4px;font-weight:800;color:#222;">Earnings</div></div>
+                  <div style="background:#f4f4f4;height:3px;margin-bottom:1px;"></div>
+                  <div style="height:1px;background:#e8e8e8;margin-bottom:1px;"></div><div style="height:1px;background:#e8e8e8;margin-bottom:1px;"></div>
+                  <div style="border-top:1.5px solid #333;display:flex;justify-content:flex-end;padding-top:1px;margin-bottom:3px;"><div style="height:2px;background:#333;width:14px;border-radius:1px;"></div></div>
+                  <div style="border-bottom:1.5px solid #333;padding-bottom:1px;margin-bottom:2px;"><div style="font-size:4px;font-weight:800;color:#222;">Deductions</div></div>
+                  <div style="height:1px;background:#e8e8e8;margin-bottom:1px;"></div><div style="height:1px;background:#e8e8e8;margin-bottom:1px;"></div>
+                  <div style="border-top:1.5px solid #333;display:flex;justify-content:space-between;padding-top:1px;"><div style="height:2px;background:#555;width:14px;"></div><div style="height:2px;background:#333;width:10px;"></div></div>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#1e293b;">Minimal</div>
+                <div style="font-size:9px;color:#64748b;">Clean &amp; Centered</div>
+              </div>
+            </div>
+          </div>
+
           <!-- Designer Tabs -->
           <div class="tab-nav" style="display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; background: #ffffff; padding: 16px 24px 12px;">
             <button type="button" class="designer-tab tab-btn active" data-tab="company" style="padding: 6px 14px; font-size: 13px; min-width: 90px; border-radius: 999px; height: 36px;">Company</button>
@@ -1611,6 +1675,16 @@
           </div>
 
           <!-- Designer Content -->
+          <form method="post" id="payslipDesignForm">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="payslip_design">
+          <input type="hidden" name="payslip_layout" id="settingsLayoutInput" value="{{ company.payslip_layout|default:'classic' }}">
+          <input type="hidden" name="payslip_stamp_position" id="stampPositionInput" value="{{ company.payslip_stamp_position|default:'bottom-right' }}">
+          <input type="hidden" name="stamp_drag_x" id="stampDragX" value="{% if company.payslip_field_positions.stamp_drag %}{{ company.payslip_field_positions.stamp_drag.x|default:0 }}{% else %}0{% endif %}">
+          <input type="hidden" name="stamp_drag_y" id="stampDragY" value="{% if company.payslip_field_positions.stamp_drag %}{{ company.payslip_field_positions.stamp_drag.y|default:0 }}{% else %}0{% endif %}">
+          <input type="hidden" name="stamp_opacity" id="stampOpacityInput" value="{% if company.payslip_field_positions.stamp_opacity %}{{ company.payslip_field_positions.stamp_opacity }}{% else %}100{% endif %}">
+          <input type="hidden" name="stamp_size" id="stampSizeInput" value="{% if company.payslip_field_positions.stamp_size %}{{ company.payslip_field_positions.stamp_size }}{% else %}120{% endif %}">
+          <input type="hidden" id="fontFamilyRestore" value="{% if company.payslip_field_positions.font_family %}{{ company.payslip_field_positions.font_family }}{% else %}Arial, sans-serif{% endif %}">
           <div style="flex: 1; overflow-y: auto; padding: 24px 28px;">
           <!-- Company Tab -->
           <div class="designer-tab-content active" id="tab-company">
@@ -1618,19 +1692,19 @@
             <div style="display: grid; gap: 14px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Company Name</label>
-                <input type="text" id="previewCompanyName" value="{{ company.name }}" placeholder="Company Name" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewCompanyName" name="company_name" value="{{ company.name }}" placeholder="Company Name" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Phone</label>
-                <input type="text" id="previewCompanyPhone" value="{{ company.phone }}" placeholder="Phone Number" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewCompanyPhone" name="company_phone" value="{{ company.phone }}" placeholder="Phone Number" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Email</label>
-                <input type="email" id="previewCompanyEmail" value="{{ company.email }}" placeholder="Email Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
+                <input type="email" id="previewCompanyEmail" name="company_email" value="{{ company.email }}" placeholder="Email Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Address</label>
-                <textarea id="previewCompanyAddress" placeholder="Street Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 70px; resize: vertical;" oninput="updatePreview()">{{ company.address }}</textarea>
+                <textarea id="previewCompanyAddress" name="company_address" placeholder="Street Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 70px; resize: vertical;" oninput="updatePreview()">{{ company.address }}</textarea>
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Tax ID / NRC</label>
@@ -1639,10 +1713,20 @@
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Currency</label>
                 <select id="previewCurrency" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
-                  <option value="ZMW" selected>ZMW - Zambian Kwacha</option>
-                  <option value="USD">USD - US Dollar</option>
+                  <option value="ZMW" {% if currency_code == 'ZMW' %}selected{% endif %}>ZMW - Zambian Kwacha</option>
+                  <option value="MWK" {% if currency_code == 'MWK' %}selected{% endif %}>MWK - Malawian Kwacha</option>
+                  <option value="KES" {% if currency_code == 'KES' %}selected{% endif %}>KES - Kenyan Shilling</option>
+                  <option value="TZS" {% if currency_code == 'TZS' %}selected{% endif %}>TZS - Tanzanian Shilling</option>
+                  <option value="UGX" {% if currency_code == 'UGX' %}selected{% endif %}>UGX - Ugandan Shilling</option>
+                  <option value="ZAR" {% if currency_code == 'ZAR' %}selected{% endif %}>ZAR - South African Rand</option>
+                  <option value="NGN" {% if currency_code == 'NGN' %}selected{% endif %}>NGN - Nigerian Naira</option>
+                  <option value="GHS" {% if currency_code == 'GHS' %}selected{% endif %}>GHS - Ghanaian Cedi</option>
+                  <option value="ZWL" {% if currency_code == 'ZWL' %}selected{% endif %}>ZWL - Zimbabwean Dollar</option>
+                  <option value="BWP" {% if currency_code == 'BWP' %}selected{% endif %}>BWP - Botswana Pula</option>
+                  <option value="MZN" {% if currency_code == 'MZN' %}selected{% endif %}>MZN - Mozambican Metical</option>
+                  <option value="USD" {% if currency_code == 'USD' %}selected{% endif %}>USD - US Dollar</option>
+                  <option value="GBP" {% if currency_code == 'GBP' %}selected{% endif %}>GBP - British Pound</option>
                   <option value="EUR">EUR - Euro</option>
-                  <option value="GBP">GBP - British Pound</option>
                 </select>
               </div>
             </div>
@@ -1765,15 +1849,15 @@
             <div style="display: grid; gap: 16px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Earnings Header Color</label>
-                <input type="color" id="previewEarningsColor" value="#93c5fd" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
+                <input type="color" id="previewEarningsColor" name="payslip_section_color" value="{{ company.payslip_section_color|default:'#93c5fd' }}" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Deductions Header Color</label>
-                <input type="color" id="previewDeductionsColor" value="#93c5fd" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
+                <input type="color" id="previewDeductionsColor" name="payslip_accent_color" value="{{ company.payslip_accent_color|default:'#93c5fd' }}" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Font Family</label>
-                <select id="previewFontFamily" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
+                <select id="previewFontFamily" name="payslip_font_family" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;" onchange="updatePreview()">
                   <option value="Arial, sans-serif" selected>Arial</option>
                   <option value="'Times New Roman', serif">Times New Roman</option>
                   <option value="Georgia, serif">Georgia</option>
@@ -1784,8 +1868,8 @@
               <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 6px;">
                 <span style="font-size: 13px; font-weight: 500; color: #374151;">Show Company Logo</span>
                 <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                  <input type="checkbox" id="previewShowLogo" checked onchange="updatePreview()" style="opacity: 0; width: 0; height: 0;">
-                  <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3b82f6; transition: 0.3s; border-radius: 24px;"></span>
+                  <input type="checkbox" id="previewShowLogo" name="show_company_logo" {% if company.show_company_logo %}checked{% endif %} onchange="updatePreview()" style="opacity: 0; width: 0; height: 0;">
+                  <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #DC143C; transition: 0.3s; border-radius: 24px;"></span>
                   <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
                 </label>
               </div>
@@ -1793,19 +1877,19 @@
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Header Layout</label>
                 <div style="display: grid; gap: 8px;">
                   <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
-                    <input type="radio" name="previewHeaderLayout" value="logo-left" checked onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <input type="radio" name="payslip_logo_position" value="logo-left" {% if not company.payslip_logo_position or company.payslip_logo_position == 'logo-left' %}checked{% endif %} onchange="updatePreview()" style="accent-color: #DC143C;">
                     <span style="font-size: 13px; color: #1f2937;">Logo left, company info right</span>
                   </label>
                   <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
-                    <input type="radio" name="previewHeaderLayout" value="logo-right" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <input type="radio" name="payslip_logo_position" value="logo-right" {% if company.payslip_logo_position == 'logo-right' %}checked{% endif %} onchange="updatePreview()" style="accent-color: #DC143C;">
                     <span style="font-size: 13px; color: #1f2937;">Company info left, logo right</span>
                   </label>
                   <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
-                    <input type="radio" name="previewHeaderLayout" value="stacked-logo-top" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <input type="radio" name="payslip_logo_position" value="stacked-logo-top" {% if company.payslip_logo_position == 'stacked-logo-top' %}checked{% endif %} onchange="updatePreview()" style="accent-color: #DC143C;">
                     <span style="font-size: 13px; color: #1f2937;">Logo top, company info below</span>
                   </label>
                   <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; border-radius: 6px; cursor: pointer; background: #fff;">
-                    <input type="radio" name="previewHeaderLayout" value="stacked-info-top" onchange="updatePreview()" style="accent-color: #2563eb;">
+                    <input type="radio" name="payslip_logo_position" value="stacked-info-top" {% if company.payslip_logo_position == 'stacked-info-top' %}checked{% endif %} onchange="updatePreview()" style="accent-color: #DC143C;">
                     <span style="font-size: 13px; color: #1f2937;">Company info top, logo below</span>
                   </label>
                 </div>
@@ -1819,8 +1903,8 @@
             <div style="display: grid; gap: 16px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Footer Text</label>
-                <textarea id="previewFooterText" placeholder="Pay Slip Not Valid Unless Signed..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 90px; resize: vertical;" oninput="updatePreview()">Pay Slip Not Valid Unless Signed
-Please Treat Your Pay Slip as Confidential. Have a Nice Month</textarea>
+                <textarea id="previewFooterText" name="payslip_footer_text" placeholder="Pay Slip Not Valid Unless Signed..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 90px; resize: vertical;" oninput="updatePreview()">{{ company.payslip_footer_text|default:'Pay Slip Not Valid Unless Signed
+Please Treat Your Pay Slip as Confidential. Have a Nice Month' }}</textarea>
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Receiver's Name Label</label>
@@ -1830,7 +1914,7 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month</textarea>
           </div>
 
           <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-            <button type="submit" style="width: 100%; padding: 12px; background: #1e293b; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+            <button type="button" onclick="savePayslipDesign()" style="width: 100%; padding: 12px; background: #1e293b; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
               </svg>
@@ -1838,6 +1922,7 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month</textarea>
             </button>
           </div>
           </div><!-- /designer content (flex:1 overflow-y) -->
+          </form>
         </div><!-- /white card -->
       </div><!-- /left panel (background: transparent) -->
 
@@ -1849,129 +1934,29 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month</textarea>
           <p style="font-size: 13px; color: #6b7280;">Changes appear instantly as you edit</p>
         </div>
         <div style="padding: 24px 28px;">
-          <div id="payslipPreview" style="background: white; border: 2px solid #000; width: 100%; max-width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.12); margin: 0; font-family: Arial, sans-serif;">
-          
-          <!-- Header -->
-          <div id="previewHeader" style="padding: 16px 20px; border-bottom: 3px solid #000; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-            <div id="previewHeaderLogoWrapper" style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-              <div id="previewLogoContainer" style="width: 80px; height: 60px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                {% if company.logo %}
-                  <img src="{{ company.logo.url }}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                {% else %}
-                  <div style="width: 80px; height: 60px; background: #000; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;">LOGO</div>
-                {% endif %}
-              </div>
-            </div>
-            <div id="previewHeaderInfo" style="text-align: right; flex: 1; margin-left: 12px;">
-              <div id="previewHeaderCompanyName" style="font-size: 14px; font-weight: 700; color: #000; text-transform: uppercase;">{{ company.name }}</div>
-              <div id="previewHeaderAddress" style="font-size: 10px; color: #000; line-height: 1.4; margin-top: 2px;">{{ company.address }}</div>
-              <div id="previewHeaderPhone" style="font-size: 10px; color: #000;">{{ company.phone }}</div>
-              <div id="previewHeaderEmail" style="font-size: 10px; color: #000;">{{ company.email }}</div>
-            </div>
-          </div>
+          <div id="payslipPreview" style="background: white; width: 100%; max-width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.12); margin: 0; font-family: Arial, sans-serif; position: relative;">
 
-          <!-- Employee Info -->
-          <div style="padding: 12px 20px; border-bottom: 1px solid #000;">
-            <table style="width: 100%; font-size: 11px;">
-              <tr>
-                <td style="padding: 3px 0; text-align: right; width: 35%; font-weight: 600;">Employee Name :</td>
-                <td id="previewInfoEmployeeName" style="padding: 3px 0 3px 10px; text-transform: uppercase;">EMMANUEL SIMWANZA</td>
-              </tr>
-              <tr>
-                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Employee ID :</td>
-                <td id="previewInfoEmployeeId" style="padding: 3px 0 3px 10px;">MFI2001</td>
-              </tr>
-              <tr>
-                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Designation :</td>
-                <td id="previewInfoDesignation" style="padding: 3px 0 3px 10px; text-transform: uppercase;">GENERAL MANAGER</td>
-              </tr>
-              <tr>
-                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Department :</td>
-                <td id="previewInfoDepartment" style="padding: 3px 0 3px 10px; text-transform: uppercase;">ADMIN</td>
-              </tr>
-              <tr>
-                <td style="padding: 3px 0; text-align: right; font-weight: 600;">NRC :</td>
-                <td id="previewHeaderTaxId" style="padding: 3px 0 3px 10px;">431448/9/1</td>
-              </tr>
-              <tr>
-                <td style="padding: 3px 0; text-align: right; font-weight: 600;">Month :</td>
-                <td id="previewPayPeriod" style="padding: 3px 0 3px 10px;">Sep-2025</td>
-              </tr>
-            </table>
-          </div>
+          <!-- Dynamic template content — rebuilt by JS on layout switch -->
+          <div id="payslipTemplateContent"></div>
 
-          <!-- Earnings Section -->
-          <div style="padding: 0; border-bottom: 1px solid #000;">
-            <div id="previewEarningsHeader" style="background: #93c5fd; padding: 6px 20px; font-size: 12px; font-weight: 700; color: #000; text-align: center;">EARNINGS</div>
-            <div style="padding: 8px 20px;">
-              <table style="width: 100%; font-size: 11px;">
-                <tbody id="previewEarningsList">
-                  <!-- Will be populated by JavaScript -->
-                </tbody>
-                <tr style="border-top: 1px solid #000; font-weight: 700;">
-                  <td style="padding: 6px 0;">Gross Salary</td>
-                  <td id="previewTotalEarnings" style="padding: 6px 0; text-align: right;">ZMW 0.00</td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <!-- Statutory Deductions -->
-          <div style="padding: 0; border-bottom: 1px solid #000;">
-            <div id="previewDeductionsHeader" style="background: #93c5fd; padding: 6px 20px; font-size: 12px; font-weight: 700; color: #000; text-align: center;">STATUTORY DEDUCTION</div>
-            <div style="padding: 8px 20px;">
-              <table style="width: 100%; font-size: 11px;">
-                <tbody id="previewDeductionsList">
-                  <!-- Will be populated by JavaScript -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Summary -->
-          <div style="padding: 12px 20px; border-bottom: 1px solid #000;">
-            <table style="width: 100%; font-size: 11px;">
-              <tr>
-                <td style="padding: 3px 0;">Total Earnings (A)</td>
-                <td id="previewSummaryEarnings" style="padding: 3px 0; text-align: right; font-weight: 600;">ZMW 0.00</td>
-              </tr>
-              <tr>
-                <td style="padding: 3px 0;">Total Deductions (B)</td>
-                <td id="previewSummaryDeductions" style="padding: 3px 0; text-align: right; font-weight: 600; color: #dc2626;">ZMW 0.00</td>
-              </tr>
-              <tr>
-                <td style="padding: 3px 0;">GRATUITY + BONUS</td>
-                <td style="padding: 3px 0; text-align: right;">-</td>
-              </tr>
-              <tr style="border-top: 2px solid #000; font-weight: 700; font-size: 13px;">
-                <td style="padding: 6px 0;">Net Salary (A-B)</td>
-                <td id="previewNetPay" style="padding: 6px 0; text-align: right; text-decoration: underline;">ZMW 0.00</td>
-              </tr>
-              <tr>
-                <td style="padding: 3px 0;">LOANS BALANCE</td>
-                <td style="padding: 3px 0; text-align: right;"></td>
-              </tr>
-            </table>
-          </div>
-
-          <!-- Signature Section -->
-          <div style="padding: 16px 20px; border-bottom: 1px solid #000;">
+          <!-- Permanent stamp section -->
+          <div id="payslipStampSection" style="padding: 16px 20px; border-top: 1px solid #ccc; background: #fafafa;">
             <table style="width: 100%; font-size: 11px;">
               <tr>
                 <td style="width: 50%; vertical-align: top;">
                   <div id="displayReceiverLabel" style="font-weight: 600; margin-bottom: 40px;">Receiver's Name:</div>
                   <div id="previewReceiverName" style="border-bottom: 1px solid #000; padding-bottom: 2px;"></div>
                 </td>
-                <td style="width: 50%; text-align: center; vertical-align: top; position: relative;">
-                  <div id="displayStampLabel" style="font-weight: 600; margin-bottom: 8px;">
-                    Company Stamp (Drag to Position)
+                <td style="width: 50%; text-align: center; vertical-align: top; position: relative; height: 140px;">
+                  <div style="font-weight: 600; margin-bottom: 8px; font-size: 11px;">
+                    Company Stamp <span style="font-weight:400;color:#64748b;">(Drag to reposition)</span>
                     <div style="display: inline-flex; gap: 8px; margin-left: 12px; align-items: center;">
                       <label style="font-size: 11px; font-weight: 400; color: #64748b;">Opacity:</label>
                       <input type="range" id="stampOpacitySlider" min="10" max="100" value="100" step="5" style="width: 80px;" oninput="updateStampOpacity(this.value)">
                       <span id="stampOpacityValue" style="font-size: 11px; color: #64748b;">100%</span>
                     </div>
                   </div>
-                  <div id="previewStampContainer" class="draggable-stamp resizable-stamp" style="position: absolute; left: 50%; top: 20px; transform: translateX(-50%); width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 12px; background: rgba(248, 250, 252, 0.5); z-index: 10;">
+                  <div id="previewStampContainer" class="draggable-stamp resizable-stamp" style="position: absolute; left: 50%; top: 20px; transform: translateX(-50%); width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 12px; background: rgba(248, 250, 252, 0.5); z-index: 10; cursor: move;">
                     {% if company.company_stamp %}
                     <img id="stampImageElement" src="{{ company.company_stamp.url }}" alt="Company Stamp" style="width: 100%; height: 100%; object-fit: contain; opacity: 1;">
                     {% else %}
@@ -1987,17 +1972,6 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month</textarea>
             </table>
           </div>
 
-          <!-- Footer -->
-          <div style="padding: 12px 20px; text-align: center; border-bottom: 1px solid #000;">
-            <div id="displayFooterText" style="font-size: 10px; color: #000; line-height: 1.5; white-space: pre-line;">Pay Slip Not Valid Unless Signed
-Please Treat Your Pay Slip as Confidential. Have a Nice Month</div>
-          </div>
-
-          <!-- Company Footer -->
-          <div style="padding: 8px 20px; text-align: center; font-size: 9px; color: #000;">
-            <div style="font-weight: 700; margin-bottom: 4px;">{{ company.name|upper }}</div>
-            <div style="line-height: 1.4;">{{ company.address }}</div>
-          </div>
           </div><!-- /payslipPreview -->
         </div><!-- /padding div -->
         </div><!-- /white card -->
@@ -2055,6 +2029,9 @@ document.querySelectorAll('.designer-tab').forEach(tab => {
     
     this.classList.add('active');
     document.getElementById(`tab-${tabName}`).classList.add('active');
+
+    const scrollContainer = document.querySelector('#payslipDesignForm > div');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
   });
 });
 
@@ -2255,9 +2232,9 @@ let stampConfig = {
   bottomText: '2025',
   fontSize: 14,
   fontWeight: '600',
-  borderColor: '#1d4ed8',
+  borderColor: '#DC143C',
   backgroundColor: '#f8fafc',
-  textColor: '#1d4ed8',
+  textColor: '#DC143C',
   rotation: 0,
   opacity: 90,
   innerBorder: false,
@@ -2436,9 +2413,9 @@ function updateStampPresetButtons() {
   buttons.forEach(button => {
     const isActive = button.dataset.preset === stampConfig.preset;
     button.classList.toggle('active', isActive);
-    button.style.borderColor = isActive ? '#2563eb' : '#d1d5db';
-    button.style.background = isActive ? 'rgba(37, 99, 235, 0.08)' : '#ffffff';
-    button.style.color = isActive ? '#1d4ed8' : '#1f2937';
+    button.style.borderColor = isActive ? '#DC143C' : '#d1d5db';
+    button.style.background = isActive ? 'rgba(220, 20, 60, 0.08)' : '#ffffff';
+    button.style.color = isActive ? '#DC143C' : '#1f2937';
     button.style.fontWeight = isActive ? '600' : '500';
   });
 }
@@ -2609,7 +2586,7 @@ function updateStampToggleUI() {
   const toggleKnob = document.querySelector('.stamp-toggle-knob');
   if (toggleBg && toggleKnob) {
     if (stampConfig.enabled) {
-      toggleBg.style.backgroundColor = '#2563eb';
+      toggleBg.style.backgroundColor = '#DC143C';
       toggleKnob.style.transform = 'translateX(22px)';
     } else {
       toggleBg.style.backgroundColor = '#cbd5e1';
@@ -2797,9 +2774,9 @@ window.applyStampPreset = function(preset) {
       size: 150,
       borderWidth: 3,
       borderStyle: 'double',
-      borderColor: '#1d4ed8',
+      borderColor: '#DC143C',
       backgroundColor: '#f8fafc',
-      textColor: '#1d4ed8',
+      textColor: '#DC143C',
       fontSize: 14,
       fontWeight: '600',
       topText: 'MFI DOCUMENT SOLUTIONS',
@@ -2869,7 +2846,7 @@ window.applyStampTheme = function(theme) {
     stampConfig.textColor = '#1e293b';
   } else if (theme === 'blue') {
     stampConfig.backgroundColor = '#f0f7ff';
-    stampConfig.borderColor = '#1d4ed8';
+    stampConfig.borderColor = '#DC143C';
     stampConfig.textColor = '#1e3a8a';
   } else if (theme === 'red') {
     stampConfig.backgroundColor = '#fef2f2';
@@ -2881,140 +2858,20 @@ window.applyStampTheme = function(theme) {
   updateStampPreview();
 };
 
-// Live Preview Updates
+// Live Preview Updates — rebuilds the full template HTML
 function updatePreview() {
-  // Header
-  document.getElementById('previewHeaderCompanyName').textContent = (document.getElementById('previewCompanyName')?.value || 'Company Name').toUpperCase();
-  document.getElementById('previewHeaderPhone').textContent = document.getElementById('previewCompanyPhone')?.value || '+1 (555) 123-4567';
-  document.getElementById('previewHeaderEmail').textContent = document.getElementById('previewCompanyEmail')?.value || 'hr@company.com';
-  document.getElementById('previewHeaderAddress').textContent = document.getElementById('previewCompanyAddress')?.value || 'Address';
-  document.getElementById('previewHeaderTaxId').textContent = document.getElementById('previewTaxId')?.value || '913365/10/2';
-  
-  // Pay Period
-  const month = document.getElementById('previewMonth')?.value || 'December';
-  const year = document.getElementById('previewYear')?.value || '2024';
-  const monthShort = month.substring(0, 3);
-  document.getElementById('previewPayPeriod').textContent = `${monthShort}-${year}`;
-  
-  // Employee Info
-  document.getElementById('previewInfoEmployeeName').textContent = (document.getElementById('previewEmployeeName')?.value || 'BIJESH VANNERI KATIL').toUpperCase();
-  document.getElementById('previewInfoDepartment').textContent = (document.getElementById('previewDepartment')?.value || 'OPERATIONS').toUpperCase();
-  document.getElementById('previewInfoEmployeeId').textContent = document.getElementById('previewEmployeeId')?.value || 'MFI2001';
-  document.getElementById('previewInfoDesignation').textContent = (document.getElementById('previewDesignation')?.value || 'GENERAL MANAGER').toUpperCase();
-  
-  // Receiver Name
+  renderPayslipPreview(_currentPreviewLayout);
+  // Update permanent stamp section elements (outside the template content)
   const receiverLabelInput = document.getElementById('previewReceiverLabel');
   const displayReceiverLabel = document.getElementById('displayReceiverLabel');
   if (receiverLabelInput && displayReceiverLabel) {
     displayReceiverLabel.textContent = receiverLabelInput.value || "Receiver's Name:";
   }
-  
   const receiverName = document.getElementById('previewReceiverName');
   if (receiverName) {
     receiverName.textContent = document.getElementById('previewEmployeeName')?.value || '';
   }
-  
-  // Stamp Label
-  const stampLabelInput = document.getElementById('previewStampLabel');
-  const displayStampLabel = document.getElementById('displayStampLabel');
-  if (stampLabelInput && displayStampLabel) {
-    displayStampLabel.textContent = stampLabelInput.value || 'Company Stamp';
-  }
-  
-  // Footer Text
-  const footerTextInput = document.getElementById('previewFooterText');
-  const displayFooterText = document.getElementById('displayFooterText');
-  if (footerTextInput && displayFooterText) {
-    displayFooterText.textContent = footerTextInput.value || 'Pay Slip Not Valid Unless Signed\nPlease Treat Your Pay Slip as Confidential. Have a Nice Month';
-  }
-  
-  // Styles
-  const earningsColor = document.getElementById('previewEarningsColor')?.value || '#93c5fd';
-  const deductionsColor = document.getElementById('previewDeductionsColor')?.value || '#93c5fd';
-  const fontFamily = document.getElementById('previewFontFamily')?.value || 'Arial, sans-serif';
-  const showLogo = document.getElementById('previewShowLogo')?.checked !== false;
-  const headerLayout = document.querySelector('input[name="previewHeaderLayout"]:checked')?.value || 'logo-left';
-  
-  const payslipPreview = document.getElementById('payslipPreview');
-  if (payslipPreview) {
-    payslipPreview.style.fontFamily = fontFamily;
-  }
-  
-  const earningsHeader = document.getElementById('previewEarningsHeader');
-  if (earningsHeader) {
-    earningsHeader.style.backgroundColor = earningsColor;
-  }
-  
-  const deductionsHeader = document.getElementById('previewDeductionsHeader');
-  if (deductionsHeader) {
-    deductionsHeader.style.backgroundColor = deductionsColor;
-  }
-  
-  const headerContainer = document.getElementById('previewHeader');
-  const headerLogoWrapper = document.getElementById('previewHeaderLogoWrapper');
-  const headerInfo = document.getElementById('previewHeaderInfo');
-
-  if (headerContainer && headerLogoWrapper && headerInfo) {
-    headerContainer.style.display = 'flex';
-    headerContainer.style.gap = '12px';
-    headerContainer.style.justifyContent = 'space-between';
-    headerLogoWrapper.style.marginLeft = '0';
-    headerLogoWrapper.style.marginRight = '0';
-
-    headerInfo.style.display = 'flex';
-    headerInfo.style.flexDirection = 'column';
-    headerInfo.style.marginLeft = '12px';
-    headerInfo.style.marginRight = '0';
-
-    switch (headerLayout) {
-      case 'logo-right':
-        headerContainer.style.flexDirection = 'row';
-        headerLogoWrapper.style.order = '2';
-        headerInfo.style.order = '1';
-        headerInfo.style.textAlign = 'left';
-        headerInfo.style.alignItems = 'flex-start';
-        headerInfo.style.marginLeft = '0';
-        headerInfo.style.marginRight = '12px';
-        headerContainer.style.alignItems = 'center';
-        break;
-      case 'stacked-logo-top':
-        headerContainer.style.flexDirection = 'column';
-        headerLogoWrapper.style.order = '1';
-        headerInfo.style.order = '2';
-        headerInfo.style.textAlign = 'center';
-        headerInfo.style.alignItems = 'center';
-        headerInfo.style.marginLeft = '0';
-        headerContainer.style.alignItems = 'center';
-        break;
-      case 'stacked-info-top':
-        headerContainer.style.flexDirection = 'column';
-        headerLogoWrapper.style.order = '2';
-        headerInfo.style.order = '1';
-        headerInfo.style.textAlign = 'center';
-        headerInfo.style.alignItems = 'center';
-        headerInfo.style.marginLeft = '0';
-        headerContainer.style.alignItems = 'center';
-        break;
-      default:
-        headerContainer.style.flexDirection = 'row';
-        headerLogoWrapper.style.order = '1';
-        headerInfo.style.order = '2';
-        headerInfo.style.textAlign = 'right';
-        headerInfo.style.marginLeft = '12px';
-        headerInfo.style.marginRight = '0';
-        headerContainer.style.alignItems = 'flex-start';
-        break;
-    }
-  }
-
-  const logoContainer = document.getElementById('previewLogoContainer');
-  if (logoContainer) {
-    logoContainer.style.display = showLogo ? 'flex' : 'none';
-  }
-  
-  updateStampPreview();
-  // Update totals with new currency
-  updateTotals();
+  if (typeof updateStampPreview === 'function') updateStampPreview();
 }
 
 // Handle Stamp Upload
@@ -3169,7 +3026,7 @@ function showSettingsMessage(message, type) {
     animation: slideInRight 0.3s ease;
     ${type === 'success' ? 'background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;' : ''}
     ${type === 'error' ? 'background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;' : ''}
-    ${type === 'info' ? 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;' : ''}
+    ${type === 'info' ? 'background: #fce7f3; color: #DC143C; border: 1px solid #fca5a5;' : ''}
   `;
   const icon = type === 'success' ? '&#10003;' : type === 'error' ? '&#10007;' : '&#9432;';
   banner.innerHTML = `<span style="font-size: 18px;">${icon}</span><span>${message}</span>`;
@@ -3546,6 +3403,8 @@ function initializeDraggableStamp() {
       initialY = currentY;
       isDragging = false;
       stampContainer.style.cursor = 'move';
+      window._stampDragX = currentX || 0;
+      window._stampDragY = currentY || 0;
     }
   }
   
@@ -3581,9 +3440,303 @@ function initializeDraggableStamp() {
   }
   
   function resizeEnd(e) {
+    if (isResizing) {
+      window._stampSize = stampContainer.offsetWidth || 120;
+    }
     isResizing = false;
   }
 }
+
+// === Django-rendered template variables (set once at page load) ===
+const _tplLogoSrc = '{% if company.logo %}{{ company.logo.url }}{% endif %}';
+const _tplCurrency = '{{ currency_symbol|default:"ZMW" }}';
+
+// === Template Data Collector ===
+function getPreviewData() {
+  const month = document.getElementById('previewMonth')?.value || 'January';
+  const year = document.getElementById('previewYear')?.value || new Date().getFullYear();
+  const logoImg = _tplLogoSrc
+    ? '<img src="' + _tplLogoSrc + '" alt="Logo" style="max-width:100%;max-height:100%;object-fit:contain;">'
+    : '<div style="width:60px;height:45px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#888;">LOGO</div>';
+  return {
+    companyName: document.getElementById('previewCompanyName')?.value || 'Company Name',
+    companyAddress: (document.getElementById('previewCompanyAddress')?.value || '').replace(/\n/g, ', '),
+    companyPhone: document.getElementById('previewCompanyPhone')?.value || '',
+    companyEmail: document.getElementById('previewCompanyEmail')?.value || '',
+    empName: (document.getElementById('previewEmployeeName')?.value || 'Employee Name').toUpperCase(),
+    empId: document.getElementById('previewEmployeeId')?.value || 'EMP-001',
+    designation: (document.getElementById('previewDesignation')?.value || 'Staff').toUpperCase(),
+    department: (document.getElementById('previewDepartment')?.value || '').toUpperCase(),
+    nrc: document.getElementById('previewTaxId')?.value || '',
+    period: month.substring(0,3) + '-' + year,
+    payDate: new Date().toLocaleDateString(),
+    earningsColor: document.getElementById('previewEarningsColor')?.value || '#4472c4',
+    deductionsColor: document.getElementById('previewDeductionsColor')?.value || '#4472c4',
+    fontFamily: document.getElementById('previewFontFamily')?.value || 'Arial, sans-serif',
+    footerText: document.getElementById('previewFooterText')?.value || 'Pay Slip Not Valid Unless Signed',
+    currency: _tplCurrency,
+    logoImg: logoImg,
+  };
+}
+
+// === Template 1: CLASSIC (Spreadsheet style — company left / PAYSLIP right) ===
+function buildClassicTemplate(d) {
+  const hc = d.earningsColor; const dc = d.deductionsColor;
+  return '<div style="font-family:' + d.fontFamily + ';border:1px solid #bbb;">'
+    + '<div style="padding:14px 18px;border-bottom:2px solid ' + hc + ';display:flex;justify-content:space-between;align-items:flex-start;">'
+      + '<div><div style="font-size:20px;font-weight:700;color:#1e3a5f;">' + d.companyName + '</div>'
+        + '<div style="font-size:10px;color:#555;margin-top:3px;">' + d.companyAddress + '</div>'
+        + '<div style="font-size:10px;color:#555;">Phone: ' + d.companyPhone + ' &nbsp;|&nbsp; ' + d.companyEmail + '</div></div>'
+      + '<div style="text-align:right;"><div style="font-size:24px;font-weight:700;color:' + hc + ';letter-spacing:2px;">PAYSLIP</div></div>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #ccc;">'
+      + '<div style="padding:10px 18px;border-right:1px solid #ccc;">'
+        + '<div style="background:' + hc + ';color:#fff;padding:3px 8px;font-size:10px;font-weight:700;margin-bottom:6px;">EMPLOYEE INFORMATION</div>'
+        + '<div style="font-weight:700;font-size:12px;">' + d.empName + '</div>'
+        + '<div style="font-size:10px;color:#333;">' + d.designation + '</div>'
+        + '<div style="font-size:10px;color:#333;">' + d.department + '</div>'
+        + '<div style="font-size:10px;color:#333;">ID: ' + d.empId + '</div>'
+        + '<div style="font-size:10px;color:#333;">NRC: ' + d.nrc + '</div></div>'
+      + '<div style="padding:10px 18px;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
+        + '<tr><th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;text-align:center;">PAY DATE</th>'
+        + '<th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;text-align:center;">PAY TYPE</th>'
+        + '<th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;text-align:center;">PERIOD</th></tr>'
+        + '<tr><td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">' + d.payDate + '</td>'
+        + '<td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">Monthly</td>'
+        + '<td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">' + d.period + '</td></tr>'
+        + '<tr><th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;">PAYROLL #</th>'
+        + '<th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;">ID #</th>'
+        + '<th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;">MONTH</th></tr>'
+        + '<tr><td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">0001</td>'
+        + '<td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">' + d.empId + '</td>'
+        + '<td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">' + d.period + '</td></tr>'
+        + '</table></div></div>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:10px;">'
+      + '<thead><tr><td colspan="5" style="background:' + hc + ';color:#fff;padding:5px 18px;font-weight:700;">EARNINGS</td></tr>'
+      + '<tr style="background:#f5f5f5;"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
+      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Hours</th>'
+      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Rate</th>'
+      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th>'
+      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">YTD</th></tr></thead>'
+      + '<tbody id="previewEarningsList"></tbody>'
+      + '<tfoot><tr style="background:#f0f0f0;border-top:1px solid #ccc;">'
+      + '<td colspan="3" style="padding:5px 18px;font-weight:700;text-align:right;">GROSS PAY</td>'
+      + '<td id="previewTotalEarnings" style="padding:5px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td>'
+      + '<td style="padding:5px 8px;"></td></tr></tfoot></table>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:3px;">'
+      + '<thead><tr><td colspan="3" style="background:' + dc + ';color:#fff;padding:5px 18px;font-weight:700;">DEDUCTIONS</td></tr>'
+      + '<tr style="background:#f5f5f5;"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
+      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Current</th>'
+      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">YTD</th></tr></thead>'
+      + '<tbody id="previewDeductionsList"></tbody>'
+      + '<tfoot><tr style="background:#f0f0f0;border-top:1px solid #ccc;">'
+      + '<td style="padding:5px 18px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>'
+      + '<td id="previewSummaryDeductions" style="padding:5px 8px;text-align:right;font-weight:700;color:#dc2626;">' + d.currency + ' 0.00</td>'
+      + '<td></td></tr></tfoot></table>'
+    + '<div style="background:#7f7f7f;padding:8px 18px;display:flex;justify-content:flex-end;align-items:center;gap:24px;">'
+      + '<span style="color:#fff;font-weight:700;font-size:13px;">NET PAY</span>'
+      + '<span id="previewNetPay" style="color:#fff;font-weight:700;font-size:14px;">' + d.currency + ' 0.00</span></div>'
+    + '<div style="padding:10px 18px;text-align:center;border-top:1px solid #ccc;">'
+      + '<div id="displayFooterText" style="font-size:9px;color:#555;line-height:1.5;white-space:pre-line;">' + d.footerText + '</div></div>'
+  + '</div>';
+}
+
+// === Template 2: CORPORATE (Logo + dark teal banner, full-width headers, big NET PAY) ===
+function buildCorporateTemplate(d) {
+  const t = '#1a5f6b'; const tl = '#e8f5f7';
+  return '<div style="font-family:' + d.fontFamily + ';border:2px solid ' + t + ';">'
+    + '<div style="display:flex;align-items:stretch;border-bottom:3px solid ' + t + ';">'
+      + '<div style="padding:14px 16px;display:flex;align-items:center;background:#fafafa;border-right:1px solid #e0e0e0;">'
+        + '<div style="width:68px;height:68px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid #e0e0e0;border-radius:4px;">' + d.logoImg + '</div></div>'
+      + '<div style="flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:12px 18px;background:' + tl + ';">'
+        + '<div style="background:' + t + ';color:#fff;padding:6px 20px;font-size:20px;font-weight:700;letter-spacing:3px;margin-bottom:4px;">PAYSLIP</div>'
+        + '<div style="font-size:13px;font-weight:700;color:' + t + ';">' + d.companyName + '</div>'
+        + '<div style="font-size:9px;color:#555;">' + d.companyAddress + '</div>'
+        + '<div style="font-size:9px;color:#555;">' + d.companyPhone + ' &nbsp; ' + d.companyEmail + '</div></div></div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid ' + t + ';">'
+      + '<div style="padding:12px 16px;border-right:1px solid #ccc;">'
+        + '<div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">EMPLOYEE INFORMATION</div>'
+        + '<div style="font-weight:700;font-size:13px;color:' + t + ';border-bottom:2px solid ' + t + ';padding-bottom:3px;margin-bottom:4px;">' + d.empName + '</div>'
+        + '<div style="font-size:10px;color:#444;margin-bottom:2px;">' + d.designation + '</div>'
+        + '<div style="font-size:10px;color:#444;margin-bottom:2px;">' + d.department + '</div>'
+        + '<div style="font-size:10px;color:#444;">' + d.companyPhone + ' &nbsp; ' + d.companyEmail + '</div></div>'
+      + '<div style="padding:12px 16px;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
+        + '<tr><th style="background:' + t + ';color:#fff;padding:4px 8px;">PAY DATE</th><th style="background:' + t + ';color:#fff;padding:4px 8px;">TITLE</th></tr>'
+        + '<tr><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.payDate + '</td><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.designation + '</td></tr>'
+        + '<tr><th style="background:' + t + ';color:#fff;padding:4px 8px;">ID #</th><th style="background:' + t + ';color:#fff;padding:4px 8px;">NRC / TAX</th></tr>'
+        + '<tr><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.empId + '</td><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.nrc + '</td></tr>'
+        + '<tr><th colspan="2" style="background:' + t + ';color:#fff;padding:4px 8px;text-align:center;">PERIOD</th></tr>'
+        + '<tr><td colspan="2" style="padding:4px 8px;border:1px solid #e0e0e0;text-align:center;font-weight:600;">' + d.period + '</td></tr>'
+        + '</table></div></div>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:10px;">'
+      + '<thead><tr style="background:' + t + ';"><th style="color:#fff;padding:6px 16px;text-align:left;">EARNINGS</th>'
+      + '<th style="color:#fff;padding:6px 8px;text-align:right;">HOURS</th>'
+      + '<th style="color:#fff;padding:6px 8px;text-align:right;">RATE</th>'
+      + '<th style="color:#fff;padding:6px 8px;text-align:right;">AMOUNT</th></tr></thead>'
+      + '<tbody id="previewEarningsList"></tbody>'
+      + '<tfoot><tr style="background:' + tl + ';border-top:2px solid ' + t + ';">'
+      + '<td colspan="3" style="padding:6px 16px;font-weight:700;text-align:right;">GROSS PAY</td>'
+      + '<td id="previewTotalEarnings" style="padding:6px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td></tr></tfoot></table>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:3px;">'
+      + '<thead><tr style="background:' + t + ';"><th style="color:#fff;padding:6px 16px;text-align:left;">DEDUCTIONS</th>'
+      + '<th style="color:#fff;padding:6px 8px;text-align:right;">AMOUNT</th></tr></thead>'
+      + '<tbody id="previewDeductionsList"></tbody>'
+      + '<tfoot><tr style="background:' + tl + ';border-top:2px solid ' + t + ';">'
+      + '<td style="padding:6px 16px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>'
+      + '<td id="previewSummaryDeductions" style="padding:6px 8px;text-align:right;font-weight:700;color:#dc2626;">' + d.currency + ' 0.00</td></tr></tfoot></table>'
+    + '<div style="background:' + t + ';padding:12px 18px;display:flex;justify-content:flex-end;align-items:center;gap:28px;">'
+      + '<span style="color:#fff;font-weight:700;font-size:12px;letter-spacing:1px;">NET PAY</span>'
+      + '<span id="previewNetPay" style="color:#fff;font-weight:900;font-size:22px;">' + d.currency + ' 0.00</span></div>'
+    + '<div style="padding:14px 18px;display:flex;justify-content:space-between;">'
+      + '<div style="border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;">Employer Signature / Date</div>'
+      + '<div style="border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;text-align:right;">Employee Signature / Date</div></div>'
+    + '<div style="padding:8px 18px;text-align:center;border-top:1px solid #ccc;">'
+      + '<div id="displayFooterText" style="font-size:9px;color:#555;line-height:1.5;white-space:pre-line;">' + d.footerText + '</div></div>'
+  + '</div>';
+}
+
+// === Template 3: MINIMAL (Centered header, bold underline sections, no colored backgrounds) ===
+function buildMinimalTemplate(d) {
+  return '<div style="font-family:' + d.fontFamily + ';border:1px solid #e0e0e0;padding:20px;">'
+    + '<div style="text-align:center;border-bottom:1px solid #e0e0e0;padding-bottom:14px;margin-bottom:16px;">'
+      + '<div style="font-size:20px;font-weight:700;color:#111;">Payslip</div>'
+      + '<div style="font-size:14px;font-weight:600;margin-top:3px;">' + d.companyName + '</div>'
+      + '<div style="font-size:10px;color:#555;margin-top:2px;">' + d.companyAddress + '</div>'
+      + '<div style="font-size:10px;color:#555;">' + d.companyPhone + ' &nbsp;&nbsp; ' + d.companyEmail + '</div></div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:11px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e0e0e0;">'
+      + '<div><div><strong>Employee:</strong> ' + d.empName + '</div>'
+        + '<div><strong>Designation:</strong> ' + d.designation + '</div>'
+        + '<div><strong>Department:</strong> ' + d.department + '</div>'
+        + '<div><strong>Employee ID:</strong> ' + d.empId + '</div>'
+        + '<div><strong>NRC / Tax:</strong> ' + d.nrc + '</div></div>'
+      + '<div><div><strong>Pay period:</strong> ' + d.period + '</div>'
+        + '<div><strong>Pay date:</strong> ' + d.payDate + '</div></div></div>'
+    + '<div style="margin-bottom:14px;">'
+      + '<div style="font-weight:700;font-size:12px;border-bottom:2px solid #333;padding-bottom:4px;margin-bottom:6px;">Earnings</div>'
+      + '<table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#f4f4f4;">'
+        + '<th style="padding:4px 8px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
+        + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Hours/Units</th>'
+        + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Rate</th>'
+        + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Total</th></tr></thead>'
+      + '<tbody id="previewEarningsList"></tbody>'
+      + '<tfoot><tr style="border-top:2px solid #333;"><td colspan="3" style="padding:5px 8px;font-weight:700;">Total</td>'
+        + '<td id="previewTotalEarnings" style="padding:5px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td></tr></tfoot></table></div>'
+    + '<div style="margin-bottom:14px;">'
+      + '<div style="font-weight:700;font-size:12px;border-bottom:2px solid #333;padding-bottom:4px;margin-bottom:6px;">Deductions</div>'
+      + '<table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#f4f4f4;">'
+        + '<th style="padding:4px 8px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
+        + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Total</th></tr></thead>'
+      + '<tbody id="previewDeductionsList"></tbody>'
+      + '<tfoot><tr style="border-top:2px solid #333;"><td style="padding:5px 8px;font-weight:700;">Total Deductions</td>'
+        + '<td id="previewSummaryDeductions" style="padding:5px 8px;text-align:right;font-weight:700;color:#dc2626;">' + d.currency + ' 0.00</td></tr></tfoot></table></div>'
+    + '<div style="border-top:2px solid #333;padding-top:10px;display:flex;justify-content:space-between;align-items:center;">'
+      + '<div style="font-size:11px;"><div><strong>Bank details:</strong> [Employee Bank]</div><div><strong>Account number:</strong> [Account No]</div></div>'
+      + '<div><span style="font-weight:700;font-size:12px;">Total net pay: </span>'
+        + '<span id="previewNetPay" style="font-weight:700;font-size:16px;">' + d.currency + ' 0.00</span></div></div>'
+    + '<div style="margin-top:14px;padding-top:10px;border-top:1px solid #e0e0e0;text-align:center;">'
+      + '<div id="displayFooterText" style="font-size:9px;color:#888;white-space:pre-line;">' + d.footerText + '</div></div>'
+  + '</div>';
+}
+
+// === Main Render Function ===
+let _currentPreviewLayout = '{{ company.payslip_layout|default:"classic" }}';
+function renderPayslipPreview(layout) {
+  _currentPreviewLayout = layout;
+  const container = document.getElementById('payslipTemplateContent');
+  if (!container) return;
+  const d = getPreviewData();
+  if (layout === 'modern') container.innerHTML = buildCorporateTemplate(d);
+  else if (layout === 'compact') container.innerHTML = buildMinimalTemplate(d);
+  else container.innerHTML = buildClassicTemplate(d);
+  if (typeof updateTotals === 'function') updateTotals();
+}
+
+function selectSettingsLayout(el, layout) {
+  document.getElementById('settingsLayoutInput').value = layout;
+  document.querySelectorAll('#settingsTemplateGrid .settings-tpl-card').forEach(function(card) {
+    card.style.border = '2px solid #e2e8f0';
+    card.style.background = '#fff';
+  });
+  el.style.border = '2px solid #DC143C';
+  el.style.background = '#fff5f5';
+  renderPayslipPreview(layout);
+}
+
+function savePayslipDesign() {
+  if (typeof updateStampPreview === 'function') updateStampPreview();
+
+  const stampPosInput = document.getElementById('stampPositionInput');
+  if (stampPosInput && typeof stampConfig !== 'undefined' && stampConfig.position) {
+    stampPosInput.value = stampConfig.position;
+  }
+
+  const dragX = document.getElementById('stampDragX');
+  const dragY = document.getElementById('stampDragY');
+  if (dragX) dragX.value = window._stampDragX !== undefined ? window._stampDragX : (parseFloat(dragX.value) || 0);
+  if (dragY) dragY.value = window._stampDragY !== undefined ? window._stampDragY : (parseFloat(dragY.value) || 0);
+
+  const opacityInput = document.getElementById('stampOpacityInput');
+  if (opacityInput) {
+    const slider = document.getElementById('stampOpacitySlider');
+    opacityInput.value = slider ? slider.value : 100;
+  }
+
+  const sizeInput = document.getElementById('stampSizeInput');
+  if (sizeInput) {
+    const stampEl = document.getElementById('previewStampContainer');
+    sizeInput.value = window._stampSize !== undefined ? window._stampSize : (stampEl ? (stampEl.offsetWidth || 120) : 120);
+  }
+
+  document.getElementById('payslipDesignForm').submit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const currentLayout = document.getElementById('settingsLayoutInput')?.value || 'classic';
+  const activeCard = document.querySelector('#settingsTemplateGrid [data-layout="' + currentLayout + '"]');
+  if (activeCard) {
+    activeCard.style.border = '2px solid #DC143C';
+    activeCard.style.background = '#fff5f5';
+  }
+  renderPayslipPreview(currentLayout);
+
+  // Restore stamp drag position
+  const savedDragX = parseFloat(document.getElementById('stampDragX')?.value) || 0;
+  const savedDragY = parseFloat(document.getElementById('stampDragY')?.value) || 0;
+  const stampEl = document.getElementById('previewStampContainer');
+  if ((savedDragX !== 0 || savedDragY !== 0) && stampEl) {
+    window._stampDragX = savedDragX;
+    window._stampDragY = savedDragY;
+    stampEl.style.transform = `translate(${savedDragX}px, ${savedDragY}px)`;
+  }
+
+  // Restore stamp opacity
+  const savedOpacity = parseFloat(document.getElementById('stampOpacityInput')?.value) || 100;
+  if (savedOpacity !== 100) {
+    const stampImg = document.getElementById('stampImageElement');
+    if (stampImg) stampImg.style.opacity = savedOpacity / 100;
+    const slider = document.getElementById('stampOpacitySlider');
+    if (slider) slider.value = savedOpacity;
+    const opLabel = document.getElementById('stampOpacityValue');
+    if (opLabel) opLabel.textContent = savedOpacity + '%';
+  }
+
+  // Restore stamp size
+  const savedSize = parseFloat(document.getElementById('stampSizeInput')?.value) || 120;
+  if (savedSize !== 120 && stampEl) {
+    window._stampSize = savedSize;
+    stampEl.style.width = savedSize + 'px';
+    stampEl.style.height = savedSize + 'px';
+  }
+
+  // Restore font family selection
+  const savedFont = document.getElementById('fontFamilyRestore')?.value;
+  const fontSelect = document.getElementById('previewFontFamily');
+  if (fontSelect && savedFont) {
+    for (const opt of fontSelect.options) {
+      if (opt.value === savedFont) { opt.selected = true; break; }
+    }
+  }
+});
   </script>
 
 {% endblock %}

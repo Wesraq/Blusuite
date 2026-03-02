@@ -1,4 +1,4 @@
-{% extends 'ems/base_employer.html' %}
+﻿{% extends 'ems/base_employer.html' %}
 {% load static %}
 
 {% block title %}Payslip Designer - EMS{% endblock %}
@@ -291,7 +291,7 @@
 
   /* Drag placeholder */
   .drag-placeholder {
-    background: #dbeafe;
+    background: #fce7f3;
     border: 2px dashed #0ea5e9;
     border-radius: 8px;
     padding: 16px;
@@ -329,6 +329,93 @@
     font-size: 14px;
   }
 
+  /* Layout Template Cards */
+  .template-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .template-card {
+    border: 2.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 8px 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    background: #f8fafc;
+    position: relative;
+  }
+
+  .template-card:hover {
+    border-color: #0ea5e9;
+    background: #f0f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(14,165,233,0.15);
+  }
+
+  .template-card.active {
+    border-color: #E11D48;
+    background: #fff1f5;
+    box-shadow: 0 0 0 3px rgba(225,29,72,0.12);
+  }
+
+  .template-card.active::after {
+    content: '✓';
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #E11D48;
+  }
+
+  .template-preview {
+    width: 100%;
+    height: 56px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .template-preview-classic {
+    background: #fff;
+    border: 1px solid #d1d5db;
+  }
+
+  .template-preview-classic .tp-hd { background:#1f3864; height:10px; }
+  .template-preview-classic .tp-row { height:3px; background:#e5e7eb; margin:3px 6px; border-radius:1px; }
+  .template-preview-classic .tp-hd2 { background:#1f3864; height:6px; margin-top:4px; }
+  .template-preview-classic .tp-row2 { height:3px; background:#e5e7eb; margin:2px 6px; border-radius:1px; }
+
+  .template-preview-modern {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+  }
+
+  .template-preview-modern .tp-hd { background:#1a56a0; height:8px; }
+  .template-preview-modern .tp-stripe { background:#1a56a0; height:5px; }
+  .template-preview-modern .tp-emp { background:#f1f5f9; height:12px; margin:3px 0; }
+  .template-preview-modern .tp-lbl { background:#1a56a0; height:4px; margin:3px 6px; width:30%; border-left:3px solid #1a56a0; }
+  .template-preview-modern .tp-net { background:#1a56a0; height:8px; margin-top:5px; }
+
+  .template-preview-minimal {
+    background: #fff;
+    border: 1px solid #d1d5db;
+  }
+
+  .template-preview-minimal .tp-top { display:flex; justify-content:space-between; padding:3px 4px; }
+  .template-preview-minimal .tp-logo { background:#374151; width:16px; height:10px; border-radius:1px; }
+  .template-preview-minimal .tp-name { background:#e5e7eb; width:40%; height:4px; margin-top:3px; border-radius:1px; }
+  .template-preview-minimal .tp-hr { background:#111; height:1.5px; margin:3px 0; }
+  .template-preview-minimal .tp-title { background:#e5e7eb; height:5px; margin:3px 12px; }
+  .template-preview-minimal .tp-rows { height:2px; background:#e5e7eb; margin:2px 6px; border-radius:1px; }
+
+  .template-name { font-size: 11px; font-weight: 600; color: #374151; }
+  .template-sub { font-size: 9px; color: #6b7280; margin-top:1px; }
+
   @media (max-width: 1200px) {
     .designer-container {
       grid-template-columns: 1fr;
@@ -340,8 +427,14 @@
 {% block content %}
 <div class="action-bar">
   <div>
-    <h2 style="margin: 0; font-size: 20px; color: #1e293b;">Payslip Designer</h2>
-    <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Customize your payslip layout with drag-and-drop</p>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <a href="{% url 'payroll_list' %}" style="font-size:13px;color:#64748b;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">&#8592; Payroll</a>
+      <h2 style="margin: 0; font-size: 20px; color: #1e293b;">Payslip Designer</h2>
+      <span style="font-size:11px;background:#f1f5f9;color:#475569;border-radius:20px;padding:2px 10px;font-weight:600;">
+        Current: {% if company.payslip_layout == 'modern' %}Modern{% elif company.payslip_layout == 'compact' %}Minimal{% else %}Classic{% endif %}
+      </span>
+    </div>
+    <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Select a template and configure stamp/logo positions, then Save Design.</p>
   </div>
   <div style="display: flex; gap: 12px; align-items: center;">
     <div class="orientation-toggle">
@@ -366,6 +459,7 @@
   <input type="hidden" name="orientation" id="orientationInput" value="{{ company.payslip_orientation }}">
   <input type="hidden" name="section_order" id="sectionOrderInput" value="{{ company.payslip_section_order|default:'[]' }}">
   <input type="hidden" name="field_positions" id="fieldPositionsInput" value="{{ company.payslip_field_positions|default:'{}' }}">
+  <input type="hidden" name="layout" id="layoutInput" value="{{ company.payslip_layout }}">
   <input type="hidden" name="logo_position" id="logoPositionInput" value="{{ company.payslip_logo_position }}">
   <input type="hidden" name="stamp_position" id="stampPositionInput" value="{{ company.payslip_stamp_position }}">
   <input type="hidden" name="address_position" id="addressPositionInput" value="{{ company.payslip_address_position }}">
@@ -404,6 +498,51 @@
   <!-- Right Panel: Properties -->
   <div class="designer-panel">
     <div class="panel-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Properties</div>
+
+    <div class="property-group">
+      <label class="property-label" style="font-weight:700;font-size:13px;">&#127914; Payslip Template</label>
+      <div class="template-grid" id="templateGrid">
+
+        <div class="template-card {% if company.payslip_layout == 'classic' or company.payslip_layout == 'detailed' %}active{% endif %}"
+             data-layout="classic" onclick="selectLayout(this,'classic')">
+          <div class="template-preview template-preview-classic">
+            <div class="tp-hd"></div>
+            <div class="tp-row"></div><div class="tp-row"></div>
+            <div class="tp-hd2"></div>
+            <div class="tp-row2"></div><div class="tp-row2"></div>
+          </div>
+          <div class="template-name">Classic</div>
+          <div class="template-sub">MFI Style</div>
+        </div>
+
+        <div class="template-card {% if company.payslip_layout == 'modern' %}active{% endif %}"
+             data-layout="modern" onclick="selectLayout(this,'modern')">
+          <div class="template-preview template-preview-modern">
+            <div class="tp-hd"></div>
+            <div class="tp-stripe"></div>
+            <div class="tp-emp"></div>
+            <div class="tp-lbl"></div>
+            <div class="tp-net"></div>
+          </div>
+          <div class="template-name">Modern</div>
+          <div class="template-sub">Card Layout</div>
+        </div>
+
+        <div class="template-card {% if company.payslip_layout == 'compact' %}active{% endif %}"
+             data-layout="compact" onclick="selectLayout(this,'compact')">
+          <div class="template-preview template-preview-minimal">
+            <div class="tp-top"><div class="tp-logo"></div><div class="tp-name"></div></div>
+            <div class="tp-hr"></div>
+            <div class="tp-title"></div>
+            <div class="tp-rows"></div><div class="tp-rows"></div><div class="tp-rows"></div>
+          </div>
+          <div class="template-name">Minimal</div>
+          <div class="template-sub">Clean &amp; Simple</div>
+        </div>
+
+      </div>
+      <p style="font-size:10px;color:#94a3b8;margin:4px 0 0;">Click a template to select it, then Save Design.</p>
+    </div>
     
     <div class="property-group">
       <label class="property-label">Logo Position</label>
@@ -663,9 +802,30 @@ function saveDesign() {
   document.getElementById('payslipDesignForm').submit();
 }
 
-function previewPayslip() {
-  alert('Preview functionality will open a new window showing how the payslip will look with actual data.');
-  // TODO: Implement preview in a modal or new window
+function selectLayout(card, layout) {
+  document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  document.getElementById('layoutInput').value = layout;
 }
+
+function previewPayslip() {
+  const layout = document.getElementById('layoutInput').value;
+  alert('Current layout: ' + layout + '\n\nTo preview, save the design then open any payslip.');
+}
+
+// Set correct active state on load
+document.addEventListener('DOMContentLoaded', function() {
+  const currentLayout = document.getElementById('layoutInput').value;
+  document.querySelectorAll('.template-card').forEach(card => {
+    card.classList.remove('active');
+    if (card.dataset.layout === currentLayout) {
+      card.classList.add('active');
+    }
+  });
+  if (currentLayout === 'classic' || currentLayout === 'detailed' || !currentLayout) {
+    const classicCard = document.querySelector('[data-layout="classic"]');
+    if (classicCard) classicCard.classList.add('active');
+  }
+});
 </script>
 {% endblock %}

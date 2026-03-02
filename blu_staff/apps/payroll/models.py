@@ -277,6 +277,76 @@ class BenefitClaim(TenantScopedModel):
         return f"{self.employee.get_full_name()} - {self.benefit.name} claim"
 
 
+class PayrollSettings(models.Model):
+    """Company-level finance policy settings (singleton per company)."""
+
+    company = models.OneToOneField(
+        'accounts.Company',
+        on_delete=models.CASCADE,
+        related_name='payroll_settings',
+        null=True, blank=True,
+    )
+    advance_max_percentage = models.DecimalField(
+        _('max salary advance (%)'),
+        max_digits=5, decimal_places=2, default=Decimal('40.00'),
+        help_text=_('Maximum salary advance as % of gross salary')
+    )
+    max_petty_cash_amount = models.DecimalField(
+        _('max petty cash per request'),
+        max_digits=12, decimal_places=2, default=Decimal('500.00'),
+        help_text=_('Maximum single petty cash request amount')
+    )
+    max_reimbursement_amount = models.DecimalField(
+        _('max reimbursement per request'),
+        max_digits=12, decimal_places=2, default=Decimal('2000.00'),
+    )
+    advance_repayment_months = models.PositiveSmallIntegerField(
+        _('advance repayment period (months)'), default=3,
+        help_text=_('Default number of months to repay a salary advance')
+    )
+    overtime_rate_multiplier = models.DecimalField(
+        _('overtime rate multiplier'), max_digits=4, decimal_places=2, default=Decimal('1.50'),
+        help_text=_('e.g. 1.5 = 150% of normal hourly rate')
+    )
+    paye_rate = models.DecimalField(
+        _('PAYE / income-tax rate (%)'), max_digits=5, decimal_places=2, default=Decimal('25.00'),
+    )
+    paye_label = models.CharField(
+        _('income-tax deduction label'), max_length=60, default='PAYE',
+        help_text=_('e.g. PAYE (Zambia), PAYE (Ghana), Income Tax (Kenya), IRP5 (South Africa)')
+    )
+    napsa_rate = models.DecimalField(
+        _('NAPSA / social-security rate (%)'), max_digits=5, decimal_places=2, default=Decimal('5.00'),
+    )
+    napsa_label = models.CharField(
+        _('social-security deduction label'), max_length=60, default='NAPSA',
+        help_text=_('e.g. NAPSA (Zambia), SSNIT (Ghana), NSSF (Kenya/Uganda), UIF (South Africa)')
+    )
+    nhima_rate = models.DecimalField(
+        _('NHIMA / health-insurance rate (%)'), max_digits=5, decimal_places=2, default=Decimal('1.00'),
+    )
+    nhima_label = models.CharField(
+        _('health-insurance deduction label'), max_length=60, default='NHIMA',
+        help_text=_('e.g. NHIMA (Zambia), NHIS (Ghana), NHIF (Kenya), GEMS (South Africa)')
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('payroll settings')
+        verbose_name_plural = _('payroll settings')
+
+    def __str__(self):
+        return f"Payroll Settings – {self.company}"
+
+    @classmethod
+    def for_company(cls, company):
+        """Return (or lazily create) the settings for a company."""
+        if company is None:
+            return cls()
+        obj, _ = cls.objects.get_or_create(company=company)
+        return obj
+
+
 class PayrollDeduction(TenantScopedModel):
     """Detailed deductions for payroll"""
     
@@ -312,3 +382,90 @@ class PayrollDeduction(TenantScopedModel):
     
     def __str__(self):
         return f"{self.get_deduction_type_display()} - {self.amount}"
+
+
+class Timesheet(TenantScopedModel):
+    """Weekly timesheet submitted by an employee and approved by HR."""
+
+    class Status(models.TextChoices):
+        DRAFT = 'DRAFT', _('Draft')
+        SUBMITTED = 'SUBMITTED', _('Submitted')
+        APPROVED = 'APPROVED', _('Approved')
+        REJECTED = 'REJECTED', _('Rejected')
+
+    employee = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='timesheets',
+        limit_choices_to={'role': 'EMPLOYEE'},
+    )
+    week_start = models.DateField(
+        _('week start (Monday)'),
+        help_text=_('Monday of the reporting week'),
+    )
+    total_regular_hours = models.DecimalField(
+        _('total regular hours'), max_digits=6, decimal_places=2, default=Decimal('0.00'),
+    )
+    total_overtime_hours = models.DecimalField(
+        _('total overtime hours'), max_digits=6, decimal_places=2, default=Decimal('0.00'),
+    )
+    status = models.CharField(
+        _('status'), max_length=20, choices=Status.choices, default=Status.DRAFT,
+    )
+    notes = models.TextField(_('employee notes'), blank=True)
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='reviewed_timesheets',
+    )
+    reviewed_at = models.DateTimeField(_('reviewed at'), null=True, blank=True)
+    rejection_reason = models.TextField(_('rejection reason'), blank=True)
+    submitted_at = models.DateTimeField(_('submitted at'), null=True, blank=True)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('timesheet')
+        verbose_name_plural = _('timesheets')
+        ordering = ['-week_start']
+        unique_together = ['tenant', 'employee', 'week_start']
+
+    def __str__(self):
+        return f"{self.employee.get_full_name()} – w/c {self.week_start}"
+
+    @property
+    def total_hours(self):
+        return self.total_regular_hours + self.total_overtime_hours
+
+    @property
+    def week_end(self):
+        from datetime import timedelta
+        return self.week_start + timedelta(days=6)
+
+
+class TimesheetEntry(TenantScopedModel):
+    """One day's entry within a weekly Timesheet."""
+
+    timesheet = models.ForeignKey(
+        Timesheet,
+        on_delete=models.CASCADE,
+        related_name='entries',
+    )
+    date = models.DateField(_('date'))
+    regular_hours = models.DecimalField(
+        _('regular hours'), max_digits=4, decimal_places=2, default=Decimal('0.00'),
+    )
+    overtime_hours = models.DecimalField(
+        _('overtime hours'), max_digits=4, decimal_places=2, default=Decimal('0.00'),
+    )
+    description = models.TextField(_('work description'), blank=True)
+
+    class Meta:
+        verbose_name = _('timesheet entry')
+        verbose_name_plural = _('timesheet entries')
+        ordering = ['timesheet', 'date']
+        unique_together = ['tenant', 'timesheet', 'date']
+
+    def __str__(self):
+        return f"{self.timesheet.employee.get_full_name()} – {self.date}"

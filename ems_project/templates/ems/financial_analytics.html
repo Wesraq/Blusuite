@@ -1,12 +1,207 @@
-{% extends 'ems/base_employer.html' %}
-
+{% extends base_template|default:'ems/base_employer.html' %}
 {% block title %}Financial Analytics{% endblock %}
 {% block page_title %}Financial Analytics{% endblock %}
 
 {% block content %}
-<div class="content-card" style="padding: 24px; margin-top: 12px;">
-    <h2 style="margin-bottom: 16px;">Financial Analytics</h2>
-    <p style="color: #4b5563;">This page is under construction. Core payroll, benefits, and expenses analytics data will appear here.</p>
-    <div style="margin-top: 12px; color: #9ca3af; font-size: 14px;">Template placeholder (ems/financial_analytics.html)</div>
+<style>
+.fa-page { padding: 24px; max-width: 1400px; }
+.fa-topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
+.fa-topbar h1 { margin:0; font-size:22px; font-weight:700; color:#0f172a; }
+.fa-filter-form { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.fa-filter-form input[type=date] { border:1px solid #fce7f3; border-radius:6px; padding:6px 10px; font-size:13px; color:#DC143C; }
+.fa-filter-form button { background:#DC143C; color:#fff; border:none; border-radius:6px; padding:7px 14px; font-size:13px; cursor:pointer; font-weight:500; }
+.fa-export-btn { background:#DC143C; color:#fff; border:1px solid #fce7f3; border-radius:6px; padding:7px 14px; font-size:13px; cursor:pointer; text-decoration:none; font-weight:500; display:inline-flex; align-items:center; gap:6px; }
+.fa-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+.fa-kpi { background:#fff; border:1px solid #fce7f3; border-radius:12px; padding:18px; }
+.fa-kpi-label { font-size:12px; color:#64748b; font-weight:500; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; }
+.fa-kpi-val { font-size:22px; font-weight:700; color:#0f172a; }
+.fa-kpi-sub { font-size:12px; color:#DC143C; margin-top:3px; }
+.fa-row { display:grid; gap:18px; margin-bottom:18px; }
+.fa-row-2 { grid-template-columns:1fr 1fr; }
+.fa-row-3 { grid-template-columns:1fr 1fr 1fr; }
+.fa-card { background:#fff; border:1px solid #fce7f3; border-radius:12px; padding:20px; }
+.fa-card h3 { margin:0 0 16px 0; font-size:15px; font-weight:600; color:#0f172a; }
+.fa-stat-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f1f5f9; }
+.fa-stat-row:last-child { border-bottom:none; }
+.fa-stat-label { font-size:13px; color:#475569; }
+.fa-stat-val { font-size:13px; font-weight:600; color:#0f172a; }
+.fa-badge { display:inline-block; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:600; }
+.fa-badge-green { background:#dcfce7; color:#15803d; }
+.fa-badge-blue  { background:#fce7f3; color:#DC143C; }
+.fa-badge-amber { background:#fef3c7; color:#b45309; }
+.chart-wrap { position:relative; height:220px; }
+@media(max-width:768px){.fa-row-2,.fa-row-3{grid-template-columns:1fr;}}
+</style>
+
+<div class="fa-page">
+    <!-- Top bar -->
+    <div class="fa-topbar">
+        <h1>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" style="vertical-align:-3px;margin-right:6px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Financial Analytics
+        </h1>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <form method="get" class="fa-filter-form">
+                <label style="font-size:12px;color:#64748b;">From</label>
+                <input type="date" name="date_from" value="{{ date_from }}">
+                <label style="font-size:12px;color:#64748b;">To</label>
+                <input type="date" name="date_to" value="{{ date_to }}">
+                <button type="submit">Apply</button>
+            </form>
+            <a href="?date_from={{ date_from }}&date_to={{ date_to }}&export=csv" class="fa-export-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="fa-kpis">
+        <div class="fa-kpi" style="border-top:3px solid #DC143C;">
+            <div class="fa-kpi-label">Total Company Cost</div>
+            <div class="fa-kpi-val">{{ currency_code|default:"" }} {{ total_company_cost|floatformat:0 }}</div>
+            <div class="fa-kpi-sub">Payroll + benefits + expenses</div>
+        </div>
+        <div class="fa-kpi" style="border-top:3px solid #059669;">
+            <div class="fa-kpi-label">Total Gross Pay</div>
+            <div class="fa-kpi-val">{{ currency_code|default:"" }} {{ total_gross_pay|floatformat:0 }}</div>
+            <div class="fa-kpi-sub">{{ paid_payrolls }} paid run{{ paid_payrolls|pluralize }}</div>
+        </div>
+        <div class="fa-kpi" style="border-top:3px solid #7c3aed;">
+            <div class="fa-kpi-label">Total Net Pay</div>
+            <div class="fa-kpi-val">{{ currency_code|default:"" }} {{ total_net_pay|floatformat:0 }}</div>
+            <div class="fa-kpi-sub">Avg {{ currency_code|default:"" }} {{ avg_net_pay|floatformat:0 }} / employee</div>
+        </div>
+        <div class="fa-kpi" style="border-top:3px solid #dc2626;">
+            <div class="fa-kpi-label">Total Tax (PAYE)</div>
+            <div class="fa-kpi-val">{{ currency_code|default:"" }} {{ total_tax|floatformat:0 }}</div>
+            <div class="fa-kpi-sub">Statutory deductions</div>
+        </div>
+        <div class="fa-kpi" style="border-top:3px solid #ea580c;">
+            <div class="fa-kpi-label">Benefits Cost</div>
+            <div class="fa-kpi-val">{{ currency_code|default:"" }} {{ total_benefit_cost|floatformat:0 }}</div>
+            <div class="fa-kpi-sub">{{ active_benefits }} active enrollment{{ active_benefits|pluralize }}</div>
+        </div>
+        <div class="fa-kpi" style="border-top:3px solid #0891b2;">
+            <div class="fa-kpi-label">Expenses (Petty Cash)</div>
+            <div class="fa-kpi-val">{{ currency_code|default:"" }} {{ petty_cash_total|floatformat:0 }}</div>
+            <div class="fa-kpi-sub">{{ petty_cash_approved }} approved</div>
+        </div>
+    </div>
+
+    <!-- Row 1: Payroll trend (wide) + deduction pie -->
+    <div class="fa-row fa-row-2" style="grid-template-columns:2fr 1fr;">
+        <div class="fa-card">
+            <h3>Payroll Cost Trend</h3>
+            <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="fa-card">
+            <h3>Deduction Breakdown</h3>
+            <div class="chart-wrap"><canvas id="deductionChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Row 2: Compensation pie + Benefits + Expenses -->
+    <div class="fa-row fa-row-3">
+        <div class="fa-card">
+            <h3>Compensation Mix</h3>
+            <div class="chart-wrap"><canvas id="compensationChart"></canvas></div>
+        </div>
+        <div class="fa-card">
+            <h3>Benefits Summary</h3>
+            <div class="fa-stat-row"><span class="fa-stat-label">Active Enrollments</span><span class="fa-stat-val">{{ active_benefits }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">Company Contribution</span><span class="fa-stat-val">{{ currency_code|default:"" }} {{ company_benefit_contribution|floatformat:2 }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">Employee Contribution</span><span class="fa-stat-val">{{ currency_code|default:"" }} {{ employee_benefit_contribution|floatformat:2 }}</span></div>
+            <div class="fa-stat-row" style="margin-top:8px;"><span class="fa-stat-label" style="font-weight:600;">Total Benefit Cost</span><span class="fa-stat-val" style="color:#DC143C;">{{ currency_code|default:"" }} {{ total_benefit_cost|floatformat:2 }}</span></div>
+        </div>
+        <div class="fa-card">
+            <h3>Payroll Summary</h3>
+            <div class="fa-stat-row"><span class="fa-stat-label">Employees on Payroll</span><span class="fa-stat-val">{{ on_payroll_count }} / {{ total_employees }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">Payroll Runs (Paid)</span><span class="fa-badge fa-badge-green">{{ paid_payrolls }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">Pending / Draft</span><span class="fa-badge fa-badge-amber">{{ pending_payrolls }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">{{ paye_label|default:"PAYE" }} (Tax)</span><span class="fa-stat-val">{{ currency_code|default:"" }} {{ total_tax|floatformat:0 }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">Total Overtime</span><span class="fa-stat-val">{{ currency_code|default:"" }} {{ total_overtime|floatformat:0 }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">Total Bonuses</span><span class="fa-stat-val">{{ currency_code|default:"" }} {{ total_bonus|floatformat:0 }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">{{ napsa_label|default:"NAPSA" }} (Social Security)</span><span class="fa-stat-val">{{ currency_code|default:"" }} {{ total_social_security|floatformat:0 }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">Total Deductions</span><span class="fa-stat-val" style="color:#dc2626;">{{ currency_code|default:"" }} {{ total_deductions|floatformat:0 }}</span></div>
+        </div>
+    </div>
+
+    <!-- Row 3: Petty cash / expenses -->
+    <div class="fa-row fa-row-3">
+        <div class="fa-card">
+            <h3>Expenses &amp; Petty Cash</h3>
+            <div class="fa-stat-row"><span class="fa-stat-label">Approved Requests</span><span class="fa-badge fa-badge-green">{{ petty_cash_approved }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label">Pending Requests</span><span class="fa-badge fa-badge-amber">{{ petty_cash_pending }}</span></div>
+            <div class="fa-stat-row"><span class="fa-stat-label" style="font-weight:600;">Total Approved</span><span class="fa-stat-val" style="color:#DC143C;">{{ currency_code|default:"" }} {{ petty_cash_total|floatformat:2 }}</span></div>
+        </div>
+        <div class="fa-card" style="grid-column:span 2;">
+            <h3>Cost Overview &mdash; {{ date_from }} to {{ date_to }}</h3>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;">
+                <div style="text-align:center;padding:16px;background:#f0fdf4;border-radius:8px;">
+                    <div style="font-size:12px;color:#15803d;font-weight:600;margin-bottom:4px;">PAYROLL</div>
+                    <div style="font-size:20px;font-weight:700;color:#0f172a;">{{ currency_code|default:"" }} {{ total_gross_pay|floatformat:0 }}</div>
+                </div>
+                <div style="text-align:center;padding:16px;background:#fef3c7;border-radius:8px;">
+                    <div style="font-size:12px;color:#b45309;font-weight:600;margin-bottom:4px;">BENEFITS</div>
+                    <div style="font-size:20px;font-weight:700;color:#0f172a;">{{ currency_code|default:"" }} {{ total_benefit_cost|floatformat:0 }}</div>
+                </div>
+                <div style="text-align:center;padding:16px;background:#fff7ed;border-radius:8px;">
+                    <div style="font-size:12px;color:#DC143C;font-weight:600;margin-bottom:4px;">EXPENSES</div>
+                    <div style="font-size:20px;font-weight:700;color:#0f172a;">{{ currency_code|default:"" }} {{ petty_cash_total|floatformat:0 }}</div>
+                </div>
+            </div>
+            <div style="margin-top:16px;padding-top:16px;border-top:2px solid #fce7f3;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:14px;font-weight:600;color:#475569;">TOTAL COMPANY COST</span>
+                <span style="font-size:24px;font-weight:800;color:#DC143C;">{{ currency_code|default:"" }} {{ total_company_cost|floatformat:0 }}</span>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const TREND_LABELS = {{ payroll_trend_labels|safe }};
+const TREND_GROSS  = {{ payroll_trend_gross|safe }};
+const TREND_NET    = {{ payroll_trend_net|safe }};
+const TREND_TAX    = {{ payroll_trend_tax|safe }};
+const DED_LABELS   = {{ deduction_labels|safe }};
+const DED_VALUES   = {{ deduction_values|safe }};
+const COMP_LABELS  = {{ compensation_labels|safe }};
+const COMP_VALUES  = {{ compensation_values|safe }};
+
+// Payroll trend chart
+new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+        labels: TREND_LABELS,
+        datasets: [
+            { label: 'Gross Pay', data: TREND_GROSS, borderColor: '#DC143C', backgroundColor: 'rgba(29,78,216,.08)', tension: .35, fill: true, pointRadius: 4 },
+            { label: 'Net Pay',   data: TREND_NET,   borderColor: '#DC143C', backgroundColor: 'rgba(220,38,38,.06)',  tension: .35, fill: false, pointRadius: 4 },
+            { label: 'Tax',       data: TREND_TAX,   borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,.05)',  tension: .35, fill: false, pointRadius: 4, borderDash: [4,3] },
+        ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }, scales: { y: { beginAtZero: true, ticks: { font: { size: 11 } } }, x: { ticks: { font: { size: 11 } } } } }
+});
+
+// Deduction doughnut
+new Chart(document.getElementById('deductionChart'), {
+    type: 'doughnut',
+    data: {
+        labels: DED_LABELS,
+        datasets: [{ data: DED_VALUES, backgroundColor: ['#dc2626','#DC143C','#DC143C'], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+});
+
+// Compensation pie
+new Chart(document.getElementById('compensationChart'), {
+    type: 'pie',
+    data: {
+        labels: COMP_LABELS,
+        datasets: [{ data: COMP_VALUES, backgroundColor: ['#DC143C','#0891b2','#059669'], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+});
+</script>
 {% endblock %}

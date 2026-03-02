@@ -1,4 +1,4 @@
-{% extends 'ems/base_superadmin.html' %}
+﻿{% extends 'ems/base_superadmin.html' %}
 
 {% block title %}System Settings - BLU Suite Admin{% endblock %}
 {% block nav_system_settings %} active{% endblock %}
@@ -20,7 +20,7 @@
                     <div style="font-size: 13px; color: #64748b;">Total Companies</div>
                 </div>
                 <div style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
@@ -200,7 +200,7 @@
             </div>
 
             <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
-                <button type="submit" class="btn" style="background: #E11D48; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">
                     Save System Settings
                 </button>
             </div>
@@ -219,7 +219,7 @@
             <div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; background: #f8fafc;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
                     <div style="width: 40px; height: 40px; background: #eff6ff; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                             <line x1="1" y1="10" x2="23" y2="10"></line>
                         </svg>
@@ -445,7 +445,7 @@
 
 .maintenance-backup {
     background: #eff6ff;
-    color: #2563eb;
+    color: #DC143C;
 }
 
 .maintenance-cleanup {
@@ -580,7 +580,7 @@ input[type="checkbox"]:checked {
     height: 32px;
     border-radius: 50%;
     background: #eff6ff;
-    color: #2563eb;
+    color: #DC143C;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -643,7 +643,7 @@ input[type="checkbox"]:checked {
 }
 
 .platform-config {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #DC143C 0%, #DC143C 100%);
     color: white;
 }
 
@@ -1061,7 +1061,7 @@ function showNotification(message, type = 'info') {
             notification.style.background = '#f59e0b';
             break;
         default:
-            notification.style.background = '#3b82f6';
+            notification.style.background = '#DC143C';
     }
     
     notification.textContent = message;

@@ -1,0 +1,526 @@
+{% extends base_template|default:'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}Performance Review – {{ review.employee.get_full_name }} - BLU Suite EMS{% endblock %}
+{% block page_title %}Performance Review{% endblock %}
+
+{% block content %}
+<style>
+.prd-tab-btn { padding:8px 18px; border:none; background:#f1f5f9; color:#64748b; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
+.prd-tab-btn.active { background:#DC143C; color:#fff; }
+.prd-section { display:none; }
+.prd-section.active { display:block; }
+.prd-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.prd-form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+@media(max-width:640px){ .prd-form-grid,.prd-form-grid-3{ grid-template-columns:1fr; } }
+.prd-field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+.prd-field input,.prd-field select,.prd-field textarea { width:100%; padding:8px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; color:#0f172a; }
+.prd-field input:focus,.prd-field select:focus,.prd-field textarea:focus { border-color:#DC143C; outline:none; }
+.prd-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+.prd-modal-overlay.open { display:flex; }
+.prd-modal { background:#fff; border-radius:12px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,.18); }
+.prd-modal-hd { display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid #e2e8f0; position:sticky; top:0; background:#fff; }
+.prd-modal-hd h3 { margin:0; font-size:15px; font-weight:700; }
+.prd-modal-close { background:none; border:none; font-size:22px; color:#94a3b8; cursor:pointer; }
+.prd-modal-body { padding:20px 22px; display:flex; flex-direction:column; gap:14px; }
+.prd-modal-ft { padding:14px 22px; border-top:1px solid #f1f5f9; display:flex; gap:10px; justify-content:flex-end; }
+.badge-status { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; }
+</style>
+<!-- Back -->
+<a href="{% url 'performance_reviews_list' %}" style="display:inline-flex;align-items:center;gap:8px;color:#64748b;text-decoration:none;font-size:14px;margin-bottom:20px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Back to Reviews
+</a>
+
+<!-- Review Header -->
+<div class="content-card" style="margin-bottom:20px;">
+    <div class="card-content" style="padding:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+            <div style="display:flex;align-items:center;gap:16px;">
+                <div style="width:56px;height:56px;border-radius:50%;background:#fce7f3;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#DC143C;">
+                    {{ review.employee.first_name|first }}{{ review.employee.last_name|first }}
+                </div>
+                <div>
+                    <h2 style="margin:0;font-size:20px;font-weight:700;">{{ review.employee.get_full_name }}</h2>
+                    {% if review.employee.employee_profile.job_title %}
+                    <p style="margin:4px 0 0;color:#64748b;font-size:14px;">{{ review.employee.employee_profile.job_title }}</p>
+                    {% endif %}
+                    <p style="margin:4px 0 0;color:#64748b;font-size:12px;">{{ review.title }}</p>
+                </div>
+            </div>
+            <!-- Status badges -->
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                {% if review.status == 'APPROVED' %}
+                <span class="badge-status" style="background:#dcfce7;color:#166534;">Approved</span>
+                {% elif review.status == 'COMPLETED' %}
+                <span class="badge-status" style="background:#fce7f3;color:#9d174d;">Completed</span>
+                {% elif review.status == 'UNDER_REVIEW' %}
+                <span class="badge-status" style="background:#fef3c7;color:#92400e;">Under Review</span>
+                {% elif review.status == 'SUBMITTED' %}
+                <span class="badge-status" style="background:#f0fdf4;color:#166534;">Submitted</span>
+                {% else %}
+                <span class="badge-status" style="background:#f1f5f9;color:#64748b;">Draft</span>
+                {% endif %}
+                {% if is_hr and review.status != 'APPROVED' %}
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="advance_status">
+                    <button type="submit" style="padding:4px 12px;background:#DC143C;color:#fff;border:none;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">
+                        Advance →
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:20px;padding-top:20px;border-top:1px solid #f1f5f9;">
+            <div><p style="margin:0;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Type</p><p style="margin:4px 0 0;font-size:13px;font-weight:600;">{{ review.get_review_type_display }}</p></div>
+            <div><p style="margin:0;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Period</p><p style="margin:4px 0 0;font-size:13px;font-weight:600;">{{ review.review_period_start }} – {{ review.review_period_end }}</p></div>
+            <div><p style="margin:0;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Review Date</p><p style="margin:4px 0 0;font-size:13px;font-weight:600;">{{ review.review_date }}</p></div>
+            <div><p style="margin:0;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Reviewer</p><p style="margin:4px 0 0;font-size:13px;font-weight:600;">{{ review.reviewer.get_full_name|default:"—" }}</p></div>
+            <div><p style="margin:0;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Overall Rating</p><p style="margin:4px 0 0;font-size:13px;font-weight:600;">{{ review.get_overall_rating_display|default:"Pending" }}</p></div>
+            {% if review.self_rating %}<div><p style="margin:0;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Self Rating</p><p style="margin:4px 0 0;font-size:13px;font-weight:600;">{{ review.get_self_rating_display }}</p></div>{% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+    <button class="prd-tab-btn active" onclick="prdTab('overview',this)">Overview</button>
+    {% if is_hr %}<button class="prd-tab-btn" onclick="prdTab('assessment',this)">Assessment</button>{% endif %}
+    <button class="prd-tab-btn" onclick="prdTab('goals',this)">Goals ({{ review.goals.count }})</button>
+    <button class="prd-tab-btn" onclick="prdTab('metrics',this)">Metrics ({{ review.metrics.count }})</button>
+    <button class="prd-tab-btn" onclick="prdTab('feedback',this)">360° Feedback ({{ review.feedback.count }})</button>
+    {% if can_self_assess or review.employee_submitted_at %}<button class="prd-tab-btn" onclick="prdTab('selfassess',this)">Self-Assessment</button>{% endif %}
+</div>
+
+<!-- ─── TAB: OVERVIEW ─────────────────────────────────────── -->
+<div id="tab-overview" class="prd-section active">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+        {% if review.reviewer_comments %}
+        <div class="content-card"><div class="card-content" style="padding:20px;">
+            <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#DC143C;text-transform:uppercase;letter-spacing:.5px;">Reviewer Comments</p>
+            <p style="margin:0;font-size:13px;white-space:pre-wrap;color:#374151;">{{ review.reviewer_comments }}</p>
+        </div></div>
+        {% endif %}
+        {% if review.strengths %}
+        <div class="content-card"><div class="card-content" style="padding:20px;">
+            <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;">Strengths</p>
+            <p style="margin:0;font-size:13px;white-space:pre-wrap;color:#374151;">{{ review.strengths }}</p>
+        </div></div>
+        {% endif %}
+        {% if review.areas_for_improvement %}
+        <div class="content-card"><div class="card-content" style="padding:20px;">
+            <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:.5px;">Areas for Improvement</p>
+            <p style="margin:0;font-size:13px;white-space:pre-wrap;color:#374151;">{{ review.areas_for_improvement }}</p>
+        </div></div>
+        {% endif %}
+        {% if review.development_plan %}
+        <div class="content-card"><div class="card-content" style="padding:20px;">
+            <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:.5px;">Development Plan</p>
+            <p style="margin:0;font-size:13px;white-space:pre-wrap;color:#374151;">{{ review.development_plan }}</p>
+        </div></div>
+        {% endif %}
+        {% if review.goals_next_period %}
+        <div class="content-card"><div class="card-content" style="padding:20px;">
+            <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:.5px;">Goals – Next Period</p>
+            <p style="margin:0;font-size:13px;white-space:pre-wrap;color:#374151;">{{ review.goals_next_period }}</p>
+        </div></div>
+        {% endif %}
+        {% if review.recommended_actions %}
+        <div class="content-card"><div class="card-content" style="padding:20px;">
+            <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:.5px;">Recommended Actions</p>
+            <p style="margin:0;font-size:13px;white-space:pre-wrap;color:#374151;">{{ review.recommended_actions }}</p>
+        </div></div>
+        {% endif %}
+        {% if review.objectives %}
+        <div class="content-card"><div class="card-content" style="padding:20px;">
+            <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:.5px;">Review Objectives</p>
+            <p style="margin:0;font-size:13px;white-space:pre-wrap;color:#374151;">{{ review.objectives }}</p>
+        </div></div>
+        {% endif %}
+        {% if not review.reviewer_comments and not review.strengths and not review.areas_for_improvement and not review.development_plan %}
+        <div class="content-card" style="grid-column:1/-1;">
+            <div class="card-content" style="padding:40px;text-align:center;color:#94a3b8;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin:0 auto 12px;display:block;opacity:.35;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p style="margin:0;font-size:14px;">No assessment content yet.{% if is_hr %} Use the Assessment tab to add reviewer feedback.{% endif %}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ─── TAB: ASSESSMENT (HR/Manager only) ──────────────────── -->
+{% if is_hr %}
+<div id="tab-assessment" class="prd-section">
+    <div class="content-card">
+        <div class="card-header"><div class="card-title">Reviewer Assessment</div><div class="card-subtitle">Rate performance, add structured feedback, and set the status</div></div>
+        <div class="card-content" style="padding:24px;">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_review">
+                <div class="prd-form-grid" style="margin-bottom:16px;">
+                    <div class="prd-field">
+                        <label>Overall Rating *</label>
+                        <select name="overall_rating">
+                            {% for val, label in overall_ratings %}
+                            <option value="{{ val }}" {% if review.overall_rating == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="prd-field">
+                        <label>Review Status</label>
+                        <select name="status">
+                            <option value="DRAFT" {% if review.status == 'DRAFT' %}selected{% endif %}>Draft</option>
+                            <option value="SUBMITTED" {% if review.status == 'SUBMITTED' %}selected{% endif %}>Submitted</option>
+                            <option value="UNDER_REVIEW" {% if review.status == 'UNDER_REVIEW' %}selected{% endif %}>Under Review</option>
+                            <option value="COMPLETED" {% if review.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                            <option value="APPROVED" {% if review.status == 'APPROVED' %}selected{% endif %}>Approved</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="prd-form-grid" style="margin-bottom:16px;">
+                    <div class="prd-field">
+                        <label>Strengths</label>
+                        <textarea name="strengths" rows="4" placeholder="Key strengths demonstrated…">{{ review.strengths }}</textarea>
+                    </div>
+                    <div class="prd-field">
+                        <label>Areas for Improvement</label>
+                        <textarea name="areas_for_improvement" rows="4" placeholder="Areas needing development…">{{ review.areas_for_improvement }}</textarea>
+                    </div>
+                    <div class="prd-field">
+                        <label>Achievements This Period</label>
+                        <textarea name="achievements" rows="4" placeholder="Notable accomplishments…">{{ review.achievements }}</textarea>
+                    </div>
+                    <div class="prd-field">
+                        <label>Development Plan</label>
+                        <textarea name="development_plan" rows="4" placeholder="Training, mentoring, growth plan…">{{ review.development_plan }}</textarea>
+                    </div>
+                    <div class="prd-field">
+                        <label>Goals for Next Period</label>
+                        <textarea name="goals_next_period" rows="4" placeholder="Key objectives for next review cycle…">{{ review.goals_next_period }}</textarea>
+                    </div>
+                    <div class="prd-field">
+                        <label>Recommended Actions</label>
+                        <textarea name="recommended_actions" rows="4" placeholder="Specific actions to take…">{{ review.recommended_actions }}</textarea>
+                    </div>
+                </div>
+                <div class="prd-field" style="margin-bottom:20px;">
+                    <label>Reviewer Comments</label>
+                    <textarea name="reviewer_comments" rows="4" placeholder="Overall reviewer narrative…">{{ review.reviewer_comments }}</textarea>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:12px;">
+                    <button type="button" onclick="prdTab('overview',document.querySelector('.prd-tab-btn'))" class="btn">Cancel</button>
+                    <button type="submit" style="padding:9px 22px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Save Assessment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ─── TAB: GOALS ──────────────────────────────────────────── -->
+<div id="tab-goals" class="prd-section">
+    <div class="content-card">
+        <div class="card-header">
+            <div><div class="card-title">Goals &amp; Objectives</div><div class="card-subtitle">{{ review.goals.count }} goal{{ review.goals.count|pluralize }} for this review</div></div>
+            {% if is_hr %}<button type="button" onclick="document.getElementById('modalGoal').classList.add('open')" style="padding:7px 16px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Goal</button>{% endif %}
+        </div>
+        <div class="card-content" style="padding:24px;">
+            {% if review.goals.all %}
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                {% for goal in review.goals.all %}
+                <div style="padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                        <div style="flex:1;">
+                            <p style="margin:0;font-size:14px;font-weight:600;color:#0f172a;">{{ goal.title }}</p>
+                            {% if goal.description %}<p style="margin:4px 0 8px;font-size:12px;color:#64748b;">{{ goal.description }}</p>{% endif %}
+                            {% if goal.success_criteria %}<p style="margin:4px 0 0;font-size:11px;color:#94a3b8;">Success criteria: {{ goal.success_criteria }}</p>{% endif %}
+                            {% if goal.target_completion_date %}<p style="margin:4px 0 0;font-size:11px;color:#64748b;">Due: {{ goal.target_completion_date }}</p>{% endif %}
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+                            {% if goal.priority == 'CRITICAL' %}<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Critical</span>
+                            {% elif goal.priority == 'HIGH' %}<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">High</span>
+                            {% elif goal.priority == 'MEDIUM' %}<span style="background:#fce7f3;color:#9d174d;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Medium</span>
+                            {% else %}<span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Low</span>{% endif %}
+                            {% if goal.status == 'COMPLETED' %}<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Completed</span>
+                            {% elif goal.status == 'IN_PROGRESS' %}<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">In Progress</span>
+                            {% elif goal.status == 'CANCELLED' %}<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Cancelled</span>
+                            {% else %}<span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Not Started</span>{% endif %}
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:#64748b;">Progress</span><span style="font-size:11px;font-weight:700;color:#DC143C;">{{ goal.progress_percentage }}%</span></div>
+                        <div style="height:6px;background:#e2e8f0;border-radius:4px;overflow:hidden;"><div style="height:100%;width:{{ goal.progress_percentage }}%;background:#DC143C;border-radius:4px;transition:width .3s;"></div></div>
+                    </div>
+                    {% if is_hr %}
+                    <form method="post" style="display:flex;gap:8px;align-items:center;margin-top:10px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_goal">
+                        <input type="hidden" name="goal_id" value="{{ goal.id }}">
+                        <select name="goal_status" style="padding:4px 8px;border:1px solid #e2e8f0;border-radius:4px;font-size:12px;">
+                            {% for val, lbl in goal_statuses %}<option value="{{ val }}" {% if goal.status == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
+                        </select>
+                        <input type="number" name="goal_progress" value="{{ goal.progress_percentage }}" min="0" max="100" style="width:60px;padding:4px 8px;border:1px solid #e2e8f0;border-radius:4px;font-size:12px;" placeholder="%">
+                        <button type="submit" style="padding:4px 12px;background:#f1f5f9;color:#374151;border:1px solid #e2e8f0;border-radius:4px;font-size:12px;cursor:pointer;">Update</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align:center;padding:40px;color:#94a3b8;">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin:0 auto 10px;display:block;opacity:.3;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p style="margin:0;font-size:13px;">No goals set yet.{% if is_hr %} Click "Add Goal" to set objectives.{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ─── TAB: METRICS ────────────────────────────────────────── -->
+<div id="tab-metrics" class="prd-section">
+    <div class="content-card">
+        <div class="card-header">
+            <div><div class="card-title">Performance Metrics</div><div class="card-subtitle">Quantitative targets and actuals</div></div>
+            {% if is_hr %}<button type="button" onclick="document.getElementById('modalMetric').classList.add('open')" style="padding:7px 16px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Metric</button>{% endif %}
+        </div>
+        <div class="card-content">
+            {% if review.metrics.all %}
+            <table class="attendance-table">
+                <thead><tr><th>Metric</th><th>Type</th><th>Target</th><th>Actual</th><th>Achievement</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for m in review.metrics.all %}
+                <tr>
+                    <td><div style="font-weight:600;font-size:13px;">{{ m.name }}</div>{% if m.description %}<div style="font-size:11px;color:#64748b;">{{ m.description }}</div>{% endif %}</td>
+                    <td style="font-size:12px;">{{ m.get_metric_type_display }}</td>
+                    <td style="font-size:13px;font-weight:600;">{{ m.target_value }} {% if m.unit %}<span style="font-size:11px;color:#64748b;">{{ m.unit }}</span>{% endif %}</td>
+                    <td style="font-size:13px;">{{ m.actual_value|default:"—" }} {% if m.actual_value and m.unit %}<span style="font-size:11px;color:#64748b;">{{ m.unit }}</span>{% endif %}</td>
+                    <td>
+                        <div style="height:6px;background:#e2e8f0;border-radius:4px;overflow:hidden;min-width:80px;"><div style="height:100%;width:{% if m.achievement_percentage > 100 %}100{% else %}{{ m.achievement_percentage|floatformat:0 }}{% endif %}%;background:{% if m.is_target_achieved %}#16a34a{% else %}#DC143C{% endif %};border-radius:4px;"></div></div>
+                        <span style="font-size:11px;color:#64748b;">{{ m.achievement_percentage|floatformat:0 }}%</span>
+                    </td>
+                    <td>{% if m.is_target_achieved or m.is_achieved %}<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Achieved</span>{% else %}<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Not Achieved</span>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="text-align:center;padding:40px;color:#94a3b8;">
+                <p style="margin:0;font-size:13px;">No metrics defined.{% if is_hr %} Add quantitative KPIs to track performance.{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ─── TAB: 360° FEEDBACK ──────────────────────────────────── -->
+<div id="tab-feedback" class="prd-section">
+    <div class="content-card">
+        <div class="card-header">
+            <div><div class="card-title">360° Feedback</div><div class="card-subtitle">{{ review.feedback.count }} response{{ review.feedback.count|pluralize }}</div></div>
+            <button type="button" onclick="document.getElementById('modalFeedback').classList.add('open')" style="padding:7px 16px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Feedback</button>
+        </div>
+        <div class="card-content" style="padding:24px;">
+            {% if review.feedback.all %}
+            <div style="display:flex;flex-direction:column;gap:16px;">
+                {% for fb in review.feedback.all %}
+                <div style="padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;">
+                        <div>
+                            <p style="margin:0;font-size:13px;font-weight:600;">{% if fb.is_anonymous %}Anonymous{% else %}{{ fb.provided_by.get_full_name|default:"Unknown" }}{% endif %}</p>
+                            <p style="margin:2px 0 0;font-size:11px;color:#64748b;">{{ fb.get_feedback_type_display }}{% if fb.relationship_to_employee %} · {{ fb.relationship_to_employee }}{% endif %}</p>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:3px;">
+                            {% for i in "12345" %}<svg width="14" height="14" viewBox="0 0 24 24" fill="{% if forloop.counter <= fb.rating %}#f59e0b{% else %}#e2e8f0{% endif %}" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>{% endfor %}
+                            <span style="font-size:12px;font-weight:600;margin-left:4px;color:#374151;">{{ fb.rating }}/5</span>
+                        </div>
+                    </div>
+                    {% if fb.strengths %}<div style="margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#16a34a;text-transform:uppercase;letter-spacing:.3px;">Strengths: </span><span style="font-size:13px;color:#374151;">{{ fb.strengths }}</span></div>{% endif %}
+                    {% if fb.areas_for_improvement %}<div style="margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#d97706;text-transform:uppercase;letter-spacing:.3px;">Improve: </span><span style="font-size:13px;color:#374151;">{{ fb.areas_for_improvement }}</span></div>{% endif %}
+                    {% if fb.overall_comments %}<p style="margin:0;font-size:13px;color:#374151;white-space:pre-wrap;">{{ fb.overall_comments }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align:center;padding:40px;color:#94a3b8;">
+                <p style="margin:0;font-size:13px;">No feedback submitted yet. Click "Add Feedback" to provide 360° input.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ─── TAB: SELF-ASSESSMENT ──────────────────────────────── -->
+{% if can_self_assess or review.employee_submitted_at %}
+<div id="tab-selfassess" class="prd-section">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">Self-Assessment</div>
+            <div class="card-subtitle">{% if review.employee_submitted_at %}Submitted {{ review.employee_submitted_at|date:"d M Y" }}{% else %}Not yet submitted{% endif %}</div>
+        </div>
+        <div class="card-content" style="padding:24px;">
+            {% if can_self_assess %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="self_assess">
+                <div class="prd-form-grid" style="margin-bottom:16px;">
+                    <div class="prd-field" style="grid-column:1/-1;">
+                        <label>Self Rating</label>
+                        <select name="self_rating">
+                            <option value="">-- Select your self-rating --</option>
+                            {% for val, label in overall_ratings %}<option value="{{ val }}" {% if review.self_rating == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="prd-field">
+                        <label>Comments / Overall Reflection</label>
+                        <textarea name="employee_comments" rows="4" placeholder="Your overall self-assessment…">{{ review.employee_comments }}</textarea>
+                    </div>
+                    <div class="prd-field">
+                        <label>Key Achievements</label>
+                        <textarea name="achievements" rows="4" placeholder="What did you accomplish this period?…">{{ review.achievements }}</textarea>
+                    </div>
+                    <div class="prd-field">
+                        <label>Challenges Faced</label>
+                        <textarea name="challenges_faced" rows="4" placeholder="Describe any challenges or obstacles…">{{ review.challenges_faced }}</textarea>
+                    </div>
+                    <div class="prd-field">
+                        <label>Training Needs</label>
+                        <textarea name="training_needs" rows="4" placeholder="What skills or training would help you grow?…">{{ review.training_needs }}</textarea>
+                    </div>
+                    <div class="prd-field" style="grid-column:1/-1;">
+                        <label>Goals for Next Period</label>
+                        <textarea name="goals_next_period" rows="4" placeholder="What objectives do you want to set for next period?…">{{ review.goals_next_period }}</textarea>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:12px;">
+                    <button type="submit" style="padding:9px 22px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Submit Self-Assessment</button>
+                </div>
+            </form>
+            {% else %}
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+                {% if review.self_rating %}<div><p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">Self Rating</p><p style="margin:0;font-size:14px;font-weight:600;">{{ review.get_self_rating_display }}</p></div>{% endif %}
+                {% if review.employee_comments %}<div><p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">Comments</p><p style="margin:0;font-size:13px;white-space:pre-wrap;">{{ review.employee_comments }}</p></div>{% endif %}
+                {% if review.achievements %}<div><p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">Achievements</p><p style="margin:0;font-size:13px;white-space:pre-wrap;">{{ review.achievements }}</p></div>{% endif %}
+                {% if review.challenges_faced %}<div><p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">Challenges</p><p style="margin:0;font-size:13px;white-space:pre-wrap;">{{ review.challenges_faced }}</p></div>{% endif %}
+                {% if review.training_needs %}<div><p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">Training Needs</p><p style="margin:0;font-size:13px;white-space:pre-wrap;">{{ review.training_needs }}</p></div>{% endif %}
+                {% if review.goals_next_period %}<div><p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">Goals – Next Period</p><p style="margin:0;font-size:13px;white-space:pre-wrap;">{{ review.goals_next_period }}</p></div>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ─── MODALS ────────────────────────────────────────────── -->
+{% if is_hr %}
+<!-- Add Goal Modal -->
+<div id="modalGoal" class="prd-modal-overlay">
+    <div class="prd-modal">
+        <div class="prd-modal-hd"><h3>Add Goal</h3><button class="prd-modal-close" onclick="document.getElementById('modalGoal').classList.remove('open')">&times;</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_goal">
+            <div class="prd-modal-body">
+                <div class="prd-field"><label>Goal Title *</label><input type="text" name="goal_title" required placeholder="e.g. Improve customer satisfaction score"></div>
+                <div class="prd-field"><label>Description</label><textarea name="goal_description" rows="3" placeholder="Detailed goal description…"></textarea></div>
+                <div class="prd-form-grid">
+                    <div class="prd-field"><label>Priority</label><select name="goal_priority">{% for val, lbl in goal_priorities %}<option value="{{ val }}">{{ lbl }}</option>{% endfor %}</select></div>
+                    <div class="prd-field"><label>Initial Status</label><select name="goal_status">{% for val, lbl in goal_statuses %}<option value="{{ val }}">{{ lbl }}</option>{% endfor %}</select></div>
+                </div>
+                <div class="prd-form-grid">
+                    <div class="prd-field"><label>Due Date</label><input type="date" name="goal_due_date"></div>
+                    <div class="prd-field"><label>Progress %</label><input type="number" name="goal_progress" value="0" min="0" max="100"></div>
+                </div>
+                <div class="prd-field"><label>Success Criteria</label><textarea name="goal_success_criteria" rows="2" placeholder="How will success be measured?…"></textarea></div>
+                <div class="prd-field"><label>Category</label><input type="text" name="goal_category" placeholder="e.g. Technical, Behavioral, Leadership…"></div>
+            </div>
+            <div class="prd-modal-ft">
+                <button type="button" onclick="document.getElementById('modalGoal').classList.remove('open')" style="padding:8px 16px;background:#f1f5f9;color:#374151;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button type="submit" style="padding:8px 18px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Add Goal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Metric Modal -->
+<div id="modalMetric" class="prd-modal-overlay">
+    <div class="prd-modal">
+        <div class="prd-modal-hd"><h3>Add Performance Metric</h3><button class="prd-modal-close" onclick="document.getElementById('modalMetric').classList.remove('open')">&times;</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_metric">
+            <div class="prd-modal-body">
+                <div class="prd-field"><label>Metric Name *</label><input type="text" name="metric_name" required placeholder="e.g. Sales Target, Ticket Resolution Rate"></div>
+                <div class="prd-field"><label>Description</label><textarea name="metric_description" rows="2" placeholder="What this metric measures…"></textarea></div>
+                <div class="prd-form-grid">
+                    <div class="prd-field"><label>Type</label><select name="metric_type">{% for val, lbl in metric_types %}<option value="{{ val }}">{{ lbl }}</option>{% endfor %}</select></div>
+                    <div class="prd-field"><label>Unit</label><input type="text" name="metric_unit" placeholder="e.g. %, $, tickets"></div>
+                </div>
+                <div class="prd-form-grid">
+                    <div class="prd-field"><label>Target Value *</label><input type="number" name="metric_target" step="any" required placeholder="0.00"></div>
+                    <div class="prd-field"><label>Actual Value</label><input type="number" name="metric_actual" step="any" placeholder="Leave blank if not yet known"></div>
+                </div>
+                <div class="prd-form-grid">
+                    <div class="prd-field"><label>Weight (%)</label><input type="number" name="metric_weight" value="100" min="1" max="100"></div>
+                    <div class="prd-field" style="display:flex;align-items:center;gap:8px;padding-top:20px;"><label style="margin:0;"><input type="checkbox" name="metric_achieved" value="1"> Mark as Achieved</label></div>
+                </div>
+            </div>
+            <div class="prd-modal-ft">
+                <button type="button" onclick="document.getElementById('modalMetric').classList.remove('open')" style="padding:8px 16px;background:#f1f5f9;color:#374151;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button type="submit" style="padding:8px 18px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Add Metric</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Add Feedback Modal (available to all) -->
+<div id="modalFeedback" class="prd-modal-overlay">
+    <div class="prd-modal">
+        <div class="prd-modal-hd"><h3>Submit Feedback</h3><button class="prd-modal-close" onclick="document.getElementById('modalFeedback').classList.remove('open')">&times;</button></div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_feedback">
+            <div class="prd-modal-body">
+                <div class="prd-form-grid">
+                    <div class="prd-field"><label>Feedback Type</label><select name="feedback_type">{% for val, lbl in feedback_types %}<option value="{{ val }}">{{ lbl }}</option>{% endfor %}</select></div>
+                    <div class="prd-field"><label>Relationship to Employee</label><input type="text" name="relationship" placeholder="e.g. Direct Manager, Colleague…"></div>
+                </div>
+                <div class="prd-field">
+                    <label>Rating (1–5) *</label>
+                    <select name="feedback_rating">
+                        <option value="5">5 – Outstanding</option>
+                        <option value="4">4 – Exceeds Expectations</option>
+                        <option value="3" selected>3 – Meets Expectations</option>
+                        <option value="2">2 – Below Expectations</option>
+                        <option value="1">1 – Unsatisfactory</option>
+                    </select>
+                </div>
+                <div class="prd-field"><label>Strengths Observed</label><textarea name="feedback_strengths" rows="3" placeholder="What does this person do well?…"></textarea></div>
+                <div class="prd-field"><label>Areas for Improvement</label><textarea name="feedback_improvement" rows="3" placeholder="Where could they improve?…"></textarea></div>
+                <div class="prd-field"><label>Overall Comments</label><textarea name="feedback_comments" rows="3" placeholder="General observations and feedback…"></textarea></div>
+                <div class="prd-field"><label>Suggestions</label><textarea name="feedback_suggestions" rows="2" placeholder="Specific suggestions for growth…"></textarea></div>
+                <div class="prd-field"><label style="display:flex;align-items:center;gap:8px;font-size:13px;"><input type="checkbox" name="is_anonymous" value="1"> Submit anonymously</label></div>
+            </div>
+            <div class="prd-modal-ft">
+                <button type="button" onclick="document.getElementById('modalFeedback').classList.remove('open')" style="padding:8px 16px;background:#f1f5f9;color:#374151;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button type="submit" style="padding:8px 18px;background:#DC143C;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Submit Feedback</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function prdTab(name, btn) {
+    document.querySelectorAll('.prd-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.prd-tab-btn').forEach(b => b.classList.remove('active'));
+    const sec = document.getElementById('tab-' + name);
+    if (sec) sec.classList.add('active');
+    if (btn) btn.classList.add('active');
+}
+document.querySelectorAll('.prd-modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+});
+</script>
+{% endblock %}

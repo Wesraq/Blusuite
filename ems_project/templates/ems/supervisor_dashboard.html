@@ -17,7 +17,7 @@
         <div style="padding: 24px;">
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div style="width: 48px; height: 48px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -94,7 +94,7 @@
     <div class="content-card">
         <div class="card-header">
             <div class="card-title">Team Members</div>
-            <a href="{% url 'supervisor_team_attendance' %}" style="font-size: 14px; color: #3b82f6; text-decoration: none;">View All →</a>
+            <a href="{% url 'supervisor_team_attendance' %}" style="font-size: 14px; color: #DC143C; text-decoration: none;">View All →</a>
         </div>
         <div class="card-content">
             {% if team_members %}
@@ -130,7 +130,7 @@
     <div class="content-card">
         <div class="card-header">
             <div class="card-title">Pending Requests</div>
-            <a href="{% url 'supervisor_request_approval' %}" style="font-size: 14px; color: #3b82f6; text-decoration: none;">View All →</a>
+            <a href="{% url 'supervisor_request_approval' %}" style="font-size: 14px; color: #DC143C; text-decoration: none;">View All →</a>
         </div>
         <div class="card-content">
             {% if pending_requests %}
@@ -187,7 +187,7 @@
     <div class="content-card">
         <div class="card-header">
             <div class="card-title">Performance Reviews Due</div>
-            <a href="{% url 'supervisor_team_performance' %}" style="font-size: 14px; color: #3b82f6; text-decoration: none;">View All →</a>
+            <a href="{% url 'supervisor_team_performance' %}" style="font-size: 14px; color: #DC143C; text-decoration: none;">View All →</a>
         </div>
         <div class="card-content">
             {% if reviews_due %}

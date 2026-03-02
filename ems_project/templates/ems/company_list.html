@@ -1,4 +1,4 @@
-{% extends 'ems/base_superadmin.html' %}
+﻿{% extends 'ems/base_superadmin.html' %}
 
 {% block title %}Company Management - EMS{% endblock %}
 {% block nav_companies %} active{% endblock %}
@@ -75,7 +75,7 @@
                                 </select>
                             </div>
                             <div style="display: flex; gap: 8px;">
-                                <button type="submit" class="btn">Apply</button>
+                                <button type="submit" class="btn btn-primary">Apply</button>
                                 <a href="{% url 'company_list' %}" class="btn btn-secondary">Reset</a>
                             </div>
                         </form>
@@ -86,7 +86,7 @@
                 {% if messages %}
                     <div style="margin-bottom: 24px;">
                         {% for message in messages %}
-                            <div style="padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; background: {% if message.tags == 'error' %}#fecaca{% elif message.tags == 'success' %}#dcfce7{% elif message.tags == 'warning' %}#fef3c7{% else %}#dbeafe{% endif %}; color: {% if message.tags == 'error' %}#991b1b{% elif message.tags == 'success' %}#166534{% elif message.tags == 'warning' %}#92400e{% else %}#1e40af{% endif %}; border: 1px solid {% if message.tags == 'error' %}#fca5a5{% elif message.tags == 'success' %}#bbf7d0{% elif message.tags == 'warning' %}#fcd34d{% else %}#bfdbfe{% endif %};">
+                            <div style="padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; background: {% if message.tags == 'error' %}#fecaca{% elif message.tags == 'success' %}#dcfce7{% elif message.tags == 'warning' %}#fef3c7{% else %}#fce7f3{% endif %}; color: {% if message.tags == 'error' %}#991b1b{% elif message.tags == 'success' %}#166534{% elif message.tags == 'warning' %}#92400e{% else %}#DC143C{% endif %}; border: 1px solid {% if message.tags == 'error' %}#fca5a5{% elif message.tags == 'success' %}#bbf7d0{% elif message.tags == 'warning' %}#fcd34d{% else %}#bfdbfe{% endif %};">
                                 {{ message }}
                             </div>
                         {% endfor %}
@@ -198,7 +198,7 @@
                                                         {% elif company.id in expiring_soon_ids %}
                                                             <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#fef3c7; color:#92400e; font-size: 11px; font-weight:600; text-transform:uppercase;">Expiring soon</span>
                                                         {% elif company.id in trial_ids %}
-                                                            <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#dbeafe; color:#1d4ed8; font-size: 11px; font-weight:600; text-transform:uppercase;">Trial</span>
+                                                            <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#fce7f3; color:#DC143C; font-size: 11px; font-weight:600; text-transform:uppercase;">Trial</span>
                                                         {% else %}
                                                             <span style="display:inline-block; padding: 2px 8px; border-radius: 999px; background:#dcfce7; color:#166534; font-size: 11px; font-weight:600; text-transform:uppercase;">Active</span>
                                                         {% endif %}

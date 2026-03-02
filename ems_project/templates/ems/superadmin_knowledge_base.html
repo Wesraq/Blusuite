@@ -1,4 +1,4 @@
-{% extends 'ems/base_superadmin.html' %}
+﻿{% extends 'ems/base_superadmin.html' %}
 
 {% block title %}Knowledge Base Management - EMS{% endblock %}
 {% block nav_support %} active{% endblock %}
@@ -120,7 +120,7 @@
                             {% if editing_article %}
                             <a href="{% url 'superadmin_knowledge_base' %}" class="btn btn-secondary">Cancel</a>
                             {% endif %}
-                            <button type="submit" class="btn">
+                            <button type="submit" class="btn btn-primary">
                                 {% if editing_article %}Update article{% else %}Save article{% endif %}
                             </button>
                         </div>
@@ -159,7 +159,7 @@
                         </select>
                     </div>
                     <div style="display:flex; gap:8px;">
-                        <button type="submit" class="btn">Apply</button>
+                        <button type="submit" class="btn btn-primary">Apply</button>
                         <a href="{% url 'superadmin_knowledge_base' %}" class="btn btn-secondary">Reset</a>
                     </div>
                 </form>
@@ -193,7 +193,7 @@
                                 </td>
                                 <td>
                                     {% if article.media_file or article.video_url %}
-                                        <span style="display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; background:#eff6ff; color:#1d4ed8;">Media</span>
+                                        <span style="display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; background:#eff6ff; color:#DC143C;">Media</span>
                                     {% else %}
                                         <span style="font-size:11px; color:#9ca3af;">—</span>
                                     {% endif %}

@@ -16,11 +16,11 @@
         <div class="card-content">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <div style="font-size: 28px; font-weight: 600; color: #E11D48;">{{ super_admins.count }}</div>
+                    <div style="font-size: 28px; font-weight: 600; color: #DC143C;">{{ super_admins.count }}</div>
                     <div style="font-size: 13px; color: #64748b;">Super Admins</div>
                 </div>
-                <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <div style="width: 48px; height: 48px; background: #DC143Cf2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 2l3 5 4-2-1 9H6L5 5l4 2z"></path>
                         <path d="M5 21h14"></path>
                     </svg>
@@ -41,11 +41,11 @@
         <div class="card-content">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <div style="font-size: 28px; font-weight: 600; color: #2563eb;">{{ company_admins.count }}</div>
+                    <div style="font-size: 28px; font-weight: 600; color: #DC143C;">{{ company_admins.count }}</div>
                     <div style="font-size: 13px; color: #64748b;">Company Admins</div>
                 </div>
-                <div style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <div style="width: 48px; height: 48px; background: #fce7f36ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
@@ -91,11 +91,11 @@
         <div class="card-content">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <div style="font-size: 28px; font-weight: 600; color: #8b5cf6;">{{ active_sessions|default:"0" }}</div>
+                    <div style="font-size: 28px; font-weight: 600; color: #DC143C;">{{ active_sessions|default:"0" }}</div>
                     <div style="font-size: 13px; color: #64748b;">Online now</div>
                 </div>
                 <div style="width: 48px; height: 48px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
                         <circle cx="12" cy="12" r="3"></circle>
                     </svg>
@@ -151,7 +151,7 @@
                 </label>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <button type="submit" class="btn" style="padding: 10px 14px; min-width: 140px;" id="user-form-submit">Add Platform User</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 14px; min-width: 140px;" id="user-form-submit">Add Platform User</button>
                 <button type="button" class="btn btn-secondary" style="padding: 9px 12px; min-width: 120px; display: none;" id="user-form-cancel" onclick="resetUserForm()">Cancel edit</button>
             </div>
         </form>
@@ -182,7 +182,7 @@
                     <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
                 </select>
                 
-                <button type="submit" class="btn" style="padding: 10px 20px;">Filter</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Filter</button>
                 <a href="?search=" class="btn btn-secondary" style="padding: 10px 20px;">Clear</a>
             </form>
             
@@ -199,7 +199,7 @@
         </div>
     </div>
     <div class="card-content">
-        <div style="margin-bottom: 16px; padding: 12px 16px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #E11D48;">
+        <div style="margin-bottom: 16px; padding: 12px 16px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #DC143C;">
             <div style="font-size: 14px; color: #374151;">
                 <strong>Note:</strong> This view shows platform system administrators only. Tenant users (company admins, employers, employees) are managed in their respective company portals.
             </div>
@@ -224,7 +224,7 @@
                         <tr>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #E11D48, #BE123C); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #DC143C, #BE123C); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
                                         {{ user.first_name|first|default:user.email|slice:":1"|upper }}{{ user.last_name|first|default:"" }}
                                     </div>
                                     <div>
@@ -432,13 +432,13 @@
 }
 
 .role-superadmin {
-    background: #fef2f2;
+    background: #DC143Cf2f2;
     color: #dc2626;
 }
 
 .role-admin {
-    background: #eff6ff;
-    color: #2563eb;
+    background: #fce7f36ff;
+    color: #DC143C;
 }
 
 .role-employee {
@@ -478,7 +478,7 @@
 }
 
 .btn-primary {
-    background: #E11D48;
+    background: #DC143C;
     color: white;
 }
 

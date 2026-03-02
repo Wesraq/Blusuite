@@ -1,28 +1,57 @@
-{% extends base_template|default:'ems/base_employee.html' %}
+﻿{% extends base_template|default:'ems/base_employee.html' %}
 {% load static %}
 
 {% block title %}My Benefits - BLU Suite EMS{% endblock %}
 
 {% block content %}
 <style>
-    .benefit-cards {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:12px;}
-    .benefit-card {border:1px solid #e5e7eb;border-radius:10px;padding:14px;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,0.06);display:flex;flex-direction:column;gap:8px;}
-    .benefit-meta {display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:#64748b;}
-    .pill {padding:4px 8px;border-radius:999px;border:1px solid #e5e7eb;font-weight:600;font-size:11px;}
+    /* ── Benefit Cards ─────────────────────────────────────── */
+    .benefit-cards {display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:12px;}
+    .benefit-card {border:1px solid #e5e7eb;border-radius:12px;padding:0;background:#fff;box-shadow:0 1px 4px rgba(15,23,42,0.07);display:flex;flex-direction:column;overflow:hidden;transition:box-shadow .2s,border-color .2s;}
+    .benefit-card:hover {box-shadow:0 4px 16px rgba(220,20,60,.10);border-color:#fca5a5;}
+    .benefit-card-header {padding:16px 18px 12px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+    .benefit-card-icon {width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .benefit-card-icon.health {background:#dcfce7;color:#16a34a;}
+    .benefit-card-icon.dental {background:#fce7f3;color:#DC143C;}
+    .benefit-card-icon.vision {background:#fce7f3;color:#DC143C;}
+    .benefit-card-icon.life {background:#fef3c7;color:#d97706;}
+    .benefit-card-icon.retirement {background:#f3e8ff;color:#7c3aed;}
+    .benefit-card-icon.default {background:#fee2e2;color:#DC143C;}
+    .benefit-card-body {padding:14px 18px;flex:1;}
+    .benefit-card-footer {padding:12px 18px;background:#f8fafc;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+    .bc-contrib {font-size:12px;font-weight:600;}
+    .bc-contrib.company {color:#047857;}
+    .bc-contrib.employee {color:#DC143C;}
+    /* ── Pills ─────────────────────────────────────────────── */
+    .pill {padding:3px 10px;border-radius:999px;border:1px solid #e5e7eb;font-weight:600;font-size:11px;display:inline-flex;align-items:center;gap:4px;}
     .pill.green {color:#047857;border-color:#bbf7d0;background:#ecfdf3;}
     .pill.red {color:#b91c1c;border-color:#fecdd3;background:#fff1f2;}
     .pill.gray {color:#475569;border-color:#e2e8f0;background:#f8fafc;}
-    .claim-mini-form {display:grid;gap:6px;grid-template-columns:1fr 1fr;align-items:end;}
-    .claim-mini-form textarea {grid-column:1 / -1;}
-    .claim-mini-form button {grid-column:1 / -1;}
-    .claims-table td, .claims-table th {vertical-align:middle;}
-    .claims-table .status {text-transform:capitalize;}
+    .pill.crimson {color:#DC143C;border-color:#fca5a5;background:#fff1f2;}
+    /* ── Claim mini form ───────────────────────────────────── */
+    .claim-mini-form {display:grid;gap:5px;}
+    .claim-mini-form input,.claim-mini-form textarea,.claim-mini-form select {font-size:12px;padding:5px 8px;border:1px solid #e2e8f0;border-radius:5px;width:100%;font-family:inherit;}
+    .claim-mini-form input:focus,.claim-mini-form textarea:focus {border-color:#DC143C;outline:none;}
+    .claim-mini-form button {background:#DC143C;color:#fff;border:none;padding:6px 12px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;}
+    .claim-mini-form button:hover {background:#B01030;}
+    /* ── Benefits modal form ────────────────────────────────── */
+    .bf-field {display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+    .bf-field label {font-size:12px;font-weight:600;color:#374151;}
+    .bf-field input,.bf-field select,.bf-field textarea {border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;font-size:13px;color:#0f172a;background:#fff;width:100%;font-family:inherit;}
+    .bf-field input:focus,.bf-field select:focus,.bf-field textarea:focus {border-color:#DC143C;outline:none;box-shadow:0 0 0 3px rgba(220,20,60,.08);}
+    .bf-grid-2 {display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .bf-check-row {display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;}
+    .bf-check-row input[type=checkbox] {width:16px;height:16px;accent-color:#DC143C;}
+    .bf-check-row label {font-size:13px;font-weight:500;color:#0f172a;margin:0;}
+    /* ── Claims table ───────────────────────────────────────── */
+    .claims-table td,.claims-table th {vertical-align:middle;}
+    @media(max-width:640px){.benefit-cards{grid-template-columns:1fr;}.bf-grid-2{grid-template-columns:1fr;}}
 </style>
 
 <!-- Page Header -->
 <div class="page-header">
     <div>
-        <h2>{% if user.role == 'EMPLOYEE' %}My Benefits{% else %}Benefits Management{% endif %}</h2>
+        <h2>{% if is_management_view %}Benefits Management{% else %}My Benefits{% endif %}</h2>
         <p>View and manage your employee benefits and enrollments</p>
     </div>
 </div>
@@ -30,7 +59,7 @@
 <!-- Statistics Cards -->
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 24px;">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
         </div>
         <div class="stat-details">
@@ -39,7 +68,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;">
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         </div>
         <div class="stat-details">
@@ -68,7 +97,7 @@
 </div>
 
 <!-- Filters -->
-{% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+{% if is_management_view %}
 <div class="content-card" style="padding: 20px;">
     <form method="get" id="benefits-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
         <div class="filter-group">
@@ -107,7 +136,7 @@
 <!-- Action Buttons -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; flex-wrap: wrap; gap: 12px;">
     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+        {% if is_management_view %}
         <button class="btn btn-secondary" onclick="exportCSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="20" x2="18" y2="10"></line>
                             <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -123,7 +152,7 @@
                             <path d="M4 21v-2a4 4 0 0 1 4-4h4"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg> Enroll Employee</button>
-        {% elif user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' and using_legacy_mode %}
+        {% elif is_management_view and using_legacy_mode %}
         <span style="font-size: 13px; color: #b91c1c; align-self: center;">Compatibility mode enabled — creation actions are unavailable.</span>
         {% endif %}
         {% endif %}
@@ -133,7 +162,7 @@
 <!-- Benefits Enrollments Table -->
 <div class="content-card" style="max-width: 100%; margin-top: 24px;">
     <div class="card-header">
-        <div class="card-title">{% if user.role == 'EMPLOYEE' %}My Benefits{% else %}Employee Benefit Enrollments{% endif %}</div>
+        <div class="card-title">{% if is_management_view %}Employee Benefit Enrollments{% else %}My Benefits{% endif %}</div>
         <div class="card-subtitle">Track benefit enrollments and contributions</div>
     </div>
     <div class="card-body">
@@ -142,7 +171,7 @@
                 <table class="attendance-table">
                     <thead>
                         <tr data-enrollment-id="{{ enrollment.id }}">
-                            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}<th>Employee</th>{% endif %}
+                            {% if is_management_view %}<th>Employee</th>{% endif %}
                             <th>Benefit</th>
                             <th>Type</th>
                             <th>Enrollment Date</th>
@@ -150,14 +179,14 @@
                             <th>Company Contribution</th>
                             <th>Employee Contribution</th>
                             <th>Status</th>
-                            {% if user.role == 'EMPLOYEE' %}<th style="width: 200px;">Claim</th>{% endif %}
-                            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}<th style="width: 140px;">Actions</th>{% endif %}
+                            {% if not is_management_view %}<th style="width: 200px;">Claim</th>{% endif %}
+                            {% if is_management_view %}<th style="width: 140px;">Actions</th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for enrollment in enrolled_benefits %}
                             <tr>
-                                {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+                                {% if is_management_view %}
                                     <td>
                                         <div style="font-weight: 500;">{{ enrollment.employee.first_name }} {{ enrollment.employee.last_name }}</div>
                                         <div style="font-size: 12px; color: #64748b;">{{ enrollment.employee.employee_profile.job_title|default:'No position assigned' }}</div>
@@ -175,7 +204,7 @@
                                 <td style="color: #047857; font-weight: 500;">{{ currency_symbol }} {{ enrollment.benefit.company_contribution|floatformat:2 }}</td>
                                 <td style="color: #ef4444;">{{ currency_symbol }} {{ enrollment.benefit.employee_contribution|floatformat:2 }}</td>
                                 <td><span class="status {{ enrollment.status|lower }}">{{ enrollment.get_status_display }}</span></td>
-                                {% if user.role == 'EMPLOYEE' %}
+                                {% if not is_management_view %}
                                 <td>
                                     <form method="post" action="{% url 'benefit_claim_submit' %}" enctype="multipart/form-data" style="display:grid;gap:6px;">
                                         {% csrf_token %}
@@ -187,7 +216,7 @@
                                     </form>
                                 </td>
                                 {% endif %}
-                                {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+                                {% if is_management_view %}
                                 <td>
                                     <div class="benefit-actions">
                                         <button class="btn btn-secondary toggle-benefit" data-action="activate" {% if enrollment.status == 'ACTIVE' %}disabled{% endif %}>Activate</button>
@@ -205,56 +234,86 @@
             <div style="text-align: center; padding: 40px; color: #64748b;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7a3 3 0 1 1 3-3c0 2-3 3-3 3Z"></path><path d="M12 7a3 3 0 1 0-3-3c0 2 3 3 3 3Z"></path></svg>
                 <h3>No Benefit Enrollments Found</h3>
-                <p>{% if user.role == 'EMPLOYEE' %}You have not enrolled in any benefits yet.{% else %}No benefit enrollments to display.{% endif %}</p>
+                <p>{% if not is_management_view %}You have not enrolled in any benefits yet.{% else %}No benefit enrollments to display.{% endif %}</p>
             </div>
         {% endif %}
     </div>
 </div>
 
-{% if user.role != 'EMPLOYEE' %}
-<!-- Available Benefits Section + Claim Form -->
+<!-- Available Benefits Section -->
 <div class="content-card" style="max-width: 100%; margin-top: 24px;">
     <div class="card-header">
         <div class="card-title">Available Benefits</div>
-        <div class="card-subtitle">Benefit plans offered by the company</div>
+        <div class="card-subtitle">{% if not is_management_view %}Benefit plans offered by the company — click Enroll to request enrollment{% else %}Benefit plans offered by the company{% endif %}</div>
     </div>
     <div class="card-body">
         {% if available_benefits %}
             <div class="benefit-cards">
                 {% for benefit in available_benefits %}
+                {% with btype=benefit.benefit_type|lower %}
                 <div class="benefit-card">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-                        <div>
-                            <div style="font-weight:700;color:#0f172a;">{{ benefit.name }}</div>
-                            <div style="color:#64748b;font-size:12px;">{{ benefit.get_benefit_type_display }}</div>
+                    <div class="benefit-card-header">
+                        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+                            <div class="benefit-card-icon {% if 'health' in btype %}health{% elif 'dental' in btype %}dental{% elif 'vision' in btype %}vision{% elif 'life' in btype %}life{% elif 'retire' in btype or 'pension' in btype %}retirement{% else %}default{% endif %}">
+                                {% if 'health' in btype %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                {% elif 'dental' in btype %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-2.5 0-4.5 2-4.5 4.5 0 1.5.8 2.8 2 3.5V22h5V10c1.2-.7 2-2 2-3.5C16.5 4 14.5 2 12 2z"/></svg>
+                                {% elif 'retire' in btype or 'pension' in btype %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                {% else %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>{% endif %}
+                            </div>
+                            <div style="min-width:0;">
+                                <div style="font-weight:700;color:#0f172a;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ benefit.name }}</div>
+                                <div style="color:#64748b;font-size:12px;">{{ benefit.get_benefit_type_display }}</div>
+                            </div>
                         </div>
-                        <div class="pill {% if benefit.is_mandatory %}red{% else %}gray{% endif %}">
+                        <span class="pill {% if benefit.is_mandatory %}crimson{% else %}gray{% endif %}" style="flex-shrink:0;">
                             {% if benefit.is_mandatory %}Required{% else %}Optional{% endif %}
-                        </div>
+                        </span>
                     </div>
-                    <div style="color:#475569;font-size:13px; line-height:1.5;">{{ benefit.description|default:'No description'|truncatewords:20 }}</div>
-                    <div class="benefit-meta">
-                        <span class="pill green">Company: {{ currency_symbol }} {{ benefit.company_contribution|floatformat:2 }}/mo</span>
-                        <span class="pill red">You: {{ currency_symbol }} {{ benefit.employee_contribution|floatformat:2 }}/mo</span>
+                    <div class="benefit-card-body">
+                        <p style="margin:0;color:#475569;font-size:13px;line-height:1.6;">{{ benefit.description|default:'No description provided.'|truncatewords:20 }}</p>
+                    </div>
+                    <div class="benefit-card-footer">
+                        <span class="bc-contrib company">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:3px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            Company: {{ currency_symbol }}{{ benefit.company_contribution|floatformat:2 }}/mo
+                        </span>
+                        <span class="bc-contrib employee">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:3px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            You: {{ currency_symbol }}{{ benefit.employee_contribution|floatformat:2 }}/mo
+                        </span>
+                        {% if not is_management_view %}
+                        {% with already_enrolled=benefit.id|stringformat:"s" %}
+                        {% if already_enrolled in enrolled_benefit_ids %}
+                        <span class="pill green">Enrolled</span>
+                        {% else %}
+                        <form method="post" action="{% url 'employee_benefit_self_enroll' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="benefit_id" value="{{ benefit.id }}">
+                            <button type="submit" class="btn btn-primary" style="font-size:11px;padding:4px 10px;">Enroll</button>
+                        </form>
+                        {% endif %}
+                        {% endwith %}
+                        {% endif %}
                     </div>
                 </div>
+                {% endwith %}
                 {% endfor %}
             </div>
         {% else %}
             <div style="text-align: center; padding: 40px; color: #64748b;">
-                <p>No benefits available.</p>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                <p>No benefits available yet. Contact HR to add benefit plans.</p>
             </div>
         {% endif %}
     </div>
 </div>
-{% endif %}
 
 <!-- Claims Section -->
 <div class="content-card" style="max-width: 100%; margin-top: 24px;">
     <div class="card-header">
         <div class="card-title">Benefit Claims</div>
-        <div class="card-subtitle">Submitted claims{% if user.role == 'EMPLOYEE' %} by you{% else %} by employees{% endif %}</div>
-        {% if user.role == 'EMPLOYEE' %}
+        <div class="card-subtitle">Submitted claims{% if not is_management_view %} by you{% else %} by employees{% endif %}</div>
+        {% if not is_management_view %}
         <div style="margin-top: 8px;">
             <form method="post" action="{% url 'benefit_claim_cleanup_my_pending' %}" style="display: inline;">
                 {% csrf_token %}
@@ -269,20 +328,20 @@
             <table class="attendance-table claims-table">
                 <thead>
                     <tr>
-                        {% if user.role != 'EMPLOYEE' %}<th>Employee</th>{% endif %}
+                        {% if is_management_view %}<th>Employee</th>{% endif %}
                         <th>Benefit</th>
                         <th>Amount</th>
                         <th>Description</th>
                         <th>Status</th>
                         <th>Submitted</th>
                         <th>Attachment</th>
-                        {% if user.role != 'EMPLOYEE' %}<th style="width: 200px;">Action</th>{% else %}<th>Action</th>{% endif %}
+                        {% if is_management_view %}<th style="width: 200px;">Action</th>{% else %}<th>Action</th>{% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for claim in benefit_claims %}
                     <tr id="claim-{{ claim.id }}">
-                        {% if user.role != 'EMPLOYEE' %}
+                        {% if is_management_view %}
                         <td>
                             <div style="font-weight: 500;">{{ claim.employee.get_full_name }}</div>
                             <div style="font-size: 12px; color: #64748b;">{{ claim.employee.email }}</div>
@@ -300,7 +359,7 @@
                                 —
                             {% endif %}
                         </td>
-                        {% if user.role != 'EMPLOYEE' %}
+                        {% if is_management_view %}
                         <td>
                             <form method="post" action="{% url 'benefit_claim_action' claim.id %}" style="display: flex; gap: 6px;">
                                 {% csrf_token %}
@@ -335,18 +394,53 @@
 {% if can_manage_benefits %}
 <!-- Add Benefit Modal -->
 <div id="benefit-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:520px;">
         <div class="modal-header">
-            <h3>Add Benefit</h3>
+            <div>
+                <h3 style="margin:0 0 2px;font-size:17px;font-weight:700;">Add Benefit Plan</h3>
+                <p style="margin:0;font-size:12px;color:#64748b;">Create a new company benefit</p>
+            </div>
             <button type="button" class="modal-close" data-close="benefit-modal">×</button>
         </div>
-        <form id="benefit-form">
+        <form id="benefit-form" style="padding:0 24px 24px;">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-            {{ benefit_form.non_field_errors }}
-            {{ benefit_form.as_p }}
-            <div class="modal-actions">
+            {% if benefit_form.non_field_errors %}<div style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:6px;padding:10px 14px;margin:14px 0;font-size:13px;">{{ benefit_form.non_field_errors }}</div>{% endif %}
+            <div style="margin-top:16px;">
+                <div class="bf-field">
+                    <label>Benefit Name <span style="color:#DC143C">*</span></label>
+                    {{ benefit_form.name }}
+                    {% if benefit_form.name.errors %}<span style="font-size:11px;color:#dc2626">{{ benefit_form.name.errors|join:", " }}</span>{% endif %}
+                </div>
+                <div class="bf-grid-2">
+                    <div class="bf-field">
+                        <label>Benefit Type <span style="color:#DC143C">*</span></label>
+                        {{ benefit_form.benefit_type }}
+                    </div>
+                    <div class="bf-check-row" style="margin-bottom:14px;">
+                        {{ benefit_form.is_mandatory }}
+                        <label for="{{ benefit_form.is_mandatory.id_for_label }}">Mandatory</label>
+                    </div>
+                </div>
+                <div class="bf-field">
+                    <label>Description</label>
+                    {{ benefit_form.description }}
+                </div>
+                <div class="bf-grid-2">
+                    <div class="bf-field">
+                        <label>Company Contribution ({{ currency_symbol }}/mo)</label>
+                        {{ benefit_form.company_contribution }}
+                        {% if benefit_form.company_contribution.errors %}<span style="font-size:11px;color:#dc2626">{{ benefit_form.company_contribution.errors|join:", " }}</span>{% endif %}
+                    </div>
+                    <div class="bf-field">
+                        <label>Employee Contribution ({{ currency_symbol }}/mo)</label>
+                        {{ benefit_form.employee_contribution }}
+                        {% if benefit_form.employee_contribution.errors %}<span style="font-size:11px;color:#dc2626">{{ benefit_form.employee_contribution.errors|join:", " }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions" style="border-top:1px solid #f1f5f9;padding-top:16px;margin-top:4px;">
                 <button type="button" class="btn btn-secondary" data-close="benefit-modal">Cancel</button>
-                <button type="submit" class="btn">Save Benefit</button>
+                <button type="submit" class="btn btn-primary">Save Benefit</button>
             </div>
         </form>
     </div>
@@ -354,18 +448,50 @@
 
 <!-- Enroll Employee Modal -->
 <div id="enrollment-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:520px;">
         <div class="modal-header">
-            <h3>Enroll Employee in Benefit</h3>
+            <div>
+                <h3 style="margin:0 0 2px;font-size:17px;font-weight:700;">Enroll Employee in Benefit</h3>
+                <p style="margin:0;font-size:12px;color:#64748b;">Assign a benefit plan to an employee</p>
+            </div>
             <button type="button" class="modal-close" data-close="enrollment-modal">×</button>
         </div>
-        <form id="enrollment-form">
+        <form id="enrollment-form" style="padding:0 24px 24px;">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-            {{ enrollment_form.non_field_errors }}
-            {{ enrollment_form.as_p }}
-            <div class="modal-actions">
+            {% if enrollment_form.non_field_errors %}<div style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:6px;padding:10px 14px;margin:14px 0;font-size:13px;">{{ enrollment_form.non_field_errors }}</div>{% endif %}
+            <div style="margin-top:16px;">
+                <div class="bf-grid-2">
+                    <div class="bf-field">
+                        <label>Employee <span style="color:#DC143C">*</span></label>
+                        {{ enrollment_form.employee }}
+                    </div>
+                    <div class="bf-field">
+                        <label>Benefit Plan <span style="color:#DC143C">*</span></label>
+                        {{ enrollment_form.benefit }}
+                    </div>
+                </div>
+                <div class="bf-grid-2">
+                    <div class="bf-field">
+                        <label>Enrollment Date</label>
+                        {{ enrollment_form.enrollment_date }}
+                    </div>
+                    <div class="bf-field">
+                        <label>Effective Date</label>
+                        {{ enrollment_form.effective_date }}
+                    </div>
+                </div>
+                <div class="bf-field">
+                    <label>Status</label>
+                    {{ enrollment_form.status }}
+                </div>
+                <div class="bf-field">
+                    <label>Notes</label>
+                    {{ enrollment_form.notes }}
+                </div>
+            </div>
+            <div class="modal-actions" style="border-top:1px solid #f1f5f9;padding-top:16px;margin-top:4px;">
                 <button type="button" class="btn btn-secondary" data-close="enrollment-modal">Cancel</button>
-                <button type="submit" class="btn">Save Enrollment</button>
+                <button type="submit" class="btn btn-primary">Save Enrollment</button>
             </div>
         </form>
     </div>

@@ -183,6 +183,36 @@ class DocumentTemplate(TenantScopedModel):
         return self.name
 
 
+class DocumentShare(TenantScopedModel):
+    """Track which users a document has been shared with"""
+    document = models.ForeignKey(
+        EmployeeDocument,
+        on_delete=models.CASCADE,
+        related_name='shares'
+    )
+    shared_with = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shared_documents'
+    )
+    shared_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='documents_shared_by_me'
+    )
+    created_at = models.DateTimeField(_('shared at'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('document share')
+        verbose_name_plural = _('document shares')
+        unique_together = [('document', 'shared_with')]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.document.title} → {self.shared_with.get_full_name()}"
+
+
 class DocumentAccessLog(TenantScopedModel):
     """Model to track document access"""
 

@@ -1,0 +1,266 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% block title %}Tasks{% endblock %}
+{% block page_title %}Tasks{% endblock %}
+
+{% block content %}
+<style>
+.kb-page { padding:24px; }
+.kb-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+.kb-filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.kb-filters select, .kb-filters input { border:1px solid #DC143C; border-radius:6px; padding:6px 10px; font-size:12px; color:#0f172a; }
+.kb-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:7px; font-size:13px; font-weight:500; border:none; cursor:pointer; text-decoration:none; }
+.kb-btn-primary { background:#DC143C; color:#fff; }
+.kb-btn-sm { padding:5px 12px; font-size:12px; }
+.kb-board { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; align-items:start; }
+.kb-col { background:#f8fafc; border:1px solid #DC143C; border-radius:12px; padding:12px; }
+.kb-col-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.kb-col-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; }
+.kb-count { background:#DC143C; color:#fff; border-radius:20px; padding:2px 8px; font-size:11px; font-weight:700; }
+.kb-card { background:#fff; border:1px solid #DC143C; border-radius:9px; padding:12px; margin-bottom:8px; cursor:pointer; transition:box-shadow .15s, border-color .15s; }
+.kb-card:hover { box-shadow:0 2px 8px rgba(0,0,0,.08); border-color:#DC143C; }
+.kb-card-title { font-size:13px; font-weight:600; color:#0f172a; margin-bottom:6px; line-height:1.4; }
+.kb-card-title.done { text-decoration:line-through; color:#94a3b8; }
+.kb-card-meta { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.kb-priority { display:inline-block; padding:2px 7px; border-radius:20px; font-size:10px; font-weight:700; }
+.p-low    { background:#DC143Cf9; color:#fff; }
+.p-medium { background:#fef3c7; color:#92400e; }
+.p-high   { background:#fee2e2; color:#dc2626; }
+.p-urgent { background:#dc2626; color:#fff; }
+.kb-due { font-size:11px; color:#64748b; }
+.kb-due.overdue { color:#dc2626; font-weight:600; }
+.kb-assignee { font-size:11px; color:#64748b; }
+.kb-card-actions { display:flex; gap:6px; margin-top:8px; }
+.kb-action-btn { flex:1; padding:4px 6px; border-radius:5px; font-size:11px; font-weight:500; border:1px solid #DC143C; background:#f8fafc; color:#374151; cursor:pointer; text-align:center; }
+.kb-action-btn:hover { background:#DC143C; color:#fff; }
+.kb-add-card { border:2px dashed #DC143C; border-radius:9px; padding:10px; text-align:center; color:#94a3b8; font-size:12px; cursor:pointer; margin-top:4px; transition:all .15s; }
+.kb-add-card:hover { border-color:#DC143C; color:#DC143C; background:#fce7f3; }
+/* Modal */
+.kb-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:2000; align-items:center; justify-content:center; }
+.kb-modal-bg.open { display:flex; }
+.kb-modal { background:#fff; border-radius:14px; padding:24px; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; }
+.kb-modal h3 { margin:0 0 16px; font-size:16px; font-weight:700; color:#0f172a; }
+.kb-field { margin-bottom:14px; }
+.kb-field label { font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
+.kb-field input, .kb-field textarea, .kb-field select { width:100%; border:1px solid #DC143C; border-radius:7px; padding:9px 12px; font-size:13px; color:#0f172a; font-family:inherit; box-sizing:border-box; }
+.kb-field input:focus, .kb-field textarea:focus, .kb-field select:focus { border-color:#DC143C; outline:none; }
+.kb-modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:4px; }
+@media(max-width:768px){ .kb-board{grid-template-columns:1fr;} .kb-page{padding:12px;} }
+</style>
+
+<div class="kb-page">
+    <div class="kb-header">
+        <div>
+            <h2 style="margin:0;font-size:20px;font-weight:700;color:#0f172a;">Tasks</h2>
+            <p style="margin:4px 0 0;font-size:13px;color:#64748b;">Kanban board &mdash; drag between columns or use the move buttons</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div class="kb-filters">
+                <select onchange="location='?priority='+this.value+'{% if mine_only %}&mine=1{% endif %}'">
+                    <option value="">All Priorities</option>
+                    <option value="URGENT" {% if priority_filter == 'URGENT' %}selected{% endif %}>Urgent</option>
+                    <option value="HIGH"   {% if priority_filter == 'HIGH' %}selected{% endif %}>High</option>
+                    <option value="MEDIUM" {% if priority_filter == 'MEDIUM' %}selected{% endif %}>Medium</option>
+                    <option value="LOW"    {% if priority_filter == 'LOW' %}selected{% endif %}>Low</option>
+                </select>
+                <a href="?mine={% if mine_only %}0{% else %}1{% endif %}" style="font-size:12px;padding:6px 12px;border:1px solid #DC143C;border-radius:6px;text-decoration:none;color:{% if mine_only %}#DC143C{% else %}#64748b{% endif %};background:{% if mine_only %}#fce7f3{% else %}#fff{% endif %};">
+                    Mine only
+                </a>
+            </div>
+            <button class="kb-btn kb-btn-primary" onclick="openCreateModal('TODO')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Task
+            </button>
+        </div>
+    </div>
+
+    {% if messages %}{% for msg in messages %}
+    <div style="padding:10px 14px;border-radius:7px;margin-bottom:14px;font-size:13px;background:#d1fae5;color:#065f46;border:1px solid #86efac;">{{ msg }}</div>
+    {% endfor %}{% endif %}
+
+    <div class="kb-board">
+        <!-- TO DO -->
+        <div class="kb-col">
+            <div class="kb-col-header">
+                <span class="kb-col-title" style="color:#64748b;">To Do</span>
+                <span class="kb-count">{{ todo_tasks|length }}</span>
+            </div>
+            {% for task in todo_tasks %}
+            <div class="kb-card" onclick="openEditModal({{ task.id }},'{{ task.title|escapejs }}','{{ task.description|escapejs }}','{{ task.priority }}','{{ task.status }}','{{ task.due_date|default:'' }}','{{ task.assigned_to_id|default:'' }}')">
+                <div class="kb-card-title">{{ task.title }}</div>
+                <div class="kb-card-meta">
+                    <span class="kb-priority p-{{ task.priority|lower }}">{{ task.get_priority_display }}</span>
+                    {% if task.due_date %}
+                    <span class="kb-due {% if task.is_overdue %}overdue{% endif %}">
+                        {% if task.is_overdue %}Overdue · {% endif %}{{ task.due_date|date:"M j" }}
+                    </span>
+                    {% endif %}
+                    {% if task.assigned_to %}
+                    <span class="kb-assignee">{{ task.assigned_to.get_full_name }}</span>
+                    {% endif %}
+                </div>
+                <div class="kb-card-actions" onclick="event.stopPropagation()">
+                    <form method="post" style="flex:1;">{% csrf_token %}<input type="hidden" name="action" value="update_status"><input type="hidden" name="task_id" value="{{ task.id }}"><input type="hidden" name="status" value="IN_PROGRESS"><button type="submit" class="kb-action-btn">&#x2192; In Progress</button></form>
+                    <form method="post" style="flex:1;">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="task_id" value="{{ task.id }}"><button type="submit" class="kb-action-btn" style="color:#dc2626;" onclick="return confirm('Delete task?')">Delete</button></form>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align:center;padding:24px 0;color:#94a3b8;font-size:12px;">No tasks here</div>
+            {% endfor %}
+            <div class="kb-add-card" onclick="openCreateModal('TODO')">+ Add task</div>
+        </div>
+
+        <!-- IN PROGRESS -->
+        <div class="kb-col">
+            <div class="kb-col-header">
+                <span class="kb-col-title" style="color:#DC143C;">In Progress</span>
+                <span class="kb-count" style="background:#DC143C;color:#fff;">{{ inprogress_tasks|length }}</span>
+            </div>
+            {% for task in inprogress_tasks %}
+            <div class="kb-card" onclick="openEditModal({{ task.id }},'{{ task.title|escapejs }}','{{ task.description|escapejs }}','{{ task.priority }}','{{ task.status }}','{{ task.due_date|default:'' }}','{{ task.assigned_to_id|default:'' }}')">
+                <div class="kb-card-title">{{ task.title }}</div>
+                <div class="kb-card-meta">
+                    <span class="kb-priority p-{{ task.priority|lower }}">{{ task.get_priority_display }}</span>
+                    {% if task.due_date %}<span class="kb-due {% if task.is_overdue %}overdue{% endif %}">{{ task.due_date|date:"M j" }}</span>{% endif %}
+                    {% if task.assigned_to %}<span class="kb-assignee">{{ task.assigned_to.get_full_name }}</span>{% endif %}
+                </div>
+                <div class="kb-card-actions" onclick="event.stopPropagation()">
+                    <form method="post" style="flex:1;">{% csrf_token %}<input type="hidden" name="action" value="update_status"><input type="hidden" name="task_id" value="{{ task.id }}"><input type="hidden" name="status" value="TODO"><button type="submit" class="kb-action-btn">&#x2190; To Do</button></form>
+                    <form method="post" style="flex:1;">{% csrf_token %}<input type="hidden" name="action" value="update_status"><input type="hidden" name="task_id" value="{{ task.id }}"><input type="hidden" name="status" value="DONE"><button type="submit" class="kb-action-btn" style="color:#059669;">&#x2713; Done</button></form>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align:center;padding:24px 0;color:#94a3b8;font-size:12px;">No tasks in progress</div>
+            {% endfor %}
+            <div class="kb-add-card" onclick="openCreateModal('IN_PROGRESS')">+ Add task</div>
+        </div>
+
+        <!-- DONE -->
+        <div class="kb-col">
+            <div class="kb-col-header">
+                <span class="kb-col-title" style="color:#059669;">Done</span>
+                <span class="kb-count" style="background:#dcfce7;color:#059669;">{{ done_tasks|length }}</span>
+            </div>
+            {% for task in done_tasks %}
+            <div class="kb-card" style="opacity:.75;">
+                <div class="kb-card-title done">{{ task.title }}</div>
+                <div class="kb-card-meta">
+                    <span class="kb-priority p-{{ task.priority|lower }}">{{ task.get_priority_display }}</span>
+                    {% if task.completed_at %}<span class="kb-due">Done {{ task.completed_at|date:"M j" }}</span>{% endif %}
+                </div>
+                <div class="kb-card-actions">
+                    <form method="post" style="flex:1;">{% csrf_token %}<input type="hidden" name="action" value="update_status"><input type="hidden" name="task_id" value="{{ task.id }}"><input type="hidden" name="status" value="TODO"><button type="submit" class="kb-action-btn">Reopen</button></form>
+                    <form method="post" style="flex:1;">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="task_id" value="{{ task.id }}"><button type="submit" class="kb-action-btn" style="color:#dc2626;" onclick="return confirm('Delete task?')">Delete</button></form>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align:center;padding:24px 0;color:#94a3b8;font-size:12px;">No completed tasks</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Create Task Modal -->
+<div class="kb-modal-bg" id="createModal">
+    <div class="kb-modal">
+        <h3>New Task</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create">
+            <input type="hidden" name="status" id="createStatus" value="TODO">
+            <div class="kb-field"><label>Title *</label><input type="text" name="title" required autofocus placeholder="What needs to be done?"></div>
+            <div class="kb-field"><label>Description</label><textarea name="description" rows="3" placeholder="Optional details..."></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="kb-field"><label>Priority</label>
+                    <select name="priority">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM" selected>Medium</option>
+                        <option value="HIGH">High</option>
+                        <option value="URGENT">Urgent</option>
+                    </select>
+                </div>
+                <div class="kb-field"><label>Due Date</label><input type="date" name="due_date"></div>
+            </div>
+            <div class="kb-field"><label>Assign To</label>
+                <select name="assigned_to">
+                    <option value="">Unassigned</option>
+                    {% for emp in employees %}<option value="{{ emp.id }}">{{ emp.get_full_name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="kb-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" name="is_private" id="is_private" style="width:auto;"><label for="is_private" style="margin:0;font-weight:400;color:#64748b;">Private (only visible to me)</label></div>
+            <div class="kb-modal-actions">
+                <button type="button" onclick="closeCreateModal()" style="padding:8px 16px;border:1px solid #DC143C;border-radius:7px;background:#f8fafc;cursor:pointer;font-size:13px;">Cancel</button>
+                <button type="submit" class="kb-btn kb-btn-primary">Create Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div class="kb-modal-bg" id="editModal">
+    <div class="kb-modal">
+        <h3>Edit Task</h3>
+        <form method="post" id="editForm" action="">
+            {% csrf_token %}
+            <div class="kb-field"><label>Title *</label><input type="text" name="title" id="editTitle" required></div>
+            <div class="kb-field"><label>Description</label><textarea name="description" id="editDesc" rows="3"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="kb-field"><label>Priority</label>
+                    <select name="priority" id="editPriority">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
+                        <option value="URGENT">Urgent</option>
+                    </select>
+                </div>
+                <div class="kb-field"><label>Status</label>
+                    <select name="status" id="editStatus">
+                        <option value="TODO">To Do</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="DONE">Done</option>
+                    </select>
+                </div>
+            </div>
+            <div class="kb-field"><label>Due Date</label><input type="date" name="due_date" id="editDue"></div>
+            <div class="kb-field"><label>Assign To</label>
+                <select name="assigned_to" id="editAssignee">
+                    <option value="">Unassigned</option>
+                    {% for emp in employees %}<option value="{{ emp.id }}">{{ emp.get_full_name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="kb-modal-actions">
+                <button type="button" onclick="closeEditModal()" style="padding:8px 16px;border:1px solid #DC143C;border-radius:7px;background:#f8fafc;cursor:pointer;font-size:13px;">Cancel</button>
+                <button type="submit" class="kb-btn kb-btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openCreateModal(status) {
+    document.getElementById('createStatus').value = status;
+    document.getElementById('createModal').classList.add('open');
+}
+function closeCreateModal() {
+    document.getElementById('createModal').classList.remove('open');
+}
+function openEditModal(id, title, desc, priority, status, due, assignee) {
+    document.getElementById('editForm').action = '/tasks/' + id + '/update/';
+    document.getElementById('editTitle').value = title;
+    document.getElementById('editDesc').value = desc;
+    document.getElementById('editPriority').value = priority;
+    document.getElementById('editStatus').value = status;
+    document.getElementById('editDue').value = due;
+    document.getElementById('editAssignee').value = assignee;
+    document.getElementById('editModal').classList.add('open');
+}
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+}
+document.getElementById('createModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCreateModal();
+});
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+});
+</script>
+{% endblock %}

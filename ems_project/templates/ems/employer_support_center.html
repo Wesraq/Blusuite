@@ -10,7 +10,7 @@
         <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
             <div>
                 <h3 class="card-title" style="display:flex; align-items:center; gap:8px;">
-                    <span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:999px; background:#eff6ff; color:#2563eb;">
+                    <span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:999px; background:#fce7f36ff; color:#DC143C;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
                             <path d="M12 7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h1"></path>
@@ -33,7 +33,7 @@
             </div>
         </div>
         <div class="card-content">
-            <p style="margin: 0; font-size: 14px; color:#64748b;">
+            <p style="margin: 0; font-size: 14px; color:#DC143C;">
                 Review support tickets raised by your organisation. Use filters to focus on open or high-priority
                 items. Knowledge Base articles remain available in the sidebar for self-service help.
             </p>
@@ -48,7 +48,7 @@
                 <div class="card-subtitle">All time</div>
             </div>
             <div class="card-content">
-                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ total_tickets|default:'0' }}</div>
+                <div style="font-size: 26px; font-weight: 700; color:#DC143C;">{{ total_tickets|default:'0' }}</div>
             </div>
         </div>
         <div class="content-card">
@@ -57,7 +57,7 @@
                 <div class="card-subtitle">Awaiting response</div>
             </div>
             <div class="card-content">
-                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ open_count|default:'0' }}</div>
+                <div style="font-size: 26px; font-weight: 700; color:#DC143C;">{{ open_count|default:'0' }}</div>
             </div>
         </div>
         <div class="content-card">
@@ -66,7 +66,7 @@
                 <div class="card-subtitle">Being worked on</div>
             </div>
             <div class="card-content">
-                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ in_progress_count|default:'0' }}</div>
+                <div style="font-size: 26px; font-weight: 700; color:#DC143C;">{{ in_progress_count|default:'0' }}</div>
             </div>
         </div>
         <div class="content-card">
@@ -75,7 +75,7 @@
                 <div class="card-subtitle">Completed tickets</div>
             </div>
             <div class="card-content">
-                <div style="font-size: 26px; font-weight: 700; color:#1e293b;">{{ resolved_count|add:closed_count|default:'0' }}</div>
+                <div style="font-size: 26px; font-weight: 700; color:#DC143C;">{{ resolved_count|add:closed_count|default:'0' }}</div>
             </div>
         </div>
     </div>
@@ -85,12 +85,12 @@
         <div class="card-content">
             <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
                 <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px;">Search</label>
-                    <input type="text" name="search" value="{{ search_query }}" placeholder="Subject, reference or description" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #DC143C; margin-bottom: 6px;">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Subject, reference or description" style="width: 100%; padding: 8px 12px; border: 1px solid #DC143C; border-radius: 6px; font-size: 14px;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px;">Status</label>
-                    <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #DC143C; margin-bottom: 6px;">Status</label>
+                    <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #DC143C; border-radius: 6px; font-size: 14px;">
                         <option value="">All</option>
                         {% for value, label in status_choices %}
                             <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
@@ -98,8 +98,8 @@
                     </select>
                 </div>
                 <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px;">Priority</label>
-                    <select name="priority" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #DC143C; margin-bottom: 6px;">Priority</label>
+                    <select name="priority" style="width: 100%; padding: 8px 12px; border: 1px solid #DC143C; border-radius: 6px; font-size: 14px;">
                         <option value="">All</option>
                         {% for value, label in priority_choices %}
                             <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>{{ label }}</option>
@@ -107,7 +107,7 @@
                     </select>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <button type="submit" class="btn">Apply</button>
+                    <button type="submit" class="btn btn-primary">Apply</button>
                     <a href="{% url 'employer_support_center' %}" class="btn btn-secondary">Reset</a>
                 </div>
             </form>
@@ -121,7 +121,7 @@
             <div class="card-subtitle">Most recent first</div>
         </div>
         <div class="card-content">
-            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; font-size:12px; color:#6b7280;">
+            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; font-size:12px; color:#DC143C;">
                 <div style="display:flex; align-items:center; gap:6px;">
                     <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:600; text-transform:uppercase;">Urgent</span>
                     <span>Urgent priority</span>
@@ -131,11 +131,11 @@
                     <span>High priority</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Normal</span>
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#DC143C; font-size:11px; font-weight:600; text-transform:uppercase;">Normal</span>
                     <span>Normal priority</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e0f2fe; color:#1d4ed8; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#DC143C2fe; color:#DC143C; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
                     <span>Low priority</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
@@ -151,7 +151,7 @@
                     <span>Resolved by support</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Closed</span>
+                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#DC143C; font-size:11px; font-weight:600; text-transform:uppercase;">Closed</span>
                     <span>Closed / archived</span>
                 </div>
             </div>
@@ -179,9 +179,9 @@
                                 {% elif ticket.priority == 'HIGH' %}
                                     <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; text-transform:uppercase;">High</span>
                                 {% elif ticket.priority == 'LOW' %}
-                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e0f2fe; color:#1d4ed8; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#DC143C2fe; color:#DC143C; font-size:11px; font-weight:600; text-transform:uppercase;">Low</span>
                                 {% else %}
-                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#374151; font-size:11px; font-weight:600; text-transform:uppercase;">Normal</span>
+                                    <span style="display:inline-block; padding: 2px 8px; border-radius:999px; background:#e5e7eb; color:#DC143C; font-size:11px; font-weight:600; text-transform:uppercase;">Normal</span>
                                 {% endif %}
                             </td>
                             <td>

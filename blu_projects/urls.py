@@ -70,4 +70,14 @@ urlpatterns = [
     path('<int:project_id>/sla/create/', views.sla_create, name='sla_create'),
     path('<int:project_id>/sla/edit/', views.sla_edit, name='sla_edit'),
     path('sla-dashboard/', views.sla_dashboard, name='sla_dashboard'),
+
+    # Risk Register
+    path('<int:project_id>/risks/create/', views.risk_create, name='risk_create'),
+    path('risks/<int:risk_id>/edit/', views.risk_edit, name='risk_edit'),
+    path('risks/<int:risk_id>/delete/', views.risk_delete, name='risk_delete'),
+
+    # Stakeholder Register
+    path('<int:project_id>/stakeholders/create/', views.stakeholder_create, name='stakeholder_create'),
+    path('stakeholders/<int:stakeholder_id>/edit/', views.stakeholder_edit, name='stakeholder_edit'),
+    path('stakeholders/<int:stakeholder_id>/delete/', views.stakeholder_delete, name='stakeholder_delete'),
 ]

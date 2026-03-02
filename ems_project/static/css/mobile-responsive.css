@@ -1,5 +1,49 @@
 /* Mobile-First Responsive Framework for BLU Suite EMS */
 
+/* ── Desktop Base Layout (applies at all widths unless overridden below) ── */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    align-items: stretch;
+}
+
+.sidebar {
+    width: 240px;
+    min-width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: width 0.25s ease, min-width 0.25s ease;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Collapsed sidebar (toggled by JS, saved in localStorage) */
+body.sidebar-collapsed .sidebar {
+    width: 64px;
+    min-width: 64px;
+}
+
+body.sidebar-collapsed .sidebar .nav-text,
+body.sidebar-collapsed .sidebar .sidebar-brand,
+body.sidebar-collapsed .sidebar .sidebar-company-name {
+    display: none;
+}
+
+body.sidebar-collapsed .sidebar .nav-link {
+    justify-content: center;
+    padding: 12px 0;
+}
+
 /* Base Mobile Styles (320px and up) */
 @media screen and (max-width: 768px) {
     /* Layout Adjustments */
@@ -8,19 +52,19 @@
     }
     
     .sidebar {
-        position: fixed;
-        top: 0;
-        left: -280px;
-        width: 280px;
-        height: 100vh;
-        z-index: 1000;
-        transition: left 0.3s ease;
-        background: white;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        position: fixed !important;
+        top: 0 !important;
+        left: -300px !important;
+        width: 280px !important;
+        height: 100vh !important;
+        z-index: 10000 !important;
+        transition: left 0.3s ease !important;
+        overflow-y: auto;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.25);
     }
     
     .sidebar.mobile-open {
-        left: 0;
+        left: 0 !important;
     }
     
     .main-content {
@@ -79,6 +123,14 @@
     /* Page Content */
     .page-content {
         padding: 16px;
+        overflow-x: hidden;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+
+    /* Prevent any child from bleeding beyond viewport */
+    .main-content {
+        overflow-x: hidden;
     }
     
     /* Cards and Components */
@@ -125,6 +177,14 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
+
+    /* Universal table overflow — any table not already in a scroll wrapper */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+    }
     
     .data-table {
         min-width: 600px;
@@ -152,13 +212,19 @@
         padding: 12px;
     }
     
-    .btn {
+    .btn:not(.btn-sm):not(.btn-xs):not(.btn-icon):not([style*="padding"]) {
         padding: 12px 16px;
         font-size: 14px;
+    }
+
+    /* Only form-level primary buttons go full-width, not inline action buttons */
+    .form-actions .btn,
+    .form-submit .btn,
+    .page-actions > .btn:only-child {
         width: 100%;
         margin-bottom: 8px;
     }
-    
+
     .btn-group {
         flex-direction: column;
         gap: 8px;
@@ -304,15 +370,10 @@
         min-height: 44px;
         min-width: 44px;
     }
-    
-    .btn,
+
     .nav-link,
-    .tab-btn,
-    .action-btn {
+    .tab-btn {
         min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
     
     /* Swipe Actions */
@@ -443,11 +504,11 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 998;
+        background: rgba(0,0,0,0.55);
+        z-index: 9999;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
     }
     
     .mobile-overlay.active {
@@ -455,11 +516,78 @@
         visibility: visible;
     }
     
+    /* Collapse inline hardcoded 2-column grids to single column on mobile */
+    [style*="grid-template-columns: repeat(2, 1fr)"],
+    [style*="grid-template-columns:repeat(2,1fr)"],
+    [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Page header row on mobile */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .page-header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* Stat card grid - single column on very small screens */
+    @media (max-width: 400px) {
+        .stats-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    /* Table action buttons stay small */
+    td .btn,
+    th .btn,
+    .table-actions .btn,
+    .action-cell .btn,
+    .list-actions .btn {
+        width: auto !important;
+        margin-bottom: 0 !important;
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+        min-height: 32px;
+    }
+
+    /* Dashboard tab nav wraps on mobile */
+    .dashboard-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        padding-bottom: 4px;
+    }
+
+    /* Page breadcrumb truncates */
+    .page-breadcrumb {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Header right: hide non-critical items on very narrow screens */
+    @media (max-width: 480px) {
+        .welcome-text,
+        .user-info {
+            display: none !important;
+        }
+        #theme-picker-wrap {
+            display: none;
+        }
+    }
+
     /* Hide desktop elements */
     .desktop-only {
         display: none !important;
     }
-    
+
     /* Show mobile elements */
     .mobile-only {
         display: block !important;
@@ -470,10 +598,6 @@
 @media screen and (min-width: 769px) and (max-width: 1024px) {
     .sidebar {
         width: 240px;
-    }
-    
-    .main-content {
-        margin-left: 240px;
     }
     
     .content-grid {
@@ -544,6 +668,157 @@
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+    }
+}
+
+/* =====================================================
+   MOBILE BOTTOM NAV & APP-LIKE TOP BAR
+   ===================================================== */
+
+/* Always hidden on desktop */
+.mobile-bottom-nav { display: none; }
+
+@media screen and (max-width: 768px) {
+
+    /* ---- Body & layout adjustments ---- */
+    body {
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* ---- App-like top header ---- */
+    .top-header {
+        height: 56px !important;
+        min-height: 56px;
+        padding: 0 14px !important;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        box-shadow: 0 1px 4px rgba(0,0,0,.10);
+    }
+
+    /* Push main content below fixed header */
+    .main-content {
+        padding-top: 56px;
+    }
+
+    /* Hide desktop-only header items */
+    .top-header .logout-btn,
+    .top-header #theme-picker-wrap,
+    .top-header .user-info {
+        display: none !important;
+    }
+
+    /* Compact page breadcrumb (show only page title) */
+    .page-breadcrumb > span:first-child,
+    .page-breadcrumb > span:nth-child(2) {
+        display: none;
+    }
+    .page-breadcrumb {
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        max-width: none !important;
+        overflow: visible !important;
+        white-space: nowrap;
+    }
+
+    /* ---- Mobile Bottom Nav ---- */
+    .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        background: var(--company-button, #DC143C);
+        border-top: none;
+        z-index: 9998;
+        box-shadow: 0 -2px 16px rgba(0,0,0,.25);
+        overflow: hidden;
+    }
+
+    .mobile-bottom-nav .bn-item {
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        text-decoration: none;
+        color: rgba(255,255,255,0.75);
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        padding: 6px 1px;
+        transition: color 0.15s, transform 0.1s;
+        position: relative;
+        -webkit-tap-highlight-color: transparent;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .mobile-bottom-nav .bn-item svg {
+        width: 22px;
+        height: 22px;
+        transition: transform 0.15s;
+        stroke: rgba(255,255,255,0.75);
+    }
+
+    .mobile-bottom-nav .bn-item:active svg {
+        transform: scale(0.88);
+    }
+
+    .mobile-bottom-nav .bn-item.bn-active,
+    .mobile-bottom-nav .bn-item:focus {
+        color: #ffffff;
+        outline: none;
+    }
+
+    .mobile-bottom-nav .bn-item.bn-active svg {
+        stroke: #ffffff;
+    }
+
+    /* Active indicator pill */
+    .mobile-bottom-nav .bn-item.bn-active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 28px;
+        height: 3px;
+        background: rgba(255,255,255,0.7);
+        border-radius: 0 0 3px 3px;
+    }
+
+    .mobile-bottom-nav .bn-badge {
+        position: absolute;
+        top: 4px;
+        right: calc(50% - 18px);
+        background: #ef4444;
+        color: #fff;
+        border-radius: 10px;
+        padding: 1px 5px;
+        font-size: 9px;
+        font-weight: 700;
+        min-width: 16px;
+        text-align: center;
+        line-height: 1.4;
+        pointer-events: none;
+    }
+
+    /* Dark mode — keep rose red bg, no change needed */
+
+    /* Hide bottom nav on print */
+    @media print {
+        .mobile-bottom-nav { display: none !important; }
     }
 }
 

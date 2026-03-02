@@ -51,37 +51,29 @@
             border-radius: 8px !important;
         }
         /* Force Rose Red on inline-styled action buttons */
-        .page-content a[style*="background: #3b82f6"],
-        .page-content a[style*="background:#3b82f6"],
-        .page-content button[style*="background: #3b82f6"],
-        .page-content button[style*="background:#3b82f6"],
-        .page-content a[style*="background: #2563eb"],
-        .page-content button[style*="background: #2563eb"],
-        .page-content a[style*="background: #1d4ed8"],
-        .page-content button[style*="background: #1d4ed8"],
-        .page-content a[style*="background: #1e293b"],
-        .page-content a[style*="background:#1e293b"],
-        .page-content button[style*="background: #1e293b"],
-        .page-content button[style*="background:#1e293b"],
-        .page-content a[style*="background: #0f172a"],
-        .page-content button[style*="background: #0f172a"],
-        .page-content a[style*="background: #1d4ed8"],
-        .page-content a[style*="background:#1d4ed8"],
-        .page-content button[style*="background: #1d4ed8"],
-        .page-content button[style*="background:#1d4ed8"],
-        .page-content a[style*="background: linear-gradient(135deg, #1d4ed8"],
-        .page-content button[style*="background: linear-gradient(135deg, #1d4ed8"] {
+        .page-content a[style*="background: #DC143C"],
+        .page-content a[style*="background:#DC143C"],
+        .page-content button[style*="background: #DC143C"],
+        .page-content button[style*="background:#DC143C"],
+        .page-content a[style*="background: #DC143C"],
+        .page-content button[style*="background: #DC143C"],
+        .page-content a[style*="background: #DC143C"],
+        .page-content button[style*="background: #DC143C"],
+        .page-content a[style*="background: #E11D48"],
+        .page-content a[style*="background:#E11D48"],
+        .page-content button[style*="background: #E11D48"],
+        .page-content button[style*="background:#E11D48"],
+        .page-content a[style*="background: linear-gradient(135deg, #DC143C"],
+        .page-content button[style*="background: linear-gradient(135deg, #DC143C"] {
             background: #E11D48 !important;
             border-color: #E11D48 !important;
         }
-        .page-content a[style*="background: #3b82f6"]:hover,
-        .page-content button[style*="background: #3b82f6"]:hover,
-        .page-content a[style*="background: #1d4ed8"]:hover,
-        .page-content button[style*="background: #1d4ed8"]:hover,
-        .page-content a[style*="background: #1e293b"]:hover,
-        .page-content button[style*="background: #1e293b"]:hover,
-        .page-content a[style*="background: #0f172a"]:hover,
-        .page-content button[style*="background: #0f172a"]:hover {
+        .page-content a[style*="background: #DC143C"]:hover,
+        .page-content button[style*="background: #DC143C"]:hover,
+        .page-content a[style*="background: #DC143C"]:hover,
+        .page-content button[style*="background: #DC143C"]:hover,
+        .page-content a[style*="background: #E11D48"]:hover,
+        .page-content button[style*="background: #E11D48"]:hover {
             background: #BE123C !important;
             border-color: #BE123C !important;
         }
@@ -95,16 +87,16 @@
             border-color: #BE123C !important;
         }
         /* Crimson hover on all inline-bordered cards */
+        .page-content [style*="border: 1px solid #fce7f3"],
+        .page-content [style*="border:1px solid #fce7f3"],
         .page-content [style*="border: 1px solid #e2e8f0"],
-        .page-content [style*="border:1px solid #e2e8f0"],
-        .page-content [style*="border: 1px solid #e5e7eb"],
-        .page-content [style*="border:1px solid #e5e7eb"] {
+        .page-content [style*="border:1px solid #e2e8f0"] {
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
+        .page-content [style*="border: 1px solid #fce7f3"]:hover,
+        .page-content [style*="border:1px solid #fce7f3"]:hover,
         .page-content [style*="border: 1px solid #e2e8f0"]:hover,
-        .page-content [style*="border:1px solid #e2e8f0"]:hover,
-        .page-content [style*="border: 1px solid #e5e7eb"]:hover,
-        .page-content [style*="border:1px solid #e5e7eb"]:hover {
+        .page-content [style*="border:1px solid #e2e8f0"]:hover {
             border-color: #DC143C !important;
             box-shadow: 0 2px 8px rgba(220, 20, 60, 0.10);
         }
@@ -186,7 +178,7 @@
                     
                     <!-- Platform Administration Section (Superadmin modules) -->
                     {% if user.is_superadmin %}
-                    <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0;">Platform Administration</li>
+                    <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid #fce7f3;">Platform Administration</li>
                     <li class="nav-item">
                         <a href="{% url 'superadmin_billing_overview' %}" class="nav-link{% if 'billing' in request.path %} active{% endif %}">
                             <span class="nav-icon">

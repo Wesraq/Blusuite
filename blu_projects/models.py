@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 class Project(models.Model):
-    """Main project model"""
+    """Main project model — supports NGOs, SMEs, Governments, Construction, IT, and all sectors."""
     STATUS_CHOICES = [
         ('PLANNING', 'Planning'),
         ('ACTIVE', 'Active'),
@@ -19,55 +19,148 @@ class Project(models.Model):
         ('COMPLETED', 'Completed'),
         ('CANCELLED', 'Cancelled'),
     ]
-    
+
     PRIORITY_CHOICES = [
         ('LOW', 'Low'),
         ('MEDIUM', 'Medium'),
         ('HIGH', 'High'),
         ('CRITICAL', 'Critical'),
     ]
-    
+
+    PROJECT_TYPE_CHOICES = [
+        ('INTERNAL', 'Internal / Operational'),
+        ('CLIENT', 'Client / Commercial'),
+        ('RESEARCH', 'Research & Development'),
+        ('GRANT', 'Grant / Donor-Funded'),
+        ('GOVERNMENT', 'Government / Public Sector'),
+        ('INFRASTRUCTURE', 'Infrastructure / Capital'),
+        ('IT_SOFTWARE', 'IT / Software Development'),
+        ('CONSTRUCTION', 'Construction / Engineering'),
+        ('EVENT', 'Event / Campaign'),
+        ('HUMANITARIAN', 'Humanitarian / Relief'),
+        ('CSR', 'CSR / Community'),
+        ('OTHER', 'Other'),
+    ]
+
+    SECTOR_CHOICES = [
+        ('TECHNOLOGY', 'Technology & ICT'),
+        ('HEALTH', 'Health & Medical'),
+        ('EDUCATION', 'Education & Training'),
+        ('AGRICULTURE', 'Agriculture & Food'),
+        ('FINANCE', 'Finance & Banking'),
+        ('CONSTRUCTION', 'Construction & Real Estate'),
+        ('ENERGY', 'Energy & Utilities'),
+        ('TRANSPORT', 'Transport & Logistics'),
+        ('MANUFACTURING', 'Manufacturing'),
+        ('RETAIL', 'Retail & Trade'),
+        ('NGO', 'Non-Profit / NGO'),
+        ('GOVERNMENT', 'Government & Public Admin'),
+        ('MEDIA', 'Media & Communications'),
+        ('LEGAL', 'Legal & Compliance'),
+        ('OTHER', 'Other'),
+    ]
+
+    METHODOLOGY_CHOICES = [
+        ('WATERFALL', 'Waterfall'),
+        ('AGILE', 'Agile / Scrum'),
+        ('KANBAN', 'Kanban'),
+        ('PRINCE2', 'PRINCE2'),
+        ('PMI', 'PMI / PMBOK'),
+        ('LEAN', 'Lean'),
+        ('HYBRID', 'Hybrid'),
+        ('OTHER', 'Other / Custom'),
+    ]
+
+    RISK_LEVEL_CHOICES = [
+        ('LOW', 'Low Risk'),
+        ('MEDIUM', 'Medium Risk'),
+        ('HIGH', 'High Risk'),
+        ('CRITICAL', 'Critical Risk'),
+    ]
+
+    CURRENCY_CHOICES = [
+        ('USD', 'USD – US Dollar'),
+        ('EUR', 'EUR – Euro'),
+        ('GBP', 'GBP – British Pound'),
+        ('ZAR', 'ZAR – South African Rand'),
+        ('KES', 'KES – Kenyan Shilling'),
+        ('NGN', 'NGN – Nigerian Naira'),
+        ('GHS', 'GHS – Ghanaian Cedi'),
+        ('ZMW', 'ZMW – Zambian Kwacha'),
+        ('TZS', 'TZS – Tanzanian Shilling'),
+        ('UGX', 'UGX – Ugandan Shilling'),
+        ('OTHER', 'Other'),
+    ]
+
+    VISIBILITY_CHOICES = [
+        ('PRIVATE', 'Private – Team Only'),
+        ('INTERNAL', 'Internal – All Staff'),
+        ('CLIENT', 'Client-Visible'),
+        ('PUBLIC', 'Public'),
+    ]
+
     # Basic Information
     name = models.CharField(max_length=200)
-    code = models.CharField(max_length=50, unique=True, help_text="Unique project code (e.g., PROJ-001)")
+    code = models.CharField(max_length=50, unique=True, help_text='Unique project code (e.g., PROJ-001)')
     description = models.TextField(blank=True)
+    objectives = models.TextField(blank=True, help_text='Project goals and expected outcomes')
+    scope = models.TextField(blank=True, help_text='What is in and out of scope')
     company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='projects')
-    
-    # Project Details
+
+    # Classification
+    project_type = models.CharField(max_length=20, choices=PROJECT_TYPE_CHOICES, default='INTERNAL')
+    sector = models.CharField(max_length=20, choices=SECTOR_CHOICES, default='OTHER', blank=True)
+    methodology = models.CharField(max_length=20, choices=METHODOLOGY_CHOICES, default='WATERFALL', blank=True)
+    tags = models.CharField(max_length=500, blank=True, help_text='Comma-separated tags')
+
+    # Status & Priority
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PLANNING')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='MEDIUM')
-    
+    risk_level = models.CharField(max_length=20, choices=RISK_LEVEL_CHOICES, default='LOW', blank=True)
+    visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default='INTERNAL')
+
     # Dates
     start_date = models.DateField()
     end_date = models.DateField()
     actual_start_date = models.DateField(null=True, blank=True)
     actual_end_date = models.DateField(null=True, blank=True)
-    
-    # Budget
-    budget = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    actual_cost = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    
+
+    # Budget & Financials
+    currency = models.CharField(max_length=10, choices=CURRENCY_CHOICES, default='USD', blank=True)
+    budget = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    actual_cost = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    estimated_hours = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+
+    # Funding (NGO / Grant-specific)
+    funding_source = models.CharField(max_length=300, blank=True, help_text='Donor or funding organisation')
+    grant_reference = models.CharField(max_length=200, blank=True, help_text='Grant/contract reference number')
+    funding_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+
     # Progress
     progress_percentage = models.IntegerField(
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
-    
+
     # Team
     project_manager = models.ForeignKey(
-        User, 
-        on_delete=models.SET_NULL, 
-        null=True,
+        User,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
         related_name='managed_projects'
     )
     team_members = models.ManyToManyField(User, related_name='project_memberships', blank=True)
-    
-    # Client Information
+
+    # Client / Beneficiary Information
     client_name = models.CharField(max_length=200, blank=True)
+    client_organisation = models.CharField(max_length=200, blank=True)
     client_contact = models.CharField(max_length=200, blank=True)
     client_email = models.EmailField(blank=True)
-    
+    client_phone = models.CharField(max_length=50, blank=True)
+    beneficiary_count = models.IntegerField(null=True, blank=True, help_text='Number of intended beneficiaries (NGOs)')
+
     # Metadata
+    is_template = models.BooleanField(default=False, help_text='Mark as reusable template')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_projects')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -104,6 +197,24 @@ class Project(models.Model):
             completed = tasks.filter(status='COMPLETED').count()
             self.progress_percentage = int((completed / tasks.count()) * 100)
         self.save()
+
+    def budget_variance(self):
+        """Return budget vs actual cost variance"""
+        if self.budget:
+            return self.budget - self.actual_cost
+        return None
+
+    def budget_utilisation_pct(self):
+        """Return percentage of budget consumed"""
+        if self.budget and self.budget > 0:
+            return min(round((self.actual_cost / self.budget) * 100, 1), 999)
+        return 0
+
+    def get_tag_list(self):
+        """Return tags as a list"""
+        if self.tags:
+            return [t.strip() for t in self.tags.split(',') if t.strip()]
+        return []
 
 
 class ProjectMilestone(models.Model):
@@ -166,12 +277,35 @@ class Task(models.Model):
         related_name='tasks'
     )
     
+    LABEL_CHOICES = [
+        ('', 'No Label'),
+        ('BUG', 'Bug'),
+        ('FEATURE', 'Feature'),
+        ('IMPROVEMENT', 'Improvement'),
+        ('RESEARCH', 'Research'),
+        ('DESIGN', 'Design'),
+        ('TESTING', 'Testing'),
+        ('DOCUMENTATION', 'Documentation'),
+        ('DEVOPS', 'DevOps'),
+        ('FIELDWORK', 'Field Work'),
+        ('PROCUREMENT', 'Procurement'),
+        ('REPORTING', 'Reporting'),
+    ]
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    
+    acceptance_criteria = models.TextField(blank=True, help_text='Definition of Done / acceptance criteria')
+    tags = models.CharField(max_length=300, blank=True, help_text='Comma-separated tags')
+    label = models.CharField(max_length=20, choices=LABEL_CHOICES, default='', blank=True)
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='TODO')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='MEDIUM')
-    
+
+    # Hierarchy — subtasks
+    parent_task = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='subtasks'
+    )
+
     # Assignment
     assigned_to = models.ForeignKey(
         User,
@@ -180,19 +314,20 @@ class Task(models.Model):
         blank=True,
         related_name='assigned_tasks'
     )
-    
+
     # Dates
     start_date = models.DateField(null=True, blank=True)
     due_date = models.DateField(null=True, blank=True)
     completed_date = models.DateTimeField(null=True, blank=True)
-    
+
     # Effort estimation
     estimated_hours = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     actual_hours = models.DecimalField(max_digits=6, decimal_places=2, default=0)
-    
+    story_points = models.PositiveSmallIntegerField(null=True, blank=True, help_text='Agile story points (1,2,3,5,8,13…)')
+
     # Dependencies
     depends_on = models.ManyToManyField('self', symmetrical=False, blank=True, related_name='blocking_tasks')
-    
+
     # Metadata
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_tasks')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -547,6 +682,159 @@ class IssueAttachment(models.Model):
     
     def __str__(self):
         return f"{self.filename} - {self.issue.issue_number}"
+
+
+# ============================================================================
+# RISK REGISTER
+# ============================================================================
+
+class ProjectRisk(models.Model):
+    """Risk Register — applicable to all project types"""
+
+    PROBABILITY_CHOICES = [
+        (1, 'Very Low (1)'),
+        (2, 'Low (2)'),
+        (3, 'Medium (3)'),
+        (4, 'High (4)'),
+        (5, 'Very High (5)'),
+    ]
+
+    IMPACT_CHOICES = [
+        (1, 'Negligible (1)'),
+        (2, 'Minor (2)'),
+        (3, 'Moderate (3)'),
+        (4, 'Major (4)'),
+        (5, 'Critical (5)'),
+    ]
+
+    STATUS_CHOICES = [
+        ('OPEN', 'Open'),
+        ('MITIGATED', 'Mitigated'),
+        ('ACCEPTED', 'Accepted'),
+        ('CLOSED', 'Closed'),
+        ('ESCALATED', 'Escalated'),
+    ]
+
+    CATEGORY_CHOICES = [
+        ('TECHNICAL', 'Technical'),
+        ('FINANCIAL', 'Financial / Budget'),
+        ('SCHEDULE', 'Schedule / Timeline'),
+        ('RESOURCE', 'Resource / Staffing'),
+        ('SCOPE', 'Scope Creep'),
+        ('STAKEHOLDER', 'Stakeholder'),
+        ('REGULATORY', 'Regulatory / Compliance'),
+        ('SECURITY', 'Security'),
+        ('ENVIRONMENTAL', 'Environmental'),
+        ('DONOR', 'Donor / Funding'),
+        ('OTHER', 'Other'),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='risks')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='OTHER')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OPEN')
+
+    probability = models.IntegerField(choices=PROBABILITY_CHOICES, default=2)
+    impact = models.IntegerField(choices=IMPACT_CHOICES, default=2)
+
+    mitigation_plan = models.TextField(blank=True)
+    contingency_plan = models.TextField(blank=True)
+    risk_owner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='owned_risks'
+    )
+    review_date = models.DateField(null=True, blank=True)
+
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_risks')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-probability', '-impact']
+
+    def __str__(self):
+        return f"{self.project.code} – Risk: {self.title}"
+
+    @property
+    def risk_score(self):
+        return self.probability * self.impact
+
+    @property
+    def risk_level_label(self):
+        score = self.risk_score
+        if score >= 15:
+            return 'CRITICAL'
+        if score >= 9:
+            return 'HIGH'
+        if score >= 4:
+            return 'MEDIUM'
+        return 'LOW'
+
+
+# ============================================================================
+# STAKEHOLDER REGISTER
+# ============================================================================
+
+class ProjectStakeholder(models.Model):
+    """Stakeholder Register — key for NGOs, Government, and large projects"""
+
+    ROLE_CHOICES = [
+        ('SPONSOR', 'Project Sponsor'),
+        ('DONOR', 'Donor / Funder'),
+        ('BENEFICIARY', 'Beneficiary'),
+        ('CLIENT', 'Client'),
+        ('GOVERNMENT', 'Government / Regulator'),
+        ('PARTNER', 'Implementing Partner'),
+        ('CONSULTANT', 'Consultant / Advisor'),
+        ('VENDOR', 'Vendor / Supplier'),
+        ('COMMUNITY', 'Community Representative'),
+        ('MEDIA', 'Media'),
+        ('OTHER', 'Other'),
+    ]
+
+    INFLUENCE_CHOICES = [
+        ('LOW', 'Low'),
+        ('MEDIUM', 'Medium'),
+        ('HIGH', 'High'),
+    ]
+
+    INTEREST_CHOICES = [
+        ('LOW', 'Low'),
+        ('MEDIUM', 'Medium'),
+        ('HIGH', 'High'),
+    ]
+
+    ENGAGEMENT_CHOICES = [
+        ('UNAWARE', 'Unaware'),
+        ('RESISTANT', 'Resistant'),
+        ('NEUTRAL', 'Neutral'),
+        ('SUPPORTIVE', 'Supportive'),
+        ('CHAMPION', 'Champion'),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='stakeholders')
+    name = models.CharField(max_length=200)
+    organisation = models.CharField(max_length=200, blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+
+    influence = models.CharField(max_length=10, choices=INFLUENCE_CHOICES, default='MEDIUM')
+    interest = models.CharField(max_length=10, choices=INTEREST_CHOICES, default='MEDIUM')
+    engagement = models.CharField(max_length=20, choices=ENGAGEMENT_CHOICES, default='NEUTRAL')
+
+    notes = models.TextField(blank=True)
+    engagement_strategy = models.TextField(blank=True)
+
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_stakeholders')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['role', 'name']
+
+    def __str__(self):
+        return f"{self.project.code} – {self.name} ({self.get_role_display()})"
 
 
 class ClientAccess(models.Model):

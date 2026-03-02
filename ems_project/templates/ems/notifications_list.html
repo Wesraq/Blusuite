@@ -13,7 +13,7 @@
 .nf-stat:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.10); }
 .nf-stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .nf-stat-value { font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1; }
-.nf-stat-label { font-size: 12px; color: #64748b; margin-top: 2px; }
+.nf-stat-label { font-size: 12px; color: #475569; margin-top: 2px; }
 .nf-filters { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 18px 20px; transition: border-color .15s, box-shadow .15s; }
 .nf-filters:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.10); }
 .nf-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; align-items: end; }
@@ -48,12 +48,12 @@
 .nf-item-icon.nf-warning { color: #f59e0b; }
 .nf-item-icon.nf-error { color: #ef4444; }
 .nf-item-icon.nf-reminder { color: #6366f1; }
-.nf-item-icon.nf-info { color: #3b82f6; }
+.nf-item-icon.nf-info { color: #DC143C; }
 .nf-item-title { font-size: 14px; font-weight: 600; color: #0f172a; }
 .nf-item-badges { display: flex; gap: 6px; font-size: 11px; margin-bottom: 6px; }
 .nf-badge { padding: 2px 8px; border-radius: 4px; font-weight: 600; }
-.nf-badge-type { background: #f1f5f9; color: #64748b; }
-.nf-badge-cat { background: #dbeafe; color: #1e40af; }
+.nf-badge-type { background: #f1f5f9; color: #475569; }
+.nf-badge-cat { background: #fce7f3; color: #DC143C; }
 .nf-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .nf-item-msg { margin: 0 0 10px; font-size: 13px; color: #475569; line-height: 1.5; }
 .nf-item-meta { display: flex; flex-wrap: wrap; gap: 14px; font-size: 11px; color: #94a3b8; }
@@ -61,11 +61,11 @@
 .nf-item-link { margin-top: 10px; }
 .nf-empty { text-align: center; padding: 50px 20px; }
 .nf-empty svg { color: #cbd5e1; margin-bottom: 10px; }
-.nf-empty h3 { margin: 0 0 6px; color: #64748b; font-size: 16px; font-weight: 600; }
+.nf-empty h3 { margin: 0 0 6px; color: #475569; font-size: 16px; font-weight: 600; }
 .nf-empty p { margin: 0; color: #94a3b8; font-size: 13px; }
 .nf-cat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
 .nf-cat-row:last-child { border-bottom: none; }
-.nf-cat-row span { color: #64748b; }
+.nf-cat-row span { color: #475569; }
 .nf-cat-row strong { color: #0f172a; }
 
 /* Modal Styles */
@@ -79,7 +79,7 @@
 .nf-modal-body { padding: 24px; overflow-y: auto; max-height: calc(80vh - 140px); }
 .nf-modal-footer { padding: 16px 24px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: flex-end; }
 .nf-detail-row { margin-bottom: 16px; }
-.nf-detail-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.nf-detail-label { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 .nf-detail-value { font-size: 14px; color: #0f172a; line-height: 1.6; }
 .nf-detail-message { background: #f8fafc; border-left: 3px solid #e11d48; padding: 14px 16px; border-radius: 4px; }
 </style>
@@ -95,7 +95,7 @@
     <!-- Stats -->
     <div class="nf-stats">
         <div class="nf-stat">
-            <div class="nf-stat-icon" style="background: #dbeafe; color: #1d4ed8;">
+            <div class="nf-stat-icon" style="background: #fce7f3; color: #DC143C;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             </div>
             <div><div class="nf-stat-value">{{ total_notifications }}</div><div class="nf-stat-label">Total</div></div>
@@ -113,7 +113,7 @@
             <div><div class="nf-stat-value">{{ read_count }}</div><div class="nf-stat-label">Read</div></div>
         </div>
         <div class="nf-stat">
-            <div class="nf-stat-icon" style="background: #e0e7ff; color: #6366f1;">
+            <div class="nf-stat-icon" style="background: #fce7f3; color: #6366f1;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             </div>
             <div><div class="nf-stat-value">{{ category_counts|length }}</div><div class="nf-stat-label">Categories</div></div>

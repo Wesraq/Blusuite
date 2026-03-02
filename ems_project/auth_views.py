@@ -201,5 +201,3 @@ def general_user_login(request):
             return redirect('/employee/')
         # SUPERADMIN and platform_role users go to dashboard_redirect to reach their portal
         return redirect('/dashboard/')
-
-        return redirect('/login/')

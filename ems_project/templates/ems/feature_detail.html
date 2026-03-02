@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ feature_name }} — Eiscomtech EMS</title>
+    <meta name="description" content="{{ feature_description }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #DC143C;
+            --primary-dark: #B01030;
+            --dark: #000000;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #666666;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+            --border-color: #E0E0E0;
+            --shadow-sm: 0 1.6px 3.6px rgba(0,0,0,0.13);
+            --shadow-md: 0 3.2px 7.2px rgba(0,0,0,0.13);
+            --shadow-lg: 0 6.4px 14.4px rgba(0,0,0,0.13);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; scroll-padding-top: 72px; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: var(--dark-gray); background: var(--white); overflow-x: hidden; }
+
+        /* NAV — identical to landing.html */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: white; border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .nav.scrolled { box-shadow: var(--shadow-sm); }
+        .nav-container {
+            max-width: 100%; margin: 0 auto; padding: 0 5%;
+            display: flex; align-items: center; justify-content: space-between; height: 54px;
+        }
+        .nav-logo {
+            font-size: 15px; font-weight: 600; color: var(--dark); text-decoration: none;
+            letter-spacing: 0; display: flex; align-items: center;
+            padding: 0 16px; height: 54px; transition: background 0.1s ease;
+        }
+        .nav-logo:hover { background: var(--light-gray); }
+        .nav-menu { display: flex; gap: 0; list-style: none; align-items: center; height: 54px; }
+        .nav-link {
+            color: var(--dark); text-decoration: none; font-size: 13px; font-weight: 400;
+            transition: background 0.1s ease; padding: 0 16px; height: 54px;
+            display: flex; align-items: center; white-space: nowrap;
+        }
+        .nav-link:hover { background: var(--light-gray); }
+        .nav-cta { display: flex; gap: 16px; align-items: center; }
+        .btn {
+            padding: 5px 20px; border-radius: 4px; font-size: 13px; font-weight: 600;
+            text-decoration: none; transition: all 0.1s ease; cursor: pointer;
+            border: 1px solid transparent; display: inline-flex; align-items: center;
+            gap: 8px; white-space: nowrap; height: 32px;
+        }
+        .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+        .btn-secondary { background: transparent; color: var(--dark); border: 1px solid var(--dark); }
+        .btn-secondary:hover { background: var(--dark); color: white; }
+        .btn-hero { padding: 11px 24px; font-size: 15px; font-weight: 600; height: 40px; border-radius: 4px; }
+
+        /* BREADCRUMB */
+        .breadcrumb {
+            margin-top: 54px; padding: 12px 5%;
+            background: white; border-bottom: 1px solid var(--border-color);
+            font-size: 13px; color: var(--medium-gray);
+        }
+        .breadcrumb a { color: var(--medium-gray); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--dark); text-decoration: underline; }
+        .breadcrumb span { margin: 0 6px; }
+
+        /* HERO — full background image matching landing.html hero pattern */
+        .feature-hero {
+            padding: 120px 5% 80px;
+            background: var(--light-gray);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .hero-inner {
+            max-width: 900px; margin: 0 auto;
+            position: relative; z-index: 1;
+        }
+        .hero-badge {
+            display: inline-block; padding: 6px 16px;
+            background: rgba(0,0,0,0.06); border-radius: 4px;
+            font-size: 12px; font-weight: 500; color: var(--dark); margin-bottom: 24px;
+        }
+        .hero-title {
+            font-size: clamp(40px, 6vw, 64px); font-weight: 800;
+            line-height: 1.05; letter-spacing: -2px; color: var(--dark); margin-bottom: 16px;
+        }
+        .hero-title span { color: var(--primary); }
+        .hero-tagline {
+            font-size: 20px; font-weight: 400; color: var(--medium-gray);
+            margin-bottom: 40px; line-height: 1.6; max-width: 680px; margin-left: auto; margin-right: auto;
+        }
+        .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; justify-content: center; }
+
+        /* HERO BG — identical pattern to landing.html hero-bg */
+        .hero-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        /* SECTIONS — matching landing page .features / .portal-section rhythm */
+        .features-section { padding: 120px 48px; background: var(--light-gray); }
+        .portal-section-inner { padding: 80px 48px; background: white; }
+        .section-container { max-width: 1400px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 80px; }
+        .section-badge {
+            display: inline-block; padding: 8px 20px;
+            background: rgba(220, 20, 60, 0.08); border-radius: 980px;
+            font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: clamp(36px, 5vw, 64px); font-weight: 800;
+            line-height: 1.1; letter-spacing: -1.5px; color: var(--dark); margin-bottom: 24px;
+        }
+        .section-subtitle {
+            font-size: 20px; line-height: 1.5; color: var(--medium-gray);
+            max-width: 700px; margin: 0 auto;
+        }
+        .highlights-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 32px;
+        }
+        /* matches .feature-card from landing */
+        .highlight-card {
+            background: white; border-radius: 4px; padding: 32px;
+            border: 1px solid var(--border-color); transition: all 0.2s ease;
+        }
+        .highlight-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary); }
+        .highlight-icon {
+            width: 48px; height: 48px; border-radius: 4px;
+            background: var(--light-gray);
+            display: flex; align-items: center; justify-content: center; margin-bottom: 24px;
+        }
+        .highlight-icon svg { width: 24px; height: 24px; color: var(--dark); }
+        .highlight-title { font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 12px; letter-spacing: -0.3px; }
+        .highlight-desc { font-size: 15px; line-height: 1.6; color: var(--medium-gray); }
+
+        /* HOW IT WORKS — white bg like portal-section */
+        .how-section { padding: 80px 48px; background: white; border-top: 1px solid var(--border-color); }
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px;
+        }
+        /* matches .portal-card from landing */
+        .step-card {
+            background: white; border-radius: 4px; padding: 40px;
+            border: 1px solid var(--border-color); transition: all 0.2s ease;
+            text-align: center;
+        }
+        .step-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary); }
+        .step-number {
+            width: 48px; height: 48px; border-radius: 4px;
+            background: var(--light-gray); color: var(--dark);
+            font-size: 20px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px;
+        }
+        .step-title { font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 12px; letter-spacing: -0.3px; }
+        .step-desc { font-size: 15px; color: var(--medium-gray); line-height: 1.6; }
+
+        /* EXPLORE MORE — light-gray bg like .features section */
+        .other-section { padding: 80px 48px; background: var(--light-gray); border-top: 1px solid var(--border-color); }
+        .other-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
+        /* matches .portal-card */
+        .other-card {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 40px; border: 1px solid var(--border-color); border-radius: 4px;
+            background: white; text-decoration: none; color: var(--dark-gray);
+            transition: all 0.2s ease;
+        }
+        .other-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary); }
+        .other-card-name { font-size: 20px; font-weight: 700; color: var(--dark); letter-spacing: -0.3px; }
+        .other-card-arrow { font-size: 24px; color: var(--border-color); transition: color 0.2s ease; }
+        .other-card:hover .other-card-arrow { color: var(--primary); }
+
+        /* CTA — identical to landing page .cta-section */
+        .cta-section { padding: 80px 5%; background: var(--primary); color: white; text-align: center; position: relative; }
+        .cta-container { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; }
+        .cta-title { font-size: clamp(36px, 5vw, 56px); font-weight: 800; line-height: 1.1; letter-spacing: -1px; margin-bottom: 24px; }
+        .cta-subtitle { font-size: 20px; line-height: 1.5; opacity: 0.95; margin-bottom: 48px; }
+        .btn-cta { background: white; color: var(--primary); padding: 11px 24px; font-size: 15px; font-weight: 600; height: 40px; border-color: white; }
+        .btn-cta:hover { background: var(--light-gray); }
+
+        /* FOOTER — identical to landing page */
+        .footer { background: var(--dark-gray); color: white; padding: 80px 48px 32px; }
+        .footer-container { max-width: 1400px; margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 64px; margin-bottom: 64px; }
+        .footer-brand { max-width: 320px; }
+        .footer-logo { font-size: 24px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .footer-description { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.7); margin-bottom: 24px; }
+        .footer-social { display: flex; gap: 16px; margin-top: 4px; }
+        .social-link {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.7); transition: all 0.3s ease; text-decoration: none;
+        }
+        .social-link:hover { background: var(--primary); transform: translateY(-2px); }
+        .footer-section h4 { font-size: 14px; font-weight: 600; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .footer-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; transition: color 0.2s ease; }
+        .footer-link:hover { color: white; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 32px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: rgba(255,255,255,0.5); }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .features-section, .portal-section-inner, .how-section, .other-section { padding: 80px 32px; }
+            .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 48px; }
+        }
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+            .footer-bottom { flex-direction: column; gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation — identical to landing.html -->
+<nav class="nav" id="nav">
+    <div class="nav-container">
+        <a href="/" class="nav-logo">Eiscomtech</a>
+        <ul class="nav-menu">
+            <li><a href="/#features" class="nav-link">Features</a></li>
+            <li><a href="/#solutions" class="nav-link">Solutions</a></li>
+            <li><a href="/pricing/" class="nav-link">Pricing</a></li>
+            <li><a href="/about/" class="nav-link">About</a></li>
+        </ul>
+        <div class="nav-cta">
+            <a href="/login/" class="btn btn-secondary">Sign In</a>
+            <a href="/register/" class="btn btn-primary">Get Started</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+    <a href="/">Home</a>
+    <span>›</span>
+    <a href="/#features">Features</a>
+    <span>›</span>
+    {{ feature_name }}
+</div>
+
+<!-- Hero Section -->
+<section class="feature-hero">
+    <div class="hero-bg" style="background-image: url('{{ feature_image }}');"></div>
+    <div class="hero-inner">
+        <div class="hero-badge">Core Feature</div>
+        <h1 class="hero-title">{{ feature_name }}</h1>
+        <p class="hero-tagline">{{ feature_tagline }}</p>
+        <div class="hero-actions">
+            <a href="/register/" class="btn btn-primary btn-hero">
+                Start Free Trial
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="/contact/" class="btn btn-secondary btn-hero">Request a Demo</a>
+        </div>
+    </div>
+</section>
+
+<!-- Highlights Section — .features style from landing -->
+<section class="features-section">
+    <div class="section-container">
+        <div class="section-header">
+            <div class="section-badge">Powerful Features</div>
+            <h2 class="section-title">Everything you need for {{ feature_name }}</h2>
+            <p class="section-subtitle">Six powerful capabilities designed to work seamlessly together.</p>
+        </div>
+        <div class="highlights-grid">
+            {% for h in highlights %}
+            <div class="highlight-card">
+                <div class="highlight-icon">
+                    {% if h.icon == 'clock' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    {% elif h.icon == 'map-pin' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {% elif h.icon == 'fingerprint' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10"/><path d="M5 12a7 7 0 0114 0"/><path d="M8 12a4 4 0 018 0"/><path d="M12 12v.01"/></svg>
+                    {% elif h.icon == 'bell' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                    {% elif h.icon == 'file-text' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                    {% elif h.icon == 'settings' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    {% elif h.icon == 'send' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    {% elif h.icon == 'check-circle' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    {% elif h.icon == 'layers' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    {% elif h.icon == 'bar-chart-2' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    {% elif h.icon == 'calendar' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    {% elif h.icon == 'clipboard' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                    {% elif h.icon == 'cpu' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                    {% elif h.icon == 'shield' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    {% elif h.icon == 'file' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M13 2v7h7"/></svg>
+                    {% elif h.icon == 'link' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                    {% elif h.icon == 'dollar-sign' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    {% elif h.icon == 'download' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    {% elif h.icon == 'target' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    {% elif h.icon == 'users' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    {% elif h.icon == 'star' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    {% elif h.icon == 'trending-up' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    {% elif h.icon == 'award' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                    {% elif h.icon == 'book-open' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                    {% elif h.icon == 'folder' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+                    {% elif h.icon == 'git-branch' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 01-9 9"/></svg>
+                    {% elif h.icon == 'lock' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                    {% elif h.icon == 'search' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    {% elif h.icon == 'check-square' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    {% elif h.icon == 'activity' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    {% elif h.icon == 'pie-chart' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>
+                    {% elif h.icon == 'zap' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    {% elif h.icon == 'share-2' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    {% elif h.icon == 'filter' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    {% else %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                    {% endif %}
+                </div>
+                <h3 class="highlight-title">{{ h.title }}</h3>
+                <p class="highlight-desc">{{ h.desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section — .portal-section style -->
+<section class="how-section">
+    <div class="section-container">
+        <div class="section-header">
+            <div class="section-badge">How It Works</div>
+            <h2 class="section-title">Up and running in minutes</h2>
+            <p class="section-subtitle">A simple four-step process to get {{ feature_name }} working for your team.</p>
+        </div>
+        <div class="steps-grid">
+            {% for s in how_it_works %}
+            <div class="step-card">
+                <div class="step-number">{{ s.step }}</div>
+                <h3 class="step-title">{{ s.title }}</h3>
+                <p class="step-desc">{{ s.desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Explore More — .features style -->
+<section class="other-section">
+    <div class="section-container">
+        <div class="section-header">
+            <div class="section-badge">Explore More</div>
+            <h2 class="section-title">Works best with these features</h2>
+            <p class="section-subtitle">{{ feature_name }} integrates seamlessly with the rest of the platform.</p>
+        </div>
+        <div class="other-grid">
+            {% for f in other_features %}
+            <a href="{{ f.url }}" class="other-card">
+                <span class="other-card-name">{{ f.name }}</span>
+                <span class="other-card-arrow">→</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section — identical to landing.html -->
+<section class="cta-section">
+    <div class="cta-container">
+        <h2 class="cta-title">Ready to transform your {{ feature_name|lower }}?</h2>
+        <p class="cta-subtitle">Join thousands of companies already using Eiscomtech to streamline their operations and boost productivity.</p>
+        <a href="/register/" class="btn btn-cta">
+            Start Your Free Trial
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
+                <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </div>
+</section>
+
+<!-- Footer — identical to landing.html -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">Eiscomtech</div>
+                <p class="footer-description">Enterprise management platform designed for modern businesses. Streamline operations, boost productivity, and scale with confidence.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
+                    <a href="#" class="social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+                    <a href="#" class="social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Features</h4>
+                <ul class="footer-links">
+                    <li><a href="/features/attendance/" class="footer-link">Smart Attendance</a></li>
+                    <li><a href="/features/leave/" class="footer-link">Leave Management</a></li>
+                    <li><a href="/features/payroll/" class="footer-link">Payroll Processing</a></li>
+                    <li><a href="/features/analytics/" class="footer-link">Advanced Analytics</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="/about/" class="footer-link">About</a></li>
+                    <li><a href="/careers/" class="footer-link">Careers</a></li>
+                    <li><a href="/blog/" class="footer-link">Blog</a></li>
+                    <li><a href="/press/" class="footer-link">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul class="footer-links">
+                    <li><a href="/help/" class="footer-link">Help Center</a></li>
+                    <li><a href="/contact/" class="footer-link">Contact Us</a></li>
+                    <li><a href="/status/" class="footer-link">Status</a></li>
+                    <li><a href="/docs/" class="footer-link">Documentation</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>© 2026 Eiscomtech. All rights reserved.</div>
+            <div style="display:flex;gap:24px;">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.pageYOffset > 50);
+    });
+    document.querySelectorAll('.highlight-card, .step-card, .other-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    });
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('.highlight-card, .step-card, .other-card').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

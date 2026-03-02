@@ -1,519 +1,867 @@
-{% extends base_template|default:'ems/base_employer.html' %}
+﻿{% extends base_template|default:'ems/base_employer.html' %}
 {% load static %}
 
 {% block title %}{% if user.role == 'EMPLOYEE' %}My Documents{% else %}Document Management{% endif %} - BLU Suite EMS{% endblock %}
+{% block page_title %}{% if user.role == 'EMPLOYEE' %}My Documents{% else %}Document Management{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* â”€â”€ Document Explorer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.de-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.de-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:#64748b}
+.de-breadcrumb a{color:var(--company-button,#E11D48);text-decoration:none;cursor:pointer;font-weight:500}
+.de-breadcrumb a:hover{text-decoration:underline}
+.de-breadcrumb .sep{color:#cbd5e1;font-size:16px}
+.de-breadcrumb .crumb-cur{color:#0f172a;font-weight:600}
+/* Stats */
+.de-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.de-stat{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.de-stat-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.de-stat-val{font-size:20px;font-weight:700;color:#0f172a;line-height:1.1}
+.de-stat-lbl{font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+/* Toolbar */
+.de-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.de-search{flex:1;min-width:180px;position:relative}
+.de-search input{width:100%;padding:8px 10px 8px 32px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;background:#fff}
+.de-search input:focus{border-color:var(--company-button,#E11D48);box-shadow:0 0 0 3px rgba(225,29,72,.07)}
+.de-search-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#94a3b8}
+.de-select{padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;color:#334155;background:#fff;outline:none;cursor:pointer}
+.de-view-tog{display:flex;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
+.de-vtbtn{padding:7px 11px;background:#fff;border:none;cursor:pointer;color:#64748b;transition:all .15s;display:flex;align-items:center}
+.de-vtbtn.active,.de-vtbtn:hover{background:var(--company-button,#E11D48);color:#fff}
+/* Section headings */
+.de-sec-title{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin:20px 0 10px;display:flex;align-items:center;gap:6px}
+.de-sec-title:first-child{margin-top:0}
+/* Folder grid — OneDrive style */
+.de-folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:4px}
+.de-folder{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:20px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all .18s;text-align:center;user-select:none;position:relative}
+.de-folder:hover{border-color:#f0c040;box-shadow:0 4px 18px rgba(240,192,64,.25);transform:translateY(-2px)}
+.de-folder-ico{width:72px;height:58px;position:relative}
+.de-folder-name{font-size:12px;font-weight:600;color:#334155;line-height:1.3;max-width:130px;word-break:break-word}
+.de-folder-cnt{font-size:10px;color:#94a3b8}
+/* Doc grid */
+.de-doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.de-doc-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .15s;text-align:center;position:relative}
+.de-doc-card:hover{border-color:var(--company-button,#E11D48);box-shadow:0 4px 14px rgba(0,0,0,.07)}
+.de-file-ico{width:40px;height:50px;border-radius:5px 5px 5px 0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;letter-spacing:.4px;position:relative;flex-shrink:0}
+.de-file-ico::after{content:'';position:absolute;top:0;right:0;width:12px;height:12px;border-bottom-left-radius:3px}
+.de-doc-name{font-size:11px;font-weight:600;color:#334155;line-height:1.3;max-width:130px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.de-doc-meta{font-size:10px;color:#94a3b8}
+.de-ver-badge{position:absolute;top:7px;right:7px;background:#f1f5f9;color:#64748b;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;border:1px solid #e2e8f0}
+/* Doc list table */
+.de-list-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
+.de-table{width:100%;border-collapse:collapse}
+.de-table thead th{background:#f8fafc;padding:10px 14px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;text-transform:uppercase;letter-spacing:.4px}
+.de-table tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s}
+.de-table tbody tr:hover{background:#fafafa}
+.de-table tbody tr:last-child{border-bottom:none}
+.de-table tbody td{padding:10px 14px;font-size:13px;color:#334155;vertical-align:middle}
+.de-badge{padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;display:inline-flex;align-items:center}
+.de-badge-pending{background:#fef3c7;color:#92400e}
+.de-badge-approved{background:#d1fae5;color:#065f46}
+.de-badge-rejected{background:#fee2e2;color:#991b1b}
+.de-badge-expired{background:#f1f5f9;color:#475569}
+/* Action buttons */
+.de-act-row{display:flex;gap:5px;align-items:center}
+.de-btn{padding:4px 8px;border-radius:5px;border:1px solid #e2e8f0;background:#fff;font-size:11px;color:#64748b;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:3px;text-decoration:none;white-space:nowrap}
+.de-btn:hover{border-color:var(--company-button,#E11D48);color:var(--company-button,#E11D48);background:#fff5f7}
+.de-btn-primary{background:var(--company-button,#E11D48);color:#fff;border-color:var(--company-button,#E11D48)}
+.de-btn-primary:hover{background:#be123c;border-color:#be123c;color:#fff}
+/* Modals */
+.de-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.de-overlay.open{display:flex}
+.de-modal{background:#fff;border-radius:14px;padding:24px;max-width:540px;width:94%;max-height:82vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.de-modal-hd{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.de-modal-close{cursor:pointer;color:#94a3b8;background:none;border:none;padding:3px;border-radius:5px;transition:color .15s;display:flex}
+.de-modal-close:hover{color:#0f172a}
+.de-ver-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;background:#fff}
+.de-ver-item.current{border-color:var(--company-button,#E11D48);background:#fff5f7}
+.de-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#f1f5f9;border-radius:20px;font-size:11px;color:#334155;margin:3px}
+.de-chip-x{background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;display:flex;line-height:1;font-size:14px}
+.de-chip-x:hover{color:#0f172a}
+.de-drop-zone{border:2px dashed #e2e8f0;border-radius:10px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;color:#94a3b8;margin-bottom:14px}
+.de-drop-zone:hover,.de-drop-zone.drag-over{border-color:var(--company-button,#E11D48);background:#fff5f7;color:var(--company-button,#E11D48)}
+.de-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.de-form-row.full{grid-template-columns:1fr}
+.de-lbl{font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px}
+.de-inp{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;outline:none;background:#fff}
+.de-inp:focus{border-color:var(--company-button,#E11D48)}
+.de-share-result-item{padding:8px 10px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;transition:background .1s}
+.de-share-result-item:hover{background:#f1f5f9}
+.de-avatar{width:28px;height:28px;border-radius:50%;background:var(--company-button,#E11D48);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+@media(max-width:600px){
+  .de-folder-grid{grid-template-columns:repeat(auto-fill,minmax(95px,1fr))}
+  .de-doc-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+  .de-stats{grid-template-columns:repeat(2,1fr)}
+  .de-form-row{grid-template-columns:1fr}
+}
+
+/* ── Dark-mode overrides for all .de-* elements ────────────── */
+html[data-theme*="-dark"] .de-stat,
+html[data-theme*="-dark"] .de-folder,
+html[data-theme*="-dark"] .de-doc-card,
+html[data-theme*="-dark"] .de-list-wrap,
+html[data-theme*="-dark"] .de-ver-item,
+html[data-theme*="-dark"] .de-modal,
+html[data-theme*="-dark"] .de-btn,
+html[data-theme*="-dark"] .de-inp,
+html[data-theme*="-dark"] .de-search input,
+html[data-theme*="-dark"] .de-select,
+html[data-theme*="-dark"] .de-vtbtn {
+    background: var(--t-surface) !important;
+    border-color: var(--t-border) !important;
+    color: var(--t-text) !important;
+}
+html[data-theme*="-dark"] .de-stat-val,
+html[data-theme*="-dark"] .de-folder-name,
+html[data-theme*="-dark"] .de-doc-name,
+html[data-theme*="-dark"] .de-modal-hd,
+html[data-theme*="-dark"] .de-lbl,
+html[data-theme*="-dark"] .de-doc-meta { color: var(--t-text) !important; }
+html[data-theme*="-dark"] .de-stat-lbl,
+html[data-theme*="-dark"] .de-folder-cnt { color: var(--t-muted) !important; }
+html[data-theme*="-dark"] .de-table thead th {
+    background: var(--t-surf2) !important;
+    color: var(--t-soft) !important;
+    border-color: var(--t-border) !important;
+}
+html[data-theme*="-dark"] .de-table tbody td {
+    color: var(--t-text) !important;
+    border-color: var(--t-border) !important;
+}
+html[data-theme*="-dark"] .de-table tbody tr:hover { background: var(--t-row) !important; }
+html[data-theme*="-dark"] .de-search input::placeholder,
+html[data-theme*="-dark"] .de-inp::placeholder { color: var(--t-muted) !important; }
+html[data-theme*="-dark"] .de-ver-badge {
+    background: var(--t-surf2) !important;
+    color: var(--t-soft) !important;
+    border-color: var(--t-border) !important;
+}
+html[data-theme*="-dark"] .de-chip {
+    background: var(--t-surf2) !important;
+    color: var(--t-text) !important;
+}
+html[data-theme*="-dark"] .de-drop-zone {
+    border-color: var(--t-border) !important;
+    color: var(--t-muted) !important;
+}
+html[data-theme*="-dark"] .de-share-result-item:hover { background: var(--t-surf2) !important; }
+html[data-theme*="-dark"] #de-shared-chips,
+html[data-theme*="-dark"] #de-share-results {
+    background: var(--t-surf2) !important;
+    border-color: var(--t-border) !important;
+}
+html[data-theme*="-dark"] .de-vtbtn.active,
+html[data-theme*="-dark"] .de-vtbtn:hover {
+    background: var(--company-button, #E11D48) !important;
+    color: #fff !important;
+}
+html[data-theme*="-dark"] .de-folder:hover {
+    border-color: #f0c040 !important;
+    box-shadow: 0 4px 18px rgba(240,192,64,.2) !important;
+}
+html[data-theme*="-dark"] .de-sec-title { color: var(--t-muted) !important; }
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<div class="page-header">
-    <div>
-        <h2>{% if user.role == 'EMPLOYEE' %}My Documents{% else %}Document Management{% endif %}</h2>
-        <p>Manage and track employee documents and files</p>
+{% load static %}
+
+<!-- â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<div class="de-header">
+  <div>
+    <div class="de-breadcrumb" id="de-breadcrumb">
+      <a onclick="deShowFolders()">Documents</a>
+      <span class="sep" id="de-sep" style="display:none">&rsaquo;</span>
+      <span class="crumb-cur" id="de-crumb-cur"></span>
     </div>
-    <button onclick="showUploadModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 5 17 10"></polyline>
-            <line x1="12" y1="5" x2="12" y2="16"></line>
-        </svg>
-        Upload Document
+    <div style="font-size:12px;color:#94a3b8;margin-top:3px">
+      {% if user.role == 'EMPLOYEE' %}Your personal document library{% else %}Company document management{% endif %}
+    </div>
+  </div>
+  <button onclick="deOpenUpload()" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;font-size:13px">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Upload
+  </button>
+</div>
+
+<!-- â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<div class="de-stats">
+  <div class="de-stat">
+    <div class="de-stat-ico" style="background:#fce7f3;color:#DC143C">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div><div class="de-stat-val">{{ total_documents }}</div><div class="de-stat-lbl">Total Files</div></div>
+  </div>
+  <div class="de-stat">
+    <div class="de-stat-ico" style="background:#fef3c7;color:#d97706">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div><div class="de-stat-val">{{ pending_count }}</div><div class="de-stat-lbl">Pending</div></div>
+  </div>
+  <div class="de-stat">
+    <div class="de-stat-ico" style="background:#d1fae5;color:#065f46">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <div><div class="de-stat-val">{{ approved_count }}</div><div class="de-stat-lbl">Approved</div></div>
+  </div>
+  {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+  <div class="de-stat">
+    <div class="de-stat-ico" style="background:#fee2e2;color:#dc2626">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div><div class="de-stat-val">{{ expiring_soon_count }}</div><div class="de-stat-lbl">Expiring</div></div>
+  </div>
+  {% endif %}
+  <div class="de-stat">
+    <div class="de-stat-ico" style="background:#f3e8ff;color:#7c3aed">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div><div class="de-stat-val" id="de-shared-cnt">0</div><div class="de-stat-lbl">Shared</div></div>
+  </div>
+</div>
+
+<!-- â”€â”€ Toolbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<div class="de-toolbar">
+  <div class="de-search">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="de-search-ic"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="de-search" placeholder="Search documents…" oninput="deSearch(this.value)">
+  </div>
+  <select class="de-select" id="de-type-sel" onchange="deFilterType(this.value)">
+    <option value="">All Types</option>
+    {% for tv, tl in document_types %}<option value="{{ tv }}">{{ tl }}</option>{% endfor %}
+  </select>
+  <select class="de-select" id="de-status-sel" onchange="deFilterStatus(this.value)">
+    <option value="">All Statuses</option>
+    {% for sv, sl in status_choices %}<option value="{{ sv }}">{{ sl }}</option>{% endfor %}
+  </select>
+  <div class="de-view-tog">
+    <button class="de-vtbtn active" id="de-grid-btn" onclick="deSetView('grid')" title="Grid">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
     </button>
-</div>
-
-<!-- Statistics Cards -->
-<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-        </div>
-        <div class="stat-details">
-            <h3>{{ total_documents }}</h3>
-            <p>Total Documents</p>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        </div>
-        <div class="stat-details">
-            <h3>{{ pending_count }}</h3>
-            <p>Pending Review</p>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #d1fae5; color: #059669;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-        </div>
-        <div class="stat-details">
-            <h3>{{ approved_count }}</h3>
-            <p>Approved</p>
-        </div>
-    </div>
-    {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-        </div>
-        <div class="stat-details">
-            <h3>{{ expiring_soon_count }}</h3>
-            <p>Expiring Soon</p>
-        </div>
-    </div>
-    {% else %}
-    <div class="stat-card">
-        <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-        </div>
-        <div class="stat-details">
-            <h3>{{ rejected_count }}</h3>
-            <p>Rejected</p>
-        </div>
-    </div>
-    {% endif %}
-</div>
-
-<!-- Filters -->
-{% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
-<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 24px;">
-    <form method="get" id="document-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
-        <div>
-            <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Search</label>
-            <input type="text" name="search" placeholder="Title, employee, description..." value="{{ search_query }}" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
-        </div>
-        <div>
-            <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Status</label>
-            <select name="status" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
-                <option value="">All Statuses</option>
-                {% for value, label in status_choices %}
-                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div>
-            <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Type</label>
-            <select name="type" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
-                <option value="">All Types</option>
-                {% for value, label in document_types %}
-                    <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: end;">
-            <button class="btn btn-primary" type="submit" style="padding: 8px 16px; font-size: 14px;">Apply</button>
-            <a class="btn btn-secondary" href="{% url 'documents_list' %}" style="padding: 8px 16px; font-size: 14px;">Reset</a>
-        </div>
-    </form>
-</div>
-{% endif %}
-
-<!-- Bulk Action Buttons -->
-{% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
-<div style="margin-top: 16px; display: flex; gap: 8px;">
-    <button class="btn btn-secondary" onclick="bulkDownload()" id="bulk-download-btn" style="display: none;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-        Download Selected
+    <button class="de-vtbtn" id="de-list-btn" onclick="deSetView('list')" title="List">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
     </button>
-    <button class="btn" onclick="bulkApprove()" id="bulk-approve-btn" style="display: none; background: #059669; color: white;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        Approve Selected
-    </button>
+  </div>
 </div>
-{% endif %}
 
-<!-- Documents Table -->
-<div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-top: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-    <div style="padding: 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(to right, #f8fafc, #ffffff);">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 10px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-            {% if user.role == 'EMPLOYEE' %}My Documents{% else %}Employee Documents{% endif %}
-        </h3>
-        <p style="margin: 6px 0 0; font-size: 14px; color: #64748b;">Manage and track employee documents and files</p>
-    </div>
-    <div>
-        {% if employee_documents %}
-            <div class="table-responsive">
-                <table class="attendance-table">
-                    <thead>
-                        <tr>
-                            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
-                            <th style="width: 40px;">
-                                <input type="checkbox" id="select-all-docs" onchange="toggleSelectAllDocs(this)" style="cursor: pointer;">
-                            </th>
-                            <th>Employee</th>
-                            {% endif %}
-                            <th>Title</th>
-                            <th>Document Type</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Expiry</th>
-                            <th>Uploaded</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for doc in employee_documents %}
-                            {% load tz %}
-                            {% now "Y-m-d" as today %}
-                            <tr>
-                                {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
-                                    <td>
-                                        <input type="checkbox" class="doc-checkbox" data-doc-id="{{ doc.id }}" onchange="updateBulkButtons()" style="cursor: pointer;">
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 500;">{{ doc.employee.first_name }} {{ doc.employee.last_name }}</div>
-                                        <div style="font-size: 12px; color: #64748b;">{{ doc.employee.employee_profile.job_title|default:'No position assigned' }}</div>
-                                    </td>
-                                {% endif %}
-                                <td>
-                                    <div style="font-weight: 500;">{{ doc.title }}</div>
-                                    {% if doc.description %}
-                                        <div style="font-size: 12px; color: #64748b;">{{ doc.description|truncatewords:10 }}</div>
-                                    {% endif %}
-                                    {% if doc.is_confidential %}
-                                        <span style="font-size: 11px; color: #ef4444;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg> Confidential</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ doc.get_document_type_display }}</td>
-                                <td>{{ doc.category.name|default:'—' }}</td>
-                                <td><span class="status {{ doc.status|lower }}">{{ doc.get_status_display }}</span></td>
-                                <td>
-                                    {% if doc.expiry_date %}
-                                        <div style="font-size: 12px;">{{ doc.expiry_date|date:'M d, Y' }}</div>
-                                        {% load custom_filters %}
-                                        {% if doc.expiry_date|is_expired %}
-                                            <span style="font-size: 11px; color: #ef4444;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg> Expired</span>
-                                        {% elif doc.expiry_date|is_expiring_soon %}
-                                            <span style="font-size: 11px; color: #f59e0b;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Soon</span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span style="color: #94a3b8;">—</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div style="font-size: 12px;">{{ doc.created_at|date:'M d, Y' }}</div>
-                                    <div style="font-size: 11px; color: #64748b;">{{ doc.uploaded_by.get_full_name }}</div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                                        <a href="{% url 'document_download' doc.id %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg> Download</a>
-                                        {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' and doc.status == 'PENDING' %}
-                                            <a href="{% url 'document_approve' doc.id %}" class="btn btn-success" style="padding: 4px 8px; font-size: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg></a>
-                                            <button onclick="showRejectModal({{ doc.id }})" class="btn btn-warning" style="padding: 4px 8px; font-size: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg></button>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div style="text-align: center; padding: 40px; color: #64748b;">
-                <div style="font-size: 48px; margin-bottom: 16px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                        </svg></div>
-                <h3>No Documents Found</h3>
-                <p>{% if user.role == 'EMPLOYEE' %}You haven't uploaded any documents yet.{% else %}No employee documents to display.{% endif %}</p>
-            </div>
-        {% endif %}
-    </div>
+<!-- â”€â”€ Folder View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<div id="de-folder-view">
+  <div class="de-sec-title">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+    Document Types
+  </div>
+  <div class="de-folder-grid" id="de-type-folders"></div>
+
+  {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+  <div class="de-sec-title" style="margin-top:24px">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    By Department
+  </div>
+  <div class="de-folder-grid" id="de-dept-folders"></div>
+  {% endif %}
+
+  <div class="de-sec-title" style="margin-top:24px">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Recent Files
+  </div>
+  <div id="de-recent"></div>
 </div>
+
+<!-- â”€â”€ Document View (inside folder) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<div id="de-doc-view" style="display:none">
+  <div id="de-doc-content"></div>
+</div>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• MODALS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 
 <!-- Upload Modal -->
-<div id="uploadModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
-    <div class="modal-content" style="background: white; border-radius: 8px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto;">
-        <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
-            <h3 style="margin: 0; font-size: 20px;">Upload Document</h3>
-        </div>
-        <form method="post" action="{% url 'document_upload' %}" enctype="multipart/form-data" style="padding: 20px;">
-            {% csrf_token %}
-            
-            {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
-            <div style="margin-bottom: 16px;">
-                <label class="control-label">Employee *</label>
-                <select name="employee" class="control-input" required>
-                    <option value="">Select Employee</option>
-                    {% for emp in company.users.all %}
-                        {% if emp.role == 'EMPLOYEE' %}
-                            <option value="{{ emp.id }}">{{ emp.first_name }} {{ emp.last_name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-            {% endif %}
-
-            <div style="margin-bottom: 16px;">
-                <label class="control-label">Title *</label>
-                <input type="text" name="title" class="control-input" required>
-            </div>
-
-            <div class="modal-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                <div>
-                    <label class="control-label">Document Type *</label>
-                    <select name="document_type" class="control-input" required>
-                        {% for value, label in document_types %}
-                            <option value="{{ value }}">{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label class="control-label">Category</label>
-                    <select name="category" class="control-input">
-                        <option value="">None</option>
-                        {% for cat in categories %}
-                            <option value="{{ cat.id }}">{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 16px;">
-                <label class="control-label">Description</label>
-                <textarea name="description" class="control-input" rows="3"></textarea>
-            </div>
-
-            <div style="margin-bottom: 16px;">
-                <label class="control-label">File * (PDF, DOC, DOCX, JPG, PNG - Max 10MB)</label>
-                <input type="file" name="file" class="control-input" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx,.txt,.rtf">
-            </div>
-
-            <div class="modal-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                <div>
-                    <label class="control-label">Expiry Date</label>
-                    <input type="date" name="expiry_date" class="control-input">
-                </div>
-                <div style="display: flex; align-items: center; padding-top: 28px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" name="is_confidential">
-                        <span style="font-size: 14px;">Mark as Confidential</span>
-                    </label>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <button type="submit" class="btn btn-primary">Upload</button>
-                <button type="button" class="btn btn-secondary" onclick="hideUploadModal()">Cancel</button>
-            </div>
-        </form>
+<div class="de-overlay" id="de-upload-modal">
+  <div class="de-modal">
+    <div class="de-modal-hd">
+      Upload Document
+      <button class="de-modal-close" onclick="deCloseModal('de-upload-modal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
+    <form method="post" action="{% url 'document_upload' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="de-drop-zone" id="de-drop" onclick="document.getElementById('de-file-in').click()">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-size:13px;font-weight:600;margin-bottom:3px">Drop file here or click to browse</div>
+        <div style="font-size:11px">PDF, Word, Excel, Images &middot; max 10 MB</div>
+        <input type="file" id="de-file-in" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx,.txt,.rtf" style="display:none" onchange="deFileSelected(this)" required>
+        <div id="de-file-name" style="margin-top:8px;font-size:12px;color:#334155;display:none;font-weight:600"></div>
+      </div>
+      <div class="de-form-row">
+        <div>
+          <label class="de-lbl">Title *</label>
+          <input name="title" class="de-inp" placeholder="e.g. Employment Contract 2025" required>
+        </div>
+        <div>
+          <label class="de-lbl">Type *</label>
+          <select name="document_type" class="de-inp" required>
+            <option value="">Select…</option>
+            {% for tv, tl in document_types %}<option value="{{ tv }}">{{ tl }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+      <div class="de-form-row">
+        <div>
+          <label class="de-lbl">Employee *</label>
+          <select name="employee" class="de-inp" required>
+            <option value="">Select employee…</option>
+            {% for doc in employee_documents %}{% endfor %}
+            {% if company %}{% for emp in company.users.all %}{% if emp.role == 'EMPLOYEE' %}<option value="{{ emp.id }}">{{ emp.get_full_name }}</option>{% endif %}{% endfor %}{% endif %}
+          </select>
+        </div>
+        <div>
+          <label class="de-lbl">Category</label>
+          <select name="category" class="de-inp">
+            <option value="">None</option>
+            {% for cat in categories %}<option value="{{ cat.id }}">{{ cat.name }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      {% endif %}
+      <div class="de-form-row">
+        <div>
+          <label class="de-lbl">Expiry Date</label>
+          <input type="date" name="expiry_date" class="de-inp">
+        </div>
+        <div style="display:flex;align-items:center;padding-top:22px">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:#374151">
+            <input type="checkbox" name="is_confidential"> Confidential
+          </label>
+        </div>
+      </div>
+      <div class="de-form-row full">
+        <div>
+          <label class="de-lbl">Description</label>
+          <textarea name="description" class="de-inp" rows="2" style="resize:vertical"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button type="button" onclick="deCloseModal('de-upload-modal')" style="padding:8px 16px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#64748b;cursor:pointer;font-size:13px">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="font-size:13px">Upload Document</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Version History Modal -->
+<div class="de-overlay" id="de-ver-modal">
+  <div class="de-modal">
+    <div class="de-modal-hd">
+      <span id="de-ver-title">Version History</span>
+      <button class="de-modal-close" onclick="deCloseModal('de-ver-modal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="de-ver-list"></div>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="de-overlay" id="de-share-modal">
+  <div class="de-modal">
+    <div class="de-modal-hd">
+      <span>Share Document</span>
+      <button class="de-modal-close" onclick="deCloseModal('de-share-modal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">People with access</div>
+    <div id="de-shared-chips" style="min-height:36px;padding:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;display:flex;flex-wrap:wrap;gap:3px;margin-bottom:12px;align-items:flex-start"></div>
+    <label class="de-lbl">Add people</label>
+    <input type="text" id="de-share-search" class="de-inp" placeholder="Search by name or email…" oninput="deShareSearch(this.value)" style="margin-bottom:6px">
+    <div id="de-share-results" style="max-height:140px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px;background:#fff;display:none"></div>
+    <div style="margin:12px 0;padding:10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;font-size:12px;color:#64748b;display:flex;align-items:center;gap:7px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Shared users can view and download this document.
+    </div>
+    <div style="display:flex;justify-content:flex-end">
+      <button onclick="deCloseModal('de-share-modal')" class="btn btn-primary" style="font-size:13px">Done</button>
+    </div>
+  </div>
 </div>
 
 <!-- Reject Modal -->
-<div id="rejectModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
-    <div class="modal-content" style="background: white; border-radius: 8px; max-width: 500px; width: 100%; margin: auto;">
-        <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
-            <h3 style="margin: 0; font-size: 20px;">Reject Document</h3>
-        </div>
-        <form method="post" id="rejectForm" style="padding: 20px;">
-            {% csrf_token %}
-            <div style="margin-bottom: 16px;">
-                <label class="control-label">Rejection Reason *</label>
-                <textarea name="reason" class="control-input" rows="4" required placeholder="Explain why this document is being rejected..."></textarea>
-            </div>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <button type="submit" class="btn btn-warning">Reject Document</button>
-                <button type="button" class="btn btn-secondary" onclick="hideRejectModal()">Cancel</button>
-            </div>
-        </form>
+<div class="de-overlay" id="de-reject-modal">
+  <div class="de-modal" style="max-width:440px">
+    <div class="de-modal-hd">
+      Reject Document
+      <button class="de-modal-close" onclick="deCloseModal('de-reject-modal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
+    <form method="post" id="de-reject-form">
+      {% csrf_token %}
+      <label class="de-lbl">Rejection Reason *</label>
+      <textarea name="reason" class="de-inp" rows="4" required placeholder="Explain why…" style="resize:vertical;margin-bottom:14px"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button type="button" onclick="deCloseModal('de-reject-modal')" style="padding:8px 14px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#64748b;cursor:pointer;font-size:13px">Cancel</button>
+        <button type="submit" style="padding:8px 16px;border-radius:6px;background:#dc2626;color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:600">Reject</button>
+      </div>
+    </form>
+  </div>
 </div>
 
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SCRIPTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <script>
-    function showUploadModal() {
-        document.getElementById('uploadModal').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+const DE_DOCS     = {{ docs_json|safe }};
+const DE_EMPS     = {{ employees_json|safe }};
+const DE_SHARES   = {{ shares_json|safe }};
+const DE_IS_ADMIN = {% if user.role in 'ADMINISTRATOR,EMPLOYER_ADMIN' %}true{% else %}false{% endif %};
+const DE_CSRF     = '{{ csrf_token }}';
+
+/* â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+let deView = 'grid';
+let deActiveFolderDocs = null;
+let deShareDocId = null;
+
+const TYPE_COLORS = {
+  CONTRACT:    {bg:'#fce7f3',fg:'#DC143C',ext:'DOC'},
+  CERTIFICATE: {bg:'#d1fae5',fg:'#065f46',ext:'CERT'},
+  ID:          {bg:'#fef3c7',fg:'#92400e',ext:'ID'},
+  LICENSE:     {bg:'#ede9fe',fg:'#5b21b6',ext:'LIC'},
+  MEDICAL:     {bg:'#fee2e2',fg:'#991b1b',ext:'MED'},
+  TRAINING:    {bg:'#e0f2fe',fg:'#0369a1',ext:'TRN'},
+  PERFORMANCE: {bg:'#fef9c3',fg:'#854d0e',ext:'PERF'},
+  POLICY:      {bg:'#f0fdf4',fg:'#166534',ext:'POL'},
+  OTHER:       {bg:'#f1f5f9',fg:'#475569',ext:'FILE'},
+};
+const EXT_COLORS = {
+  pdf: {bg:'#fee2e2',fg:'#991b1b',corner:'#dc2626'},
+  doc: {bg:'#fce7f3',fg:'#DC143C',corner:'#DC143C'},
+  docx:{bg:'#fce7f3',fg:'#DC143C',corner:'#DC143C'},
+  xls: {bg:'#d1fae5',fg:'#065f46',corner:'#059669'},
+  xlsx:{bg:'#d1fae5',fg:'#065f46',corner:'#059669'},
+  jpg: {bg:'#fef3c7',fg:'#92400e',corner:'#d97706'},
+  jpeg:{bg:'#fef3c7',fg:'#92400e',corner:'#d97706'},
+  png: {bg:'#fef3c7',fg:'#92400e',corner:'#d97706'},
+  txt: {bg:'#f1f5f9',fg:'#475569',corner:'#94a3b8'},
+  default:{bg:'#f1f5f9',fg:'#475569',corner:'#94a3b8'},
+};
+
+function deExt(filename){
+  return (filename||'').split('.').pop().toLowerCase();
+}
+function deFileIco(doc){
+  const ext = deExt(doc.filename);
+  const c = EXT_COLORS[ext] || EXT_COLORS.default;
+  return `<div class="de-file-ico" style="background:${c.bg};color:${c.fg};">
+    <style>.de-file-ico::after{background:${c.corner}!important}</style>
+    ${(ext||'FILE').toUpperCase().substring(0,4)}
+  </div>`;
+}
+function deFolderSvg(accentColor){
+  /* Golden OneDrive-style folder with a small accent stripe */
+  return `<svg viewBox="0 0 72 58" fill="none" xmlns="http://www.w3.org/2000/svg" width="72" height="58">
+    <!-- folder back -->
+    <rect x="0" y="14" width="72" height="40" rx="5" fill="#F5C542"/>
+    <!-- tab -->
+    <path d="M0 18 Q0 14 4 14 L28 14 Q32 14 34 18 L34 22 L0 22 Z" fill="#F0B429"/>
+    <!-- folder body highlight -->
+    <rect x="0" y="22" width="72" height="32" rx="5" fill="#F5C542"/>
+    <rect x="0" y="22" width="72" height="10" rx="0" fill="#F0B429" opacity=".3"/>
+    <!-- accent stripe (doc type colour) -->
+    <rect x="52" y="14" width="14" height="6" rx="3" fill="${accentColor}" opacity=".85"/>
+    <!-- subtle shine -->
+    <rect x="4" y="26" width="64" height="4" rx="2" fill="white" opacity=".18"/>
+  </svg>`;
+}
+function deBadge(status){
+  const map = {PENDING:'de-badge-pending',APPROVED:'de-badge-approved',REJECTED:'de-badge-rejected',EXPIRED:'de-badge-expired'};
+  const label = {PENDING:'Pending',APPROVED:'Approved',REJECTED:'Rejected',EXPIRED:'Expired'};
+  return `<span class="de-badge ${map[status]||'de-badge-expired'}">${label[status]||status}</span>`;
+}
+function deFormatSize(bytes){
+  if(!bytes) return '—';
+  if(bytes<1024) return bytes+'B';
+  if(bytes<1048576) return (bytes/1024).toFixed(1)+'KB';
+  return (bytes/1048576).toFixed(1)+'MB';
+}
+function deInitials(name){
+  return (name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
+}
+
+/* â”€â”€ filter state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+let deActiveType='', deActiveStatus='', deSearchQ='';
+function deGetFiltered(){
+  let docs = deActiveFolderDocs !== null ? deActiveFolderDocs : DE_DOCS;
+  if(deActiveType)   docs = docs.filter(d=>d.type===deActiveType);
+  if(deActiveStatus) docs = docs.filter(d=>d.status===deActiveStatus);
+  if(deSearchQ){
+    const q = deSearchQ.toLowerCase();
+    docs = docs.filter(d=>
+      d.title.toLowerCase().includes(q)||
+      d.employee.toLowerCase().includes(q)||
+      d.type_label.toLowerCase().includes(q)||
+      d.filename.toLowerCase().includes(q)
+    );
+  }
+  return docs;
+}
+function deSearch(v){deSearchQ=v; deRender();}
+function deFilterType(v){deActiveType=v; deRender();}
+function deFilterStatus(v){deActiveStatus=v; deRender();}
+
+/* â”€â”€ view toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function deSetView(v){
+  deView=v;
+  document.getElementById('de-grid-btn').classList.toggle('active',v==='grid');
+  document.getElementById('de-list-btn').classList.toggle('active',v==='list');
+  const folderVisible = document.getElementById('de-folder-view').style.display !== 'none';
+  if(v==='list' && folderVisible){
+    /* From folder view → flat list of ALL docs */
+    deActiveFolderDocs = null;
+    document.getElementById('de-folder-view').style.display='none';
+    document.getElementById('de-doc-view').style.display='';
+    document.getElementById('de-sep').style.display='';
+    document.getElementById('de-crumb-cur').textContent='All Documents';
+    deRender();
+  } else if(v==='grid' && !folderVisible && deActiveFolderDocs===null){
+    /* List-all → back to folder view */
+    document.getElementById('de-folder-view').style.display='';
+    document.getElementById('de-doc-view').style.display='none';
+    document.getElementById('de-sep').style.display='none';
+    document.getElementById('de-crumb-cur').textContent='';
+    deBuildFolders();
+  } else {
+    deRender();
+  }
+}
+
+/* â”€â”€ folder navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function deOpenTypeFolder(type, label){
+  deActiveFolderDocs = DE_DOCS.filter(d=>d.type===type);
+  document.getElementById('de-folder-view').style.display='none';
+  document.getElementById('de-doc-view').style.display='';
+  document.getElementById('de-sep').style.display='';
+  document.getElementById('de-crumb-cur').textContent=label;
+  deRender();
+}
+function deOpenDeptFolder(dept){
+  deActiveFolderDocs = DE_DOCS.filter(d=>d.dept===dept);
+  document.getElementById('de-folder-view').style.display='none';
+  document.getElementById('de-doc-view').style.display='';
+  document.getElementById('de-sep').style.display='';
+  document.getElementById('de-crumb-cur').textContent=dept+' Department';
+  deRender();
+}
+function deShowFolders(){
+  deActiveFolderDocs=null;
+  deActiveType=''; deActiveStatus=''; deSearchQ='';
+  document.getElementById('de-search').value='';
+  document.getElementById('de-type-sel').value='';
+  document.getElementById('de-status-sel').value='';
+  document.getElementById('de-folder-view').style.display='';
+  document.getElementById('de-doc-view').style.display='none';
+  document.getElementById('de-sep').style.display='none';
+  document.getElementById('de-crumb-cur').textContent='';
+  deBuildFolders();
+}
+
+/* â”€â”€ build folder cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function deBuildFolders(){
+  // Type folders
+  const typeEl = document.getElementById('de-type-folders');
+  const types = {};
+  DE_DOCS.forEach(d=>{ types[d.type]=(types[d.type]||{label:d.type_label,count:0}); types[d.type].count++; });
+  // Ensure all defined types appear even if empty
+  {% for tv, tl in document_types %}
+  if(!types['{{ tv }}']) types['{{ tv }}']={label:'{{ tl }}',count:0};
+  {% endfor %}
+  typeEl.innerHTML = Object.entries(types).map(([type,{label,count}])=>{
+    const c = TYPE_COLORS[type]||TYPE_COLORS.OTHER;
+    return `<div class="de-folder" onclick="deOpenTypeFolder('${type}','${label}')">
+      <div class="de-folder-ico">${deFolderSvg(c.fg)}</div>
+      <div class="de-folder-name">${label}</div>
+      <div class="de-folder-cnt">${count} file${count!==1?'s':''}</div>
+    </div>`;
+  }).join('');
+
+  // Dept folders (admin only)
+  const deptEl = document.getElementById('de-dept-folders');
+  if(deptEl){
+    const depts = {};
+    DE_DOCS.forEach(d=>{ depts[d.dept]=(depts[d.dept]||0)+1; });
+    const deptColors = ['#DC143C','#7c3aed','#065f46','#92400e','#0369a1','#991b1b','#5b21b6','#166534'];
+    deptEl.innerHTML = Object.entries(depts).map(([dept,count],i)=>{
+      const col = deptColors[i%deptColors.length];
+      return `<div class="de-folder" onclick="deOpenDeptFolder('${dept.replace(/'/g,"\\'")}')">
+        <div class="de-folder-ico">${deFolderSvg(col)}</div>
+        <div class="de-folder-name">${dept}</div>
+        <div class="de-folder-cnt">${count} file${count!==1?'s':''}</div>
+      </div>`;
+    }).join('') || '<div style="font-size:13px;color:#94a3b8;padding:8px">No departments found.</div>';
+  }
+
+  // Recent files (last 8)
+  const recent = [...DE_DOCS].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
+  const recentEl = document.getElementById('de-recent');
+  if(recent.length){
+    recentEl.innerHTML = `<div class="de-doc-grid">${recent.map(d=>deDocCard(d)).join('')}</div>`;
+  } else {
+    recentEl.innerHTML = `<div style="text-align:center;padding:32px;color:#94a3b8">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:10px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <div style="font-size:13px;font-weight:500">No documents yet</div>
+      <div style="font-size:12px;margin-top:4px">Upload your first document to get started</div>
+    </div>`;
+  }
+
+  // Shared count badge
+  let sharedTotal = 0;
+  Object.values(DE_SHARES).forEach(arr=>{ sharedTotal+=arr.length; });
+  document.getElementById('de-shared-cnt').textContent = sharedTotal;
+}
+
+/* â”€â”€ render docs (grid or list) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function deRender(){
+  const docs = deGetFiltered();
+  const el = document.getElementById('de-doc-content');
+  if(!el) return;
+  if(docs.length===0){
+    el.innerHTML=`<div style="text-align:center;padding:48px;color:#94a3b8">
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:10px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <div style="font-size:14px;font-weight:600">No documents found</div>
+      <div style="font-size:12px;margin-top:4px">Try adjusting your filters or upload a new document</div>
+    </div>`;
+    return;
+  }
+  if(deView==='grid'){
+    el.innerHTML=`<div class="de-doc-grid">${docs.map(d=>deDocCard(d)).join('')}</div>`;
+  } else {
+    el.innerHTML=deDocTable(docs);
+  }
+}
+
+function deCardClick(doc, e){
+  /* Clicking the card body (not an action button) opens the file */
+  if(e.target.closest('.de-act-row')) return;
+  if(doc.file_url){ window.open(doc.file_url,'_blank'); }
+  else { deOpenVersions(doc.id); }
+}
+function deDocCard(doc){
+  const vBadge = doc.version>1?`<span class="de-ver-badge">v${doc.version}</span>`:'';
+  const shareCount = (DE_SHARES[doc.id]||[]).length;
+  const shareBadge = shareCount>0?`<span style="position:absolute;top:7px;left:7px;background:#f3e8ff;color:#7c3aed;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;border:1px solid #e9d5ff">${shareCount} shared</span>`:'';
+  return `<div class="de-doc-card" style="cursor:pointer" onclick="deCardClick(DE_DOCS.find(d=>d.id===${doc.id}),event)">
+    ${vBadge}${shareBadge}
+    ${deFileIco(doc)}
+    <div class="de-doc-name">${doc.title}</div>
+    <div class="de-doc-meta">${doc.employee}</div>
+    <div style="margin-top:2px">${deBadge(doc.status)}</div>
+    <div class="de-act-row" style="margin-top:4px">
+      ${doc.download_url?`<a href="${doc.download_url}" class="de-btn" title="Download" onclick="event.stopPropagation()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </a>`:''}
+      <button class="de-btn" onclick="event.stopPropagation();deOpenVersions(${doc.id})" title="Version history">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.1"/></svg>
+      </button>
+      <button class="de-btn" onclick="event.stopPropagation();deOpenShare(${doc.id})" title="Share">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+      ${doc.can_delete?`<button class="de-btn" onclick="event.stopPropagation();deDeleteDoc(${doc.id},${JSON.stringify(doc.title)})" title="Delete" style="color:#dc2626">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>`:''}
+    </div>
+  </div>`;
+}
+
+function deDocTable(docs){
+  const rows = docs.map(doc=>{
+    const shareCount = (DE_SHARES[doc.id]||[]).length;
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${deFileIco(doc)}
+          <div>
+            <div style="font-weight:600;font-size:13px">${doc.title}${doc.version>1?` <span style="font-size:10px;background:#f3e8ff;color:#7c3aed;padding:1px 5px;border-radius:3px;font-weight:700">v${doc.version}</span>`:''}</div>
+            <div style="font-size:11px;color:#94a3b8">${doc.filename||'—'} · ${deFormatSize(doc.size)}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:12px">${doc.employee}</td>
+      <td style="font-size:12px">${doc.type_label}</td>
+      <td>${deBadge(doc.status)}</td>
+      <td style="font-size:12px;color:#94a3b8">${doc.expiry_date||'—'}</td>
+      <td style="font-size:12px;color:#94a3b8">${doc.date}</td>
+      <td>
+        <div class="de-act-row">
+          ${doc.download_url?`<a href="${doc.download_url}" class="de-btn de-btn-primary">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </a>`:''}
+          <button class="de-btn" onclick="deOpenVersions(${doc.id})">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.1"/></svg>
+            Versions
+          </button>
+          <button class="de-btn" onclick="deOpenShare(${doc.id})">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share${shareCount>0?` (${shareCount})`:''}
+          </button>
+          {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
+          <button class="de-btn" onclick="deOpenReject(${doc.id})" style="color:#dc2626">Reject</button>
+          ${`<a href="/documents/${doc.id}/approve/" class="de-btn" style="color:#059669">Approve</a>`}
+          {% endif %}
+          ${doc.can_delete?`<button class="de-btn" onclick="deDeleteDoc(${doc.id},${JSON.stringify(doc.title)})" style="color:#dc2626">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Delete
+          </button>`:''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  return `<div class="de-list-wrap"><table class="de-table">
+    <thead><tr>
+      <th>File</th><th>Employee</th><th>Type</th><th>Status</th><th>Expiry</th><th>Date</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+/* â”€â”€ version history â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function deOpenVersions(docId){
+  const doc = DE_DOCS.find(d=>d.id===docId);
+  if(!doc) return;
+  const versions = DE_DOCS.filter(d=>d.title===doc.title && d.employee_id===doc.employee_id).sort((a,b)=>b.version-a.version);
+  document.getElementById('de-ver-title').textContent='Version History · '+doc.title;
+  document.getElementById('de-ver-list').innerHTML = versions.length
+    ? versions.map(v=>`
+        <div class="de-ver-item${v.id===docId?' current':''}">
+          ${deFileIco(v)}
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:13px">Version ${v.version}${v.id===docId?' <span style="font-size:10px;background:#f3e8ff;color:#7c3aed;padding:1px 5px;border-radius:3px">Current</span>':''}</div>
+            <div style="font-size:11px;color:#94a3b8">${v.filename} · ${deFormatSize(v.size)} · ${v.date}</div>
+            <div style="margin-top:3px">${deBadge(v.status)}</div>
+          </div>
+          ${v.file_url?`<a href="${v.file_url}" class="de-btn" download title="Download v${v.version}">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </a>`:''}
+        </div>`)
+        .join('')
+    : '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px">No version history available.</div>';
+  document.getElementById('de-ver-modal').classList.add('open');
+}
+
+/* â”€â”€ sharing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function deOpenUpload(){
+  document.getElementById('de-upload-modal').classList.add('open');
+}
+function deCloseModal(id){
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('open');
+}
+document.addEventListener('click', function(e){
+  ['de-upload-modal','de-ver-modal','de-share-modal','de-reject-modal'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el && el.classList.contains('open') && e.target === el) el.classList.remove('open');
+  });
+});
+function deOpenShare(docId){
+  deShareDocId = docId;
+  deRenderShareChips(DE_SHARES[docId]||[]);
+  document.getElementById('de-share-search').value='';
+  document.getElementById('de-share-results').style.display='none';
+  document.getElementById('de-share-results').innerHTML='';
+  document.getElementById('de-share-modal').classList.add('open');
+}
+function deRenderShareChips(users){
+  const el = document.getElementById('de-shared-chips');
+  el.innerHTML = users.length
+    ? users.map(u=>`
+        <span class="de-chip">
+          <span class="de-avatar">${deInitials(u.name)}</span>
+          ${u.name}
+          <button class="de-chip-x" onclick="deRemoveShare(${u.id})" title="Remove">&times;</button>
+        </span>`)
+        .join('')
+    : '<span style="font-size:12px;color:#94a3b8;padding:4px">No one — only you can access this document.</span>';
+}
+function deShareSearch(q){
+  const res = document.getElementById('de-share-results');
+  if(!q.trim()){res.style.display='none';return;}
+  const existing = (DE_SHARES[deShareDocId]||[]).map(u=>u.id);
+  const matches = DE_EMPS.filter(e=>
+    !existing.includes(e.id) &&
+    (e.name.toLowerCase().includes(q.toLowerCase())||e.email.toLowerCase().includes(q.toLowerCase()))
+  ).slice(0,8);
+  if(!matches.length){res.innerHTML='<div style="padding:10px;font-size:12px;color:#94a3b8">No users found</div>';res.style.display='';return;}
+  res.innerHTML = matches.map(e=>`
+    <div class="de-share-result-item" onclick="deAddShare(${e.id},'${e.name.replace(/'/g,"\\'")}','${e.email}')">
+      <div class="de-avatar">${deInitials(e.name)}</div>
+      <div><div style="font-size:13px;font-weight:500">${e.name}</div><div style="font-size:11px;color:#94a3b8">${e.email}</div></div>
+    </div>`).join('');
+  res.style.display='';
+}
+function deAddShare(uid, name, email){
+  document.getElementById('de-share-search').value='';
+  document.getElementById('de-share-results').style.display='none';
+  fetch(`/documents/${deShareDocId}/share/`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken':DE_CSRF},
+    body:JSON.stringify({action:'add',user_id:uid})
+  }).then(r=>r.json()).then(data=>{
+    if(data.ok){
+      DE_SHARES[deShareDocId]=data.shares;
+      deRenderShareChips(data.shares);
+      deRender();
     }
-
-    function hideUploadModal() {
-        document.getElementById('uploadModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
+  });
+}
+function deRemoveShare(uid){
+  fetch(`/documents/${deShareDocId}/share/`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken':DE_CSRF},
+    body:JSON.stringify({action:'remove',user_id:uid})
+  }).then(r=>r.json()).then(data=>{
+    if(data.ok){
+      DE_SHARES[deShareDocId]=data.shares;
+      deRenderShareChips(data.shares);
+      deRender();
     }
+  });
+}
 
-    function showRejectModal(docId) {
-        const form = document.getElementById('rejectForm');
-        form.action = `/documents/${docId}/reject/`;
-        document.getElementById('rejectModal').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
+/* â”€â”€ approve/reject â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function deOpenReject(docId){
+  document.getElementById('de-reject-form').action=`/documents/${docId}/reject/`;
+  document.getElementById('de-reject-modal').classList.add('open');
+}
+function deDeleteDoc(docId, docTitle){
+  if(!confirm('Delete "'+docTitle+'"?\nThis action cannot be undone.')) return;
+  fetch('/documents/'+docId+'/delete/',{
+    method:'POST',
+    headers:{'X-CSRFToken':DE_CSRF,'X-Requested-With':'XMLHttpRequest'}
+  }).then(r=>r.json()).then(data=>{
+    if(data.success){
+      DE_DOCS=DE_DOCS.filter(d=>d.id!==docId);
+      deRender();
+      if(document.getElementById('de-folder-view').style.display!=='none') deBuildFolders();
+    } else { alert(data.error||'Failed to delete document.'); }
+  }).catch(()=>alert('Network error. Please try again.'));
+}
 
-    function hideRejectModal() {
-        document.getElementById('rejectModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
+/* â”€â”€ file drop zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function deFileSelected(inp){
+  const f = inp.files[0];
+  const n = document.getElementById('de-file-name');
+  if(f){n.textContent=f.name+' ('+deFormatSize(f.size)+')';n.style.display='';}
+}
+const dz = document.getElementById('de-drop');
+if(dz){
+  ['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag-over');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag-over');}));
+  dz.addEventListener('drop',e=>{
+    const f=e.dataTransfer.files[0];
+    if(f){document.getElementById('de-file-in').files=e.dataTransfer.files;deFileSelected(document.getElementById('de-file-in'));}
+  });
+}
 
-    // Bulk Actions
-    function toggleSelectAllDocs(checkbox) {
-        const checkboxes = document.querySelectorAll('.doc-checkbox');
-        checkboxes.forEach(cb => cb.checked = checkbox.checked);
-        updateBulkButtons();
-    }
-
-    function updateBulkButtons() {
-        const checkboxes = document.querySelectorAll('.doc-checkbox:checked');
-        const count = checkboxes.length;
-        const downloadBtn = document.getElementById('bulk-download-btn');
-        const approveBtn = document.getElementById('bulk-approve-btn');
-
-        if (count > 0) {
-            if (downloadBtn) downloadBtn.style.display = 'block';
-            if (approveBtn) approveBtn.style.display = 'block';
-        } else {
-            if (downloadBtn) downloadBtn.style.display = 'none';
-            if (approveBtn) approveBtn.style.display = 'none';
-        }
-
-        // Update select-all checkbox
-        const allCheckboxes = document.querySelectorAll('.doc-checkbox');
-        const selectAllCheckbox = document.getElementById('select-all-docs');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = count === allCheckboxes.length && count > 0;
-            selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
-        }
-    }
-
-    function getSelectedDocIds() {
-        const checkboxes = document.querySelectorAll('.doc-checkbox:checked');
-        return Array.from(checkboxes).map(cb => cb.dataset.docId);
-    }
-
-    function bulkDownload() {
-        const docIds = getSelectedDocIds();
-        if (docIds.length === 0) {
-            alert('Please select at least one document');
-            return;
-        }
-
-        // Create form and submit
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/documents/bulk-download/';
-        
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrfmiddlewaretoken';
-        csrfInput.value = '{{ csrf_token }}';
-        form.appendChild(csrfInput);
-
-        docIds.forEach(id => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'doc_ids';
-            input.value = id;
-            form.appendChild(input);
-        });
-
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-    }
-
-    function bulkApprove() {
-        const docIds = getSelectedDocIds();
-        if (docIds.length === 0) {
-            alert('Please select at least one document');
-            return;
-        }
-
-        if (!confirm(`Approve ${docIds.length} document(s)?`)) {
-            return;
-        }
-
-        fetch('/documents/bulk-approve/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({ doc_ids: docIds })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to approve documents. Please try again.');
-        });
-    }
+/* â”€â”€ init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+document.addEventListener('DOMContentLoaded', deBuildFolders);
 </script>
-
-<style>
-    /* Responsive modal styles */
-    @media (max-width: 640px) {
-        .modal-content {
-            width: 95% !important;
-            max-height: 95vh !important;
-        }
-        
-        .modal-grid {
-            grid-template-columns: 1fr !important;
-        }
-        
-        #uploadModal, #rejectModal {
-            padding: 8px !important;
-        }
-        
-        .modal-content form {
-            padding: 16px !important;
-        }
-        
-        .modal-content > div:first-child {
-            padding: 16px !important;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-        }
-        
-        #document-filters {
-            grid-template-columns: 1fr !important;
-        }
-        
-        .table-responsive {
-            font-size: 13px;
-        }
-        
-        .btn {
-            font-size: 13px;
-            padding: 8px 12px;
-        }
-    }
-</style>
 {% endblock %}

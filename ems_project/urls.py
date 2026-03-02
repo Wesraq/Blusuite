@@ -40,6 +40,12 @@ urlpatterns = [
     path('', frontend_views.landing_page, name='landing_page'),  # Proper landing page
     path('about/', frontend_views.about_page, name='about_page'),
     path('features/', frontend_views.features_page, name='features_page'),
+    path('features/attendance/', frontend_views.feature_attendance_page, name='feature_attendance'),
+    path('features/leave/', frontend_views.feature_leave_page, name='feature_leave'),
+    path('features/payroll/', frontend_views.feature_payroll_page, name='feature_payroll'),
+    path('features/performance/', frontend_views.feature_performance_page, name='feature_performance'),
+    path('features/documents/', frontend_views.feature_documents_page, name='feature_documents'),
+    path('features/analytics/', frontend_views.feature_analytics_page, name='feature_analytics'),
     path('solutions/', frontend_views.solutions_page, name='solutions_page'),
     path('pricing/', frontend_views.pricing_page, name='pricing_page'),
     path('help/', frontend_views.help_center_page, name='help_center_page'),
@@ -129,11 +135,15 @@ urlpatterns = [
     path('documents/<int:document_id>/reject/', frontend_views.document_reject, name='document_reject'),
     path('documents/bulk-approve/', frontend_views.bulk_approve_documents, name='bulk_approve_documents'),
     path('documents/bulk-download/', frontend_views.bulk_download_documents, name='bulk_download_documents'),
+    path('documents/<int:document_id>/share/', frontend_views.document_share, name='document_share'),
+    path('documents/<int:document_id>/delete/', frontend_views.document_delete, name='document_delete'),
     path('employer/employees/<int:employee_id>/documents/upload/', frontend_views.employee_document_upload, name='employee_document_upload'),
     path('employer/employees/<int:employee_id>/profile-picture/upload/', frontend_views.employee_profile_picture_upload_redirect, name='employee_profile_picture_upload_with_redirect'),
     path('contracts/', include('blu_staff.apps.contracts.urls')),
     path('payroll/', frontend_views.payroll_list, name='payroll_list'),
+    path('payroll/employee-salaries/', frontend_views.employee_salary_list, name='employee_salary_list'),
     path('payroll/<int:payroll_id>/', frontend_views.payroll_detail, name='payroll_detail'),
+    path('payroll/designer/', frontend_views.payslip_designer, name='payslip_designer'),
     path('benefits/', frontend_views.benefits_list, name='benefits_list'),
     path('benefits/claim/submit/', frontend_views.benefit_claim_submit, name='benefit_claim_submit'),
     path('benefits/claim/cleanup-mine/', frontend_views.benefit_claim_cleanup_my_pending, name='benefit_claim_cleanup_my_pending'),
@@ -141,10 +151,13 @@ urlpatterns = [
     path('benefits/claim/<int:claim_id>/action/', frontend_views.benefit_claim_action, name='benefit_claim_action'),
     path('benefits/create/', frontend_views.benefit_create, name='benefit_create'),
     path('benefits/enroll/', frontend_views.benefit_enrollment_create, name='benefit_enrollment_create'),
+    path('benefits/self-enroll/', frontend_views.employee_benefit_self_enroll, name='employee_benefit_self_enroll'),
     path('benefits/<int:enrollment_id>/toggle/', frontend_views.benefit_activation_toggle, name='benefit_activation_toggle'),
     path('training/', frontend_views.training_list, name='training_list'),
     path('training/create-program/', frontend_views.training_program_create, name='training_program_create'),
     path('training/create-enrollment/', frontend_views.training_enrollment_create, name='training_enrollment_create'),
+    path('training/self-enroll/', frontend_views.employee_training_self_enroll, name='employee_training_self_enroll'),
+    path('settings/finance-policy/', frontend_views.finance_policy_settings, name='finance_policy_settings'),
     path('onboarding/', frontend_views.onboarding_list, name='onboarding_list'),
     path('onboarding/create/', frontend_views.onboarding_create, name='onboarding_create'),
     path('offboarding/create/', frontend_views.offboarding_create, name='offboarding_create'),
@@ -227,6 +240,44 @@ urlpatterns = [
     path('announcements/', frontend_views.announcements_list, name='announcements_list'),
     path('announcements/<int:announcement_id>/', frontend_views.announcement_detail, name='announcement_detail'),
     
+    # Performance Reviews
+    path('performance/', frontend_views.performance_reviews_list, name='performance_reviews_list'),
+    path('performance/create/', frontend_views.performance_review_create, name='performance_review_create'),
+    path('performance/cycles/', frontend_views.performance_review_cycles, name='performance_review_cycles'),
+    path('performance/goals/', frontend_views.pms_goals, name='pms_goals'),
+    path('performance/metrics/', frontend_views.pms_metrics, name='pms_metrics'),
+    path('performance/feedback/', frontend_views.pms_feedback_360, name='pms_feedback_360'),
+    path('performance/self-assessment/', frontend_views.pms_self_assessment, name='pms_self_assessment'),
+    path('performance/competencies/', frontend_views.pms_competencies, name='pms_competencies'),
+    path('performance/<int:review_id>/', frontend_views.performance_review_detail, name='performance_review_detail'),
+
+    # To-Do / Tasks
+    path('tasks/', frontend_views.tasks_list, name='tasks_list'),
+    path('tasks/<int:task_id>/update/', frontend_views.task_detail_update, name='task_detail_update'),
+
+    # File Manager
+    path('files/', frontend_views.file_manager, name='file_manager'),
+
+    # Social Feed
+    path('feed/', frontend_views.social_feed, name='social_feed'),
+    path('feed/post/<int:post_id>/delete/', frontend_views.feed_post_delete, name='feed_post_delete'),
+
+    # Chat (polished)
+    path('chat/', frontend_views.chat_home, name='chat_home'),
+    path('chat/<int:user_id>/', frontend_views.chat_conversation, name='chat_conversation'),
+
+    # Calendar
+    path('calendar/', frontend_views.calendar_view, name='calendar_view'),
+    path('calendar/events.json', frontend_views.calendar_events_json, name='calendar_events_json'),
+    path('calendar/events/save/', frontend_views.calendar_event_save, name='calendar_event_save'),
+    path('calendar/events/<int:event_id>/delete/', frontend_views.calendar_event_delete, name='calendar_event_delete'),
+
+    # Timesheets
+    path('timesheets/', frontend_views.timesheets_list, name='timesheets_list'),
+    path('timesheets/<int:timesheet_id>/', frontend_views.timesheet_detail, name='timesheet_detail'),
+    path('timesheets/<int:timesheet_id>/action/', frontend_views.timesheet_action, name='timesheet_action'),
+    path('employee/my-timesheet/', frontend_views.employee_timesheet, name='employee_timesheet'),
+
     # Role-Based Dashboards
     path('hr/dashboard/', frontend_views.hr_dashboard, name='hr_dashboard'),
     path('accountant/dashboard/', frontend_views.accountant_dashboard, name='accountant_dashboard'),

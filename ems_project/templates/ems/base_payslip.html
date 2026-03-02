@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+{% if user.role == 'ADMINISTRATOR' or user.role == 'EMPLOYER_ADMIN' %}
+{% include 'ems/partials/sidebar_employer.html' %}
+{% else %}
+{% include 'ems/partials/sidebar_employee.html' %}
+{% endif %}
+{% endblock %}

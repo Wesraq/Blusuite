@@ -1,4 +1,4 @@
-{% extends 'ems/base_employee.html' %}
+﻿{% extends 'ems/base_employee.html' %}
 
 {% block title %}Attendance Management - EMS{% endblock %}
 {% block nav_attendance %}active{% endblock %}
@@ -9,7 +9,7 @@
 <!-- Summary Cards -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="stat-details">
             <h3>{{ total_employees }}</h3>
             <p>Total Employees</p>
@@ -30,7 +30,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+        <div class="stat-icon" style="background-color: #fce7f3; color: #DC143C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
         <div class="stat-details">
             <h3>{{ on_leave_count }}</h3>
             <p>On Leave</p>
@@ -215,7 +215,7 @@
                                 </td>
                                 <td>
                                     {% if record.latitude and record.longitude %}
-                                        <a href="https://www.google.com/maps?q={{ record.latitude }},{{ record.longitude }}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #2563eb; text-decoration: none;" title="View on map">
+                                        <a href="https://www.google.com/maps?q={{ record.latitude }},{{ record.longitude }}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #DC143C; text-decoration: none;" title="View on map">
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"></circle><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"></path></svg>
                                             {{ record.latitude|floatformat:4 }}, {{ record.longitude|floatformat:4 }}
                                         </a>
@@ -301,7 +301,7 @@
                                             data-date="{{ cell.date|date:'Y-m-d' }}"
                                             onchange="updateAttendanceStatus(this)"
                                             {% if cell.is_holiday %}disabled{% endif %}
-                                            style="width: 38px; height: 38px; font-size: 11px; font-weight: 600; padding: 0; border: 1px solid hsl(var(--border)); border-radius: 4px; text-align: center; {% if cell.is_holiday %}background: #fde68a; cursor: not-allowed;{% elif cell.is_sunday %}background: #dbeafe;{% else %}background: hsl(var(--card));{% endif %} cursor: {% if cell.is_holiday %}not-allowed{% else %}pointer{% endif %};">
+                                            style="width: 38px; height: 38px; font-size: 11px; font-weight: 600; padding: 0; border: 1px solid hsl(var(--border)); border-radius: 4px; text-align: center; {% if cell.is_holiday %}background: #fde68a; cursor: not-allowed;{% elif cell.is_sunday %}background: #fce7f3;{% else %}background: hsl(var(--card));{% endif %} cursor: {% if cell.is_holiday %}not-allowed{% else %}pointer{% endif %};">
                                         <option value="" {% if not cell.code %}selected{% endif %}>—</option>
                                         <option value="PRESENT" {% if cell.code == 'P' %}selected{% endif %}>P</option>
                                         <option value="LATE" {% if cell.code == 'Lt' %}selected{% endif %}>Lt</option>

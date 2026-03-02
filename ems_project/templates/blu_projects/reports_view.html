@@ -1,92 +1,191 @@
 {% extends 'blu_projects/base_projects.html' %}
 
-{% block title %}Reports - BLU Projects{% endblock %}
+{% block title %}Reports – BLU Projects{% endblock %}
 
 {% block content %}
+<style>
+.rpt-kpi{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;}
+.rpt-kpi .val{font-size:26px;font-weight:700;color:#0f172a;line-height:1.1;}
+.rpt-kpi .lbl{font-size:11px;color:#64748b;margin-top:3px;}
+.rpt-kpi .sub{font-size:11px;font-weight:500;margin-top:4px;}
+.rpt-section{background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:20px;}
+.rpt-section-hd{padding:13px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;}
+.rpt-section-hd h3{margin:0;font-size:13px;font-weight:700;color:#0f172a;}
+.rpt-section-hd span{font-size:11px;color:#64748b;}
+.rpt-table{width:100%;border-collapse:collapse;font-size:12px;}
+.rpt-table th{padding:9px 14px;text-align:left;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.03em;background:#f8fafc;border-bottom:1px solid #e2e8f0;}
+.rpt-table td{padding:10px 14px;border-bottom:1px solid #f8fafc;color:#374151;vertical-align:middle;}
+.rpt-table tr:last-child td{border-bottom:none;}
+.rpt-table tr:hover td{background:#f8fafc;}
+.progress-bar-wrap{background:#e2e8f0;border-radius:999px;height:6px;width:80px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:999px;}
+.badge-status{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;}
+@media print{.no-print{display:none!important;}}
+</style>
+
 <!-- Breadcrumb -->
-<div style="font-size: 12px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;">
-    <a href="{% url 'blu_projects:projects_list' %}" style="color: #64748b; text-decoration: none;">Projects</a>
+<div style="font-size:12px;color:#64748b;margin-bottom:16px;display:flex;align-items:center;gap:4px;">
+    <a href="{% url 'blu_projects:projects_home' %}" style="color:#64748b;text-decoration:none;">Projects</a>
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-    <span style="color: #0f172a;">Reports</span>
+    <span style="color:#0f172a;">Reports</span>
 </div>
 
 <!-- Header -->
-<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-    <div style="width: 36px; height: 36px; border-radius: 4px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;" class="no-print">
+    <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:6px;background:#dbeafe;display:flex;align-items:center;justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        </div>
+        <div>
+            <h2 style="margin:0 0 2px;font-size:20px;font-weight:700;color:#0f172a;">Portfolio Reports</h2>
+            <p style="margin:0;font-size:13px;color:#64748b;">Generated {{ today|date:"N j, Y" }} · All Projects</p>
+        </div>
     </div>
-    <div>
-        <h2 style="margin: 0 0 2px; font-size: 20px; font-weight: 700; color: #0f172a;">Company Reports</h2>
-        <p style="margin: 0; font-size: 13px; color: #64748b;">Overall analytics and insights</p>
+    <button onclick="window.print()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#1d4ed8;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Print / Export
+    </button>
+</div>
+
+<!-- KPI Row 1 — Projects -->
+<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px;">
+    <div class="rpt-kpi"><div class="val">{{ total_projects }}</div><div class="lbl">Total Projects</div></div>
+    <div class="rpt-kpi"><div class="val" style="color:#1d4ed8;">{{ active_projects }}</div><div class="lbl">Active / In Progress</div></div>
+    <div class="rpt-kpi"><div class="val" style="color:#16a34a;">{{ completed_projects }}</div><div class="lbl">Completed</div></div>
+    <div class="rpt-kpi"><div class="val" style="color:#d97706;">{{ planning_projects }}</div><div class="lbl">Planning</div></div>
+    <div class="rpt-kpi"><div class="val" style="color:#64748b;">{{ on_hold_projects }}</div><div class="lbl">On Hold</div></div>
+    <div class="rpt-kpi"><div class="val" style="color:#dc2626;">{{ overdue_projects }}</div><div class="lbl">Overdue Projects</div></div>
+</div>
+
+<!-- KPI Row 2 — Tasks + Time + Budget -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+    <div class="rpt-kpi">
+        <div class="val">{{ total_tasks }}</div><div class="lbl">Total Tasks</div>
+        <div class="sub" style="color:#16a34a;">{{ completed_tasks }} done · {{ task_completion_rate }}% rate</div>
+        {% if total_tasks > 0 %}<div class="progress-bar-wrap" style="margin-top:6px;width:100%;"><div class="progress-bar-fill" style="width:{{ task_completion_rate }}%;background:#16a34a;"></div></div>{% endif %}
+    </div>
+    <div class="rpt-kpi">
+        <div class="val" style="color:#dc2626;">{{ overdue_tasks }}</div><div class="lbl">Overdue Tasks</div>
+        <div class="sub" style="color:#d97706;">{{ in_progress_tasks }} in progress</div>
+    </div>
+    <div class="rpt-kpi">
+        <div class="val">{{ total_hours|floatformat:1 }}h</div><div class="lbl">Total Hours Logged</div>
+        <div class="sub" style="color:#1d4ed8;">{{ billable_hours|floatformat:1 }}h billable · {{ non_billable_hours }}h non-billable</div>
+    </div>
+    <div class="rpt-kpi">
+        <div class="val">{{ total_budget|floatformat:0 }}</div><div class="lbl">Total Budget</div>
+        <div class="sub" style="color:{% if budget_utilisation > 90 %}#dc2626{% elif budget_utilisation > 70 %}#d97706{% else %}#16a34a{% endif %};">{{ budget_utilisation }}% utilised · {{ total_funded|floatformat:0 }} funded</div>
+        {% if total_budget %}<div class="progress-bar-wrap" style="margin-top:6px;width:100%;"><div class="progress-bar-fill" style="width:{% if budget_utilisation > 100 %}100{% else %}{{ budget_utilisation|floatformat:0 }}{% endif %}%;background:{% if budget_utilisation > 90 %}#dc2626{% elif budget_utilisation > 70 %}#d97706{% else %}#16a34a{% endif %};"></div></div>{% endif %}
     </div>
 </div>
 
-<!-- Report Cards -->
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-    <!-- Project Statistics -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Project Statistics</h3>
-        </div>
-        <div style="padding: 16px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Total</div>
-                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_projects }}</div>
-            </div>
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Active</div>
-                <div style="font-size: 22px; font-weight: 700; color: #1d4ed8;">{{ active_projects }}</div>
-            </div>
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Completed</div>
-                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ completed_projects }}</div>
-            </div>
-        </div>
-    </div>
+<!-- Risk Summary -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+    <div class="rpt-kpi"><div class="val" style="color:#dc2626;">{{ critical_risks }}</div><div class="lbl">Critical Risks Open</div></div>
+    <div class="rpt-kpi"><div class="val" style="color:#ea580c;">{{ high_risks }}</div><div class="lbl">High Risks Open</div></div>
+    <div class="rpt-kpi"><div class="val" style="color:#d97706;">{{ open_risks }}</div><div class="lbl">All Open Risks</div></div>
+    <div class="rpt-kpi"><div class="val" style="color:#16a34a;">{{ closed_risks }}</div><div class="lbl">Risks Closed</div></div>
+</div>
 
-    <!-- Task Statistics -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Task Statistics</h3>
-        </div>
-        <div style="padding: 16px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Total</div>
-                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_tasks }}</div>
-            </div>
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Completed</div>
-                <div style="font-size: 22px; font-weight: 700; color: #1d4ed8;">{{ completed_tasks }}</div>
-            </div>
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Rate</div>
-                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{% if total_tasks > 0 %}{% widthratio completed_tasks total_tasks 100 %}%{% else %}0%{% endif %}</div>
-            </div>
-        </div>
+<!-- Per-Project Table -->
+<div class="rpt-section">
+    <div class="rpt-section-hd">
+        <h3><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" style="vertical-align:-1px;margin-right:5px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Project Performance (last 20)</h3>
+        <span>{{ today|date:"N j, Y" }}</span>
     </div>
-
-    <!-- Time Tracking -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
-        <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <h3 style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;">Time Tracking</h3>
-        </div>
-        <div style="padding: 16px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Total Hours</div>
-                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_hours|floatformat:1 }}h</div>
-            </div>
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Billable</div>
-                <div style="font-size: 22px; font-weight: 700; color: #1d4ed8;">{{ billable_hours|floatformat:1 }}h</div>
-            </div>
-            <div>
-                <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Non-Billable</div>
-                <div style="font-size: 22px; font-weight: 700; color: #0f172a;">{{ total_hours|floatformat:1|add:"-"|add:billable_hours|floatformat:1 }}h</div>
-            </div>
-        </div>
+    <div style="overflow-x:auto;">
+        <table class="rpt-table">
+            <thead><tr>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Tasks</th>
+                <th>Done</th>
+                <th>Completion</th>
+                <th>Hours</th>
+                <th>Overdue</th>
+                <th>End Date</th>
+            </tr></thead>
+            <tbody>
+            {% for row in project_table %}
+            <tr>
+                <td>
+                    <a href="{% url 'blu_projects:project_detail' row.project.id %}" style="font-weight:600;color:#0f172a;text-decoration:none;">{{ row.project.name }}</a>
+                    <div style="font-size:10px;color:#94a3b8;">{{ row.project.code }}</div>
+                </td>
+                <td>
+                    {% if row.project.status == 'ACTIVE' %}<span class="badge-status" style="background:#d1fae5;color:#065f46;">Active</span>
+                    {% elif row.project.status == 'IN_PROGRESS' %}<span class="badge-status" style="background:#fef3c7;color:#92400e;">In Progress</span>
+                    {% elif row.project.status == 'COMPLETED' %}<span class="badge-status" style="background:#f0fdf4;color:#16a34a;">Completed</span>
+                    {% elif row.project.status == 'PLANNING' %}<span class="badge-status" style="background:#f1f5f9;color:#475569;">Planning</span>
+                    {% elif row.project.status == 'ON_HOLD' %}<span class="badge-status" style="background:#fef9c3;color:#854d0e;">On Hold</span>
+                    {% else %}<span class="badge-status" style="background:#f1f5f9;color:#64748b;">{{ row.project.get_status_display }}</span>{% endif %}
+                </td>
+                <td>
+                    {% if row.project.priority == 'CRITICAL' %}<span style="color:#dc2626;font-weight:600;">Critical</span>
+                    {% elif row.project.priority == 'HIGH' %}<span style="color:#ea580c;font-weight:600;">High</span>
+                    {% elif row.project.priority == 'MEDIUM' %}<span style="color:#d97706;">Medium</span>
+                    {% else %}<span style="color:#64748b;">Low</span>{% endif %}
+                </td>
+                <td style="font-weight:600;">{{ row.total_tasks }}</td>
+                <td style="color:#16a34a;font-weight:600;">{{ row.completed_tasks }}</td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{{ row.completion_rate }}%;background:{% if row.completion_rate >= 80 %}#16a34a{% elif row.completion_rate >= 40 %}#d97706{% else %}#dc2626{% endif %};"></div></div>
+                        <span style="font-size:11px;color:#374151;">{{ row.completion_rate }}%</span>
+                    </div>
+                </td>
+                <td>{{ row.hours_logged }}h</td>
+                <td style="{% if row.overdue_tasks %}color:#dc2626;font-weight:600;{% endif %}">{{ row.overdue_tasks|default:"—" }}</td>
+                <td style="{% if row.is_overdue %}color:#dc2626;{% endif %}">{{ row.project.end_date|date:"M j, Y"|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9" style="text-align:center;padding:30px;color:#94a3b8;">No projects found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
+<!-- Team Workload -->
+{% if team_workload %}
+<div class="rpt-section">
+    <div class="rpt-section-hd">
+        <h3><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" style="vertical-align:-1px;margin-right:5px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Team Workload</h3>
+        <span>Active contributors only</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="rpt-table">
+            <thead><tr>
+                <th>Member</th>
+                <th>Tasks Assigned</th>
+                <th>Tasks Completed</th>
+                <th>Completion Rate</th>
+                <th>Hours Logged</th>
+            </tr></thead>
+            <tbody>
+            {% for row in team_workload %}
+            <tr>
+                <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="width:28px;height:28px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;color:#1d4ed8;font-size:10px;font-weight:700;flex-shrink:0;">{{ row.member.first_name|slice:":1"|upper }}{{ row.member.last_name|slice:":1"|upper }}</div>
+                        <div><div style="font-weight:600;color:#0f172a;">{{ row.member.get_full_name }}</div><div style="font-size:10px;color:#94a3b8;">{{ row.member.email }}</div></div>
+                    </div>
+                </td>
+                <td style="font-weight:600;">{{ row.total_tasks }}</td>
+                <td style="color:#16a34a;font-weight:600;">{{ row.completed_tasks }}</td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{{ row.completion_rate }}%;background:#1d4ed8;"></div></div>
+                        <span style="font-size:11px;">{{ row.completion_rate }}%</span>
+                    </div>
+                </td>
+                <td>{{ row.hours_logged }}h</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
