@@ -1014,6 +1014,192 @@ def features_page(request):
     return render(request, 'ems/features.html')
 
 
+def feature_attendance_page(request):
+    """Smart Attendance feature detail page"""
+    context = {
+        'feature_slug': 'attendance',
+        'feature_name': 'Smart Attendance',
+        'feature_image': 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920&q=80',
+        'feature_tagline': 'Track every clock-in, every day — automatically.',
+        'feature_description': 'Real-time attendance tracking with biometric integration, GPS verification, and automated reporting. Know who is present, late, or absent without lifting a finger.',
+        'highlights': [
+            {'icon': 'clock', 'title': 'Real-Time Tracking', 'desc': 'Live dashboards showing who is in, out, or on break at any moment.'},
+            {'icon': 'map-pin', 'title': 'GPS Verification', 'desc': 'Confirm employees are physically at the work site before clocking in.'},
+            {'icon': 'fingerprint', 'title': 'Biometric Integration', 'desc': 'Sync with fingerprint and face recognition devices seamlessly.'},
+            {'icon': 'bell', 'title': 'Automated Alerts', 'desc': 'Instant notifications for late arrivals, early departures, and absences.'},
+            {'icon': 'file-text', 'title': 'Automated Reports', 'desc': 'Daily, weekly and monthly attendance reports generated automatically.'},
+            {'icon': 'settings', 'title': 'Flexible Shifts', 'desc': 'Configure multiple shift schedules, overtime rules, and break policies.'},
+        ],
+        'how_it_works': [
+            {'step': '1', 'title': 'Set Up Shifts', 'desc': 'Define your work schedules, shift patterns, and overtime rules.'},
+            {'step': '2', 'title': 'Employees Clock In', 'desc': 'Staff clock in via mobile app, biometric device, or web portal.'},
+            {'step': '3', 'title': 'Monitor Live', 'desc': 'Watch real-time attendance status on your dashboard.'},
+            {'step': '4', 'title': 'Review Reports', 'desc': 'Get automated summaries and export reports for payroll.'},
+        ],
+        'other_features': [
+            {'name': 'Leave Management', 'url': '/features/leave/'},
+            {'name': 'Payroll Processing', 'url': '/features/payroll/'},
+            {'name': 'Advanced Analytics', 'url': '/features/analytics/'},
+        ],
+    }
+    return render(request, 'ems/feature_detail.html', context)
+
+
+def feature_leave_page(request):
+    """Leave Management feature detail page"""
+    context = {
+        'feature_slug': 'leave',
+        'feature_name': 'Leave Management',
+        'feature_image': 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=1920&q=80',
+        'feature_tagline': 'Make time off effortless for everyone.',
+        'feature_description': 'Streamlined leave requests, automated multi-level approvals, and intelligent balance tracking. Employees apply in seconds, managers approve with one click.',
+        'highlights': [
+            {'icon': 'send', 'title': 'Easy Requests', 'desc': 'Employees submit leave requests from mobile or desktop in under 30 seconds.'},
+            {'icon': 'check-circle', 'title': 'Auto Approvals', 'desc': 'Set rules for automatic approval of routine leave types with policy thresholds.'},
+            {'icon': 'layers', 'title': 'Multi-Level Workflow', 'desc': 'Route approvals through HR, manager, and department heads as needed.'},
+            {'icon': 'bar-chart-2', 'title': 'Balance Tracking', 'desc': 'Real-time leave balances per employee with accrual and carry-over rules.'},
+            {'icon': 'calendar', 'title': 'Leave Calendar', 'desc': 'Team calendar showing who is away so managers can plan coverage.'},
+            {'icon': 'clipboard', 'title': 'Leave Policies', 'desc': 'Configure annual, sick, maternity, and custom leave types per company policy.'},
+        ],
+        'how_it_works': [
+            {'step': '1', 'title': 'Configure Leave Types', 'desc': 'Set up annual, sick, emergency, and custom leave types with rules.'},
+            {'step': '2', 'title': 'Employee Applies', 'desc': 'Staff submit requests with dates, reason, and supporting documents.'},
+            {'step': '3', 'title': 'Approval Flow', 'desc': 'Request routes through configured approvers with email notifications.'},
+            {'step': '4', 'title': 'Balances Update', 'desc': 'Leave balances auto-update on approval and integrate with payroll.'},
+        ],
+        'other_features': [
+            {'name': 'Smart Attendance', 'url': '/features/attendance/'},
+            {'name': 'Payroll Processing', 'url': '/features/payroll/'},
+            {'name': 'Document Management', 'url': '/features/documents/'},
+        ],
+    }
+    return render(request, 'ems/feature_detail.html', context)
+
+
+def feature_payroll_page(request):
+    """Payroll Processing feature detail page"""
+    context = {
+        'feature_slug': 'payroll',
+        'feature_name': 'Payroll Processing',
+        'feature_image': 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1920&q=80',
+        'feature_tagline': 'Pay your team accurately, every time.',
+        'feature_description': 'Automated payroll calculations, tax compliance, and instant payslip generation. Eliminate manual errors and ensure your team is paid correctly and on time.',
+        'highlights': [
+            {'icon': 'cpu', 'title': 'Auto Calculations', 'desc': 'Gross pay, deductions, taxes, and net pay calculated automatically every cycle.'},
+            {'icon': 'shield', 'title': 'Tax Compliance', 'desc': 'Built-in tax tables and PAYE calculations keep you legally compliant.'},
+            {'icon': 'file', 'title': 'Instant Payslips', 'desc': 'Professional PDF payslips generated and emailed to employees automatically.'},
+            {'icon': 'link', 'title': 'Attendance Integration', 'desc': 'Automatically imports attendance data to calculate overtime and deductions.'},
+            {'icon': 'dollar-sign', 'title': 'Multiple Pay Structures', 'desc': 'Support for hourly, salaried, commission, and custom pay structures.'},
+            {'icon': 'download', 'title': 'Bank Export', 'desc': 'Export payment files in formats compatible with all major banks.'},
+        ],
+        'how_it_works': [
+            {'step': '1', 'title': 'Configure Pay Structure', 'desc': 'Set up salary bands, allowances, deductions, and tax brackets.'},
+            {'step': '2', 'title': 'Import Attendance', 'desc': 'Attendance and leave data flows in automatically for each pay period.'},
+            {'step': '3', 'title': 'Review & Approve', 'desc': 'Review the payroll run, make adjustments, and approve for payment.'},
+            {'step': '4', 'title': 'Distribute Payslips', 'desc': 'Payslips are emailed and bank files exported for payment processing.'},
+        ],
+        'other_features': [
+            {'name': 'Smart Attendance', 'url': '/features/attendance/'},
+            {'name': 'Leave Management', 'url': '/features/leave/'},
+            {'name': 'Advanced Analytics', 'url': '/features/analytics/'},
+        ],
+    }
+    return render(request, 'ems/feature_detail.html', context)
+
+
+def feature_performance_page(request):
+    """Performance Reviews feature detail page"""
+    context = {
+        'feature_slug': 'performance',
+        'feature_name': 'Performance Reviews',
+        'feature_image': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1920&q=80',
+        'feature_tagline': 'Develop your team with data-driven insights.',
+        'feature_description': 'Structured performance evaluations, goal tracking, and 360° feedback systems. Build a culture of continuous improvement with clear, objective assessments.',
+        'highlights': [
+            {'icon': 'target', 'title': 'Goal Setting', 'desc': 'Set SMART goals for individuals, teams, and departments with deadlines.'},
+            {'icon': 'users', 'title': '360° Feedback', 'desc': 'Collect feedback from peers, managers, subordinates, and self-assessments.'},
+            {'icon': 'star', 'title': 'Rating Scales', 'desc': 'Customizable rating frameworks including numeric, descriptive, and OKR-based.'},
+            {'icon': 'trending-up', 'title': 'Progress Tracking', 'desc': 'Monitor goal progress throughout the review cycle with visual indicators.'},
+            {'icon': 'award', 'title': 'Review Cycles', 'desc': 'Configure annual, bi-annual, or quarterly review cycles per department.'},
+            {'icon': 'book-open', 'title': 'Development Plans', 'desc': 'Create individual development plans with training recommendations.'},
+        ],
+        'how_it_works': [
+            {'step': '1', 'title': 'Define Criteria', 'desc': 'Set up performance criteria, KPIs, and rating scales for each role.'},
+            {'step': '2', 'title': 'Collect Feedback', 'desc': 'Gather multi-source feedback during the review window.'},
+            {'step': '3', 'title': 'Manager Review', 'desc': 'Managers consolidate feedback and complete the formal evaluation.'},
+            {'step': '4', 'title': 'Action Plans', 'desc': 'Create development plans and set goals for the next review cycle.'},
+        ],
+        'other_features': [
+            {'name': 'Document Management', 'url': '/features/documents/'},
+            {'name': 'Advanced Analytics', 'url': '/features/analytics/'},
+            {'name': 'Leave Management', 'url': '/features/leave/'},
+        ],
+    }
+    return render(request, 'ems/feature_detail.html', context)
+
+
+def feature_documents_page(request):
+    """Document Management feature detail page"""
+    context = {
+        'feature_slug': 'documents',
+        'feature_name': 'Document Management',
+        'feature_image': 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1920&q=80',
+        'feature_tagline': 'Every document, organised and accessible.',
+        'feature_description': 'Secure document storage, version control, and instant access for all employee records. Keep your organisation compliant and audit-ready at all times.',
+        'highlights': [
+            {'icon': 'folder', 'title': 'Organised Storage', 'desc': 'Structured folders by employee, document type, and department.'},
+            {'icon': 'git-branch', 'title': 'Version Control', 'desc': 'Track all document versions with full history and rollback capability.'},
+            {'icon': 'lock', 'title': 'Access Control', 'desc': 'Role-based permissions ensure sensitive documents stay confidential.'},
+            {'icon': 'bell', 'title': 'Expiry Alerts', 'desc': 'Automatic reminders for expiring contracts, licences, and certifications.'},
+            {'icon': 'search', 'title': 'Instant Search', 'desc': 'Find any document in seconds with full-text search across all files.'},
+            {'icon': 'check-square', 'title': 'Compliance Ready', 'desc': 'Audit trails and access logs for every document action.'},
+        ],
+        'how_it_works': [
+            {'step': '1', 'title': 'Upload Documents', 'desc': 'Upload employee documents — contracts, IDs, certificates — in any format.'},
+            {'step': '2', 'title': 'Organise & Tag', 'desc': 'Assign categories, expiry dates, and access permissions automatically.'},
+            {'step': '3', 'title': 'Review & Approve', 'desc': 'HR reviews and approves submitted documents with comments.'},
+            {'step': '4', 'title': 'Stay Compliant', 'desc': 'Get alerts before documents expire and maintain full audit trails.'},
+        ],
+        'other_features': [
+            {'name': 'Smart Attendance', 'url': '/features/attendance/'},
+            {'name': 'Performance Reviews', 'url': '/features/performance/'},
+            {'name': 'Payroll Processing', 'url': '/features/payroll/'},
+        ],
+    }
+    return render(request, 'ems/feature_detail.html', context)
+
+
+def feature_analytics_page(request):
+    """Advanced Analytics feature detail page"""
+    context = {
+        'feature_slug': 'analytics',
+        'feature_name': 'Advanced Analytics',
+        'feature_image': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&q=80',
+        'feature_tagline': 'Make decisions backed by real data.',
+        'feature_description': 'Real-time HR insights, custom reports, and predictive analytics across attendance, payroll, performance, and more. Turn raw data into strategic decisions.',
+        'highlights': [
+            {'icon': 'activity', 'title': 'Live Dashboards', 'desc': 'Real-time metrics across all HR modules in one unified view.'},
+            {'icon': 'pie-chart', 'title': 'Custom Reports', 'desc': 'Build any report using drag-and-drop report builder with export to Excel/PDF.'},
+            {'icon': 'trending-up', 'title': 'Trend Analysis', 'desc': 'Spot patterns in attendance, turnover, and performance over time.'},
+            {'icon': 'zap', 'title': 'Predictive Insights', 'desc': 'AI-powered predictions for attrition risk, leave patterns, and budget forecasts.'},
+            {'icon': 'share-2', 'title': 'Scheduled Reports', 'desc': 'Auto-send reports to stakeholders on a daily, weekly, or monthly schedule.'},
+            {'icon': 'filter', 'title': 'Deep Filtering', 'desc': 'Slice data by department, branch, role, date range, and custom dimensions.'},
+        ],
+        'how_it_works': [
+            {'step': '1', 'title': 'Data Flows In', 'desc': 'All modules feed data automatically — no manual imports needed.'},
+            {'step': '2', 'title': 'Choose Your View', 'desc': 'Select from pre-built dashboards or build custom ones from scratch.'},
+            {'step': '3', 'title': 'Analyse & Filter', 'desc': 'Drill down into any metric with powerful filtering and comparison tools.'},
+            {'step': '4', 'title': 'Share & Act', 'desc': 'Export, share, or schedule reports and act on the insights immediately.'},
+        ],
+        'other_features': [
+            {'name': 'Smart Attendance', 'url': '/features/attendance/'},
+            {'name': 'Payroll Processing', 'url': '/features/payroll/'},
+            {'name': 'Performance Reviews', 'url': '/features/performance/'},
+        ],
+    }
+    return render(request, 'ems/feature_detail.html', context)
+
+
 def solutions_page(request):
     """Solutions page"""
     return render(request, 'ems/solutions.html')
@@ -1097,15 +1283,19 @@ def _has_payroll_access(user):
     Check if user has payroll/finance access
     Payroll is sensitive financial data - restrict to finance team only
     """
+    # Admins and employer admins always have full access
+    if user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+        return True
+
+    # Superadmin/System owner always has access
+    if user.role == 'SUPERADMIN' or getattr(user, 'is_superadmin', False):
+        return True
+
     # Check if user is an accountant (Finance team)
     if hasattr(user, 'employee_profile') and user.employee_profile:
         if user.employee_profile.employee_role in ['ACCOUNTANT', 'ACCOUNTS']:
             return True
-    
-    # Superadmin/System owner always has access
-    if user.role == 'SUPERADMIN' or getattr(user, 'is_superadmin', False):
-        return True
-    
+
     return False
 
 
@@ -3590,13 +3780,13 @@ def employer_admin_dashboard(request):
     # Today's attendance
     present_today = Attendance.objects.filter(
         date=today,
-        user__company=company,
+        employee__company=company,
         status='PRESENT'
     ).count()
 
     late_today = Attendance.objects.filter(
         date=today,
-        user__company=company,
+        employee__company=company,
         status='LATE'
     ).count()
 
@@ -3604,43 +3794,54 @@ def employer_admin_dashboard(request):
 
     # Pending leave requests
     pending_leaves = LeaveRequest.objects.filter(
-        user__company=company,
+        employee__company=company,
         status='PENDING'
     ).count()
 
     # Today's attendance records (limit to 10 for display)
     today_attendance = Attendance.objects.filter(
         date=today,
-        user__company=company
-    ).select_related('user').order_by('-created_at')[:10]
+        employee__company=company
+    ).select_related('employee').order_by('-created_at')[:10]
 
     # Pending leave requests (limit to 5 for display)
     pending_leave_requests = LeaveRequest.objects.filter(
-        user__company=company,
+        employee__company=company,
         status='PENDING'
-    ).select_related('user').order_by('start_date')[:5]
+    ).select_related('employee').order_by('start_date')[:5]
 
-    # Recent activities (placeholder)
-    recent_activities = [
-        {
-            'title': 'Attendance marked',
-            'description': f'{today_attendance.count()} employees marked attendance today',
-            'timestamp': timezone.now() - timedelta(hours=1),
-            'type': 'attendance'
-        },
-        {
-            'title': 'Leave request submitted',
-            'description': 'New leave request from Marketing department',
-            'timestamp': timezone.now() - timedelta(hours=3),
-            'type': 'leave'
-        },
-        {
-            'title': 'Payroll processed',
-            'description': f'Payroll processed for {total_employees} employees',
-            'timestamp': timezone.now() - timedelta(days=1),
-            'type': 'payroll'
-        }
-    ][:5]
+    # Recent activities — built from real DB records
+    recent_activities = []
+    try:
+        recent_checkins = Attendance.objects.filter(
+            employee__company=company,
+            created_at__date=today
+        ).select_related('employee').order_by('-created_at')[:3]
+        for att in recent_checkins:
+            name = att.employee.get_full_name() or att.employee.email
+            recent_activities.append({
+                'title': 'Attendance recorded',
+                'description': f'{name} checked in — {att.get_status_display()}',
+                'timestamp': att.created_at,
+                'type': 'attendance',
+            })
+    except Exception:
+        pass
+    try:
+        recent_leaves = LeaveRequest.objects.filter(
+            employee__company=company,
+        ).select_related('employee').order_by('-created_at')[:3]
+        for lr in recent_leaves:
+            name = lr.employee.get_full_name() or lr.employee.email
+            recent_activities.append({
+                'title': 'Leave request',
+                'description': f'{name} — {lr.leave_type} ({lr.status.capitalize()})',
+                'timestamp': lr.created_at,
+                'type': 'leave',
+            })
+    except Exception:
+        pass
+    recent_activities = sorted(recent_activities, key=lambda x: x['timestamp'], reverse=True)[:5]
 
     context = {
         'user': request.user,
@@ -3665,9 +3866,11 @@ def employee_dashboard(request):
     if hasattr(request.user, 'is_superadmin') and request.user.is_superadmin:
         return render(request, 'ems/unauthorized.html')
 
-    # Check if user is regular User with EMPLOYEE role (from User model)
+    # Allow EMPLOYEE role or users with employee_profile (HR, Accountant, Supervisor)
     if not (hasattr(request.user, 'role') and request.user.role == 'EMPLOYEE'):
-        return render(request, 'ems/unauthorized.html')
+        # Check if user has employee_profile (HR/Accountant/Supervisor access employee portal)
+        if not hasattr(request.user, 'employee_profile'):
+            return render(request, 'ems/unauthorized.html')
 
     employee = request.user
 
@@ -4054,7 +4257,7 @@ def employee_dashboard(request):
         'my_tasks_list': my_tasks_list,
     }
     
-    return render(request, 'ems/employee_dashboard_new.html', context)
+    return render(request, 'ems/employee_dashboard.html', context)
 
 
 @login_required
@@ -4761,6 +4964,8 @@ def leave_management(request):
         
         return response
 
+    _is_admin = request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] or getattr(request.user, 'is_employer_admin', False)
+    base_template = 'ems/base_employer.html' if _is_admin else 'ems/base_employee.html'
     context = {
         'leave_requests': leave_requests,
         'status_filter': status_filter,
@@ -4776,7 +4981,11 @@ def leave_management(request):
         'approved_count': approved_count,
         'rejected_count': rejected_count,
         'employees': employees,
+        'base_template': base_template,
+        'is_admin': _is_admin,
     }
+    if _is_admin:
+        context.update(_get_employer_nav_context(request.user))
     return render(request, 'ems/employer_leave_management.html', context)
 
 
@@ -5475,9 +5684,9 @@ def employer_leave_action(request, leave_id):
         # Create in-app notification for employee
         try:
             from blu_staff.apps.notifications.models import Notification
-            if leave_request.employee.user:
+            if leave_request.employee:
                 Notification.objects.create(
-                    recipient=leave_request.employee.user,
+                    recipient=leave_request.employee,
                     sender=request.user,
                     title='Leave Request Approved',
                     message=f'Your {leave_request.get_leave_type_display()} leave from {leave_request.start_date} to {leave_request.end_date} has been approved.',
@@ -5513,9 +5722,9 @@ def employer_leave_action(request, leave_id):
             # Create in-app notification for employee
             try:
                 from blu_staff.apps.notifications.models import Notification
-                if leave_request.employee.user:
+                if leave_request.employee:
                     Notification.objects.create(
-                        recipient=leave_request.employee.user,
+                        recipient=leave_request.employee,
                         sender=request.user,
                         title='Leave Request Rejected',
                         message=f'Your {leave_request.get_leave_type_display()} leave from {leave_request.start_date} to {leave_request.end_date} has been rejected. Reason: {rejection_reason}',
@@ -6162,7 +6371,13 @@ def superadmin_dashboard(request):
         ).count()
         revenue_this_month = 0
         pending_revenue = 0
-        total_storage_used = 0
+        try:
+            from blu_staff.apps.documents.models import EmployeeDocument
+            from django.db.models import Sum as _Sum
+            _bytes = EmployeeDocument.objects.aggregate(total=_Sum('file_size'))['total'] or 0
+            total_storage_used = round(_bytes / (1024 ** 3), 2)
+        except Exception:
+            total_storage_used = 0
         api_calls_today = 0
 
     # Pending company registration requests
@@ -6322,6 +6537,17 @@ def superadmin_billing_overview(request):
         .order_by('registration_request__billing_preference')
     )
 
+    # Total storage across all companies
+    try:
+        from blu_staff.apps.documents.models import EmployeeDocument
+        from django.db.models import Sum as _Sum
+        total_storage_bytes = EmployeeDocument.objects.aggregate(
+            total=_Sum('file_size')
+        )['total'] or 0
+        total_storage = round(total_storage_bytes / (1024 ** 3), 2)
+    except Exception:
+        total_storage = 0
+
     context = {
         'user': request.user,
         'today': today,
@@ -6339,6 +6565,8 @@ def superadmin_billing_overview(request):
         'trial_ids': trial_ids,
         'expiring_soon_ids': expiring_soon_ids,
         'expired_ids': expired_ids,
+        'total_storage': total_storage,
+        'total_api_calls': 0,
     }
 
     return render(request, 'ems/superadmin_billing_overview.html', context)
@@ -7416,6 +7644,11 @@ def settings_dashboard(request):
             import json
             # Save payslip design settings
             try:
+                # Template layout (classic / modern / compact)
+                payslip_layout = request.POST.get('payslip_layout', '').strip()
+                if payslip_layout in ['classic', 'modern', 'compact', 'detailed']:
+                    company.payslip_layout = payslip_layout
+
                 # Section order (drag-and-drop layout)
                 section_order_json = request.POST.get('section_order', '[]')
                 company.payslip_section_order = json.loads(section_order_json) if section_order_json else []
@@ -7426,6 +7659,36 @@ def settings_dashboard(request):
                 # Logo and stamp positions
                 company.payslip_logo_position = request.POST.get('payslip_logo_position', 'top-left')
                 company.payslip_stamp_position = request.POST.get('payslip_stamp_position', 'bottom-right')
+
+                # Stamp drag pixel offsets + opacity + size + font family
+                try:
+                    field_positions = company.payslip_field_positions or {}
+                    field_positions['stamp_drag'] = {
+                        'x': float(request.POST.get('stamp_drag_x', 0)),
+                        'y': float(request.POST.get('stamp_drag_y', 0)),
+                    }
+                    field_positions['stamp_opacity'] = float(request.POST.get('stamp_opacity', 100))
+                    field_positions['stamp_size'] = float(request.POST.get('stamp_size', 120))
+                    font_family = request.POST.get('payslip_font_family', '').strip()
+                    if font_family:
+                        field_positions['font_family'] = font_family
+                    company.payslip_field_positions = field_positions
+                except (ValueError, TypeError):
+                    pass
+
+                # Company info fields
+                company_name = request.POST.get('company_name', '').strip()
+                if company_name:
+                    company.name = company_name
+                company_phone = request.POST.get('company_phone', '').strip()
+                if company_phone:
+                    company.phone = company_phone
+                company_email = request.POST.get('company_email', '').strip()
+                if company_email:
+                    company.email = company_email
+                company_address = request.POST.get('company_address', '').strip()
+                if company_address:
+                    company.address = company_address
                 
                 # Header and footer
                 company.payslip_header_style = request.POST.get('payslip_header_style', 'professional_table')
@@ -7634,8 +7897,11 @@ def test_biometric_connection(request):
 @login_required
 def employer_employee_management(request):
     """Enhanced employee management with search, filters, and export"""
-    # Check if user has HR or admin access
-    if not _has_hr_access(request.user):
+    # Check if user has HR or admin access (accountants also allowed for salary visibility)
+    _is_accountant = (hasattr(request.user, 'employee_profile') and
+                      request.user.employee_profile and
+                      request.user.employee_profile.employee_role in ['ACCOUNTANT', 'ACCOUNTS'])
+    if not _has_hr_access(request.user) and not _is_accountant:
         return render(request, 'ems/unauthorized.html')
 
     company = _get_user_company(request.user)
@@ -7826,7 +8092,7 @@ def employer_employee_management(request):
     }
     context.update(_get_employer_nav_context(request.user))
     
-    return render(request, 'ems/employer_employee_management_new.html', context)
+    return render(request, 'ems/employer_employee_management.html', context)
 
 @login_required
 def employee_bulk_action(request):
@@ -9046,14 +9312,24 @@ def bulk_employee_import(request):
             messages.error(request, f'Error processing file: {str(e)}')
             return redirect('bulk_employee_import')
     
-    return render(request, 'ems/bulk_employee_import.html')
+    is_admin_user = request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] or getattr(request.user, 'is_employer_admin', False)
+    base_template = 'ems/base_employer.html' if is_admin_user else 'ems/base_employee.html'
+    context = {'base_template': base_template}
+    if is_admin_user:
+        context.update(_get_employer_nav_context(request.user))
+    return render(request, 'ems/bulk_employee_import.html', context)
 
 
 @login_required
 def reports_center(request):
     """Reports and exports center"""
-    # Allow admins and accountants/finance roles
+    # Allow admins, HR, supervisors, and accountants/finance roles
     is_admin = request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] or request.user.is_employer_admin
+    is_hr = (
+        getattr(request.user, 'role', '') == 'EMPLOYEE'
+        and hasattr(request.user, 'employee_profile')
+        and getattr(request.user.employee_profile, 'employee_role', '') == 'HR'
+    )
     is_accountant = hasattr(request.user, 'employee_profile') and request.user.employee_profile.employee_role in ['ACCOUNTANT', 'ACCOUNTS']
     is_supervisor = (
         getattr(request.user, 'role', '') == 'EMPLOYEE'
@@ -9061,12 +9337,12 @@ def reports_center(request):
         and getattr(request.user.employee_profile, 'employee_role', '') == 'SUPERVISOR'
     )
 
-    if not (is_admin or is_accountant or is_supervisor):
-        messages.error(request, 'Access denied. Only administrators, supervisors, and accountants can access reports.')
+    if not (is_admin or is_hr or is_accountant or is_supervisor):
+        messages.error(request, 'Access denied. Only administrators, HR, supervisors, and accountants can access reports.')
         return render(request, 'ems/unauthorized.html')
 
-    # Feature gate only for non-supervisor roles (supervisors should not be sent to billing)
-    if not is_supervisor:
+    # Feature gate only for admin/accountant — HR and supervisors bypass
+    if not (is_supervisor or is_hr):
         from ems_project.plan_features import company_has_feature, FEAT_CUSTOM_REPORTS
         company = getattr(request.user, 'company', None)
         # If no company (e.g., platform admin), skip feature gate
@@ -10789,6 +11065,70 @@ def documents_list(request):
     else:
         claims_qs = []
 
+    # Build docs JSON for the new OneDrive-style frontend
+    import json as _json
+    docs_data = []
+    for doc in employee_documents:
+        ep = getattr(doc.employee, 'employee_profile', None)
+        dept = getattr(ep, 'department', '') or 'General'
+        _is_admin_user = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+        _owns = doc.employee_id == user.id
+        _can_delete = (
+            (_is_admin_user) or
+            (_owns and doc.status not in ['APPROVED'])
+        )
+        docs_data.append({
+            'id': doc.id,
+            'title': doc.title,
+            'type': doc.document_type,
+            'type_label': doc.get_document_type_display(),
+            'status': doc.status,
+            'status_label': doc.get_status_display(),
+            'version': doc.version,
+            'employee': doc.employee.get_full_name(),
+            'employee_id': doc.employee_id,
+            'dept': str(dept),
+            'size': doc.file_size or 0,
+            'date': doc.created_at.strftime('%Y-%m-%d') if doc.created_at else '',
+            'filename': doc.original_filename or '',
+            'file_url': doc.file.url if doc.file else '',
+            'download_url': f'/documents/{doc.id}/download/' if doc.file else '',
+            'is_confidential': doc.is_confidential,
+            'expiry_date': doc.expiry_date.strftime('%Y-%m-%d') if doc.expiry_date else '',
+            'can_delete': _can_delete,
+        })
+    docs_json = _json.dumps(docs_data)
+
+    # Employees list for share modal
+    from django.contrib.auth import get_user_model as _get_user_model
+    _User = _get_user_model()
+    if company:
+        share_employees = list(_User.objects.filter(
+            company=company, is_active=True
+        ).values('id', 'first_name', 'last_name', 'email'))
+        employees_json = _json.dumps([{
+            'id': u['id'],
+            'name': f"{u['first_name']} {u['last_name']}".strip(),
+            'email': u['email'],
+        } for u in share_employees])
+    else:
+        employees_json = '[]'
+
+    # Existing shares for each document (doc_id → list of user ids)
+    try:
+        from blu_staff.apps.documents.models import DocumentShare as _DS
+        doc_ids = [d['id'] for d in docs_data]
+        share_map = {}
+        for sh in _DS.objects.filter(document_id__in=doc_ids).select_related('shared_with'):
+            share_map.setdefault(sh.document_id, []).append({
+                'id': sh.shared_with_id,
+                'name': sh.shared_with.get_full_name(),
+                'email': sh.shared_with.email,
+            })
+        shares_json = _json.dumps(share_map)
+    except Exception:
+        shares_json = '{}'
+
     context = {
         'user': user,
         'company': company,
@@ -10809,10 +11149,62 @@ def documents_list(request):
         'expired_count': expired_count,
         'expiring_soon_count': expiring_soon_count,
         'benefit_claims': claims_qs.order_by('-submitted_at')[:100],
+        'docs_json': docs_json,
+        'employees_json': employees_json,
+        'shares_json': shares_json,
     }
     context.update(_get_employer_nav_context(request.user))
-    
+
     return render(request, 'ems/documents.html', context)
+
+
+@login_required
+def document_share(request, document_id):
+    """AJAX: add or remove a document share for a specific user"""
+    import json as _json
+    from django.http import JsonResponse
+    from blu_staff.apps.documents.models import EmployeeDocument, DocumentShare as _DS
+    from django.contrib.auth import get_user_model as _gum
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        company = _get_user_company(request.user)
+        doc = EmployeeDocument.objects.get(id=document_id, employee__company=company)
+    except EmployeeDocument.DoesNotExist:
+        return JsonResponse({'error': 'Document not found'}, status=404)
+
+    data = _json.loads(request.body)
+    action = data.get('action')  # 'add' or 'remove'
+    user_id = data.get('user_id')
+
+    _User = _gum()
+    try:
+        target_user = _User.objects.get(id=user_id, company=company)
+    except _User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+
+    if action == 'add':
+        _DS.objects.get_or_create(
+            document=doc,
+            shared_with=target_user,
+            defaults={'shared_by': request.user}
+        )
+    elif action == 'remove':
+        _DS.objects.filter(document=doc, shared_with=target_user).delete()
+    else:
+        return JsonResponse({'error': 'Invalid action'}, status=400)
+
+    current_shares = list(_DS.objects.filter(document=doc).select_related('shared_with').values(
+        'shared_with__id', 'shared_with__first_name', 'shared_with__last_name', 'shared_with__email'
+    ))
+    return JsonResponse({'ok': True, 'shares': [
+        {'id': s['shared_with__id'],
+         'name': f"{s['shared_with__first_name']} {s['shared_with__last_name']}".strip(),
+         'email': s['shared_with__email']}
+        for s in current_shares
+    ]})
 
 
 @login_required
@@ -11040,14 +11432,17 @@ def document_download(request, document_id):
         )
         
         # Return file
-        if os.path.exists(doc.file.path):
-            response = FileResponse(doc.file.open('rb'), as_attachment=True, filename=doc.original_filename)
+        if doc.file and os.path.exists(doc.file.path):
+            filename = doc.original_filename or os.path.basename(doc.file.name)
+            response = FileResponse(doc.file.open('rb'), as_attachment=True, filename=filename)
             return response
         else:
-            raise Http404('File not found')
+            messages.error(request, 'The file for this document is no longer available on the server. Please re-upload it.')
+            return redirect('documents_list')
             
     except EmployeeDocument.DoesNotExist:
-        raise Http404('Document not found')
+        messages.error(request, 'Document not found.')
+        return redirect('documents_list')
 
 @login_required
 def document_approve(request, document_id):
@@ -11134,6 +11529,58 @@ def document_reject(request, document_id):
             messages.error(request, 'Document not found.')
 
     return redirect('documents_list')
+
+@login_required
+def document_delete(request, document_id):
+    """Delete a document. Admins can delete any company doc; employees only their own pending docs."""
+    from blu_staff.apps.documents.models import EmployeeDocument, DocumentAccessLog
+    from django.http import JsonResponse as _JR
+
+    try:
+        doc = EmployeeDocument.objects.get(id=document_id)
+    except EmployeeDocument.DoesNotExist:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return _JR({'success': False, 'error': 'Document not found.'}, status=404)
+        messages.error(request, 'Document not found.')
+        return redirect('documents_list')
+
+    user = request.user
+    company = getattr(user, 'company', None) or getattr(getattr(user, 'employer_profile', None), 'company', None)
+
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+    owns_doc = doc.employee == user
+    can_delete = (is_admin and doc.employee.company == company) or \
+                 (owns_doc and doc.status not in ['APPROVED'])
+
+    if not can_delete:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return _JR({'success': False, 'error': 'Permission denied.'}, status=403)
+        messages.error(request, 'You do not have permission to delete this document.')
+        return redirect('documents_list')
+
+    if request.method == 'POST':
+        doc_title = doc.title
+        try:
+            DocumentAccessLog.objects.create(
+                document=doc,
+                user=user,
+                access_type='DELETE',
+                ip_address=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+        except Exception:
+            pass
+        doc.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return _JR({'success': True, 'message': f'Document "{doc_title}" deleted.'})
+        messages.success(request, f'Document "{doc_title}" deleted successfully.')
+        return redirect('documents_list')
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return _JR({'success': False, 'error': 'POST required.'}, status=405)
+    messages.error(request, 'Invalid request.')
+    return redirect('documents_list')
+
 
 @login_required
 def bulk_approve_documents(request):
@@ -11413,10 +11860,15 @@ def performance_reviews_list(request):
     User = get_user_model()
     user = request.user
     
+    is_hr_employee = (
+        hasattr(user, 'employee_profile') and user.employee_profile
+        and user.employee_profile.employee_role == 'HR'
+    )
+    
     # Determine company
     company = None
-    if user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']:
-        company = getattr(user, 'company', None) or getattr(getattr(user, 'employer_profile', None), 'company', None)
+    if user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR'] or is_hr_employee:
+        company = _get_user_company(user)
         
         # Get all reviews for statistics
         all_reviews = PerformanceReview.objects.filter(employee__company=company)
@@ -11427,7 +11879,7 @@ def performance_reviews_list(request):
         completed_count = all_reviews.filter(status='COMPLETED').count()
         approved_count = all_reviews.filter(status='APPROVED').count()
         
-        # Employers see all reviews in their company
+        # Management sees all reviews in their company
         reviews = all_reviews.select_related('employee', 'employee__employee_profile', 'reviewer').order_by('-review_date')
         
         # Search filter
@@ -11464,7 +11916,7 @@ def performance_reviews_list(request):
             reviews = reviews.filter(review_date__lte=date_to)
         
         # Get employees for create review
-        employees = User.objects.filter(company=company, role='EMPLOYEE')
+        employees = User.objects.filter(company=company, role='EMPLOYEE').select_related('employee_profile').order_by('first_name', 'last_name')
         
         # CSV Export
         if request.GET.get('format') == 'csv':
@@ -11547,17 +11999,19 @@ def performance_reviews_list(request):
         'employees': employees,
     }
     
-    # Use different templates for employees vs admins
-    if user.role == 'EMPLOYEE':
+    # Use different templates for employees vs managers/HR
+    if user.role == 'EMPLOYEE' and not is_hr_employee:
         return render(request, 'ems/employee_performance_reviews.html', context)
     else:
-        context.update(_get_employer_nav_context(request.user))
+        context['is_hr_employee'] = is_hr_employee
+        if not is_hr_employee:
+            context.update(_get_employer_nav_context(request.user))
         return render(request, 'ems/performance_reviews.html', context)
 
 @login_required
 def performance_review_create(request):
     """Create new performance review"""
-    if request.user.role not in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']:
+    if not _has_hr_access(request.user):
         return render(request, 'ems/unauthorized.html')
     
     from blu_staff.apps.performance.models import PerformanceReview
@@ -11597,44 +12051,685 @@ def performance_review_create(request):
 @login_required
 def performance_review_detail(request, review_id):
     """View and edit performance review"""
-    from blu_staff.apps.performance.models import PerformanceReview
+    from blu_staff.apps.performance.models import PerformanceReview, PerformanceGoal, PerformanceMetric, PerformanceFeedback
+    from django.utils import timezone
+    
+    is_hr = _has_hr_access(request.user)
+    is_employee_self = (
+        request.user.role == 'EMPLOYEE'
+        and not (hasattr(request.user, 'employee_profile') and request.user.employee_profile
+                 and request.user.employee_profile.employee_role == 'HR')
+    )
     
     try:
-        if request.user.role == 'EMPLOYEE':
-            review = PerformanceReview.objects.select_related('employee', 'reviewer').prefetch_related('goals', 'metrics', 'feedback').get(
+        if is_employee_self:
+            review = PerformanceReview.objects.select_related(
+                'employee', 'reviewer', 'employee__employee_profile'
+            ).prefetch_related('goals', 'metrics', 'feedback').get(
                 id=review_id, employee=request.user
             )
-        elif request.user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']:
-            company = getattr(request.user, 'company', None) or getattr(getattr(request.user, 'employer_profile', None), 'company', None)
-            review = PerformanceReview.objects.select_related('employee', 'reviewer').prefetch_related('goals', 'metrics', 'feedback').get(
+        elif is_hr:
+            company = _get_user_company(request.user)
+            review = PerformanceReview.objects.select_related(
+                'employee', 'reviewer', 'employee__employee_profile'
+            ).prefetch_related('goals', 'metrics', 'feedback').get(
                 id=review_id, employee__company=company
             )
         else:
             return render(request, 'ems/unauthorized.html')
         
         if request.method == 'POST':
-            # Update review
-            review.overall_rating = request.POST.get('overall_rating', review.overall_rating)
-            review.achievements = request.POST.get('achievements', '')
-            review.strengths = request.POST.get('strengths', '')
-            review.areas_for_improvement = request.POST.get('areas_for_improvement', '')
-            review.development_plan = request.POST.get('development_plan', '')
-            review.goals_next_period = request.POST.get('goals_next_period', '')
-            review.additional_comments = request.POST.get('additional_comments', '')
-            review.status = request.POST.get('status', review.status)
-            review.save()
-            messages.success(request, 'Review updated successfully!')
+            action = request.POST.get('action', 'update_review')
+            
+            if action == 'update_review' and is_hr:
+                review.overall_rating = request.POST.get('overall_rating', review.overall_rating)
+                review.reviewer_comments = request.POST.get('reviewer_comments', '')
+                review.strengths = request.POST.get('strengths', '')
+                review.areas_for_improvement = request.POST.get('areas_for_improvement', '')
+                review.achievements = request.POST.get('achievements', '')
+                review.development_plan = request.POST.get('development_plan', '')
+                review.goals_next_period = request.POST.get('goals_next_period', '')
+                review.recommended_actions = request.POST.get('recommended_actions', '')
+                new_status = request.POST.get('status', review.status)
+                if new_status != review.status:
+                    review.status = new_status
+                    if new_status == 'COMPLETED':
+                        review.reviewer_completed_at = timezone.now()
+                review.save()
+                messages.success(request, 'Review assessment saved.')
+                
+            elif action == 'self_assess' and is_employee_self:
+                review.employee_comments = request.POST.get('employee_comments', '')
+                review.achievements = request.POST.get('achievements', '')
+                review.challenges_faced = request.POST.get('challenges_faced', '')
+                review.training_needs = request.POST.get('training_needs', '')
+                review.goals_next_period = request.POST.get('goals_next_period', '')
+                review.self_rating = request.POST.get('self_rating') or None
+                if review.status == 'DRAFT':
+                    review.status = 'SUBMITTED'
+                    review.employee_submitted_at = timezone.now()
+                review.save()
+                messages.success(request, 'Self-assessment submitted successfully.')
+                
+            elif action == 'add_goal' and is_hr:
+                PerformanceGoal.objects.create(
+                    review=review,
+                    title=request.POST.get('goal_title', ''),
+                    description=request.POST.get('goal_description', ''),
+                    category=request.POST.get('goal_category', ''),
+                    priority=request.POST.get('goal_priority', 'MEDIUM'),
+                    status=request.POST.get('goal_status', 'NOT_STARTED'),
+                    progress_percentage=int(request.POST.get('goal_progress', 0) or 0),
+                    target_completion_date=request.POST.get('goal_due_date') or None,
+                    success_criteria=request.POST.get('goal_success_criteria', ''),
+                )
+                messages.success(request, 'Goal added.')
+                
+            elif action == 'update_goal' and is_hr:
+                goal_id = request.POST.get('goal_id')
+                try:
+                    goal = PerformanceGoal.objects.get(id=goal_id, review=review)
+                    goal.status = request.POST.get('goal_status', goal.status)
+                    goal.progress_percentage = int(request.POST.get('goal_progress', goal.progress_percentage) or goal.progress_percentage)
+                    goal.save()
+                    messages.success(request, 'Goal updated.')
+                except PerformanceGoal.DoesNotExist:
+                    messages.error(request, 'Goal not found.')
+                    
+            elif action == 'add_metric' and is_hr:
+                PerformanceMetric.objects.create(
+                    review=review,
+                    name=request.POST.get('metric_name', ''),
+                    description=request.POST.get('metric_description', ''),
+                    metric_type=request.POST.get('metric_type', 'NUMERIC'),
+                    target_value=request.POST.get('metric_target', 0),
+                    actual_value=request.POST.get('metric_actual') or None,
+                    unit=request.POST.get('metric_unit', ''),
+                    weight=int(request.POST.get('metric_weight', 100) or 100),
+                    is_achieved=request.POST.get('metric_achieved') == '1',
+                )
+                messages.success(request, 'Metric added.')
+                
+            elif action == 'add_feedback':
+                company_users = []
+                try:
+                    company = _get_user_company(request.user)
+                    from django.contrib.auth import get_user_model
+                    U = get_user_model()
+                    company_users = list(U.objects.filter(company=company, is_active=True).values_list('id', flat=True))
+                except Exception:
+                    pass
+                PerformanceFeedback.objects.create(
+                    review=review,
+                    feedback_type=request.POST.get('feedback_type', 'PEER'),
+                    provided_by=request.user,
+                    relationship_to_employee=request.POST.get('relationship', ''),
+                    rating=int(request.POST.get('feedback_rating', 3) or 3),
+                    strengths=request.POST.get('feedback_strengths', ''),
+                    areas_for_improvement=request.POST.get('feedback_improvement', ''),
+                    overall_comments=request.POST.get('feedback_comments', ''),
+                    suggestions=request.POST.get('feedback_suggestions', ''),
+                    is_anonymous=request.POST.get('is_anonymous') == '1',
+                )
+                messages.success(request, 'Feedback submitted.')
+                
+            elif action == 'advance_status' and is_hr:
+                transitions = {
+                    'DRAFT': 'UNDER_REVIEW',
+                    'SUBMITTED': 'UNDER_REVIEW',
+                    'UNDER_REVIEW': 'COMPLETED',
+                    'COMPLETED': 'APPROVED',
+                }
+                new_status = transitions.get(review.status, review.status)
+                review.status = new_status
+                if new_status in ['COMPLETED', 'APPROVED']:
+                    review.reviewer_completed_at = timezone.now()
+                review.save()
+                messages.success(request, f'Review status advanced to {review.get_status_display()}.')
+                
             return redirect('performance_review_detail', review_id=review.id)
         
         context = {
             'review': review,
             'overall_ratings': PerformanceReview.OverallRating.choices,
+            'goal_priorities': PerformanceGoal.Priority.choices,
+            'goal_statuses': PerformanceGoal.Status.choices,
+            'metric_types': PerformanceMetric.MetricType.choices,
+            'feedback_types': PerformanceFeedback.FeedbackType.choices,
+            'is_hr': is_hr,
+            'is_employee_self': is_employee_self,
+            'can_self_assess': is_employee_self and review.status in ['DRAFT', 'SUBMITTED'],
         }
         return render(request, 'ems/performance_review_detail.html', context)
         
     except PerformanceReview.DoesNotExist:
         messages.error(request, 'Review not found.')
         return redirect('performance_reviews_list')
+
+@login_required
+def performance_review_cycles(request):
+    """Manage performance review cycles - HR/Admin only"""
+    if not _has_hr_access(request.user):
+        return render(request, 'ems/unauthorized.html')
+
+    from blu_staff.apps.performance.models import PerformanceReviewCycle, ReviewCycleAssignment, PerformanceReview
+    from django.contrib.auth import get_user_model
+    from django.utils import timezone
+
+    User = get_user_model()
+    company = _get_user_company(request.user)
+    is_hr_employee = (
+        hasattr(request.user, 'employee_profile') and request.user.employee_profile
+        and request.user.employee_profile.employee_role == 'HR'
+    )
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'create_cycle')
+
+        if action == 'create_cycle':
+            try:
+                cycle = PerformanceReviewCycle.objects.create(
+                    name=request.POST.get('cycle_name', ''),
+                    description=request.POST.get('cycle_description', ''),
+                    review_type=request.POST.get('review_type', 'QUARTERLY'),
+                    start_date=request.POST.get('start_date'),
+                    end_date=request.POST.get('end_date'),
+                    review_period_start=request.POST.get('review_period_start'),
+                    review_period_end=request.POST.get('review_period_end'),
+                    deadline=request.POST.get('deadline'),
+                    status='DRAFT',
+                    auto_assign_reviewers=request.POST.get('auto_assign') == '1',
+                    send_reminders=request.POST.get('send_reminders') == '1',
+                    reminder_days_before=int(request.POST.get('reminder_days', 7) or 7),
+                    created_by=request.user,
+                )
+                messages.success(request, f'Review cycle "{cycle.name}" created successfully.')
+            except Exception as e:
+                messages.error(request, f'Error creating cycle: {str(e)}')
+
+        elif action == 'activate_cycle':
+            cycle_id = request.POST.get('cycle_id')
+            try:
+                cycle = PerformanceReviewCycle.objects.get(id=cycle_id)
+                cycle.status = 'ACTIVE'
+                cycle.save()
+                messages.success(request, f'Cycle "{cycle.name}" activated.')
+            except PerformanceReviewCycle.DoesNotExist:
+                messages.error(request, 'Cycle not found.')
+
+        elif action == 'assign_employees':
+            cycle_id = request.POST.get('cycle_id')
+            employee_ids = request.POST.getlist('employee_ids')
+            try:
+                cycle = PerformanceReviewCycle.objects.get(id=cycle_id)
+                created_count = 0
+                for emp_id in employee_ids:
+                    emp = User.objects.filter(id=emp_id, company=company, role='EMPLOYEE').first()
+                    if emp and not ReviewCycleAssignment.objects.filter(cycle=cycle, employee=emp).exists():
+                        ReviewCycleAssignment.objects.create(cycle=cycle, employee=emp)
+                        created_count += 1
+                messages.success(request, f'{created_count} employee(s) assigned to cycle.')
+            except PerformanceReviewCycle.DoesNotExist:
+                messages.error(request, 'Cycle not found.')
+
+        elif action == 'launch_reviews':
+            cycle_id = request.POST.get('cycle_id')
+            try:
+                cycle = PerformanceReviewCycle.objects.get(id=cycle_id)
+                launched = 0
+                for assignment in cycle.assignments.filter(review__isnull=True, status='PENDING'):
+                    review = PerformanceReview.objects.create(
+                        employee=assignment.employee,
+                        reviewer=assignment.reviewer or request.user,
+                        review_type=cycle.review_type,
+                        review_period_start=cycle.review_period_start,
+                        review_period_end=cycle.review_period_end,
+                        review_date=timezone.now().date(),
+                        title=f'{cycle.name} – {assignment.employee.get_full_name()}',
+                        status='DRAFT',
+                        cycle=cycle,
+                    )
+                    assignment.review = review
+                    assignment.status = 'IN_PROGRESS'
+                    assignment.save()
+                    launched += 1
+                cycle.status = 'IN_PROGRESS'
+                cycle.save()
+                messages.success(request, f'{launched} review(s) launched for cycle "{cycle.name}".')
+            except PerformanceReviewCycle.DoesNotExist:
+                messages.error(request, 'Cycle not found.')
+
+        return redirect('performance_review_cycles')
+
+    cycles = PerformanceReviewCycle.objects.prefetch_related('assignments').order_by('-start_date')
+    employees = User.objects.filter(company=company, role='EMPLOYEE').select_related('employee_profile').order_by('first_name', 'last_name')
+    review_types = PerformanceReview.ReviewType.choices
+
+    context = {
+        'cycles': cycles,
+        'employees': employees,
+        'review_types': review_types,
+        'is_hr_employee': is_hr_employee,
+    }
+    if not is_hr_employee:
+        context.update(_get_employer_nav_context(request.user))
+    return render(request, 'ems/performance_review_cycles.html', context)
+
+
+@login_required
+def pms_goals(request):
+    """Goals Management - standalone goals dashboard"""
+    from blu_staff.apps.performance.models import PerformanceGoal, PerformanceReview
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    user = request.user
+    is_hr = _has_hr_access(user)
+    company = _get_user_company(user)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'update_goal':
+            goal_id = request.POST.get('goal_id')
+            try:
+                if is_hr:
+                    goal = PerformanceGoal.objects.get(id=goal_id, review__employee__company=company)
+                else:
+                    goal = PerformanceGoal.objects.get(id=goal_id, review__employee=user)
+                goal.status = request.POST.get('status', goal.status)
+                goal.progress_percentage = int(request.POST.get('progress_percentage', goal.progress_percentage) or 0)
+                goal.challenges = request.POST.get('challenges', goal.challenges)
+                goal.save()
+                messages.success(request, 'Goal updated successfully.')
+            except PerformanceGoal.DoesNotExist:
+                messages.error(request, 'Goal not found.')
+        elif action == 'add_goal':
+            review_id = request.POST.get('review_id')
+            title = request.POST.get('title', '').strip()
+            if title and review_id:
+                try:
+                    review = PerformanceReview.objects.get(id=review_id)
+                    PerformanceGoal.objects.create(
+                        review=review,
+                        title=title,
+                        description=request.POST.get('description', ''),
+                        category=request.POST.get('category', ''),
+                        priority=request.POST.get('priority', 'MEDIUM'),
+                        target_completion_date=request.POST.get('target_completion_date') or None,
+                        success_criteria=request.POST.get('success_criteria', ''),
+                        status='NOT_STARTED',
+                    )
+                    messages.success(request, f'Goal "{title}" added.')
+                except PerformanceReview.DoesNotExist:
+                    messages.error(request, 'Review not found.')
+        return redirect('pms_goals')
+
+    if is_hr:
+        goals_qs = PerformanceGoal.objects.filter(
+            review__employee__company=company
+        ).select_related('review', 'review__employee', 'review__employee__employee_profile')
+        reviews_qs = PerformanceReview.objects.filter(
+            employee__company=company
+        ).select_related('employee').order_by('-review_date')[:50]
+    else:
+        goals_qs = PerformanceGoal.objects.filter(
+            review__employee=user
+        ).select_related('review')
+        reviews_qs = PerformanceReview.objects.filter(employee=user).order_by('-review_date')[:20]
+
+    total = goals_qs.count()
+    completed = goals_qs.filter(status='COMPLETED').count()
+    in_progress = goals_qs.filter(status='IN_PROGRESS').count()
+    not_started = goals_qs.filter(status='NOT_STARTED').count()
+
+    status_filter = request.GET.get('status', '')
+    priority_filter = request.GET.get('priority', '')
+    if status_filter:
+        goals_qs = goals_qs.filter(status=status_filter)
+    if priority_filter:
+        goals_qs = goals_qs.filter(priority=priority_filter)
+    goals_qs = goals_qs.order_by('-created_at')
+
+    context = {
+        'goals': goals_qs,
+        'reviews': reviews_qs,
+        'total': total,
+        'completed': completed,
+        'in_progress': in_progress,
+        'not_started': not_started,
+        'status_filter': status_filter,
+        'priority_filter': priority_filter,
+        'status_choices': PerformanceGoal.Status.choices,
+        'priority_choices': PerformanceGoal.Priority.choices,
+        'is_hr': is_hr,
+    }
+    context.update(_get_employer_nav_context(user) if is_hr else {})
+    return render(request, 'ems/pms_goals.html', context)
+
+
+@login_required
+def pms_metrics(request):
+    """Metrics / KPI Dashboard"""
+    from blu_staff.apps.performance.models import PerformanceMetric, PerformanceReview
+    from django.db.models import Avg, Count, Sum
+    user = request.user
+    is_hr = _has_hr_access(user)
+    company = _get_user_company(user)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'update_metric':
+            metric_id = request.POST.get('metric_id')
+            try:
+                if is_hr:
+                    metric = PerformanceMetric.objects.get(id=metric_id, review__employee__company=company)
+                else:
+                    metric = PerformanceMetric.objects.get(id=metric_id, review__employee=user)
+                actual = request.POST.get('actual_value', '')
+                if actual != '':
+                    from decimal import Decimal
+                    metric.actual_value = Decimal(actual)
+                    metric.is_achieved = metric.actual_value >= metric.target_value
+                metric.save()
+                messages.success(request, 'Metric updated.')
+            except PerformanceMetric.DoesNotExist:
+                messages.error(request, 'Metric not found.')
+        elif action == 'add_metric':
+            review_id = request.POST.get('review_id')
+            name = request.POST.get('name', '').strip()
+            if name and review_id:
+                try:
+                    from decimal import Decimal
+                    review = PerformanceReview.objects.get(id=review_id)
+                    PerformanceMetric.objects.create(
+                        review=review,
+                        name=name,
+                        description=request.POST.get('description', ''),
+                        metric_type=request.POST.get('metric_type', 'NUMERIC'),
+                        target_value=Decimal(request.POST.get('target_value', '0') or '0'),
+                        unit=request.POST.get('unit', ''),
+                        weight=int(request.POST.get('weight', 100) or 100),
+                    )
+                    messages.success(request, f'Metric "{name}" added.')
+                except PerformanceReview.DoesNotExist:
+                    messages.error(request, 'Review not found.')
+        return redirect('pms_metrics')
+
+    if is_hr:
+        metrics_qs = PerformanceMetric.objects.filter(
+            review__employee__company=company
+        ).select_related('review', 'review__employee', 'review__employee__employee_profile')
+        reviews_qs = PerformanceReview.objects.filter(
+            employee__company=company
+        ).select_related('employee').order_by('-review_date')[:50]
+    else:
+        metrics_qs = PerformanceMetric.objects.filter(
+            review__employee=user
+        ).select_related('review')
+        reviews_qs = PerformanceReview.objects.filter(employee=user).order_by('-review_date')[:20]
+
+    total = metrics_qs.count()
+    achieved = metrics_qs.filter(is_achieved=True).count()
+    not_achieved = total - achieved
+    avg_achievement = 0
+    if total > 0:
+        from decimal import Decimal
+        achieved_list = [m.achievement_percentage for m in metrics_qs if m.actual_value is not None]
+        avg_achievement = int(sum(achieved_list) / len(achieved_list)) if achieved_list else 0
+
+    type_filter = request.GET.get('metric_type', '')
+    if type_filter:
+        metrics_qs = metrics_qs.filter(metric_type=type_filter)
+    metrics_qs = metrics_qs.order_by('-created_at')
+
+    context = {
+        'metrics': metrics_qs,
+        'reviews': reviews_qs,
+        'total': total,
+        'achieved': achieved,
+        'not_achieved': not_achieved,
+        'avg_achievement': avg_achievement,
+        'type_filter': type_filter,
+        'metric_types': PerformanceMetric.MetricType.choices,
+        'is_hr': is_hr,
+    }
+    context.update(_get_employer_nav_context(user) if is_hr else {})
+    return render(request, 'ems/pms_metrics.html', context)
+
+
+@login_required
+def pms_feedback_360(request):
+    """360° Feedback Management"""
+    from blu_staff.apps.performance.models import PerformanceFeedback, PerformanceReview
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    user = request.user
+    is_hr = _has_hr_access(user)
+    company = _get_user_company(user)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'submit_feedback':
+            review_id = request.POST.get('review_id')
+            rating = request.POST.get('rating', '3')
+            try:
+                if is_hr:
+                    review = PerformanceReview.objects.get(id=review_id, employee__company=company)
+                else:
+                    review = PerformanceReview.objects.get(id=review_id)
+                PerformanceFeedback.objects.create(
+                    review=review,
+                    feedback_type=request.POST.get('feedback_type', 'PEER'),
+                    provided_by=user,
+                    relationship_to_employee=request.POST.get('relationship', ''),
+                    rating=int(rating),
+                    strengths=request.POST.get('strengths', ''),
+                    areas_for_improvement=request.POST.get('areas_for_improvement', ''),
+                    overall_comments=request.POST.get('overall_comments', ''),
+                    suggestions=request.POST.get('suggestions', ''),
+                    is_anonymous=request.POST.get('is_anonymous') == '1',
+                )
+                messages.success(request, 'Feedback submitted successfully.')
+            except PerformanceReview.DoesNotExist:
+                messages.error(request, 'Review not found.')
+        elif action == 'delete_feedback':
+            feedback_id = request.POST.get('feedback_id')
+            if is_hr:
+                PerformanceFeedback.objects.filter(id=feedback_id, review__employee__company=company).delete()
+                messages.success(request, 'Feedback deleted.')
+        return redirect('pms_feedback_360')
+
+    if is_hr:
+        feedback_qs = PerformanceFeedback.objects.filter(
+            review__employee__company=company
+        ).select_related('review', 'review__employee', 'provided_by')
+        reviews_qs = PerformanceReview.objects.filter(
+            employee__company=company
+        ).select_related('employee').order_by('-review_date')[:50]
+    else:
+        feedback_qs = PerformanceFeedback.objects.filter(
+            review__employee=user
+        ).select_related('review', 'provided_by')
+        reviews_qs = PerformanceReview.objects.filter(employee=user).order_by('-review_date')[:20]
+
+    total = feedback_qs.count()
+    peer_count = feedback_qs.filter(feedback_type='PEER').count()
+    manager_count = feedback_qs.filter(feedback_type='MANAGER').count()
+    self_count = feedback_qs.filter(feedback_type='SELF').count()
+    subordinate_count = feedback_qs.filter(feedback_type='SUBORDINATE').count()
+
+    type_filter = request.GET.get('feedback_type', '')
+    if type_filter:
+        feedback_qs = feedback_qs.filter(feedback_type=type_filter)
+    feedback_qs = feedback_qs.order_by('-created_at')
+
+    context = {
+        'feedback_list': feedback_qs,
+        'reviews': reviews_qs,
+        'total': total,
+        'peer_count': peer_count,
+        'manager_count': manager_count,
+        'self_count': self_count,
+        'subordinate_count': subordinate_count,
+        'type_filter': type_filter,
+        'feedback_types': PerformanceFeedback.FeedbackType.choices,
+        'is_hr': is_hr,
+    }
+    context.update(_get_employer_nav_context(user) if is_hr else {})
+    return render(request, 'ems/pms_feedback_360.html', context)
+
+
+@login_required
+def pms_self_assessment(request):
+    """Employee Self-Assessment Workflow"""
+    from blu_staff.apps.performance.models import PerformanceReview, PerformanceGoal, CompetencyRating
+    from django.utils import timezone
+    user = request.user
+    is_hr = _has_hr_access(user)
+    company = _get_user_company(user)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        review_id = request.POST.get('review_id')
+        try:
+            review = PerformanceReview.objects.get(id=review_id, employee=request.user)
+            if action == 'save_draft':
+                review.employee_comments = request.POST.get('employee_comments', review.employee_comments)
+                review.self_rating = request.POST.get('self_rating', review.self_rating) or None
+                review.achievements = request.POST.get('achievements', review.achievements)
+                review.challenges_faced = request.POST.get('challenges_faced', review.challenges_faced)
+                review.goals_next_period = request.POST.get('goals_next_period', review.goals_next_period)
+                review.training_needs = request.POST.get('training_needs', review.training_needs)
+                review.save()
+                messages.success(request, 'Self-assessment saved as draft.')
+            elif action == 'submit':
+                if not request.POST.get('employee_comments', '').strip():
+                    messages.error(request, 'Please provide your comments before submitting.')
+                    return redirect('pms_self_assessment')
+                review.employee_comments = request.POST.get('employee_comments', '')
+                review.self_rating = request.POST.get('self_rating', '') or None
+                review.achievements = request.POST.get('achievements', '')
+                review.challenges_faced = request.POST.get('challenges_faced', '')
+                review.goals_next_period = request.POST.get('goals_next_period', '')
+                review.training_needs = request.POST.get('training_needs', '')
+                review.status = 'SUBMITTED'
+                review.employee_submitted_at = timezone.now()
+                review.save()
+                messages.success(request, 'Self-assessment submitted successfully.')
+        except PerformanceReview.DoesNotExist:
+            messages.error(request, 'Review not found or access denied.')
+        return redirect('pms_self_assessment')
+
+    pending_reviews = PerformanceReview.objects.filter(
+        employee=user, status__in=['DRAFT', 'UNDER_REVIEW']
+    ).prefetch_related('goals', 'metrics', 'competency_ratings__competency').order_by('-review_date')
+
+    submitted_reviews = PerformanceReview.objects.filter(
+        employee=user, status__in=['SUBMITTED', 'COMPLETED', 'APPROVED']
+    ).order_by('-review_date')
+
+    selected_review = None
+    review_id = request.GET.get('review')
+    if review_id:
+        try:
+            selected_review = pending_reviews.get(id=review_id)
+        except PerformanceReview.DoesNotExist:
+            pass
+    if not selected_review and pending_reviews.exists():
+        selected_review = pending_reviews.first()
+
+    context = {
+        'pending_reviews': pending_reviews,
+        'submitted_reviews': submitted_reviews,
+        'selected_review': selected_review,
+        'rating_choices': PerformanceReview.OverallRating.choices,
+        'is_hr': is_hr,
+    }
+    return render(request, 'ems/pms_self_assessment.html', context)
+
+
+@login_required
+def pms_competencies(request):
+    """Competency Framework Management - HR/Admin only"""
+    from blu_staff.apps.performance.models import CompetencyFramework, Competency
+    user = request.user
+    is_hr = _has_hr_access(user)
+    if not is_hr:
+        return render(request, 'ems/unauthorized.html')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'create_framework':
+            name = request.POST.get('name', '').strip()
+            if name:
+                fw = CompetencyFramework.objects.create(
+                    name=name,
+                    description=request.POST.get('description', ''),
+                    is_default=request.POST.get('is_default') == '1',
+                    is_active=True,
+                    created_by=user,
+                )
+                if fw.is_default:
+                    CompetencyFramework.objects.exclude(id=fw.id).update(is_default=False)
+                messages.success(request, f'Framework "{name}" created.')
+        elif action == 'add_competency':
+            framework_id = request.POST.get('framework_id')
+            name = request.POST.get('name', '').strip()
+            if framework_id and name:
+                try:
+                    fw = CompetencyFramework.objects.get(id=framework_id)
+                    Competency.objects.create(
+                        framework=fw,
+                        name=name,
+                        description=request.POST.get('description', ''),
+                        competency_type=request.POST.get('competency_type', 'BEHAVIORAL'),
+                        weight=int(request.POST.get('weight', 100) or 100),
+                        is_required=request.POST.get('is_required') == '1',
+                        level_1_description=request.POST.get('level_1', ''),
+                        level_2_description=request.POST.get('level_2', ''),
+                        level_3_description=request.POST.get('level_3', ''),
+                        level_4_description=request.POST.get('level_4', ''),
+                        level_5_description=request.POST.get('level_5', ''),
+                    )
+                    messages.success(request, f'Competency "{name}" added.')
+                except CompetencyFramework.DoesNotExist:
+                    messages.error(request, 'Framework not found.')
+        elif action == 'delete_competency':
+            comp_id = request.POST.get('competency_id')
+            Competency.objects.filter(id=comp_id, framework__created_by__company=_get_user_company(user)).delete()
+            messages.success(request, 'Competency deleted.')
+        elif action == 'toggle_framework':
+            fw_id = request.POST.get('framework_id')
+            try:
+                fw = CompetencyFramework.objects.get(id=fw_id)
+                fw.is_active = not fw.is_active
+                fw.save()
+                messages.success(request, f'Framework {"activated" if fw.is_active else "deactivated"}.')
+            except CompetencyFramework.DoesNotExist:
+                messages.error(request, 'Framework not found.')
+        return redirect('pms_competencies')
+
+    frameworks = CompetencyFramework.objects.prefetch_related('competencies').order_by('-is_default', 'name')
+    selected_fw_id = request.GET.get('framework')
+    selected_framework = None
+    if selected_fw_id:
+        try:
+            selected_framework = frameworks.get(id=selected_fw_id)
+        except CompetencyFramework.DoesNotExist:
+            pass
+    if not selected_framework and frameworks.exists():
+        selected_framework = frameworks.first()
+
+    competency_types = Competency.CompetencyType.choices
+
+    context = {
+        'frameworks': frameworks,
+        'selected_framework': selected_framework,
+        'competency_types': competency_types,
+        'is_hr': is_hr,
+    }
+    context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/pms_competencies.html', context)
+
 
 @login_required
 def payroll_list(request):
@@ -12090,11 +13185,39 @@ def payroll_list(request):
             messages.error(request, f'Error importing CSV: {str(e)}')
             return redirect('payroll_list')
     
+    # Handle batch approve
+    if request.method == 'POST' and request.POST.get('action') == 'batch_approve':
+        if not _has_payroll_access(request.user):
+            messages.error(request, 'Permission denied.')
+            return redirect('payroll_list')
+        payroll_ids = request.POST.getlist('payroll_ids')
+        if payroll_ids:
+            updated = Payroll.objects.filter(
+                id__in=payroll_ids,
+                status__in=[Payroll.Status.DRAFT, Payroll.Status.PENDING_APPROVAL]
+            ).update(status=Payroll.Status.APPROVED)
+            messages.success(request, f'{updated} payroll record(s) approved successfully.')
+        return redirect('payroll_list')
+
+    # Handle batch mark as paid
+    if request.method == 'POST' and request.POST.get('action') == 'batch_mark_paid':
+        if not _has_payroll_access(request.user):
+            messages.error(request, 'Permission denied.')
+            return redirect('payroll_list')
+        payroll_ids = request.POST.getlist('payroll_ids')
+        if payroll_ids:
+            updated = Payroll.objects.filter(
+                id__in=payroll_ids,
+                status=Payroll.Status.APPROVED
+            ).update(status=Payroll.Status.PAID)
+            messages.success(request, f'{updated} payroll record(s) marked as paid.')
+        return redirect('payroll_list')
+
     # Check payroll access permissions
     has_payroll_access = _has_payroll_access(request.user)
 
-    # Determine base template early
-    base_template = 'ems/base_employer.html' if _has_hr_access(request.user) else 'ems/base_employee.html'
+    # Determine base template: only true admins get employer nav; HR/accountant employees get employee nav
+    base_template = 'ems/base_employer.html' if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] else 'ems/base_employee.html'
     
     if request.user.role == 'EMPLOYEE' and not has_payroll_access:
         # Regular employees can only see their own payroll
@@ -12258,6 +13381,17 @@ def payroll_list(request):
         # Serialize paye_tax_brackets for textarea display
         paye_tax_brackets_json = json.dumps(payroll_settings.paye_tax_brackets, indent=2)
     
+    # Pending approval count
+    pending_approval_count = 0
+    if has_payroll_access and company:
+        pending_approval_count = Payroll.objects.filter(
+            employee__company=company,
+            status=Payroll.Status.PENDING_APPROVAL
+        ).count()
+
+    # Currency code from settings
+    currency_code = getattr(payroll_settings, 'currency', 'ZMW') if payroll_settings else 'ZMW'
+
     context = {
         'payrolls': payrolls,
         'user': request.user,
@@ -12272,11 +13406,14 @@ def payroll_list(request):
         'draft_count': draft_count,
         'approved_count': approved_count,
         'paid_count': paid_count,
+        'pending_approval_count': pending_approval_count,
         'total_earned': total_earned,
         'employees': employees,
         'payroll_settings': payroll_settings,
         'payroll_settings_json': payroll_settings_json,
         'paye_tax_brackets_json': paye_tax_brackets_json,
+        'currency_code': currency_code,
+        'has_payroll_access': has_payroll_access,
     }
     return render(request, 'ems/payroll_list.html', context)
 
@@ -12287,7 +13424,7 @@ def payroll_detail(request, payroll_id):
     from blu_staff.apps.payroll.models import Payroll, PayrollDeduction
     
     try:
-        payroll = Payroll.objects.select_related('employee', 'employee__employee_profile').get(id=payroll_id)
+        payroll = Payroll.objects.select_related('employee', 'employee__employee_profile', 'employee__company').get(id=payroll_id)
     except Payroll.DoesNotExist:
         messages.error(request, 'Payslip not found.')
         return redirect('payroll_list')
@@ -12306,20 +13443,96 @@ def payroll_detail(request, payroll_id):
     # Get detailed deductions
     deductions = PayrollDeduction.objects.filter(payroll=payroll).order_by('deduction_type')
     
-    # Determine base template based on user role
-    # Only ADMINISTRATOR and EMPLOYER_ADMIN get employer sidebar
-    # HR, Accountant, Supervisor, and regular employees get employee sidebar
-    if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
-        base_template = 'ems/base_employer.html'
-    else:
-        base_template = 'ems/base_employee.html'
-    
+    # Force concrete string evaluation to avoid lazy proxy recursion in Python 3.14
+    period_start_formatted = str(payroll.period_start.strftime('%B %Y')) if payroll.period_start else ''
+    pay_date_formatted = str(payroll.pay_date.strftime('%d %b %Y').upper()) if payroll.pay_date else ''
+
+    # Get company stamp positioning from designer
+    company = payroll.employee.company
+    stamp_config = {
+        'drag_x': 0,
+        'drag_y': 0,
+        'opacity': 100,
+        'size': 130,
+    }
+    if company and hasattr(company, 'payslip_field_positions') and company.payslip_field_positions:
+        field_pos = company.payslip_field_positions
+        if isinstance(field_pos, dict):
+            if 'stamp_drag' in field_pos and isinstance(field_pos['stamp_drag'], dict):
+                stamp_config['drag_x'] = field_pos['stamp_drag'].get('x', 0)
+                stamp_config['drag_y'] = field_pos['stamp_drag'].get('y', 0)
+            stamp_config['opacity'] = field_pos.get('stamp_opacity', 100)
+            stamp_config['size'] = field_pos.get('stamp_size', 130)
+
     context = {
         'payroll': payroll,
         'deductions': deductions,
-        'base_template': base_template,
+        'period_start_formatted': period_start_formatted,
+        'pay_date_formatted': pay_date_formatted,
+        'stamp_config': stamp_config,
     }
     return render(request, 'ems/payroll_detail.html', context)
+
+
+@login_required
+def payslip_designer(request):
+    """Payslip layout designer – save company payslip settings"""
+    from blu_staff.apps.accounts.models import Company
+
+    if request.user.role not in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+        messages.error(request, 'Access denied.')
+        return redirect('payroll_list')
+
+    try:
+        company = Company.objects.get(id=request.user.company_id)
+    except Company.DoesNotExist:
+        messages.error(request, 'Company not found.')
+        return redirect('payroll_list')
+
+    if request.method == 'POST':
+        company.payslip_layout = request.POST.get('layout', company.payslip_layout)
+        company.payslip_orientation = request.POST.get('orientation', company.payslip_orientation)
+        company.payslip_stamp_position = request.POST.get('stamp_position', company.payslip_stamp_position)
+        company.payslip_logo_position = request.POST.get('logo_position', company.payslip_logo_position)
+        company.payslip_address_position = request.POST.get('address_position', company.payslip_address_position)
+        company.payslip_header_content = request.POST.get('header_content', company.payslip_header_content)
+        company.payslip_footer_content = request.POST.get('footer_content', company.payslip_footer_content)
+        import json
+        section_order_raw = request.POST.get('section_order', '[]')
+        try:
+            company.payslip_section_order = json.loads(section_order_raw)
+        except (ValueError, TypeError):
+            company.payslip_section_order = []
+        company.save()
+        messages.success(request, 'Payslip design saved successfully.')
+        return redirect('payslip_designer')
+
+    available_sections = [
+        {'id': 'header', 'name': 'Company Header', 'icon': '🏢'},
+        {'id': 'employee_info', 'name': 'Employee Information', 'icon': '👤'},
+        {'id': 'earnings', 'name': 'Earnings', 'icon': '💰'},
+        {'id': 'statutory', 'name': 'Statutory Deductions', 'icon': '📋'},
+        {'id': 'other_deductions', 'name': 'Other Deductions', 'icon': '➖'},
+        {'id': 'summary', 'name': 'Summary Totals', 'icon': '📊'},
+        {'id': 'signature', 'name': 'Signature & Stamp', 'icon': '✅'},
+        {'id': 'footer', 'name': 'Footer', 'icon': '📄'},
+    ]
+
+    position_options = [
+        {'value': 'top-left', 'label': '↖ Top Left'},
+        {'value': 'top-center', 'label': '↑ Top Center'},
+        {'value': 'top-right', 'label': '↗ Top Right'},
+        {'value': 'bottom-left', 'label': '↙ Bottom Left'},
+        {'value': 'bottom-center', 'label': '↓ Bottom Center'},
+        {'value': 'bottom-right', 'label': '↘ Bottom Right'},
+    ]
+
+    context = {
+        'company': company,
+        'available_sections': available_sections,
+        'position_options': position_options,
+    }
+    return render(request, 'ems/payslip_designer.html', context)
 
 
 @login_required
@@ -12552,10 +13765,17 @@ def benefits_list(request):
     # Base template: keep employee layout (avoid admin sidebar)
     base_template = 'ems/base_employee.html'
 
-    if request.user.role == 'EMPLOYEE' and (not is_hr or view_personal):
+    enrolled_benefit_ids = set()
+
+    is_accountant_user = (hasattr(request.user, 'employee_profile') and
+                          request.user.employee_profile and
+                          request.user.employee_profile.employee_role in ['ACCOUNTANT', 'ACCOUNTS'])
+
+    if request.user.role == 'EMPLOYEE' and (not (is_hr_user or is_accountant_user) or view_personal):
         if supports_tenant_metadata:
             enrolled_benefits = EmployeeBenefit.objects.filter(employee=request.user).select_related('benefit').order_by('-enrollment_date')
             available_benefits = Benefit.objects.filter(is_active=True)
+            enrolled_benefit_ids = set(str(e.benefit_id) for e in enrolled_benefits)
             
             # Employee statistics
             total_enrolled = enrolled_benefits.count()
@@ -12660,8 +13880,8 @@ def benefits_list(request):
             company = None
             using_legacy_mode = True
 
-    elif request.user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR'] or is_hr:
-        company = getattr(request.user, 'company', None)
+    elif request.user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR'] or is_hr or is_accountant_user:
+        company = getattr(request.user, 'company', None) or _get_user_company(request.user)
         tenant = getattr(company, 'tenant', None) if company else None
         fallback_to_legacy = not supports_tenant_metadata
 
@@ -12862,9 +14082,17 @@ def benefits_list(request):
         benefit_form = BenefitForm()
         enrollment_form = BenefitEnrollmentForm(company=user_company, tenant=tenant_for_forms)
 
+    _is_management_view = (
+        request.user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+        or (hasattr(request.user, 'employee_profile') and request.user.employee_profile
+            and request.user.employee_profile.employee_role in ['HR', 'ACCOUNTANT', 'ACCOUNTS'])
+        and not view_personal
+    )
+
     context = {
         'enrolled_benefits': enrolled_benefits,
         'available_benefits': available_benefits,
+        'enrolled_benefit_ids': enrolled_benefit_ids,
         'user': request.user,
         'company': company,
         'search_query': search_query,
@@ -12885,6 +14113,7 @@ def benefits_list(request):
         'using_legacy_mode': using_legacy_mode,
         'base_template': base_template,
         'benefit_claims': benefit_claims,
+        'is_management_view': _is_management_view,
     }
     return render(request, 'ems/benefits_list.html', context)
 
@@ -13145,6 +14374,47 @@ def benefit_enrollment_create(request):
 
     return JsonResponse({'errors': form.errors}, status=400)
 
+
+@login_required
+@require_POST
+def employee_benefit_self_enroll(request):
+    """Allow an employee to request enrollment in an available benefit."""
+    from blu_staff.apps.payroll.models import Benefit, EmployeeBenefit
+    from django.utils import timezone
+
+    if request.user.role != 'EMPLOYEE':
+        messages.error(request, 'Only employees can self-enroll in benefits.')
+        return redirect('benefits_list')
+
+    benefit_id = request.POST.get('benefit_id')
+    if not benefit_id:
+        messages.error(request, 'No benefit selected.')
+        return redirect('benefits_list')
+
+    try:
+        benefit = Benefit.objects.get(id=benefit_id, is_active=True)
+    except Benefit.DoesNotExist:
+        messages.error(request, 'Benefit not found or no longer available.')
+        return redirect('benefits_list')
+
+    already = EmployeeBenefit.objects.filter(employee=request.user, benefit=benefit).exclude(
+        status=EmployeeBenefit.Status.CANCELLED
+    ).exists()
+    if already:
+        messages.warning(request, f'You are already enrolled (or have a pending request) for "{benefit.name}".')
+        return redirect('benefits_list')
+
+    EmployeeBenefit.objects.create(
+        employee=request.user,
+        benefit=benefit,
+        status=EmployeeBenefit.Status.PENDING,
+        enrollment_date=timezone.now().date(),
+        effective_date=timezone.now().date(),
+    )
+    messages.success(request, f'Enrollment request for "{benefit.name}" submitted. HR will review and activate it.')
+    return redirect('benefits_list')
+
+
 @login_required
 def training_list(request):
     """List training programs and enrollments"""
@@ -13166,10 +14436,13 @@ def training_list(request):
     # Check if user wants personal view (from main menu)
     view_personal = request.GET.get('view') == 'personal'
     
+    enrolled_program_ids = set()
+
     if request.user.role == 'EMPLOYEE' and (not is_hr or view_personal):
         # Regular employees see only their personal training
         enrollments = TrainingEnrollment.objects.filter(employee=request.user).select_related('program').order_by('-enrollment_date')
         programs = TrainingProgram.objects.filter(is_active=True)
+        enrolled_program_ids = set(str(e.program_id) for e in enrollments)
         
         # Employee statistics
         total_enrollments = enrollments.count()
@@ -13273,9 +14546,24 @@ def training_list(request):
     else:
         base_template = 'ems/base_employee.html'
 
+    # Certifications
+    try:
+        certifications = Certification.objects.filter(employee=request.user) if request.user.role == 'EMPLOYEE' else Certification.objects.filter(employee__company=company) if company else Certification.objects.none()
+        total_certifications = certifications.count()
+    except Exception:
+        certifications = []
+        total_certifications = 0
+
+    try:
+        total_programs = programs.count()
+    except Exception:
+        total_programs = len(list(programs))
+
     context = {
         'enrollments': enrollments,
         'programs': programs,
+        'certifications': certifications,
+        'enrolled_program_ids': enrolled_program_ids,
         'user': request.user,
         'company': company,
         'search_query': search_query,
@@ -13286,6 +14574,8 @@ def training_list(request):
         'total_enrollments': total_enrollments,
         'completed_count': completed_count,
         'in_progress_count': in_progress_count,
+        'total_certifications': total_certifications,
+        'total_programs': total_programs,
         'can_manage_training': can_manage_training,
         'training_program_form': training_program_form,
         'training_enrollment_form': training_enrollment_form,
@@ -13360,6 +14650,85 @@ def training_enrollment_create(request):
             })
 
     return JsonResponse({'errors': form.errors}, status=400)
+
+
+@login_required
+@require_POST
+def employee_training_self_enroll(request):
+    """Allow an employee to self-enroll in an available training program."""
+    from blu_staff.apps.training.models import TrainingProgram, TrainingEnrollment
+    from django.utils import timezone
+
+    if request.user.role != 'EMPLOYEE':
+        messages.error(request, 'Only employees can self-enroll in training programs.')
+        return redirect('training_list')
+
+    program_id = request.POST.get('program_id')
+    if not program_id:
+        messages.error(request, 'No training program selected.')
+        return redirect('training_list')
+
+    try:
+        program = TrainingProgram.objects.get(id=program_id, is_active=True)
+    except TrainingProgram.DoesNotExist:
+        messages.error(request, 'Training program not found or no longer available.')
+        return redirect('training_list')
+
+    already = TrainingEnrollment.objects.filter(
+        employee=request.user, program=program
+    ).exclude(status=TrainingEnrollment.Status.CANCELLED).exists()
+    if already:
+        messages.warning(request, f'You are already enrolled in "{program.title}".')
+        return redirect('training_list')
+
+    TrainingEnrollment.objects.create(
+        employee=request.user,
+        program=program,
+        status=TrainingEnrollment.Status.ENROLLED,
+        enrollment_date=timezone.now().date(),
+    )
+    messages.success(request, f'Successfully enrolled in "{program.title}".')
+    return redirect('training_list')
+
+
+@login_required
+def finance_policy_settings(request):
+    """HR/Admin view to configure company finance policy (advance %, petty cash limits, etc.)."""
+    from blu_staff.apps.payroll.models import PayrollSettings
+
+    is_accountant = (hasattr(request.user, 'employee_profile') and
+                      request.user.employee_profile and
+                      request.user.employee_profile.employee_role in ['ACCOUNTANT', 'ACCOUNTS'])
+    if request.user.role not in ['EMPLOYER_ADMIN', 'ADMINISTRATOR'] and not is_accountant:
+        return render(request, 'ems/unauthorized.html', status=403)
+
+    company = getattr(request.user, 'company', None) or _get_user_company(request.user)
+    policy = PayrollSettings.for_company(company)
+
+    if request.method == 'POST':
+        try:
+            policy.advance_max_percentage = request.POST.get('advance_max_percentage', policy.advance_max_percentage)
+            policy.max_petty_cash_amount = request.POST.get('max_petty_cash_amount', policy.max_petty_cash_amount)
+            policy.max_reimbursement_amount = request.POST.get('max_reimbursement_amount', policy.max_reimbursement_amount)
+            policy.advance_repayment_months = int(request.POST.get('advance_repayment_months', policy.advance_repayment_months))
+            policy.overtime_rate_multiplier = request.POST.get('overtime_rate_multiplier', policy.overtime_rate_multiplier)
+            if company:
+                policy.company = company
+            policy.save()
+            messages.success(request, 'Finance policy updated successfully.')
+        except Exception as e:
+            messages.error(request, f'Error saving policy: {e}')
+        return redirect('finance_policy_settings')
+
+    base_template = 'ems/base_employee.html' if is_accountant else 'ems/base_employer.html'
+    context = {
+        'policy': policy,
+        'company': company,
+        'base_template': base_template,
+    }
+    if not is_accountant:
+        context.update(_get_employer_nav_context(request.user))
+    return render(request, 'ems/finance_policy_settings.html', context)
 
 
 @login_required
@@ -13556,7 +14925,7 @@ def onboarding_list(request):
         and tenant_metadata_available()
     )
     if can_manage_onboarding:
-        from onboarding.forms import EmployeeOnboardingForm, EmployeeOffboardingForm
+        from blu_staff.apps.onboarding.forms import EmployeeOnboardingForm, EmployeeOffboardingForm
 
         tenant = getattr(company, 'tenant', None)
         onboarding_form = EmployeeOnboardingForm(company=company, tenant=tenant)
@@ -13578,7 +14947,7 @@ def onboarding_list(request):
 @login_required
 @require_POST
 def onboarding_create(request):
-    from onboarding.forms import EmployeeOnboardingForm
+    from blu_staff.apps.onboarding.forms import EmployeeOnboardingForm
     from blu_staff.apps.onboarding.models import OnboardingTaskCompletion
 
     if request.user.role not in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']:
@@ -13626,7 +14995,7 @@ def onboarding_create(request):
 @login_required
 @require_POST
 def offboarding_create(request):
-    from onboarding.forms import EmployeeOffboardingForm
+    from blu_staff.apps.onboarding.forms import EmployeeOffboardingForm
 
     if request.user.role not in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']:
         return JsonResponse({'error': 'Not authorized'}, status=403)
@@ -13839,11 +15208,11 @@ def analytics_dashboard_view(request):
     approved_leaves = leave_qs.filter(status='APPROVED').count()
     rejected_leaves = leave_qs.filter(status='REJECTED').count()
     
-    # Performance Statistics
-    total_reviews = review_qs.count()
-    avg_rating = review_qs.aggregate(avg=Avg('overall_rating'))['avg'] or 0
-    completed_reviews = review_qs.filter(status='COMPLETED').count()
-    pending_reviews = review_qs.filter(status__in=['DRAFT', 'SUBMITTED']).count()
+    # Performance Statistics (module disabled — stub zeros)
+    total_reviews = 0
+    avg_rating = 0
+    completed_reviews = 0
+    pending_reviews = 0
     
     # Document Statistics
     total_documents = document_qs.count()
@@ -14199,6 +15568,7 @@ def notifications_list(request):
     # Limit for display
     notifications = notifications[:200]
     
+    base_template = 'ems/base_employer.html' if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] else 'ems/base_employee.html'
     context = {
         'notifications': notifications,
         'total_notifications': total_notifications,
@@ -14214,6 +15584,7 @@ def notifications_list(request):
         'type_filter': type_filter,
         'status_filter': status_filter,
         'user': request.user,
+        'base_template': base_template,
     }
     return render(request, 'ems/notifications_list.html', context)
 
@@ -14336,40 +15707,57 @@ def system_health(request):
         print(f"Error getting system metrics: {e}")
         # Keep default mock values
 
-    # Recent system events (mock data)
-    recent_events = [
-        {
-            'timestamp': timezone.now() - timedelta(minutes=5),
-            'event_type': 'USER_LOGIN',
-            'message': 'User logged in successfully',
-            'status': 'SUCCESS'
-        },
-        {
-            'timestamp': timezone.now() - timedelta(hours=1),
-            'event_type': 'COMPANY_CREATED',
-            'message': 'New company registered: Tech Solutions Inc',
-            'status': 'INFO'
-        },
-        {
-            'timestamp': timezone.now() - timedelta(hours=2),
-            'event_type': 'SYSTEM_BACKUP',
-            'message': 'Automated system backup completed',
-            'status': 'SUCCESS'
-        },
-        {
-            'timestamp': timezone.now() - timedelta(hours=6),
-            'event_type': 'ERROR',
-            'message': 'Failed login attempt detected',
-            'status': 'WARNING'
-        },
-    ]
+    # Recent system events — built from real DB activity
+    recent_events = []
+    try:
+        for company_obj in Company.objects.order_by('-created_at')[:2]:
+            recent_events.append({
+                'timestamp': company_obj.created_at,
+                'event_type': 'COMPANY_CREATED',
+                'message': f'Company registered: {company_obj.name}',
+                'status': 'INFO',
+            })
+    except Exception:
+        pass
+    try:
+        for u in User.objects.order_by('-date_joined')[:3]:
+            recent_events.append({
+                'timestamp': u.date_joined,
+                'event_type': 'USER_CREATED',
+                'message': f'New user account: {u.get_full_name() or u.email} ({u.role})',
+                'status': 'SUCCESS',
+            })
+    except Exception:
+        pass
+    try:
+        for doc in EmployeeDocument.objects.order_by('-created_at')[:2]:
+            recent_events.append({
+                'timestamp': doc.created_at,
+                'event_type': 'DOCUMENT_UPLOADED',
+                'message': f'Document uploaded: {doc.title or doc.document_type}',
+                'status': 'INFO',
+            })
+    except Exception:
+        pass
+    recent_events = sorted(recent_events, key=lambda x: x['timestamp'], reverse=True)[:8]
 
-    # API endpoints status (mock data)
+    # API / module health — derived from real DB query timing
+    import time as _time
+    def _check(label, fn):
+        try:
+            t0 = _time.monotonic()
+            fn()
+            ms = round((_time.monotonic() - t0) * 1000)
+            return {'endpoint': label, 'status': 'HEALTHY', 'response_time': ms}
+        except Exception:
+            return {'endpoint': label, 'status': 'ERROR', 'response_time': 0}
+
     api_status = [
-        {'endpoint': '/api/v1/auth/', 'status': 'HEALTHY', 'response_time': 85},
-        {'endpoint': '/api/v1/attendance/', 'status': 'HEALTHY', 'response_time': 120},
-        {'endpoint': '/api/v1/performance/', 'status': 'HEALTHY', 'response_time': 95},
-        {'endpoint': '/api/v1/documents/', 'status': 'HEALTHY', 'response_time': 110},
+        _check('Users / Auth',    lambda: User.objects.count()),
+        _check('Attendance',      lambda: Attendance.objects.count()),
+        _check('Leave Requests',  lambda: LeaveRequest.objects.count()),
+        _check('Documents',       lambda: EmployeeDocument.objects.count()),
+        _check('Companies',       lambda: Company.objects.count()),
     ]
 
     context = {
@@ -14702,10 +16090,15 @@ def financial_analytics_view(request):
         pass
     
     # ===== DEDUCTION BREAKDOWN =====
+    from blu_staff.apps.payroll.models import PayrollSettings as _PS
+    _psettings = _PS.for_company(company)
+    paye_label = _psettings.paye_label or 'PAYE'
+    napsa_label = _psettings.napsa_label or 'NAPSA'
+    nhima_label = _psettings.nhima_label or 'NHIMA'
     other_deductions = float(total_deductions - total_tax - total_social_security) if total_deductions > total_tax + total_social_security else 0
     deduction_data = {
-        'PAYE (Income Tax)': float(total_tax),
-        'NAPSA': float(total_social_security),
+        paye_label: float(total_tax),
+        napsa_label: float(total_social_security),
         'Other Deductions': other_deductions,
     }
     deduction_labels = list(deduction_data.keys())
@@ -14797,6 +16190,10 @@ def financial_analytics_view(request):
         'petty_cash_total': petty_cash_total,
         'petty_cash_approved': petty_cash_approved,
         'petty_cash_pending': petty_cash_pending,
+        # Deduction labels (localised per company)
+        'paye_label': paye_label,
+        'napsa_label': napsa_label,
+        'nhima_label': nhima_label,
         # Deductions chart
         'deduction_labels': json.dumps(deduction_labels),
         'deduction_values': json.dumps(deduction_values),
@@ -15183,10 +16580,10 @@ def employee_request_create(request):
     
     try:
         from blu_staff.apps.payroll.models import PayrollSettings
-        payroll_settings = PayrollSettings.objects.first()
-        if payroll_settings:
-            advance_percentage = float(payroll_settings.advance_max_percentage or 40.0)
-    except:
+        _company = getattr(request.user, 'company', None)
+        payroll_settings = PayrollSettings.for_company(_company)
+        advance_percentage = float(payroll_settings.advance_max_percentage or 40.0)
+    except Exception:
         pass
     
     try:
@@ -15197,11 +16594,34 @@ def employee_request_create(request):
     except:
         pass
     
+    # Currency symbol
+    currency_symbol = 'ZMW'
+    currency_code = 'ZMW'
+    advance_repayment_months = 3
+    try:
+        from blu_staff.apps.payroll.models import PayrollSettings
+        _company = getattr(request.user, 'company', None)
+        _ps = PayrollSettings.for_company(_company)
+        advance_repayment_months = int(_ps.advance_repayment_months or 3)
+        if _company and hasattr(_company, 'currency_code'):
+            currency_code = _company.currency_code or 'ZMW'
+    except Exception:
+        pass
+    _currency_map = {
+        'ZMW': 'ZMW', 'MWK': 'MWK', 'KES': 'KSh', 'TZS': 'TSh',
+        'UGX': 'USh', 'ZAR': 'R', 'NGN': '₦', 'GHS': 'GH₵',
+        'USD': '$', 'GBP': '£', 'EUR': '€',
+    }
+    currency_symbol = _currency_map.get(currency_code, currency_code)
+
     context = {
         'request_types': request_types,
         'employee_salary': employee_salary,
         'max_advance_amount': max_advance_amount,
         'advance_percentage': advance_percentage,
+        'advance_repayment_months': advance_repayment_months,
+        'currency_symbol': currency_symbol,
+        'currency_code': currency_code,
     }
     
     return render(request, 'ems/employee_request_form.html', context)
@@ -15440,9 +16860,11 @@ def chat_groups_list(request):
         is_active=True
     ).exclude(members=request.user)
     
+    base_template = 'ems/base_employer.html' if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] else 'ems/base_employee.html'
     context = {
         'my_groups': my_groups,
         'available_groups': available_groups,
+        'base_template': base_template,
     }
     
     return render(request, 'ems/chat_groups_list.html', context)
@@ -15505,10 +16927,12 @@ def chat_group_detail(request, group_id):
         defaults={'last_read_at': timezone.now()}
     )
     
+    base_template = 'ems/base_employer.html' if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] else 'ems/base_employee.html'
     context = {
         'group': group,
         'messages': messages,
         'is_admin': request.user in group.admins.all(),
+        'base_template': base_template,
     }
     
     return render(request, 'ems/chat_group_detail.html', context)
@@ -15575,9 +16999,11 @@ def direct_messages_list(request):
         role='EMPLOYEE'
     ).exclude(id=request.user.id).select_related('employee_profile').order_by('first_name', 'last_name')
     
+    base_template = 'ems/base_employer.html' if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] else 'ems/base_employee.html'
     context = {
         'conversations': conversation_list,
         'colleagues': colleagues,
+        'base_template': base_template,
     }
     
     return render(request, 'ems/direct_messages_list.html', context)
@@ -15631,9 +17057,11 @@ def direct_message_conversation(request, user_id):
         is_read=False
     ).update(is_read=True, read_at=timezone.now())
     
+    base_template = 'ems/base_employer.html' if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] else 'ems/base_employee.html'
     context = {
         'other_user': other_user,
         'messages': messages,
+        'base_template': base_template,
     }
     
     return render(request, 'ems/direct_message_conversation.html', context)
@@ -15666,8 +17094,12 @@ def announcements_list(request):
                 announcement.is_acknowledged = read_record.acknowledged if read_record else False
                 user_announcements.append(announcement)
     
+    unread_count = sum(1 for a in user_announcements if not a.is_read)
+    base_template = 'ems/base_employer.html' if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] else 'ems/base_employee.html'
     context = {
         'announcements': user_announcements,
+        'unread_count': unread_count,
+        'base_template': base_template,
     }
     
     return render(request, 'ems/announcements_list.html', context)
@@ -15704,9 +17136,11 @@ def announcement_detail(request, announcement_id):
             django_messages.success(request, 'Announcement acknowledged!')
             return redirect('announcements_list')
     
+    base_template = 'ems/base_employer.html' if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] else 'ems/base_employee.html'
     context = {
         'announcement': announcement,
         'read_record': read_record,
+        'base_template': base_template,
     }
     
     return render(request, 'ems/announcement_detail.html', context)
@@ -15760,24 +17194,45 @@ def supervisor_dashboard(request):
         start_date__gte=today
     ).select_related('employee').order_by('start_date')[:5]
     
-    # Performance reviews due - PERFORMANCE MODULE DISABLED
-    # reviews_due = PerformanceReview.objects.filter(
-    #     employee__in=team_members,
-    #     status='IN_PROGRESS',
-    #     review_period_end__lte=today + timedelta(days=30)
-    # ).select_related('employee').order_by('review_period_end')[:5]
-    reviews_due = []
-    
+    # Pending leave requests for the team (for approval section)
+    pending_leave_requests = LeaveRequest.objects.filter(
+        employee__in=team_members,
+        status='PENDING'
+    ).select_related('employee').order_by('-created_at')[:5]
+
+    # Today's attendance breakdown for team
+    today_attendance = Attendance.objects.filter(employee__in=team_members, date=today)
+    team_present = today_attendance.filter(status='PRESENT').count()
+    team_absent = today_attendance.filter(status='ABSENT').count()
+    team_late = today_attendance.filter(status='LATE').count()
+    team_half_day = today_attendance.filter(status='HALF_DAY').count()
+    attendance_rate = round((present_today / total_team_members * 100) if total_team_members > 0 else 0, 1)
+
     context = {
         'team_members': team_members,
         'total_team_members': total_team_members,
+        # Template aliases
+        'team_size': total_team_members,
+        'team_present_today': present_today,
+        'team_attendance_rate': attendance_rate,
+        'attendance_rate': attendance_rate,
+        'team_pending_leave': pending_leave_requests.count(),
+        'team_avg_performance': 0,
+        'team_present': team_present,
+        'team_absent': team_absent,
+        'team_late': team_late,
+        'team_half_day': team_half_day,
+        'team_performance': [],
+        'team_activities': [],
         'present_today': present_today,
-        'attendance_rate': round((present_today / total_team_members * 100) if total_team_members > 0 else 0, 1),
         'pending_requests': pending_requests,
+        'pending_leave_requests': pending_leave_requests,
         'upcoming_leaves': upcoming_leaves,
-        'reviews_due': reviews_due,
+        'reviews_due': [],
+        'current_date': today,
+        'base_template': 'ems/base_employee.html',
     }
-    
+
     return render(request, 'ems/supervisor_dashboard_new.html', context)
 
 
@@ -15911,9 +17366,96 @@ def hr_dashboard(request):
         'in_progress_training': in_progress_training,
         'enrolled_training': enrolled_training,
         'departments': departments_data,
+        'base_template': 'ems/base_employee.html',
     }
-    
+
     return render(request, 'ems/hr_dashboard.html', context)
+
+
+@login_required
+def employee_salary_list(request):
+    """Employee salary structures list — accessible to accountants and admins."""
+    from blu_staff.apps.payroll.models import SalaryStructure
+    from blu_staff.apps.accounts.models import User
+    from datetime import date
+
+    is_accountant = (hasattr(request.user, 'employee_profile') and
+                     request.user.employee_profile and
+                     request.user.employee_profile.employee_role in ['ACCOUNTANT', 'ACCOUNTS'])
+    is_admin = request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']
+
+    if not (is_accountant or is_admin):
+        return render(request, 'ems/unauthorized.html', status=403)
+
+    company = getattr(request.user, 'company', None) or _get_user_company(request.user)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        emp_id = request.POST.get('employee_id')
+        try:
+            target_emp = User.objects.get(id=emp_id, company=company, role='EMPLOYEE')
+            base_salary = request.POST.get('base_salary')
+            currency = request.POST.get('currency', 'USD').upper()[:3]
+            payment_frequency = request.POST.get('payment_frequency', 'MONTHLY')
+            effective_date_str = request.POST.get('effective_date') or str(date.today())
+            notes = request.POST.get('notes', '')
+
+            obj, created = SalaryStructure.objects.update_or_create(
+                employee=target_emp,
+                defaults={
+                    'base_salary': base_salary,
+                    'currency': currency,
+                    'payment_frequency': payment_frequency,
+                    'effective_date': effective_date_str,
+                    'is_active': True,
+                    'notes': notes,
+                }
+            )
+            verb = 'created' if created else 'updated'
+            messages.success(request, f'Salary structure {verb} for {target_emp.get_full_name()}.')
+        except Exception as e:
+            messages.error(request, f'Error saving salary: {e}')
+        return redirect('employee_salary_list')
+
+    employees = User.objects.filter(
+        company=company, role='EMPLOYEE', is_active=True
+    ).select_related('employee_profile').order_by('first_name', 'last_name')
+
+    salary_map = {}
+    if company:
+        structures = SalaryStructure.objects.filter(
+            employee__company=company, is_active=True
+        ).select_related('employee')
+        for s in structures:
+            salary_map[s.employee_id] = s
+
+    employee_salaries = []
+    for emp in employees:
+        employee_salaries.append({
+            'employee': emp,
+            'salary': salary_map.get(emp.id),
+        })
+
+    search = request.GET.get('q', '').strip()
+    if search:
+        employee_salaries = [
+            row for row in employee_salaries
+            if search.lower() in (row['employee'].get_full_name() or '').lower()
+            or search.lower() in (getattr(row['employee'].employee_profile, 'job_title', '') or '').lower()
+        ]
+
+    set_count = sum(1 for r in employee_salaries if r['salary'])
+    base_template = 'ems/base_employee.html' if is_accountant else 'ems/base_employer.html'
+    context = {
+        'employee_salaries': employee_salaries,
+        'search': search,
+        'base_template': base_template,
+        'total': len(employee_salaries),
+        'set_count': set_count,
+        'today': str(date.today()),
+        'freq_choices': SalaryStructure.PaymentFrequency.choices,
+    }
+    return render(request, 'ems/employee_salary_list.html', context)
 
 
 @login_required
@@ -16014,10 +17556,24 @@ def accountant_dashboard(request):
     
     for deduction in deduction_breakdown:
         deduction['type'] = dict(PayrollDeduction.DeductionType.choices).get(
-            deduction['deduction_type'], 
+            deduction['deduction_type'],
             deduction['deduction_type']
         )
-    
+
+    # Currency symbol
+    currency_code = 'ZMW'
+    try:
+        latest = Payroll.objects.filter(employee__company=company).values('currency').first()
+        if latest and latest['currency']:
+            currency_code = latest['currency']
+    except Exception:
+        pass
+    _currency_map = {
+        'ZMW': 'K', 'KES': 'KSh', 'TZS': 'TSh', 'UGX': 'USh',
+        'ZAR': 'R', 'NGN': '₦', 'GHS': 'GH₵', 'USD': '$', 'GBP': '£', 'EUR': '€',
+    }
+    currency_symbol = _currency_map.get(currency_code, currency_code)
+
     context = {
         'current_date': today,
         'active_employees': active_employees,
@@ -16040,8 +17596,11 @@ def accountant_dashboard(request):
         'employee_benefits_cost': employee_benefits_cost,
         'total_benefits_cost': total_benefits_cost,
         'deduction_breakdown': deduction_breakdown,
+        'currency_symbol': currency_symbol,
+        'currency_code': currency_code,
+        'base_template': 'ems/base_employee.html',
     }
-    
+
     return render(request, 'ems/accountant_dashboard.html', context)
 
 
@@ -16116,8 +17675,9 @@ def supervisor_team_attendance(request):
         'employee_summary': employee_summary,
         'start_date': start_date,
         'end_date': end_date,
+        'base_template': 'ems/base_employee.html',
     }
-    
+
     return render(request, 'ems/supervisor_team_attendance.html', context)
 
 
@@ -16140,46 +17700,22 @@ def supervisor_team_performance(request):
         company=request.user.company
     ).select_related('employee_profile')
     
-    # Get performance reviews - PERFORMANCE MODULE DISABLED
-    # reviews = PerformanceReview.objects.filter(
-    #     employee__in=team_members
-    # ).select_related('employee', 'reviewer').order_by('-review_period_end')
-    reviews = []
-    
-    # Performance statistics
-    completed_reviews = reviews.filter(status='COMPLETED')
-    pending_reviews = reviews.filter(status__in=['DRAFT', 'IN_PROGRESS'])
-    
-    # Average ratings
-    if completed_reviews.exists():
-        avg_overall = completed_reviews.aggregate(Avg('overall_rating'))['overall_rating__avg'] or 0
-    else:
-        avg_overall = 0
-    
-    # Employee performance summary
-    employee_performance = []
-    for member in team_members:
-        member_reviews = completed_reviews.filter(employee=member)
-        latest_review = member_reviews.first()
-        
-        summary = {
-            'employee': member,
-            'total_reviews': member_reviews.count(),
-            'latest_review': latest_review,
-            'avg_rating': member_reviews.aggregate(Avg('overall_rating'))['overall_rating__avg'] or 0,
-            'pending_reviews': pending_reviews.filter(employee=member).count(),
-        }
-        employee_performance.append(summary)
-    
+    # Performance module disabled — use empty stubs to avoid queryset crashes
+    employee_performance = [
+        {'employee': m, 'total_reviews': 0, 'latest_review': None, 'avg_rating': 0, 'pending_reviews': 0}
+        for m in team_members
+    ]
+
     context = {
         'team_members': team_members,
-        'reviews': reviews[:10],  # Latest 10
-        'completed_reviews_count': completed_reviews.count(),
-        'pending_reviews_count': pending_reviews.count(),
-        'avg_overall_rating': round(avg_overall, 2),
+        'reviews': [],
+        'completed_reviews_count': 0,
+        'pending_reviews_count': 0,
+        'avg_overall_rating': 0,
         'employee_performance': employee_performance,
+        'base_template': 'ems/base_employee.html',
     }
-    
+
     return render(request, 'ems/supervisor_team_performance.html', context)
 
 
@@ -16263,8 +17799,9 @@ def supervisor_request_approval(request):
         'pending_requests': pending_requests,
         'my_pending_approvals': my_pending_approvals,
         'recent_processed': recent_processed,
+        'base_template': 'ems/base_employee.html',
     }
-    
+
     return render(request, 'ems/supervisor_request_approval.html', context)
 
 
@@ -16521,7 +18058,7 @@ def role_hub(request):
             {
                 'title': 'Performance',
                 'description': 'Manage performance review cycles, goals, and employee evaluations',
-                'url': reverse('performance_analytics_dashboard'),
+                'url': reverse('performance_reviews_list'),
                 'icon': 'star',
                 'color': '#f59e0b',
                 'bg': '#fef3c7',
@@ -16559,14 +18096,6 @@ def role_hub(request):
                 'bg': '#ffedd5',
             },
             {
-                'title': 'Payroll Management',
-                'description': 'Process payroll, manage salary structures, and generate payslips',
-                'url': reverse('payroll_list'),
-                'icon': 'dollar-sign',
-                'color': '#059669',
-                'bg': '#d1fae5',
-            },
-            {
                 'title': 'Assets Management',
                 'description': 'Track company assets, assignments, maintenance, and depreciation',
                 'url': reverse('assets:asset_list'),
@@ -16581,6 +18110,14 @@ def role_hub(request):
                 'icon': 'clipboard',
                 'color': '#8b5cf6',
                 'bg': '#ede9fe',
+            },
+            {
+                'title': 'Employee Requests',
+                'description': 'Review and manage employee requests, applications, and submissions',
+                'url': reverse('employee_requests_list'),
+                'icon': 'inbox',
+                'color': '#0891b2',
+                'bg': '#cffafe',
             },
             {
                 'title': 'Bulk Import',
@@ -16756,14 +18293,20 @@ def superadmin_tenants(request):
     # Get all companies with stats
     companies = Company.objects.all().order_by('-created_at')
     
+    from blu_staff.apps.documents.models import EmployeeDocument
+    from django.db.models import Sum
+
     # Calculate stats for each company
     for company in companies:
         company.total_users = User.objects.filter(company=company).count()
         company.total_employees = User.objects.filter(company=company, role='EMPLOYEE').count()
         company.active_users = User.objects.filter(company=company, is_active=True).count()
-        company.storage_used = 0  # Placeholder for storage calculation
-        company.api_calls = 0  # Placeholder for API usage
-        company.monthly_revenue = 0  # Placeholder for revenue calculation
+        storage_bytes = EmployeeDocument.objects.filter(
+            employee__company=company
+        ).aggregate(total=Sum('file_size'))['total'] or 0
+        company.storage_used = round(storage_bytes / (1024 ** 3), 2)
+        company.api_calls = 0
+        company.monthly_revenue = 0
         
         # Determine status
         if company.is_trial and company.trial_ends_at and company.trial_ends_at < today:
@@ -16821,19 +18364,65 @@ def tenant_detail(request, company_id):
     company_users = User.objects.filter(company=company).order_by('-date_joined')
     recent_users = company_users[:5]
     
+    from blu_staff.apps.documents.models import EmployeeDocument
+    from django.db.models import Sum
+    from datetime import timedelta
+
     # Calculate metrics
     company.total_users = company_users.count()
     company.total_employees = company_users.filter(role='EMPLOYEE').count()
     company.active_users = company_users.filter(is_active=True).count()
-    company.storage_used = 0  # Placeholder
-    company.api_calls = 0  # Placeholder
-    company.monthly_revenue = 0  # Placeholder
-    
+    storage_bytes = EmployeeDocument.objects.filter(
+        employee__company=company
+    ).aggregate(total=Sum('file_size'))['total'] or 0
+    company.storage_used = round(storage_bytes / (1024 ** 3), 2)
+    company.api_calls = 0
+    company.monthly_revenue = 0
+
+    # Recent activity
+    recent_activity = []
+    try:
+        for u in company_users.order_by('-date_joined')[:4]:
+            recent_activity.append({
+                'icon': 'user',
+                'title': 'User registered',
+                'description': f'{u.get_full_name() or u.email} joined as {u.role}',
+                'timestamp': u.date_joined,
+            })
+    except Exception:
+        pass
+    try:
+        for doc in EmployeeDocument.objects.filter(
+            employee__company=company
+        ).order_by('-created_at')[:4]:
+            recent_activity.append({
+                'icon': 'document',
+                'title': 'Document uploaded',
+                'description': f'{doc.title} by {doc.uploaded_by.get_full_name() if doc.uploaded_by else "System"}',
+                'timestamp': doc.created_at,
+            })
+    except Exception:
+        pass
+    try:
+        from blu_staff.apps.attendance.models import Attendance
+        for att in Attendance.objects.filter(user__company=company).order_by('-created_at')[:4]:
+            recent_activity.append({
+                'icon': 'clock',
+                'title': 'Attendance recorded',
+                'description': f'{att.user.get_full_name() or att.user.email} — {att.get_status_display()}',
+                'timestamp': att.created_at,
+            })
+    except Exception:
+        pass
+    recent_activity.sort(key=lambda x: x['timestamp'], reverse=True)
+    recent_activity = recent_activity[:8]
+
     context = {
         'company': company,
         'recent_users': recent_users,
+        'recent_activity': recent_activity,
     }
-    
+
     return render(request, 'ems/tenant_detail.html', context)
 
 
@@ -16936,11 +18525,21 @@ def generate_tenant_report(request, company_id):
     
     try:
         company = get_object_or_404(Company, id=company_id)
-        
-        # TODO: Generate comprehensive report
-        # This could include user stats, usage metrics, billing info, etc.
-        
-        # For now, redirect to a simple report page
+
+        from blu_staff.apps.documents.models import EmployeeDocument
+        from django.db.models import Sum
+
+        company_users = User.objects.filter(company=company)
+        company.total_users = company_users.count()
+        company.total_employees = company_users.filter(role='EMPLOYEE').count()
+        company.active_users = company_users.filter(is_active=True).count()
+        storage_bytes = EmployeeDocument.objects.filter(
+            employee__company=company
+        ).aggregate(total=Sum('file_size'))['total'] or 0
+        company.storage_used = round(storage_bytes / (1024 ** 3), 2)
+        company.api_calls = 0
+        company.monthly_revenue = 0
+
         return render(request, 'ems/tenant_report.html', {'company': company})
     except Exception as e:
         messages.error(request, f'Error generating report: {str(e)}')
@@ -17155,16 +18754,1082 @@ def tenant_analytics(request, company_id):
     """Analytics dashboard for a specific tenant"""
     if not (hasattr(request.user, 'is_superadmin') and request.user.is_superadmin):
         return render(request, 'ems/unauthorized.html')
-    
+
     from blu_staff.apps.accounts.models import Company
     from django.shortcuts import get_object_or_404
-    
+    from django.db.models import Sum, Count
+    from blu_staff.apps.documents.models import EmployeeDocument
+    from datetime import date, timedelta
+
     company = get_object_or_404(Company, id=company_id)
-    
-    # Placeholder for analytics data
+    company_users = User.objects.filter(company=company)
+
+    company.total_users = company_users.count()
+    company.active_users = company_users.filter(is_active=True).count()
+    company.total_employees = company_users.filter(role='EMPLOYEE').count()
+
+    # Storage used in GB derived from EmployeeDocument.file_size (bytes)
+    storage_bytes = EmployeeDocument.objects.filter(
+        employee__company=company
+    ).aggregate(total=Sum('file_size'))['total'] or 0
+    company.storage_used = round(storage_bytes / (1024 ** 3), 2)
+
+    # User distribution by role
+    role_dist = list(
+        company_users.values('role').annotate(count=Count('id')).order_by('-count')
+    )
+
+    # Recent activity — real events from the past 30 days
+    cutoff = date.today() - timedelta(days=30)
+    recent_activity = []
+    try:
+        for u in company_users.filter(date_joined__date__gte=cutoff).order_by('-date_joined')[:5]:
+            recent_activity.append({
+                'icon': 'user',
+                'title': 'New user registered',
+                'description': f'{u.get_full_name() or u.email} joined as {u.get_role_display() if hasattr(u, "get_role_display") else u.role}',
+                'timestamp': u.date_joined,
+            })
+    except Exception:
+        pass
+    try:
+        from blu_staff.apps.documents.models import EmployeeDocument as EDoc
+        for doc in EDoc.objects.filter(employee__company=company).order_by('-created_at')[:5]:
+            recent_activity.append({
+                'icon': 'document',
+                'title': 'Document uploaded',
+                'description': f'{doc.title} uploaded by {doc.uploaded_by.get_full_name() if doc.uploaded_by else "System"}',
+                'timestamp': doc.created_at,
+            })
+    except Exception:
+        pass
+    try:
+        from blu_staff.apps.attendance.models import Attendance
+        for att in Attendance.objects.filter(user__company=company).order_by('-created_at')[:5]:
+            recent_activity.append({
+                'icon': 'clock',
+                'title': 'Attendance recorded',
+                'description': f'{att.user.get_full_name() or att.user.email} — {att.get_status_display()}',
+                'timestamp': att.created_at,
+            })
+    except Exception:
+        pass
+    recent_activity.sort(key=lambda x: x['timestamp'], reverse=True)
+    recent_activity = recent_activity[:8]
+
     context = {
         'company': company,
-        'analytics_data': {},
+        'role_dist': role_dist,
+        'recent_activity': recent_activity,
     }
-    
+
     return render(request, 'ems/tenant_analytics.html', context)
+
+
+# ============================================================================
+# TIMESHEETS MODULE
+# ============================================================================
+
+@login_required
+def timesheets_list(request):
+    """HR / Accountant view: list all company timesheets with filtering."""
+    from blu_staff.apps.payroll.models import Timesheet
+    from django.db.models import Sum, Q
+
+    user = request.user
+    is_hr = (user.role == 'EMPLOYEE' and hasattr(user, 'employee_profile') and
+             user.employee_profile.employee_role == 'HR')
+    is_accountant = (user.role == 'EMPLOYEE' and hasattr(user, 'employee_profile') and
+                     user.employee_profile.employee_role in ['ACCOUNTANT', 'ACCOUNTS'])
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+
+    if not (is_hr or is_accountant or is_admin):
+        return render(request, 'ems/unauthorized.html', status=403)
+
+    company = getattr(user, 'company', None)
+    qs = Timesheet.objects.filter(employee__company=company).select_related(
+        'employee', 'employee__employee_profile', 'reviewed_by'
+    )
+
+    status_filter = request.GET.get('status', '')
+    employee_filter = request.GET.get('employee', '')
+    week_from = request.GET.get('week_from', '')
+    week_to = request.GET.get('week_to', '')
+    search = request.GET.get('search', '')
+
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    if employee_filter:
+        qs = qs.filter(employee_id=employee_filter)
+    if week_from:
+        qs = qs.filter(week_start__gte=week_from)
+    if week_to:
+        qs = qs.filter(week_start__lte=week_to)
+    if search:
+        qs = qs.filter(
+            Q(employee__first_name__icontains=search) |
+            Q(employee__last_name__icontains=search) |
+            Q(employee__email__icontains=search)
+        )
+
+    qs = qs.order_by('-week_start', 'employee__first_name')
+
+    # Summary counts
+    total = qs.count()
+    pending_count = qs.filter(status='SUBMITTED').count()
+    approved_count = qs.filter(status='APPROVED').count()
+    draft_count = qs.filter(status='DRAFT').count()
+
+    employees = User.objects.filter(company=company, role='EMPLOYEE').order_by('first_name')
+
+    base_template = 'ems/base_employee.html' if user.role == 'EMPLOYEE' else 'ems/base_employer.html'
+    context = {
+        'timesheets': qs,
+        'total': total,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'draft_count': draft_count,
+        'employees': employees,
+        'status_filter': status_filter,
+        'employee_filter': employee_filter,
+        'week_from': week_from,
+        'week_to': week_to,
+        'search': search,
+        'is_hr': is_hr,
+        'is_accountant': is_accountant,
+        'base_template': base_template,
+    }
+    context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/timesheets_list.html', context)
+
+
+@login_required
+def timesheet_detail(request, timesheet_id):
+    """HR / Accountant: view a single timesheet and approve / reject it."""
+    from blu_staff.apps.payroll.models import Timesheet
+    from django.utils import timezone
+
+    user = request.user
+    is_hr = (user.role == 'EMPLOYEE' and hasattr(user, 'employee_profile') and
+             user.employee_profile.employee_role == 'HR')
+    is_accountant = (user.role == 'EMPLOYEE' and hasattr(user, 'employee_profile') and
+                     user.employee_profile.employee_role in ['ACCOUNTANT', 'ACCOUNTS'])
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+
+    if not (is_hr or is_accountant or is_admin):
+        return render(request, 'ems/unauthorized.html', status=403)
+
+    company = getattr(user, 'company', None)
+    timesheet = get_object_or_404(Timesheet, id=timesheet_id, employee__company=company)
+    entries = timesheet.entries.order_by('date')
+
+    base_template = 'ems/base_employee.html' if user.role == 'EMPLOYEE' else 'ems/base_employer.html'
+    context = {
+        'timesheet': timesheet,
+        'entries': entries,
+        'can_approve': (is_hr or is_admin) and timesheet.status == 'SUBMITTED',
+        'base_template': base_template,
+    }
+    context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/timesheet_detail.html', context)
+
+
+@login_required
+def timesheet_action(request, timesheet_id):
+    """HR: approve or reject a submitted timesheet."""
+    from blu_staff.apps.payroll.models import Timesheet
+    from django.utils import timezone
+
+    if request.method != 'POST':
+        return redirect('timesheets_list')
+
+    user = request.user
+    is_hr = (user.role == 'EMPLOYEE' and hasattr(user, 'employee_profile') and
+             user.employee_profile.employee_role == 'HR')
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+
+    if not (is_hr or is_admin):
+        return render(request, 'ems/unauthorized.html', status=403)
+
+    company = getattr(user, 'company', None)
+    timesheet = get_object_or_404(Timesheet, id=timesheet_id, employee__company=company)
+
+    action = request.POST.get('action', '')
+    if action == 'approve' and timesheet.status == 'SUBMITTED':
+        timesheet.status = 'APPROVED'
+        timesheet.reviewed_by = user
+        timesheet.reviewed_at = timezone.now()
+        timesheet.rejection_reason = ''
+        timesheet.save()
+        try:
+            from blu_staff.apps.notifications.models import Notification
+            Notification.objects.create(
+                recipient=timesheet.employee,
+                sender=user,
+                title='Timesheet Approved',
+                message=f'Your timesheet for w/c {timesheet.week_start} has been approved.',
+                notification_type='SYSTEM',
+            )
+        except Exception:
+            pass
+        messages.success(request, 'Timesheet approved.')
+    elif action == 'reject' and timesheet.status == 'SUBMITTED':
+        reason = request.POST.get('rejection_reason', '').strip()
+        timesheet.status = 'REJECTED'
+        timesheet.reviewed_by = user
+        timesheet.reviewed_at = timezone.now()
+        timesheet.rejection_reason = reason
+        timesheet.save()
+        try:
+            from blu_staff.apps.notifications.models import Notification
+            Notification.objects.create(
+                recipient=timesheet.employee,
+                sender=user,
+                title='Timesheet Rejected',
+                message=f'Your timesheet for w/c {timesheet.week_start} was rejected. {reason}',
+                notification_type='SYSTEM',
+            )
+        except Exception:
+            pass
+        messages.warning(request, 'Timesheet rejected.')
+    else:
+        messages.error(request, 'Invalid action or timesheet not in submitted state.')
+
+    return redirect('timesheet_detail', timesheet_id=timesheet_id)
+
+
+@login_required
+def employee_timesheet(request):
+    """Employee: view own timesheets and submit a new one."""
+    from blu_staff.apps.payroll.models import Timesheet, TimesheetEntry
+    from django.utils import timezone
+    from datetime import date, timedelta
+    from decimal import Decimal
+
+    if request.user.role != 'EMPLOYEE':
+        return redirect('role_hub')
+
+    user = request.user
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'submit')
+        week_start_str = request.POST.get('week_start', '')
+        try:
+            week_start = date.fromisoformat(week_start_str)
+            # Ensure it's a Monday
+            week_start = week_start - timedelta(days=week_start.weekday())
+        except (ValueError, TypeError):
+            messages.error(request, 'Invalid week start date.')
+            return redirect('employee_timesheet')
+
+        ts, created = Timesheet.objects.get_or_create(
+            employee=user,
+            week_start=week_start,
+            defaults={'status': 'DRAFT'},
+        )
+        if ts.status in ['APPROVED']:
+            messages.error(request, 'Cannot edit an approved timesheet.')
+            return redirect('employee_timesheet')
+
+        # Save daily entries
+        ts.total_regular_hours = Decimal('0')
+        ts.total_overtime_hours = Decimal('0')
+        ts.entries.all().delete()
+
+        for i in range(7):
+            day = week_start + timedelta(days=i)
+            reg = request.POST.get(f'regular_{i}', '0') or '0'
+            ot = request.POST.get(f'overtime_{i}', '0') or '0'
+            desc = request.POST.get(f'desc_{i}', '')
+            try:
+                reg_h = Decimal(reg)
+                ot_h = Decimal(ot)
+            except Exception:
+                reg_h = Decimal('0')
+                ot_h = Decimal('0')
+            if reg_h > 0 or ot_h > 0 or desc:
+                TimesheetEntry.objects.create(
+                    timesheet=ts, date=day,
+                    regular_hours=reg_h, overtime_hours=ot_h,
+                    description=desc,
+                )
+                ts.total_regular_hours += reg_h
+                ts.total_overtime_hours += ot_h
+
+        ts.notes = request.POST.get('notes', '')
+        if action == 'submit':
+            ts.status = 'SUBMITTED'
+            ts.submitted_at = timezone.now()
+            messages.success(request, f'Timesheet for w/c {week_start} submitted for approval.')
+        else:
+            ts.status = 'DRAFT'
+            messages.success(request, 'Timesheet saved as draft.')
+        ts.save()
+        return redirect('employee_timesheet')
+
+    # GET: list own timesheets
+    my_timesheets = Timesheet.objects.filter(employee=user).order_by('-week_start')[:20]
+
+    # Default week_start = this Monday
+    today = date.today()
+    this_monday = today - timedelta(days=today.weekday())
+
+    context = {
+        'my_timesheets': my_timesheets,
+        'this_monday': this_monday,
+        'week_days': [(this_monday + timedelta(days=i)) for i in range(7)],
+        'base_template': 'ems/base_employee.html',
+    }
+    return render(request, 'ems/employee_timesheet.html', context)
+
+
+# ============================================================================
+# TO-DO / TASK MODULE
+# ============================================================================
+
+@login_required
+def tasks_list(request):
+    """Kanban task board — personal + shared company tasks."""
+    from ems_project.models import Task
+    from django.utils import timezone
+
+    user = request.user
+    company = getattr(user, 'company', None)
+
+    if request.method == 'POST':
+        action = request.POST.get('action', '')
+
+        if action == 'create':
+            title = request.POST.get('title', '').strip()
+            if title:
+                Task.objects.create(
+                    title=title,
+                    description=request.POST.get('description', ''),
+                    created_by=user,
+                    assigned_to_id=request.POST.get('assigned_to') or None,
+                    due_date=request.POST.get('due_date') or None,
+                    priority=request.POST.get('priority', 'MEDIUM'),
+                    status=request.POST.get('status', 'TODO'),
+                    is_private=request.POST.get('is_private') == 'on',
+                )
+                messages.success(request, 'Task created.')
+            return redirect('tasks_list')
+
+        if action == 'update_status':
+            task_id = request.POST.get('task_id')
+            new_status = request.POST.get('status')
+            try:
+                task = Task.objects.get(id=task_id, created_by__company=company)
+                task.status = new_status
+                if new_status == 'DONE':
+                    task.completed_at = timezone.now()
+                else:
+                    task.completed_at = None
+                task.save()
+            except Task.DoesNotExist:
+                pass
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse({'ok': True})
+            return redirect('tasks_list')
+
+        if action == 'delete':
+            task_id = request.POST.get('task_id')
+            Task.objects.filter(id=task_id, created_by=user).delete()
+            messages.success(request, 'Task deleted.')
+            return redirect('tasks_list')
+
+    # GET — build kanban columns
+    from django.db.models import Q
+    base_qs = Task.objects.filter(
+        Q(created_by__company=company, is_private=False) |
+        Q(created_by=user) |
+        Q(assigned_to=user)
+    ).distinct().select_related('created_by', 'assigned_to')
+
+    status_filter = request.GET.get('status', '')
+    priority_filter = request.GET.get('priority', '')
+    mine_only = request.GET.get('mine', '') == '1'
+
+    qs = base_qs
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    if priority_filter:
+        qs = qs.filter(priority=priority_filter)
+    if mine_only:
+        qs = qs.filter(Q(created_by=user) | Q(assigned_to=user))
+
+    todo_tasks       = qs.filter(status='TODO').order_by('-priority', 'due_date')
+    inprogress_tasks = qs.filter(status='IN_PROGRESS').order_by('-priority', 'due_date')
+    done_tasks       = qs.filter(status='DONE').order_by('-completed_at')[:20]
+
+    employees = User.objects.filter(company=company, role='EMPLOYEE').order_by('first_name')
+
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+    base_template = 'ems/base_employer.html' if is_admin else 'ems/base_employee.html'
+
+    context = {
+        'todo_tasks': todo_tasks,
+        'inprogress_tasks': inprogress_tasks,
+        'done_tasks': done_tasks,
+        'employees': employees,
+        'status_filter': status_filter,
+        'priority_filter': priority_filter,
+        'mine_only': mine_only,
+        'total_todo': todo_tasks.count(),
+        'total_inprogress': inprogress_tasks.count(),
+        'base_template': base_template,
+    }
+    if is_admin:
+        context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/tasks_list.html', context)
+
+
+@login_required
+def task_detail_update(request, task_id):
+    """Edit a task inline (POST only)."""
+    from ems_project.models import Task
+    from django.utils import timezone
+
+    company = getattr(request.user, 'company', None)
+    task = get_object_or_404(Task, id=task_id, created_by__company=company)
+
+    if request.method == 'POST':
+        task.title       = request.POST.get('title', task.title).strip()
+        task.description = request.POST.get('description', task.description)
+        task.priority    = request.POST.get('priority', task.priority)
+        task.status      = request.POST.get('status', task.status)
+        task.due_date    = request.POST.get('due_date') or None
+        task.assigned_to_id = request.POST.get('assigned_to') or None
+        task.is_private  = request.POST.get('is_private') == 'on'
+        if task.status == 'DONE' and not task.completed_at:
+            task.completed_at = timezone.now()
+        elif task.status != 'DONE':
+            task.completed_at = None
+        task.save()
+        messages.success(request, 'Task updated.')
+    return redirect('tasks_list')
+
+
+# ============================================================================
+# CALENDAR MODULE
+# ============================================================================
+
+@login_required
+def calendar_view(request):
+    """Main calendar page (FullCalendar.js renders the UI)."""
+    user = request.user
+    company = getattr(user, 'company', None)
+    employees = User.objects.filter(company=company, role='EMPLOYEE').order_by('first_name')
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+    base_template = 'ems/base_employer.html' if is_admin else 'ems/base_employee.html'
+    context = {
+        'employees': employees,
+        'base_template': base_template,
+        'is_admin': is_admin,
+    }
+    if is_admin:
+        context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/calendar.html', context)
+
+
+@login_required
+def calendar_events_json(request):
+    """JSON feed for FullCalendar — merges CalendarEvent + Leave + Payroll dates."""
+    from ems_project.models import CalendarEvent
+    from django.http import JsonResponse
+    from django.db.models import Q
+
+    user = request.user
+    company = getattr(user, 'company', None)
+
+    start = request.GET.get('start', '')
+    end   = request.GET.get('end', '')
+
+    events = []
+
+    # 1. CalendarEvent objects
+    qs = CalendarEvent.objects.filter(
+        Q(created_by__company=company, is_company_wide=True) |
+        Q(created_by=user) |
+        Q(attendees=user)
+    ).distinct()
+    if start:
+        qs = qs.filter(end__gte=start) if end else qs.filter(start__gte=start)
+    if end:
+        qs = qs.filter(start__lte=end)
+
+    type_colors = {
+        'MEETING': '#1d4ed8', 'DEADLINE': '#dc2626',
+        'REMINDER': '#d97706', 'HOLIDAY': '#059669', 'OTHER': '#64748b',
+    }
+    for ev in qs:
+        events.append({
+            'id': f'cal_{ev.id}',
+            'title': ev.title,
+            'start': ev.start.isoformat(),
+            'end': ev.end.isoformat() if ev.end else None,
+            'allDay': ev.all_day,
+            'color': ev.color or type_colors.get(ev.event_type, '#1d4ed8'),
+            'extendedProps': {
+                'type': ev.event_type,
+                'description': ev.description,
+                'location': ev.location,
+                'editable': ev.created_by_id == user.id,
+            },
+        })
+
+    # 2. Leave requests (approved)
+    try:
+        from blu_staff.apps.attendance.models import LeaveRequest
+        leave_qs = LeaveRequest.objects.filter(
+            employee__company=company, status='APPROVED'
+        ).select_related('employee')
+        if start:
+            leave_qs = leave_qs.filter(end_date__gte=start[:10])
+        if end:
+            leave_qs = leave_qs.filter(start_date__lte=end[:10])
+        for lr in leave_qs:
+            events.append({
+                'id': f'leave_{lr.id}',
+                'title': f'{lr.employee.get_full_name()} — Leave',
+                'start': str(lr.start_date),
+                'end': str(lr.end_date),
+                'allDay': True,
+                'color': '#6366f1',
+                'extendedProps': {'type': 'leave', 'editable': False},
+            })
+    except Exception:
+        pass
+
+    # 3. Payroll pay dates
+    try:
+        from blu_staff.apps.payroll.models import Payroll
+        payroll_qs = Payroll.objects.filter(
+            employee__company=company, status='PAID'
+        )
+        if start:
+            payroll_qs = payroll_qs.filter(pay_date__gte=start[:10])
+        if end:
+            payroll_qs = payroll_qs.filter(pay_date__lte=end[:10])
+        seen_dates = set()
+        for p in payroll_qs:
+            if p.pay_date and str(p.pay_date) not in seen_dates:
+                seen_dates.add(str(p.pay_date))
+                events.append({
+                    'id': f'pay_{p.id}',
+                    'title': 'Payroll — Pay Day',
+                    'start': str(p.pay_date),
+                    'allDay': True,
+                    'color': '#059669',
+                    'extendedProps': {'type': 'payroll', 'editable': False},
+                })
+    except Exception:
+        pass
+
+    return JsonResponse(events, safe=False)
+
+
+@login_required
+def calendar_event_save(request):
+    """Create or update a CalendarEvent (AJAX POST)."""
+    from ems_project.models import CalendarEvent
+    from django.http import JsonResponse
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+
+    user = request.user
+    company = getattr(user, 'company', None)
+    event_id = request.POST.get('event_id')
+
+    if event_id:
+        ev = get_object_or_404(CalendarEvent, id=event_id, created_by__company=company)
+    else:
+        ev = CalendarEvent(created_by=user)
+
+    ev.title       = request.POST.get('title', '').strip() or 'Untitled'
+    ev.description = request.POST.get('description', '')
+    ev.event_type  = request.POST.get('event_type', 'OTHER')
+    ev.location    = request.POST.get('location', '')
+    ev.color       = request.POST.get('color', '#1d4ed8')
+    ev.all_day     = request.POST.get('all_day') == 'true'
+    ev.is_company_wide = request.POST.get('is_company_wide') == 'on'
+
+    try:
+        from django.utils.dateparse import parse_datetime, parse_date
+        start_val = request.POST.get('start', '')
+        end_val   = request.POST.get('end', '')
+        ev.start = parse_datetime(start_val) or parse_date(start_val)
+        ev.end   = parse_datetime(end_val) or parse_date(end_val) if end_val else None
+    except Exception:
+        return JsonResponse({'error': 'Invalid date'}, status=400)
+
+    ev.save()
+
+    attendee_ids = request.POST.getlist('attendees')
+    if attendee_ids:
+        ev.attendees.set(User.objects.filter(id__in=attendee_ids, company=company))
+
+    return JsonResponse({'ok': True, 'id': ev.id, 'title': ev.title})
+
+
+@login_required
+def calendar_event_delete(request, event_id):
+    """Delete a CalendarEvent (POST only)."""
+    from ems_project.models import CalendarEvent
+    from django.http import JsonResponse
+
+    if request.method != 'POST':
+        return redirect('calendar_view')
+
+    ev = get_object_or_404(CalendarEvent, id=event_id, created_by=request.user)
+    ev.delete()
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True})
+    messages.success(request, 'Event deleted.')
+    return redirect('calendar_view')
+
+
+# ============================================================================
+# FILE MANAGER
+# ============================================================================
+
+@login_required
+def file_manager(request):
+    """Two-panel file manager: folder tree left, files right."""
+    from ems_project.models import FileFolder, CompanyFile
+    from django.db.models import Q
+
+    user = request.user
+    company = getattr(user, 'company', None)
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+
+    folder_id = request.GET.get('folder')
+    current_folder = None
+    if folder_id:
+        try:
+            current_folder = FileFolder.objects.get(
+                id=folder_id, created_by__company=company
+            )
+        except FileFolder.DoesNotExist:
+            pass
+
+    if request.method == 'POST':
+        action = request.POST.get('action', '')
+
+        if action == 'create_folder':
+            name = request.POST.get('name', '').strip()
+            parent_id = request.POST.get('parent_id') or None
+            if name:
+                FileFolder.objects.get_or_create(
+                    name=name,
+                    parent_id=parent_id,
+                    created_by=user,
+                    defaults={'is_shared': request.POST.get('is_shared') == 'on'},
+                )
+                messages.success(request, f'Folder "{name}" created.')
+            return redirect(request.get_full_path())
+
+        if action == 'upload':
+            uploaded = request.FILES.get('file')
+            if uploaded:
+                cf = CompanyFile(
+                    name=request.POST.get('name', '').strip() or uploaded.name,
+                    file=uploaded,
+                    folder=current_folder,
+                    uploaded_by=user,
+                    description=request.POST.get('description', ''),
+                    is_shared=request.POST.get('is_shared') == 'on',
+                    original_filename=uploaded.name,
+                    file_size=uploaded.size,
+                    mime_type=getattr(uploaded, 'content_type', 'application/octet-stream'),
+                )
+                cf.save()
+                messages.success(request, f'"{cf.name}" uploaded.')
+            return redirect(request.get_full_path())
+
+        if action == 'delete_file':
+            file_id = request.POST.get('file_id')
+            CompanyFile.objects.filter(
+                id=file_id, uploaded_by__company=company
+            ).delete()
+            messages.success(request, 'File deleted.')
+            return redirect(request.get_full_path())
+
+        if action == 'delete_folder':
+            fid = request.POST.get('folder_id')
+            FileFolder.objects.filter(
+                id=fid, created_by__company=company
+            ).delete()
+            messages.success(request, 'Folder deleted.')
+            return redirect(f'/files/')
+
+    # Root folders (no parent)
+    root_folders = FileFolder.objects.filter(
+        created_by__company=company, parent__isnull=True
+    ).prefetch_related('children')
+
+    # Files in current folder (or root if none)
+    files_qs = CompanyFile.objects.filter(
+        uploaded_by__company=company, folder=current_folder
+    ).select_related('uploaded_by')
+
+    # Breadcrumb path
+    breadcrumbs = []
+    if current_folder:
+        node = current_folder
+        while node:
+            breadcrumbs.insert(0, node)
+            node = node.parent
+
+    # Sub-folders of current folder
+    sub_folders = FileFolder.objects.filter(
+        created_by__company=company, parent=current_folder
+    )
+
+    search = request.GET.get('q', '')
+    if search:
+        files_qs = CompanyFile.objects.filter(
+            uploaded_by__company=company,
+            name__icontains=search,
+        ).select_related('uploaded_by')
+        sub_folders = FileFolder.objects.none()
+
+    base_template = 'ems/base_employer.html' if is_admin else 'ems/base_employee.html'
+    context = {
+        'root_folders': root_folders,
+        'sub_folders': sub_folders,
+        'files': files_qs,
+        'current_folder': current_folder,
+        'breadcrumbs': breadcrumbs,
+        'search': search,
+        'is_admin': is_admin,
+        'base_template': base_template,
+    }
+    if is_admin:
+        context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/file_manager.html', context)
+
+
+# ============================================================================
+# SOCIAL FEED
+# ============================================================================
+
+FEED_EMOJIS = ['👍', '❤️', '😂', '🎉', '👏', '🔥']
+
+
+@login_required
+def social_feed(request):
+    """Company social board — any employee can post, react, and comment."""
+    from django.http import JsonResponse
+    from ems_project.models import FeedPost, FeedPostReaction, FeedPostComment
+    from django.db.models import Prefetch
+
+    user = request.user
+    company = _get_user_company(user)
+    # TenantScopedModel requires a Tenant instance, not Company
+    tenant = getattr(company, 'tenant', None) if company else None
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if request.method == 'POST':
+        action = request.POST.get('action', '')
+
+        # ── Create post ────────────────────────────────────────────────────
+        if action == 'post':
+            body = request.POST.get('body', '').strip()
+            if not body:
+                messages.error(request, 'Post body cannot be empty.')
+                return redirect('social_feed')
+            post = FeedPost(author=user, body=body, tenant=tenant)
+            if request.FILES.get('image'):
+                post.image = request.FILES['image']
+            if request.FILES.get('attachment'):
+                f = request.FILES['attachment']
+                post.attachment = f
+                post.attachment_name = f.name
+            post.save()
+            if is_ajax:
+                return JsonResponse({'ok': True, 'post_id': post.id})
+            return redirect('social_feed')
+
+        # ── React (toggle) ─────────────────────────────────────────────────
+        if action == 'react':
+            post_id = request.POST.get('post_id')
+            emoji = request.POST.get('emoji', '👍')
+            try:
+                post = FeedPost.objects.get(id=post_id, tenant=tenant)
+                reaction, created = FeedPostReaction.objects.get_or_create(
+                    post=post, user=user, emoji=emoji,
+                    defaults={'tenant': tenant},
+                )
+                if not created:
+                    reaction.delete()
+                    reacted = False
+                else:
+                    reacted = True
+                count = FeedPostReaction.objects.filter(post=post, emoji=emoji).count()
+                return JsonResponse({'ok': True, 'reacted': reacted, 'count': count})
+            except FeedPost.DoesNotExist:
+                return JsonResponse({'error': 'Not found'}, status=404)
+
+        # ── Add comment ────────────────────────────────────────────────────
+        if action == 'comment':
+            post_id = request.POST.get('post_id')
+            body = request.POST.get('body', '').strip()
+            parent_id = request.POST.get('parent_id')
+            if not body:
+                return JsonResponse({'error': 'Empty'}, status=400)
+            try:
+                post = FeedPost.objects.get(id=post_id, tenant=tenant)
+                parent = None
+                if parent_id:
+                    try:
+                        parent = FeedPostComment.objects.get(id=parent_id, post=post)
+                    except FeedPostComment.DoesNotExist:
+                        pass
+                comment = FeedPostComment.objects.create(
+                    post=post, author=user, body=body, tenant=tenant, parent=parent,
+                )
+                initials = (user.first_name[:1] + user.last_name[:1]).upper() or '?'
+                return JsonResponse({
+                    'ok': True,
+                    'id': comment.id,
+                    'author': user.get_full_name() or user.username,
+                    'initials': initials,
+                    'body': comment.body,
+                    'created_at': comment.created_at.strftime('%b %d, %H:%M'),
+                    'is_reply': parent is not None,
+                    'parent_id': parent.id if parent else None,
+                })
+            except FeedPost.DoesNotExist:
+                return JsonResponse({'error': 'Not found'}, status=404)
+
+        # ── Delete comment ─────────────────────────────────────────────────
+        if action == 'delete_comment':
+            comment_id = request.POST.get('comment_id')
+            try:
+                comment = FeedPostComment.objects.get(id=comment_id, tenant=tenant)
+                if comment.author == user or is_admin:
+                    comment.delete()
+                    return JsonResponse({'ok': True})
+                return JsonResponse({'error': 'Forbidden'}, status=403)
+            except FeedPostComment.DoesNotExist:
+                return JsonResponse({'error': 'Not found'}, status=404)
+
+        # ── Pin / unpin (admin only) ────────────────────────────────────────
+        if action == 'pin' and is_admin:
+            post_id = request.POST.get('post_id')
+            try:
+                post = FeedPost.objects.get(id=post_id, tenant=tenant)
+                post.is_pinned = not post.is_pinned
+                post.save(update_fields=['is_pinned'])
+                return JsonResponse({'ok': True, 'pinned': post.is_pinned})
+            except FeedPost.DoesNotExist:
+                return JsonResponse({'error': 'Not found'}, status=404)
+
+    # ── GET: paginated feed ────────────────────────────────────────────────
+    page = int(request.GET.get('page', 1))
+    per_page = 12
+    offset = (page - 1) * per_page
+
+    posts_qs = FeedPost.objects.filter(tenant=tenant).select_related('author').prefetch_related(
+        Prefetch('comments', queryset=FeedPostComment.objects.filter(parent=None).select_related('author').prefetch_related(
+            Prefetch('replies', queryset=FeedPostComment.objects.select_related('author'))
+        )),
+        Prefetch('reactions', queryset=FeedPostReaction.objects.select_related('user')),
+    )
+    total = posts_qs.count()
+    posts = list(posts_qs[offset:offset + per_page])
+
+    # Build per-user reaction lookup: {(post_id, emoji): True}
+    my_reactions = set(
+        FeedPostReaction.objects.filter(
+            post__in=posts, user=user
+        ).values_list('post_id', 'emoji')
+    )
+
+    # Build reaction summary per post: {post_id: {emoji: count}}
+    reaction_summary = {}
+    for post in posts:
+        summary = {}
+        for r in post.reactions.all():
+            summary[r.emoji] = summary.get(r.emoji, 0) + 1
+        reaction_summary[post.id] = summary
+
+    import json
+    # Serialize for JS: reaction_summary → {str(post_id): {emoji: count}}
+    reaction_summary_js = {str(k): v for k, v in reaction_summary.items()}
+    # my_reactions → ["post_id::emoji", ...]
+    my_reactions_js = [f"{pid}::{emoji}" for pid, emoji in my_reactions]
+
+    base_template = 'ems/base_employer.html' if is_admin else 'ems/base_employee.html'
+    context = {
+        'posts': posts,
+        'my_reactions': my_reactions,
+        'reaction_summary': reaction_summary,
+        'reaction_summary_json': json.dumps(reaction_summary_js),
+        'my_reactions_json': json.dumps(my_reactions_js),
+        'page': page,
+        'has_next': (offset + per_page) < total,
+        'is_admin': is_admin,
+        'base_template': base_template,
+        'EMOJIS': FEED_EMOJIS,
+    }
+    if is_admin:
+        context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/social_feed.html', context)
+
+
+@login_required
+def feed_post_delete(request, post_id):
+    """Delete a feed post — author or admin only."""
+    from ems_project.models import FeedPost
+    company = _get_user_company(request.user)
+    tenant = getattr(company, 'tenant', None) if company else None
+    is_admin = request.user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+    try:
+        post = FeedPost.objects.get(id=post_id, tenant=tenant)
+        if post.author == request.user or is_admin:
+            post.delete()
+            messages.success(request, 'Post deleted.')
+        else:
+            messages.error(request, 'You cannot delete this post.')
+    except FeedPost.DoesNotExist:
+        messages.error(request, 'Post not found.')
+    return redirect('social_feed')
+
+
+# ============================================================================
+# CHAT UI (POLISHED + GROUP CHAT)
+# ============================================================================
+
+@login_required
+def chat_home(request):
+    """Chat home — lists conversations and group rooms."""
+    from blu_staff.apps.communication.models import DirectMessage
+
+    user = request.user
+    company = getattr(user, 'company', None)
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+
+    # Latest DM per contact
+    from django.db.models import Q, Max, Subquery, OuterRef
+    contacts_qs = User.objects.filter(
+        company=company
+    ).exclude(id=user.id).order_by('first_name')
+
+    # Build recent conversations with last message + unread
+    recent = []
+    for contact in contacts_qs:
+        last_msg = DirectMessage.objects.filter(
+            Q(sender=user, recipient=contact) |
+            Q(sender=contact, recipient=user)
+        ).order_by('-created_at').first()
+        if last_msg:
+            unread = DirectMessage.objects.filter(
+                sender=contact, recipient=user, is_read=False
+            ).count()
+            recent.append({
+                'user': contact,
+                'last_msg': last_msg,
+                'unread': unread,
+            })
+
+    recent.sort(key=lambda x: x['last_msg'].created_at, reverse=True)
+
+    # Auto-open the most recent conversation instead of blank "Select a conversation"
+    if recent:
+        from django.shortcuts import redirect as _redirect
+        return _redirect('chat_conversation', user_id=recent[0]['user'].id)
+
+    base_template = 'ems/base_employer.html' if is_admin else 'ems/base_employee.html'
+    context = {
+        'recent': recent,
+        'all_contacts': contacts_qs,
+        'base_template': base_template,
+        'is_admin': is_admin,
+    }
+    if is_admin:
+        context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/chat_home.html', context)
+
+
+@login_required
+def chat_conversation(request, user_id):
+    """DM thread with polling refresh — replaces direct_message_conversation."""
+    from blu_staff.apps.communication.models import DirectMessage
+    from django.db.models import Q
+
+    user = request.user
+    company = getattr(user, 'company', None)
+    other = get_object_or_404(User, id=user_id, company=company)
+    is_admin = user.role in ['EMPLOYER_ADMIN', 'ADMINISTRATOR']
+
+    if request.method == 'POST':
+        body = request.POST.get('body', '').strip()
+        if body:
+            DirectMessage.objects.create(
+                sender=user, recipient=other, content=body,
+            )
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.http import JsonResponse
+            return JsonResponse({'ok': True})
+        return redirect('chat_conversation', user_id=other.id)
+
+    # Poll endpoint — return only new messages since given ID
+    since_id = request.GET.get('since')
+    msgs_qs = DirectMessage.objects.filter(
+        Q(sender=user, recipient=other) | Q(sender=other, recipient=user)
+    ).order_by('created_at')
+
+    if since_id and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from django.http import JsonResponse
+        new_msgs = msgs_qs.filter(id__gt=since_id)
+        msgs_qs.filter(sender=other, recipient=user, is_read=False).update(is_read=True)
+        return JsonResponse([{
+            'id': m.id,
+            'body': m.content,
+            'mine': m.sender_id == user.id,
+            'sender': m.sender.get_full_name(),
+            'time': m.created_at.strftime('%H:%M'),
+        } for m in new_msgs], safe=False)
+
+    # Mark as read
+    msgs_qs.filter(sender=other, recipient=user, is_read=False).update(is_read=True)
+    messages_list = list(msgs_qs.select_related('sender', 'recipient'))
+    last_id = messages_list[-1].id if messages_list else 0
+
+    # Build recent conversations sidebar (same as chat_home)
+    from django.db.models import Q as _Q
+    from blu_staff.apps.communication.models import DirectMessage as _DM
+    contacts_qs = User.objects.filter(company=company).exclude(id=user.id).order_by('first_name')
+    recent = []
+    for contact in contacts_qs:
+        last_msg = _DM.objects.filter(
+            _Q(sender=user, recipient=contact) | _Q(sender=contact, recipient=user)
+        ).order_by('-created_at').first()
+        if last_msg:
+            unread = _DM.objects.filter(sender=contact, recipient=user, is_read=False).count()
+            recent.append({'user': contact, 'last_msg': last_msg, 'unread': unread})
+    recent.sort(key=lambda x: x['last_msg'].created_at, reverse=True)
+    # Also show contacts with no messages at all
+    contacted_ids = {r['user'].id for r in recent}
+    for contact in contacts_qs:
+        if contact.id not in contacted_ids:
+            recent.append({'user': contact, 'last_msg': None, 'unread': 0})
+
+    base_template = 'ems/base_employer.html' if is_admin else 'ems/base_employee.html'
+    context = {
+        'other': other,
+        'messages_list': messages_list,
+        'last_id': last_id,
+        'recent': recent,
+        'base_template': base_template,
+        'is_admin': is_admin,
+    }
+    if is_admin:
+        context.update(_get_employer_nav_context(user))
+    return render(request, 'ems/chat_conversation.html', context)

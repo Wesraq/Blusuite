@@ -1,262 +1,413 @@
-{% extends base_template|default:'ems/base_employee.html' %}
-
-{% block title %}Payslip - {{ payroll.period_start|date:"M Y" }} - EMS{% endblock %}
+﻿{% extends 'ems/base_employee.html' %}
+{% load static %}
+{% block title %}Payslip - {{ period_start_formatted }}{% endblock %}
 {% block page_title %}Payslip{% endblock %}
 
-{% block content %}
-<div style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
-<div class="page-header no-print">
-    <div class="page-header-content">
-        <h1 class="page-title">Payslip - {{ payroll.period_start|date:"F Y" }}</h1>
-        <p class="page-subtitle">{{ payroll.employee.get_full_name }} • {{ payroll.employee.employee_profile.employee_id }}</p>
-    </div>
-    <div class="page-header-actions">
-        <a href="{% url 'payroll_list' %}" class="btn btn-secondary">← Back</a>
-        <button onclick="window.print()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                <rect x="6" y="14" width="12" height="8"></rect>
-            </svg>
-            Print
-        </button>
-    </div>
-</div>
-
-<div class="payslip-container" style="max-width: 800px; margin: 20px auto; background: white; padding: 40px; border: 2px solid #000; font-family: Arial, sans-serif;">
-    
-    <!-- Company Header -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
-        <div style="flex: 0 0 auto; max-width: 250px;">
-            {% if payroll.employee.company.logo %}
-            <img src="{{ payroll.employee.company.logo.url }}" alt="{{ payroll.employee.company.name }}" style="max-height: 80px; width: auto; object-fit: contain; display: block;">
-            {% else %}
-            <div style="background: #000; color: white; padding: 12px 20px; font-weight: bold; font-size: 20px; display: inline-block;">
-                {{ payroll.employee.company.name|slice:":3"|upper }}
-            </div>
-            {% endif %}
-        </div>
-        <div style="text-align: right; flex: 1; padding-left: 20px;">
-            <div style="font-weight: 700; font-size: 15px; margin-bottom: 5px; text-transform: uppercase;">{{ payroll.employee.company.name }}</div>
-            <div style="font-size: 11px; line-height: 1.5; color: #000;">
-                {% if payroll.employee.company.address %}{{ payroll.employee.company.address }}<br>{% endif %}
-                {% if payroll.employee.company.city %}P.O.Box {{ payroll.employee.company.city }}<br>{% endif %}
-                {% if payroll.employee.company.country %}{{ payroll.employee.company.country }}{% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Employee Information -->
-    <table style="width: 100%; margin-bottom: 20px; font-size: 12px; border-collapse: collapse;">
-        <tr>
-            <td style="text-align: right; padding: 3px 10px; font-weight: 400; width: 180px;">Employee Name :</td>
-            <td style="padding: 3px 10px; font-weight: 700; text-transform: uppercase;">{{ payroll.employee.get_full_name }}</td>
-        </tr>
-        <tr>
-            <td style="text-align: right; padding: 3px 10px; font-weight: 400;">Employee ID :</td>
-            <td style="padding: 3px 10px;">{{ payroll.employee.employee_profile.employee_id }}</td>
-        </tr>
-        <tr>
-            <td style="text-align: right; padding: 3px 10px; font-weight: 400;">Designation :</td>
-            <td style="padding: 3px 10px; text-transform: uppercase;">{{ payroll.employee.employee_profile.job_title }}</td>
-        </tr>
-        <tr>
-            <td style="text-align: right; padding: 3px 10px; font-weight: 400;">Department :</td>
-            <td style="padding: 3px 10px; text-transform: uppercase;">{{ payroll.employee.employee_profile.department|default:"N/A" }}</td>
-        </tr>
-        <tr>
-            <td style="text-align: right; padding: 3px 10px; font-weight: 400;">NRC :</td>
-            <td style="padding: 3px 10px;">{{ payroll.employee.employee_profile.nrc_number|default:"-" }}</td>
-        </tr>
-        <tr>
-            <td style="text-align: right; padding: 3px 10px; font-weight: 400;">Month :</td>
-            <td style="padding: 3px 10px;">{{ payroll.period_start|date:"M-Y" }}</td>
-        </tr>
-    </table>
-
-    <!-- Earnings Section -->
-    <div style="background: #c5d9ed; padding: 6px 10px; font-weight: 700; margin-bottom: 1px; font-size: 12px; text-transform: uppercase;">EARNINGS</div>
-    <table style="width: 100%; font-size: 12px; margin-bottom: 15px; border-collapse: collapse;">
-        <tr>
-            <td style="padding: 4px 15px;">Basic Salary</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600;">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td>
-        </tr>
-        {% if payroll.allowances > 0 %}
-        <tr>
-            <td style="padding: 4px 15px;">House Rents Allowance (HRA @30%)</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600;">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td>
-        </tr>
-        {% endif %}
-        {% if payroll.overtime_pay > 0 %}
-        <tr>
-            <td style="padding: 4px 15px;">Transport Allowance</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600;">{{ payroll.currency }} {{ payroll.overtime_pay|floatformat:2 }}</td>
-        </tr>
-        {% endif %}
-        {% if payroll.commission > 0 %}
-        <tr>
-            <td style="padding: 4px 15px;">Lunch Allowance</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600;">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td>
-        </tr>
-        {% endif %}
-        <tr style="background: #e8f4f8;">
-            <td style="padding: 6px 15px; font-weight: 700;">Gross Salary</td>
-            <td style="text-align: right; padding: 6px 15px; font-weight: 700;">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td>
-        </tr>
-    </table>
-
-    <!-- Statutory Deductions -->
-    <div style="background: #c5d9ed; padding: 6px 10px; font-weight: 700; margin-bottom: 1px; font-size: 12px; text-transform: uppercase;">STATUTORY DEDUCTION</div>
-    <table style="width: 100%; font-size: 12px; margin-bottom: 15px; border-collapse: collapse;">
-        {% if payroll.social_security > 0 %}
-        <tr>
-            <td style="padding: 4px 15px;">NAPSA @5%</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600;">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td>
-        </tr>
-        {% endif %}
-        {% if payroll.insurance > 0 %}
-        <tr>
-            <td style="padding: 4px 15px;">NHIMA</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600;">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td>
-        </tr>
-        {% endif %}
-        {% if payroll.tax > 0 %}
-        <tr>
-            <td style="padding: 4px 15px;">PAYEE</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600;">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td style="padding: 4px 15px;">PAYEE</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600;">{{ payroll.currency}} 0.00</td>
-        </tr>
-        {% endif %}
-    </table>
-
-    <!-- Other Deductions -->
-    {% if payroll.other_deductions > 0 %}
-    <div style="background: #c5d9ed; padding: 6px 10px; font-weight: 700; margin-bottom: 1px; font-size: 12px; text-transform: uppercase;">OTHER DEDUCTIONS</div>
-    <table style="width: 100%; font-size: 12px; margin-bottom: 15px; border-collapse: collapse;">
-        {% if deductions %}
-            {% for deduction in deductions %}
-            {% if not deduction.is_statutory %}
-            <tr>
-                <td style="padding: 4px 15px;">{{ deduction.description }}</td>
-                <td style="text-align: right; padding: 4px 15px; font-weight: 600; color: #ff0000;">{{ payroll.currency }} {{ deduction.amount|floatformat:2 }}</td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-        {% else %}
-        <tr>
-            <td style="padding: 4px 15px;">Late Deductions</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600; color: #ff0000;">{{ payroll.currency }} 0.00</td>
-        </tr>
-        <tr>
-            <td style="padding: 4px 15px;">Salary Advance</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600; color: #ff0000;">{{ payroll.currency }} 0.00</td>
-        </tr>
-        <tr>
-            <td style="padding: 4px 15px;">Loans</td>
-            <td style="text-align: right; padding: 4px 15px; font-weight: 600; color: #ff0000;">{{ payroll.currency }} 0.00</td>
-        </tr>
-        {% endif %}
-    </table>
-    {% endif %}
-
-    <!-- Totals -->
-    <div style="border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 10px 0; margin: 20px 0;">
-        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
-            <tr>
-                <td style="padding: 3px 15px;">Total Earnings (A)</td>
-                <td style="text-align: right; padding: 3px 15px; font-weight: 600;">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 3px 15px;">Total Deductions (B)</td>
-                <td style="text-align: right; padding: 3px 15px; font-weight: 600; color: #ff0000;">{{ payroll.currency }} {{ payroll.total_deductions|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 3px 15px;">GRATUITY BONUS</td>
-                <td style="text-align: right; padding: 3px 15px; font-weight: 600;">-</td>
-            </tr>
-            <tr style="font-weight: 700; font-size: 13px;">
-                <td style="padding: 5px 15px; border-bottom: 3px double #000;">Net Salary (A-B)</td>
-                <td style="text-align: right; padding: 5px 15px; border-bottom: 3px double #000;">{{ payroll.currency }} {{ payroll.net_pay|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 3px 15px;">LOANS BALANCE</td>
-                <td style="text-align: right; padding: 3px 15px;"></td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- Signature Section -->
-    <div style="margin-top: 30px; margin-bottom: 20px;">
-        <table style="width: 100%; font-size: 12px;">
-            <tr>
-                <td style="padding: 5px 15px; width: 50%;">
-                    <strong>Receiver's Name:</strong> {{ payroll.employee.get_full_name }}
-                </td>
-                <td style="text-align: right; padding: 5px 15px; width: 50%;">
-                    {% if payroll.employee.company.company_stamp %}
-                    <img src="{{ payroll.employee.company.company_stamp.url }}" alt="Company Stamp" style="max-height: 120px; max-width: 200px; object-fit: contain;">
-                    {% else %}
-                    <div style="border: 2px solid #4472c4; border-radius: 50px; padding: 20px 40px; display: inline-block; position: relative; text-align: center;">
-                        <div style="color: #4472c4; font-size: 14px; font-weight: 600; margin-bottom: 5px;">{{ payroll.employee.company.name|upper }}</div>
-                        <div style="color: #ff0000; font-size: 20px; font-weight: 700; border: 2px solid #ff0000; padding: 8px 20px; display: inline-block; transform: rotate(-10deg);">{{ payroll.pay_date|date:"d M Y" }}</div>
-                        <div style="font-size: 9px; color: #4472c4; margin-top: 5px;">{{ payroll.employee.company.city|default:"Lusaka" }}, {{ payroll.employee.company.country|default:"Zambia" }}</div>
-                    </div>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 5px 15px;" colspan="2">
-                    <strong>Company Stamp</strong>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- Footer Notice -->
-    <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #ccc;">
-        <p style="font-size: 11px; margin: 5px 0; font-weight: 600;">Pay Slip Not Valid Unless Verified @{{ payroll.employee.company.city|default:"Office" }} {{ payroll.employee.company.country|default:"Zambia" }}</p>
-        <p style="font-size: 11px; margin: 5px 0;">Please Treat Your Pay Slip as Confidential. Have a Nice Month</p>
-        <p style="font-size: 10px; margin: 15px 0 5px 0; color: #ff0000; font-style: italic;">*Payslip System generated</p>
-    </div>
-
-    <!-- Company Footer -->
-    <div style="border-top: 2px solid #4472c4; margin-top: 20px; padding-top: 10px; text-align: center;">
-        <div style="font-weight: 700; font-size: 12px; margin-bottom: 5px; text-transform: uppercase;">{{ payroll.employee.company.name }}</div>
-        <div style="font-size: 9px; line-height: 1.5; color: #000;">
-            {% if payroll.employee.company.address %}Head Office: {{ payroll.employee.company.address }} •{% endif %}
-            {% if payroll.employee.company.email %}E-mail: {{ payroll.employee.company.email }}{% endif %}
-        </div>
-        <div style="font-size: 9px; margin-top: 3px;">
-            <strong>{{ payroll.employee.company.country|upper }}</strong>
-        </div>
-    </div>
-</div>
-
+{% block extra_css %}
 <style>
-@media print {
-    .no-print, .page-header, .sidebar, .nav-sidebar, .page-header-actions, header, nav, .top-bar { 
-        display: none !important; 
-    }
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    .payslip-container {
-        margin: 0 !important;
-        padding: 30px !important;
-        border: 2px solid #000 !important;
-        page-break-after: avoid;
-        max-width: 100% !important;
-    }
-    @page {
-        margin: 0.5cm;
-        size: A4;
-    }
+.ps-wrap{max-width:760px;margin:0 auto;padding:20px 0 40px;}
+.ps-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.ps-actions-left{display:flex;align-items:center;gap:14px;}
+.ps-actions-title{font-size:16px;font-weight:700;color:#1e293b;}
+.ps-actions-sub{font-size:12px;color:#64748b;margin-top:1px;}
+.ps-sig-row{display:flex;align-items:flex-end;gap:16px;margin-top:16px;font-size:12px;}
+.ps-sig-row.stamp-bottom-right{justify-content:space-between;}
+.ps-sig-row.stamp-bottom-left{flex-direction:row-reverse;justify-content:space-between;}
+.ps-sig-row.stamp-bottom-center{flex-direction:column;align-items:center;gap:10px;}
+.ps-sig-row.stamp-top-right{flex-direction:column-reverse;align-items:flex-end;}
+.ps-sig-row.stamp-top-left{flex-direction:column-reverse;align-items:flex-start;}
+.ps-sig-left{flex:1;} .ps-sig-right{flex:0 0 auto;}
+.corp-wrap{border:2px solid #1a5f6b;font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
+.corp-header{display:flex;align-items:stretch;border-bottom:3px solid #1a5f6b;}
+.corp-logo-cell{padding:14px 16px;display:flex;align-items:center;background:#fafafa;border-right:1px solid #e0e0e0;}
+.corp-logo-cell img{width:70px;height:70px;object-fit:contain;border:1px solid #e0e0e0;border-radius:4px;display:block;}
+.corp-logo-text{width:70px;height:70px;background:#1a5f6b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;border-radius:4px;text-align:center;padding:4px;word-break:break-all;}
+.corp-company-cell{flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:12px 18px;background:#e8f5f7;}
+.corp-payslip-badge{background:#1a5f6b;color:#fff;padding:6px 20px;font-size:20px;font-weight:700;letter-spacing:3px;margin-bottom:4px;display:inline-block;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-company-name{font-size:13px;font-weight:700;color:#1a5f6b;}
+.corp-company-addr{font-size:9px;color:#555;margin-top:1px;}
+.corp-emp-grid{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #1a5f6b;}
+.corp-emp-info{padding:12px 16px;border-right:1px solid #ccc;}
+.corp-emp-label{font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.corp-emp-name{font-weight:700;font-size:13px;color:#1a5f6b;border-bottom:2px solid #1a5f6b;padding-bottom:3px;margin-bottom:4px;}
+.corp-emp-detail{font-size:10px;color:#444;margin-bottom:2px;}
+.corp-info-table{padding:12px 16px;}
+.corp-info-table table{width:100%;border-collapse:collapse;font-size:10px;}
+.corp-info-table th{background:#1a5f6b;color:#fff;padding:4px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-info-table td{padding:4px 8px;border:1px solid #e0e0e0;}
+.corp-table{width:100%;border-collapse:collapse;font-size:11px;}
+.corp-table thead tr{background:#1a5f6b;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-table thead th{color:#fff;padding:6px 12px;text-align:left;}
+.corp-table thead th.r{text-align:right;}
+.corp-table tbody td{padding:5px 12px;border-bottom:1px solid #f0f0f0;}
+.corp-table tbody td.r{text-align:right;font-weight:600;}
+.corp-table tfoot tr{background:#e8f5f7;border-top:2px solid #1a5f6b;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-table tfoot td{padding:6px 12px;font-weight:700;}
+.corp-table tfoot td.r{text-align:right;}
+.corp-net{background:#1a5f6b;padding:12px 18px;display:flex;justify-content:flex-end;align-items:center;gap:28px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-net-lbl{color:#fff;font-weight:700;font-size:12px;letter-spacing:1px;}
+.corp-net-amt{color:#fff;font-weight:900;font-size:22px;}
+.corp-sig{padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-end;}
+.corp-sig-line{border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;}
+.corp-footer{padding:8px 18px;border-top:1px solid #ccc;text-align:center;font-size:9px;color:#555;line-height:1.5;}
+.classic-wrap{padding:28px 32px;border:1.5px solid #000;font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
+.cl-hd{background:#1f3864;color:#fff;font-weight:700;font-size:11.5px;text-transform:uppercase;padding:5px 12px;letter-spacing:.4px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.cl-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}
+.cl-table td{padding:3.5px 12px;}
+.cl-r{text-align:right;white-space:nowrap;font-weight:600;}
+.cl-red{color:#cc0000!important;}
+.cl-gross td{background:#dce6f1;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.cl-net td{font-size:13px;border-top:2px solid #000;border-bottom:2px solid #000;padding:5px 12px;}
+.min-wrap{padding:26px 30px;border:1px solid #d1d5db;font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
+.min-rule{border:none;border-top:1.5px solid #111;margin:7px 0;}
+.min-title{text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#374151;padding:5px 0;margin-bottom:10px;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;}
+.min-emp-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;margin-bottom:8px;}
+.min-row{display:flex;gap:8px;font-size:12px;padding:2px 0;}
+.min-lbl{font-weight:700;color:#374151;min-width:110px;flex-shrink:0;}
+.min-sec{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#111;padding:4px 0 3px;border-bottom:1.5px solid #111;margin:7px 0 4px;}
+.min-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:5px;}
+.min-table td{padding:3px 4px;}
+.min-r{text-align:right;font-weight:600;white-space:nowrap;}
+.min-red{color:#cc0000!important;}
+.min-bold td{font-weight:700;background:#f3f4f6;}
+.min-net td{font-size:13px;font-weight:700;padding:5px 4px;border-top:2px solid #111;border-bottom:2px solid #111;}
+.min-footer{text-align:center;padding:8px 0;border-top:1px solid #d1d5db;font-size:11px;}
+.min-footer p{margin:2px 0;}
+@media print{
+  .no-print,.ps-actions,
+  .top-header,.sidebar,.mobile-overlay,.sidebar-toggle-btn,
+  .header-right,.nav-bar,.app-topbar{display:none!important;}
+  body{background:#fff!important;}
+  .app-layout{display:block!important;}
+  .main-content{margin-left:0!important;padding:0!important;width:100%!important;}
+  .page-content{padding:0!important;}
+  .ps-wrap{margin:0!important;padding:0!important;max-width:100%!important;}
+  .corp-wrap,.classic-wrap,.min-wrap{max-width:185mm!important;width:185mm!important;margin:0 auto!important;}
+  .cl-hd{background:#1f3864!important;color:#fff!important;}
+  .cl-gross td{background:#dce6f1!important;}
+  .corp-table thead tr,.corp-net{background:#1a5f6b!important;}
+  .corp-info-table th{background:#1a5f6b!important;color:#fff!important;}
+  .corp-company-cell{background:#e8f5f7!important;}
+  .corp-payslip-badge{background:#1a5f6b!important;color:#fff!important;}
+  .corp-table tfoot tr{background:#e8f5f7!important;}
+  @page{size:A4 portrait;margin:8mm 10mm;}
 }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="ps-wrap">
+{% with co=payroll.employee.company %}
+
+  <div class="ps-actions no-print">
+    <div class="ps-actions-left">
+      <a href="{% url 'payroll_list' %}" class="btn btn-secondary">&#8592; Back to Payslips</a>
+      <div>
+        <div class="ps-actions-title">Payslip - {{ period_start_formatted }}</div>
+        <div class="ps-actions-sub">{{ payroll.employee.get_full_name }} &bull; {{ payroll.employee.employee_profile.employee_id }}</div>
+      </div>
+    </div>
+    <div><button onclick="window.print()" class="btn btn-primary">&#128438; Print / Save PDF</button></div>
+  </div>
+
+{% if co.payslip_layout == 'modern' %}
+<div class="corp-wrap">
+
+  <div class="corp-header">
+    <div class="corp-logo-cell">
+      {% if co.logo %}<img src="{{ co.logo.url }}" alt="Logo">
+      {% else %}<div class="corp-logo-text">{% if co.name %}{{ co.name|upper }}{% else %}CO{% endif %}</div>{% endif %}
+    </div>
+    <div class="corp-company-cell">
+      <div class="corp-payslip-badge">PAYSLIP</div>
+      <div class="corp-company-name">{% if co.name %}{{ co.name }}{% endif %}</div>
+      {% if co.address %}<div class="corp-company-addr">{{ co.address }}{% if co.city %}, {{ co.city }}{% endif %}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
+      <div class="corp-company-addr">{% if co.phone %}{{ co.phone }}{% endif %}{% if co.phone and co.email %} &nbsp; {% endif %}{% if co.email %}{{ co.email }}{% endif %}</div>
+    </div>
+  </div>
+
+  <div class="corp-emp-grid">
+    <div class="corp-emp-info">
+      <div class="corp-emp-label">Employee Information</div>
+      <div class="corp-emp-name">{{ payroll.employee.get_full_name|upper }}</div>
+      {% if payroll.employee.employee_profile.job_title %}<div class="corp-emp-detail">{{ payroll.employee.employee_profile.job_title }}</div>{% endif %}
+      {% if payroll.employee.employee_profile.department %}<div class="corp-emp-detail">{{ payroll.employee.employee_profile.department }}</div>{% endif %}
+      <div class="corp-emp-detail">{% if co.phone %}{{ co.phone }}{% endif %}{% if co.phone and co.email %} &nbsp; {% endif %}{% if co.email %}{{ co.email }}{% endif %}</div>
+    </div>
+    <div class="corp-info-table">
+      <table>
+        <tr><th>PAY DATE</th><th>TITLE</th></tr>
+        <tr><td>{{ pay_date_formatted }}</td><td>{% if payroll.employee.employee_profile.job_title %}{{ payroll.employee.employee_profile.job_title }}{% else %}&mdash;{% endif %}</td></tr>
+        <tr><th>ID #</th><th>NRC / TAX</th></tr>
+        <tr><td>{{ payroll.employee.employee_profile.employee_id }}</td><td>{% if payroll.employee.employee_profile.nrc_number %}{{ payroll.employee.employee_profile.nrc_number }}{% else %}&mdash;{% endif %}</td></tr>
+        <tr><th colspan="2" style="text-align:center;">PERIOD</th></tr>
+        <tr><td colspan="2" style="text-align:center;font-weight:600;">{{ period_start_formatted }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <table class="corp-table">
+    <thead><tr><th>EARNINGS</th><th class="r">HOURS</th><th class="r">RATE</th><th class="r">AMOUNT</th></tr></thead>
+    <tbody>
+      <tr><td>Basic Salary</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td></tr>
+      {% if payroll.allowances > 0 %}<tr><td>House Rent Allowance (HRA @30%)</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.commission > 0 %}<tr><td>Transport Allowance</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.bonus > 0 %}<tr><td>Leave Pay</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.overtime_pay > 0 %}<tr><td>Overtime</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.overtime_pay|floatformat:2 }}</td></tr>{% endif %}
+    </tbody>
+    <tfoot><tr><td colspan="3" style="text-align:right;padding-right:12px;">GROSS PAY</td><td class="r">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td></tr></tfoot>
+  </table>
+
+  <table class="corp-table" style="margin-top:4px;">
+    <thead><tr><th>DEDUCTIONS</th><th class="r">AMOUNT</th></tr></thead>
+    <tbody>
+      <tr><td>NAPSA @5%</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
+      <tr><td>NHIMA</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td></tr>
+      <tr><td>PAYE</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td></tr>
+      {% for ded in deductions %}{% if not ded.is_statutory %}
+      <tr><td>{% if ded.deduction_type == 'LATE' %}Late Deductions{% elif ded.deduction_type == 'ADVANCE' %}Salary Advance{% elif ded.deduction_type == 'LOAN' %}Loans{% else %}{% if ded.description %}{{ ded.description }}{% else %}Other Deduction{% endif %}{% endif %}</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ ded.amount|floatformat:2 }}</td></tr>
+      {% endif %}{% endfor %}
+    </tbody>
+    <tfoot><tr><td style="text-align:right;padding-right:12px;">TOTAL DEDUCTIONS</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.total_deductions|floatformat:2 }}</td></tr></tfoot>
+  </table>
+
+  <div class="corp-net">
+    <span class="corp-net-lbl">NET PAY</span>
+    <span class="corp-net-amt">{{ payroll.currency }} {{ payroll.net_pay|floatformat:2 }}</span>
+  </div>
+
+  <div class="corp-sig">
+    <div class="corp-sig-line">
+      <div style="margin-bottom:22px;">{{ payroll.employee.get_full_name|upper }}</div>
+      Employer Signature / Date
+    </div>
+    <div style="position:relative;text-align:center;min-height:140px;">
+      {% if co.company_stamp %}
+        <img src="{{ co.company_stamp.url }}" alt="Stamp" style="position:absolute;left:50%;top:20px;width:{{ stamp_config.size }}px;height:{{ stamp_config.size }}px;object-fit:contain;opacity:calc({{ stamp_config.opacity }} / 100);transform:translateX(-50%) translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px);">
+      {% else %}
+        <div style="position:absolute;left:50%;top:20px;transform:translateX(-50%);width:130px;height:130px;">
+          <div style="position:absolute;inset:0;border:3.5px solid #1a5f6b;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;box-sizing:border-box;">
+            <div style="font-size:7.5px;font-weight:900;color:#1a5f6b;text-transform:uppercase;line-height:1.25;margin-bottom:3px;word-break:break-word;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
+            {% if co.phone %}<div style="font-size:7px;color:#1a5f6b;line-height:1.3;">Tel: {{ co.phone }}</div>{% endif %}
+            <div style="background:#d91a1a;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;margin:4px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">{{ pay_date_formatted }}</div>
+            {% if co.email %}<div style="font-size:6.5px;color:#1a5f6b;word-break:break-all;">{{ co.email }}</div>{% endif %}
+            {% if co.city %}<div style="font-size:7px;color:#1a5f6b;margin-top:2px;">{{ co.city }}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    <div class="corp-sig-line" style="text-align:right;">
+      <div style="margin-bottom:22px;">&nbsp;</div>
+      Employee Signature / Date
+    </div>
+  </div>
+
+  <div class="corp-footer">
+    {% if co.payslip_footer_content %}{{ co.payslip_footer_content }}{% else %}Pay Slip Not Valid Unless Stamped &bull; Please Treat Your Pay Slip as Confidential. Have a Nice Month{% endif %}
+    <div style="color:#cc0000;font-style:italic;margin-top:2px;">*Payslip System generated</div>
+  </div>
+
+</div>
+
+{% elif co.payslip_layout == 'compact' %}
+<div class="min-wrap">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div>
+      {% if co.logo %}<img src="{{ co.logo.url }}" alt="Logo" style="max-height:55px;max-width:130px;object-fit:contain;display:block;">
+      {% else %}<div style="background:#374151;color:#fff;padding:8px 14px;font-weight:900;font-size:18px;border-radius:3px;">{% if co.name %}{{ co.name|upper }}{% else %}CO{% endif %}</div>{% endif %}
+    </div>
+    <div style="text-align:right;">
+      <div style="font-weight:800;font-size:14px;text-transform:uppercase;color:#111;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
+      {% if co.address %}<div style="font-size:10px;color:#6b7280;">{{ co.address }}</div>{% endif %}
+      {% if co.city %}<div style="font-size:10px;color:#6b7280;">{{ co.city }}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
+      {% if co.phone %}<div style="font-size:10px;color:#6b7280;">{{ co.phone }}</div>{% endif %}
+    </div>
+  </div>
+  <hr class="min-rule">
+  <div class="min-title">EMPLOYEE PAY SLIP - {{ period_start_formatted|upper }}</div>
+
+  <div class="min-emp-grid">
+    <div class="min-row"><div class="min-lbl">Employee Name</div><div>{{ payroll.employee.get_full_name|upper }}</div></div>
+    <div class="min-row"><div class="min-lbl">Employee ID</div><div>{{ payroll.employee.employee_profile.employee_id }}</div></div>
+    <div class="min-row"><div class="min-lbl">Designation</div><div>{% if payroll.employee.employee_profile.job_title %}{{ payroll.employee.employee_profile.job_title|upper }}{% else %}&mdash;{% endif %}</div></div>
+    <div class="min-row"><div class="min-lbl">Department</div><div>{% if payroll.employee.employee_profile.department %}{{ payroll.employee.employee_profile.department|upper }}{% else %}&mdash;{% endif %}</div></div>
+    <div class="min-row"><div class="min-lbl">NRC</div><div>{% if payroll.employee.employee_profile.nrc_number %}{{ payroll.employee.employee_profile.nrc_number }}{% else %}&mdash;{% endif %}</div></div>
+    <div class="min-row"><div class="min-lbl">Month</div><div>{{ period_start_formatted }}</div></div>
+  </div>
+  <hr class="min-rule">
+
+  <div class="min-sec">EARNINGS</div>
+  <table class="min-table">
+    <tr><td>Basic Salary</td><td class="min-r">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td></tr>
+    {% if payroll.allowances > 0 %}<tr><td>House Rent Allowance (HRA @30%)</td><td class="min-r">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td></tr>{% endif %}
+    {% if payroll.commission > 0 %}<tr><td>Transport Allowance</td><td class="min-r">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td></tr>{% endif %}
+    {% if payroll.bonus > 0 %}<tr><td>Leave Pay</td><td class="min-r">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td></tr>{% endif %}
+    <tr class="min-bold"><td>Gross Salary</td><td class="min-r">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td></tr>
+  </table>
+  <hr class="min-rule">
+
+  <div class="min-sec">DEDUCTIONS</div>
+  <table class="min-table">
+    <tr><td>NAPSA @5%</td><td class="min-r min-red">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
+    <tr><td>NHIMA</td><td class="min-r min-red">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td></tr>
+    <tr><td>PAYE</td><td class="min-r min-red">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td></tr>
+    {% for ded in deductions %}{% if not ded.is_statutory %}
+    <tr><td>{% if ded.deduction_type == 'LATE' %}Late Deductions{% elif ded.deduction_type == 'ADVANCE' %}Salary Advance{% elif ded.deduction_type == 'LOAN' %}Loans{% else %}{% if ded.description %}{{ ded.description }}{% else %}Other Deduction{% endif %}{% endif %}</td><td class="min-r min-red">{{ payroll.currency }} {{ ded.amount|floatformat:2 }}</td></tr>
+    {% endif %}{% endfor %}
+  </table>
+  <hr class="min-rule">
+
+  <table class="min-table">
+    <tr><td>Total Earnings (A)</td><td class="min-r">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td></tr>
+    {% if payroll.overtime_pay > 0 %}<tr><td>Overtime</td><td class="min-r">{{ payroll.currency }} {{ payroll.overtime_pay|floatformat:2 }}</td></tr>{% endif %}
+    <tr><td>Total Deductions (B)</td><td class="min-r min-red">{{ payroll.currency }} {{ payroll.total_deductions|floatformat:2 }}</td></tr>
+    {% if payroll.gratuity > 0 %}<tr><td>Gratuity + Bonus</td><td class="min-r">{{ payroll.currency }} {{ payroll.gratuity|floatformat:2 }}</td></tr>{% endif %}
+    <tr class="min-net"><td><strong>Net Salary (A-B)</strong></td><td class="min-r"><strong>{{ payroll.currency }} {{ payroll.net_pay|floatformat:2 }}</strong></td></tr>
+  </table>
+  <hr class="min-rule">
+
+  <div class="ps-sig-row stamp-{% if co.payslip_stamp_position %}{{ co.payslip_stamp_position }}{% else %}bottom-right{% endif %}">
+    <div class="ps-sig-left">
+      <div style="font-weight:700;text-transform:uppercase;padding-bottom:22px;">{{ payroll.employee.get_full_name }}</div>
+      <div style="border-top:1px solid #111;width:180px;margin-bottom:4px;"></div>
+      <div style="font-size:11px;">Receiver's Signature</div>
+    </div>
+    <div class="ps-sig-right">
+      {% if co.company_stamp %}
+        <img src="{{ co.company_stamp.url }}" alt="Stamp" style="max-height:{{ stamp_config.size }}px;max-width:{{ stamp_config.size }}px;object-fit:contain;display:block;opacity:calc({{ stamp_config.opacity }} / 100);transform:translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px);">
+      {% else %}
+        <div style="display:inline-block;position:relative;width:130px;height:130px;">
+          <div style="position:absolute;inset:0;border:3.5px solid #1a5f6b;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;box-sizing:border-box;">
+            <div style="font-size:7.5px;font-weight:900;color:#1a5f6b;text-transform:uppercase;line-height:1.25;margin-bottom:3px;word-break:break-word;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
+            {% if co.phone %}<div style="font-size:7px;color:#1a5f6b;line-height:1.3;">Tel: {{ co.phone }}</div>{% endif %}
+            <div style="background:#d91a1a;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;margin:4px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">{{ pay_date_formatted }}</div>
+            {% if co.email %}<div style="font-size:6.5px;color:#1a5f6b;word-break:break-all;">{{ co.email }}</div>{% endif %}
+            {% if co.city %}<div style="font-size:7px;color:#1a5f6b;margin-top:2px;">{{ co.city }}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="min-footer">
+    <p>Pay Slip Not Valid Unless Stamped</p>
+    <p>Please Treat Your Pay Slip as Confidential. Have a Nice Month</p>
+    <p style="color:#cc0000;font-style:italic;font-size:10px;">*Payslip System generated</p>
+  </div>
+</div>
+
+{% else %}
+<div class="classic-wrap">
+
+  <table style="width:100%;border-collapse:collapse;margin-bottom:0;">
+    <tr>
+      <td style="width:160px;vertical-align:middle;padding:0 0 10px 0;">
+        {% if co.logo %}<img src="{{ co.logo.url }}" alt="Logo" style="max-height:70px;max-width:150px;object-fit:contain;display:block;">
+        {% else %}<div style="background:#111;color:#fff;padding:10px 16px;font-weight:900;font-size:22px;display:inline-block;border-radius:4px;letter-spacing:-1px;">{% if co.name %}{{ co.name|upper }}{% endif %}<sup style="font-size:12px;">&#176;</sup></div>{% endif %}
+      </td>
+      <td style="text-align:right;vertical-align:middle;padding:0 0 10px 0;">
+        <div style="font-weight:900;font-size:15px;text-transform:uppercase;letter-spacing:.5px;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
+        <div style="font-size:10.5px;line-height:1.6;color:#222;margin-top:3px;">
+          {% if co.address %}{{ co.address }}<br>{% endif %}
+          {% if co.city %}P.O.Box {{ co.city }}<br>{% endif %}
+          {% if co.country %}{{ co.country }}{% endif %}
+          {% if co.phone %}<br>{{ co.phone }}{% endif %}
+          {% if co.email %}<br>{{ co.email }}{% endif %}
+        </div>
+      </td>
+    </tr>
+  </table>
+  <div style="border-top:2px solid #000;margin-bottom:14px;"></div>
+
+  <table style="width:62%;margin:0 auto 16px;font-size:12px;border-collapse:collapse;">
+    <tr><td style="text-align:right;padding:2px 8px 2px 0;color:#333;white-space:nowrap;">Employee Name</td><td style="padding:2px 0;font-weight:700;text-transform:uppercase;">:&nbsp; {{ payroll.employee.get_full_name }}</td></tr>
+    <tr><td style="text-align:right;padding:2px 8px 2px 0;color:#333;">Employee ID</td><td style="padding:2px 0;">:&nbsp; {{ payroll.employee.employee_profile.employee_id }}</td></tr>
+    <tr><td style="text-align:right;padding:2px 8px 2px 0;color:#333;">Designation</td><td style="padding:2px 0;text-transform:uppercase;">:&nbsp; {% if payroll.employee.employee_profile.job_title %}{{ payroll.employee.employee_profile.job_title }}{% else %}&mdash;{% endif %}</td></tr>
+    <tr><td style="text-align:right;padding:2px 8px 2px 0;color:#333;">Department</td><td style="padding:2px 0;text-transform:uppercase;">:&nbsp; {% if payroll.employee.employee_profile.department %}{{ payroll.employee.employee_profile.department }}{% else %}&mdash;{% endif %}</td></tr>
+    <tr><td style="text-align:right;padding:2px 8px 2px 0;color:#333;">NRC</td><td style="padding:2px 0;">:&nbsp; {% if payroll.employee.employee_profile.nrc_number %}{{ payroll.employee.employee_profile.nrc_number }}{% else %}&mdash;{% endif %}</td></tr>
+    <tr><td style="text-align:right;padding:2px 8px 2px 0;color:#333;">Month</td><td style="padding:2px 0;">:&nbsp; {{ period_start_formatted }}</td></tr>
+  </table>
+
+  <div class="cl-hd">EARNINGS</div>
+  <table class="cl-table">
+    <tr><td>Basic Salary</td><td class="cl-r">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td></tr>
+    {% if payroll.allowances > 0 %}<tr><td>House Rent Allowance (HRA @30%)</td><td class="cl-r">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td></tr>{% endif %}
+    {% if payroll.commission > 0 %}<tr><td>Transport Allowance</td><td class="cl-r">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td></tr>{% endif %}
+    {% if payroll.bonus > 0 %}<tr><td>Leave Pay</td><td class="cl-r">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td></tr>{% endif %}
+    <tr class="cl-gross"><td><strong>Gross Salary</strong></td><td class="cl-r"><strong>{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</strong></td></tr>
+  </table>
+
+  <div class="cl-hd">STATUTORY DEDUCTIONS</div>
+  <table class="cl-table">
+    <tr><td>NAPSA @5%</td><td class="cl-r cl-red">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
+    <tr><td>NHIMA</td><td class="cl-r cl-red">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td></tr>
+    <tr><td>PAYE</td><td class="cl-r cl-red">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td></tr>
+  </table>
+
+  <div class="cl-hd">OTHER DEDUCTIONS</div>
+  <table class="cl-table">
+    {% for ded in deductions %}{% if not ded.is_statutory %}
+    <tr><td>{% if ded.deduction_type == 'LATE' %}Late Deductions{% elif ded.deduction_type == 'ADVANCE' %}Salary Advance{% elif ded.deduction_type == 'LOAN' %}Loans{% else %}{% if ded.description %}{{ ded.description }}{% else %}Other Deduction{% endif %}{% endif %}</td><td class="cl-r cl-red">{{ payroll.currency }} {{ ded.amount|floatformat:2 }}</td></tr>
+    {% endif %}{% endfor %}
+    {% if not deductions %}
+    <tr><td>Late Deductions</td><td class="cl-r cl-red">{{ payroll.currency }} 0.00</td></tr>
+    <tr><td>Salary Advance</td><td class="cl-r cl-red">{{ payroll.currency }} 0.00</td></tr>
+    <tr><td>Loans</td><td class="cl-r cl-red">{{ payroll.currency }} 0.00</td></tr>
+    <tr><td>30 Days Resignation</td><td class="cl-r cl-red">{{ payroll.currency }} 0.00</td></tr>
+    {% endif %}
+  </table>
+
+  <div style="border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:4px 0;margin:6px 0 8px;">
+    <table class="cl-table" style="margin:0;">
+      <tr><td>Total Earnings (A)</td><td class="cl-r">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td></tr>
+      {% if payroll.overtime_pay > 0 %}<tr><td>Overtime</td><td class="cl-r">{{ payroll.currency }} {{ payroll.overtime_pay|floatformat:2 }}</td></tr>{% endif %}
+      <tr><td>Total Deductions (B)</td><td class="cl-r cl-red">{{ payroll.currency }} {{ payroll.total_deductions|floatformat:2 }}</td></tr>
+      {% if payroll.gratuity > 0 %}<tr><td>Gratuity + Bonus</td><td class="cl-r">{{ payroll.currency }} {{ payroll.gratuity|floatformat:2 }}</td></tr>{% endif %}
+      <tr class="cl-net"><td><strong>Net Salary (A-B)</strong></td><td class="cl-r"><strong>{{ payroll.currency }} {{ payroll.net_pay|floatformat:2 }}</strong></td></tr>
+      <tr><td>Loans Balance</td><td class="cl-r">&mdash;</td></tr>
+    </table>
+  </div>
+
+  <div class="ps-sig-row stamp-{% if co.payslip_stamp_position %}{{ co.payslip_stamp_position }}{% else %}bottom-right{% endif %}">
+    <div class="ps-sig-left">
+      <div style="margin-bottom:6px;"><strong>Receiver's Name:</strong> {{ payroll.employee.get_full_name|upper }}</div>
+      <div><strong>Company Stamp:</strong></div>
+    </div>
+    <div class="ps-sig-right">
+      {% if co.company_stamp %}
+        <img src="{{ co.company_stamp.url }}" alt="Stamp" style="max-height:{{ stamp_config.size }}px;max-width:{{ stamp_config.size }}px;object-fit:contain;display:block;opacity:calc({{ stamp_config.opacity }} / 100);transform:translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px);">
+      {% else %}
+        <div style="display:inline-block;position:relative;width:130px;height:130px;">
+          <div style="position:absolute;inset:0;border:3.5px solid #1a56a0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;box-sizing:border-box;">
+            <div style="font-size:7.5px;font-weight:900;color:#1a56a0;text-transform:uppercase;line-height:1.25;margin-bottom:3px;word-break:break-word;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
+            {% if co.phone %}<div style="font-size:7px;color:#1a56a0;line-height:1.3;">Tel: {{ co.phone }}</div>{% endif %}
+            <div style="background:#d91a1a;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;margin:4px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">{{ pay_date_formatted }}</div>
+            {% if co.email %}<div style="font-size:6.5px;color:#1a56a0;word-break:break-all;">{{ co.email }}</div>{% endif %}
+            {% if co.city %}<div style="font-size:7px;color:#1a56a0;margin-top:2px;">{{ co.city }}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:16px;padding-top:10px;border-top:1px solid #ccc;">
+    <p style="font-size:11px;margin:3px 0;font-weight:600;">Pay Slip Not Valid Unless Stamped</p>
+    <p style="font-size:11px;margin:3px 0;">Please Treat Your Pay Slip as Confidential. Have a Nice Month</p>
+    <p style="font-size:10px;margin:8px 0 2px;color:#cc0000;font-style:italic;">*Payslip System generated</p>
+  </div>
+    <div style="font-weight:800;font-size:11px;text-transform:uppercase;margin-bottom:4px;">{% if co.name %}{{ co.name }}{% endif %}</div>
+    <div style="font-size:9px;line-height:1.6;color:#1a56a0;">
+      {% if co.address %}Head Office: {{ co.address }}{% if co.city %}, {{ co.city }}{% endif %}{% if co.country %}, {{ co.country }}{% endif %}<br>{% endif %}
+      {% if co.phone %}Tel: {{ co.phone }}{% if co.alternative_phone %} &bull; Fax: {{ co.alternative_phone }}{% endif %}{% if co.email %} &bull; E-mail: {{ co.email }}{% endif %}{% endif %}
+    </div>
+    <div style="margin-top:6px;background:#1a56a0;color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;padding:4px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+      {% if co.country %}{{ co.country|upper }}{% else %}EMS - PAYROLL SYSTEM{% endif %}
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+{% endwith %}
 </div>
 {% endblock %}
