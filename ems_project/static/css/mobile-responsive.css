@@ -258,7 +258,7 @@ body.sidebar-collapsed .sidebar .nav-link {
         width: 100%;
         max-width: none;
         margin: 0;
-        border-radius: 8px 8px 0 0;
+        border-radius: 0;
         position: fixed;
         bottom: 0;
         left: 0;
@@ -428,7 +428,7 @@ body.sidebar-collapsed .sidebar .nav-link {
         transform: translateX(-50%);
         padding: 16px;
         background: white;
-        border-radius: 4px;
+        border-radius: 0;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         transition: top 0.3s ease;
     }
@@ -469,7 +469,7 @@ body.sidebar-collapsed .sidebar .nav-link {
         left: 0;
         right: 0;
         background: white;
-        border-radius: 16px 16px 0 0;
+        border-radius: 0;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
         transition: bottom 0.3s ease;
         z-index: 1001;

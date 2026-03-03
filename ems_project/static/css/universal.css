@@ -81,7 +81,7 @@ button {
     width: 100%;
     padding: 10px;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 14px;
     transition: border-color 0.2s;
 }
@@ -160,7 +160,7 @@ textarea {
     justify-content: center;
     padding: 10px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -232,7 +232,7 @@ textarea {
 
 .content-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 0;
     box-shadow: 0 10px 30px -15px rgba(15, 23, 42, 0.4);
     border: 1px solid rgba(15, 23, 42, 0.06);
     margin-bottom: 24px;
