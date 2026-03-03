@@ -1395,19 +1395,23 @@ def _collect_blu_suite_overview(user, modules_count):
     role = (getattr(user, 'role', '') or '').upper()
     tenant = getattr(company, 'tenant', None) if company else None
     
-    # System-wide metrics
-    system_metrics = {
-        'total_users': User.objects.filter(is_active=True).count(),
-        'active_today': User.objects.filter(last_login__date=date.today()).count(),
-        'new_this_week': User.objects.filter(date_joined__gte=date.today() - timedelta(days=7)).count(),
-        'total_companies': 0,
-    }
+    # Company-scoped metrics (each employer sees only their own data)
+    if company:
+        system_metrics = {
+            'total_users': User.objects.filter(company=company, is_active=True).count(),
+            'active_today': User.objects.filter(company=company, last_login__date=date.today()).count(),
+            'new_this_week': User.objects.filter(company=company, date_joined__gte=date.today() - timedelta(days=7)).count(),
+            'total_companies': 1,  # Current company only
+        }
+    else:
+        system_metrics = {
+            'total_users': 0,
+            'active_today': 0,
+            'new_this_week': 0,
+            'total_companies': 0,
+        }
     
-    try:
-        from blu_staff.apps.accounts.models import Company
-        system_metrics['total_companies'] = Company.objects.count()
-    except:
-        pass
+    # total_companies already set above (1 for current company, or 0 if no company)
     
     # Module-specific metrics
     module_stats = {}
