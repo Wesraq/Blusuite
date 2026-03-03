@@ -130,6 +130,15 @@ class CompanyRegistrationForm(forms.ModelForm):
             ('Nakuru', 'Nakuru'),
             ('Eldoret', 'Eldoret'),
         ],
+        'Malawi': [
+            ('', 'Select City'),
+            ('Lilongwe', 'Lilongwe'),
+            ('Blantyre', 'Blantyre'),
+            ('Mzuzu', 'Mzuzu'),
+            ('Zomba', 'Zomba'),
+            ('Mangochi', 'Mangochi'),
+            ('Karonga', 'Karonga'),
+        ],
         'Nigeria': [
             ('', 'Select City'),
             ('Lagos', 'Lagos'),
