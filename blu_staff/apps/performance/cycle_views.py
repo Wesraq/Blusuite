@@ -34,8 +34,8 @@ def review_cycles_list(request):
         messages.error(request, 'No company associated with your account.')
         return redirect('employer_dashboard')
     
-    # Get all cycles
-    cycles = PerformanceReviewCycle.objects.all().order_by('-start_date')
+    # Get cycles for this company only
+    cycles = PerformanceReviewCycle.objects.filter(company=company).order_by('-start_date')
     
     # Filter by status
     status_filter = request.GET.get('status', '')

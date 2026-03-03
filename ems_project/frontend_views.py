@@ -9393,11 +9393,12 @@ def export_employee_roster(request):
     import csv
     from django.http import HttpResponse
     
-    # Get employees
-    if request.user.role == 'ADMINISTRATOR':
-        employees = User.objects.filter(role='EMPLOYEE').select_related('employee_profile')
-    else:
-        employees = User.objects.filter(company=request.user.company, role='EMPLOYEE').select_related('employee_profile')
+    # Get employees (company-scoped)
+    company = getattr(request.user, 'company', None)
+    if not company:
+        return JsonResponse({'error': 'No company associated'}, status=403)
+    
+    employees = User.objects.filter(company=company, role='EMPLOYEE').select_related('employee_profile')
     
     # Create CSV
     response = HttpResponse(content_type='text/csv')
@@ -9453,13 +9454,15 @@ def export_attendance_report(request):
     from django.http import HttpResponse
     from blu_staff.apps.attendance.models import Attendance
     
-    # Get employees
-    if request.user.role == 'ADMINISTRATOR':
-        employees = User.objects.filter(role='EMPLOYEE')
-    elif is_supervisor:
-        employees = User.objects.filter(role='EMPLOYEE', employee_profile__supervisor=request.user)
+    # Get employees (company-scoped)
+    company = getattr(request.user, 'company', None)
+    if not company and request.user.role == 'ADMINISTRATOR':
+        return JsonResponse({'error': 'No company associated'}, status=403)
+    
+    if is_supervisor:
+        employees = User.objects.filter(role='EMPLOYEE', employee_profile__supervisor=request.user, company=company)
     else:
-        employees = User.objects.filter(company=request.user.company, role='EMPLOYEE')
+        employees = User.objects.filter(company=company, role='EMPLOYEE')
     
     # Get attendance records (last 30 days)
     from datetime import timedelta
@@ -9523,13 +9526,15 @@ def export_leave_report(request):
     from django.http import HttpResponse
     from blu_staff.apps.attendance.models import LeaveRequest
     
-    # Get employees
-    if request.user.role == 'ADMINISTRATOR':
-        employees = User.objects.filter(role='EMPLOYEE')
-    elif is_supervisor:
-        employees = User.objects.filter(role='EMPLOYEE', employee_profile__supervisor=request.user)
+    # Get employees (company-scoped)
+    company = getattr(request.user, 'company', None)
+    if not company and request.user.role == 'ADMINISTRATOR':
+        return JsonResponse({'error': 'No company associated'}, status=403)
+    
+    if is_supervisor:
+        employees = User.objects.filter(role='EMPLOYEE', employee_profile__supervisor=request.user, company=company)
     else:
-        employees = User.objects.filter(company=request.user.company, role='EMPLOYEE')
+        employees = User.objects.filter(company=company, role='EMPLOYEE')
     
     leave_requests = LeaveRequest.objects.filter(
         employee__in=employees
@@ -9580,11 +9585,12 @@ def export_documents_report(request):
     from django.http import HttpResponse
     from blu_staff.apps.documents.models import EmployeeDocument
     
-    # Get employees
-    if request.user.role == 'ADMINISTRATOR':
-        employees = User.objects.filter(role='EMPLOYEE')
-    else:
-        employees = User.objects.filter(company=request.user.company, role='EMPLOYEE')
+    # Get employees (company-scoped)
+    company = getattr(request.user, 'company', None)
+    if not company:
+        return JsonResponse({'error': 'No company associated'}, status=403)
+    
+    employees = User.objects.filter(company=company, role='EMPLOYEE')
     
     documents = EmployeeDocument.objects.filter(
         employee__in=employees
@@ -9636,11 +9642,12 @@ def export_assets_report(request):
     try:
         from blu_assets.models import EmployeeAsset
         
-        # Get employees
-        if request.user.role == 'ADMINISTRATOR':
-            employees = User.objects.filter(role='EMPLOYEE')
-        else:
-            employees = User.objects.filter(company=request.user.company, role='EMPLOYEE')
+        # Get employees (company-scoped)
+        company = getattr(request.user, 'company', None)
+        if not company:
+            return JsonResponse({'error': 'No company associated'}, status=403)
+        
+        employees = User.objects.filter(company=company, role='EMPLOYEE')
         
         assets = EmployeeAsset.objects.filter(
             Q(employee__in=employees) | Q(employee__isnull=True)
