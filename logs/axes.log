@@ -1,0 +1,1 @@
+WARNING 2026-03-03 20:54:37,552 database 26712 26848 AXES: New login failure by {username: "********************", ip_address: "********************", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0", path_info: "/login/"}. Created new record in the database.

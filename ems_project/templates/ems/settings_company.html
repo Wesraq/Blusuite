@@ -4,6 +4,9 @@
 
 {% block extra_css %}
 <style>
+  /* === SHARP CORNERS: override all border-radius on this page === */
+  *, *::before, *::after { border-radius: 0 !important; }
+
   /* Global box-sizing for this page */
   .content-card *,
   .content-card *::before,

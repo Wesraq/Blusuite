@@ -1,6 +1,9 @@
 /* Universal EMS Dashboard Styles */
 /* Modern design system with HSL colors and CSS custom properties */
 
+/* === GLOBAL SHARP CORNERS: No rounded corners anywhere === */
+*, *::before, *::after { border-radius: 0 !important; }
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL. */
 
