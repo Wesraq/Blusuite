@@ -4,6 +4,7 @@
 {% block page_title %}Payslip{% endblock %}
 
 {% block extra_css %}
+{% with co=payroll.employee.company %}
 <style>
 /* === SHARP CORNERS: remove all border-radius === */
 *, *::before, *::after { border-radius: 0 !important; }
@@ -19,13 +20,6 @@
 .ps-sig-row.stamp-top-right{flex-direction:column-reverse;align-items:flex-end;}
 .ps-sig-row.stamp-top-left{flex-direction:column-reverse;align-items:flex-start;}
 .ps-sig-left{flex:1;} .ps-sig-right{flex:0 0 auto;}
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="ps-wrap">
-{% with co=payroll.employee.company %}
-<style>
 /* Dynamic colors from company settings */
 .corp-wrap{border:2px solid {{ co.payslip_section_color|default:'#DC143C' }};font-family:{{ co.payslip_font_family|default:'Arial, sans-serif' }};font-size:12px;background:#fff;color:#000;}
 .corp-header{display:flex;align-items:stretch;border-bottom:3px solid {{ co.payslip_section_color|default:'#DC143C' }};}
@@ -108,6 +102,7 @@
   @page{size:A4 portrait;margin:8mm 10mm;}
 }
 </style>
+{% endwith %}
 {% endblock %}
 
 {% block content %}
