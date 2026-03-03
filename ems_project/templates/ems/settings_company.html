@@ -1928,13 +1928,13 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month' }}</textarea>
 
       <!-- Right Panel: Live Preview -->
       <div style="background: transparent; min-width: 0;">
-        <div style="background: white; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; width: 100%; max-width: 760px;">
+        <div style="background: white; border-radius: 0; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08); border: 1px solid #e2e8f0; display: flex; flex-direction: column; width: 100%; max-width: 760px;">
         <div style="padding: 24px 28px; border-bottom: 1px solid #e5e7eb; background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);">
           <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 4px;">Live Preview</h3>
           <p style="font-size: 13px; color: #6b7280;">Changes appear instantly as you edit</p>
         </div>
         <div style="padding: 24px 28px;">
-          <div id="payslipPreview" style="background: white; width: 100%; max-width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.12); margin: 0; font-family: Arial, sans-serif; position: relative;">
+          <div id="payslipPreview" style="background: white; width: 100%; max-width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.12); margin: 0; font-family: Arial, sans-serif; position: relative; padding: 16px;">
 
           <!-- Dynamic template content — rebuilt by JS on layout switch -->
           <div id="payslipTemplateContent"></div>
@@ -3490,14 +3490,14 @@ function buildClassicTemplate(d) {
       + '<div style="text-align:right;"><div style="font-size:24px;font-weight:700;color:' + hc + ';letter-spacing:2px;">PAYSLIP</div></div>'
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #ccc;">'
-      + '<div style="padding:10px 18px;border-right:1px solid #ccc;">'
+      + '<div style="padding:12px 16px;border-right:1px solid #ccc;">'
         + '<div style="background:' + hc + ';color:#fff;padding:3px 8px;font-size:10px;font-weight:700;margin-bottom:6px;">EMPLOYEE INFORMATION</div>'
         + '<div style="font-weight:700;font-size:12px;">' + d.empName + '</div>'
         + '<div style="font-size:10px;color:#333;">' + d.designation + '</div>'
         + '<div style="font-size:10px;color:#333;">' + d.department + '</div>'
         + '<div style="font-size:10px;color:#333;">ID: ' + d.empId + '</div>'
         + '<div style="font-size:10px;color:#333;">NRC: ' + d.nrc + '</div></div>'
-      + '<div style="padding:10px 18px;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
+      + '<div style="padding:12px 16px;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
         + '<tr><th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;text-align:center;">PAY DATE</th>'
         + '<th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;text-align:center;">PAY TYPE</th>'
         + '<th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;text-align:center;">PERIOD</th></tr>'
@@ -3511,8 +3511,8 @@ function buildClassicTemplate(d) {
         + '<td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">' + d.empId + '</td>'
         + '<td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">' + d.period + '</td></tr>'
         + '</table></div></div>'
-    + '<table style="width:100%;border-collapse:collapse;font-size:10px;">'
-      + '<thead><tr><td colspan="5" style="background:' + hc + ';color:#fff;padding:5px 18px;font-weight:700;">EARNINGS</td></tr>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:12px;">'
+      + '<thead><tr><td colspan="5" style="background:' + hc + ';color:#fff;padding:5px 16px;font-weight:700;">EARNINGS</td></tr>'
       + '<tr style="background:#f5f5f5;"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
       + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Hours</th>'
       + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Rate</th>'
@@ -3520,23 +3520,23 @@ function buildClassicTemplate(d) {
       + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">YTD</th></tr></thead>'
       + '<tbody id="previewEarningsList"></tbody>'
       + '<tfoot><tr style="background:#f0f0f0;border-top:1px solid #ccc;">'
-      + '<td colspan="3" style="padding:5px 18px;font-weight:700;text-align:right;">GROSS PAY</td>'
+      + '<td colspan="3" style="padding:5px 16px;font-weight:700;text-align:right;">GROSS PAY</td>'
       + '<td id="previewTotalEarnings" style="padding:5px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td>'
       + '<td style="padding:5px 8px;"></td></tr></tfoot></table>'
-    + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:3px;">'
-      + '<thead><tr><td colspan="3" style="background:' + dc + ';color:#fff;padding:5px 18px;font-weight:700;">DEDUCTIONS</td></tr>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;">'
+      + '<thead><tr><td colspan="3" style="background:' + dc + ';color:#fff;padding:5px 16px;font-weight:700;">DEDUCTIONS</td></tr>'
       + '<tr style="background:#f5f5f5;"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
       + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Current</th>'
       + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">YTD</th></tr></thead>'
       + '<tbody id="previewDeductionsList"></tbody>'
       + '<tfoot><tr style="background:#f0f0f0;border-top:1px solid #ccc;">'
-      + '<td style="padding:5px 18px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>'
+      + '<td style="padding:5px 16px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>'
       + '<td id="previewSummaryDeductions" style="padding:5px 8px;text-align:right;font-weight:700;color:#dc2626;">' + d.currency + ' 0.00</td>'
       + '<td></td></tr></tfoot></table>'
-    + '<div style="background:#7f7f7f;padding:8px 18px;display:flex;justify-content:flex-end;align-items:center;gap:24px;">'
+    + '<div style="background:#7f7f7f;padding:10px 16px;display:flex;justify-content:flex-end;align-items:center;gap:24px;margin-top:8px;">'
       + '<span style="color:#fff;font-weight:700;font-size:13px;">NET PAY</span>'
       + '<span id="previewNetPay" style="color:#fff;font-weight:700;font-size:14px;">' + d.currency + ' 0.00</span></div>'
-    + '<div style="padding:10px 18px;text-align:center;border-top:1px solid #ccc;">'
+    + '<div style="padding:12px 16px;text-align:center;border-top:1px solid #ccc;margin-top:8px;">'
       + '<div id="displayFooterText" style="font-size:9px;color:#555;line-height:1.5;white-space:pre-line;">' + d.footerText + '</div></div>'
   + '</div>';
 }
@@ -3544,7 +3544,7 @@ function buildClassicTemplate(d) {
 // === Template 2: CORPORATE (Logo + dark teal banner, full-width headers, big NET PAY) ===
 function buildCorporateTemplate(d) {
   const t = d.earningsColor; const dc = d.deductionsColor; const tl = '#f9fafb';
-  return '<div style="font-family:' + d.fontFamily + ';border:2px solid ' + t + ';">'
+  return '<div style="font-family:' + d.fontFamily + ';border:2px solid ' + t + ';padding:20px;">'
     + '<div style="display:flex;align-items:stretch;border-bottom:3px solid ' + t + ';">'
       + '<div style="padding:14px 16px;display:flex;align-items:center;background:#fafafa;border-right:1px solid #e0e0e0;">'
         + '<div style="width:68px;height:68px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid #e0e0e0;border-radius:4px;">' + d.logoImg + '</div></div>'
@@ -3554,13 +3554,13 @@ function buildCorporateTemplate(d) {
         + '<div style="font-size:9px;color:#555;">' + d.companyAddress + '</div>'
         + '<div style="font-size:9px;color:#555;">' + d.companyPhone + ' &nbsp; ' + d.companyEmail + '</div></div></div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid ' + t + ';">'
-      + '<div style="padding:12px 16px;border-right:1px solid #ccc;">'
+      + '<div style="padding:12px 12px;border-right:1px solid #ccc;">'
         + '<div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">EMPLOYEE INFORMATION</div>'
         + '<div style="font-weight:700;font-size:13px;color:' + t + ';border-bottom:2px solid ' + t + ';padding-bottom:3px;margin-bottom:4px;">' + d.empName + '</div>'
         + '<div style="font-size:10px;color:#444;margin-bottom:2px;">' + d.designation + '</div>'
         + '<div style="font-size:10px;color:#444;margin-bottom:2px;">' + d.department + '</div>'
         + '<div style="font-size:10px;color:#444;">' + d.companyPhone + ' &nbsp; ' + d.companyEmail + '</div></div>'
-      + '<div style="padding:12px 16px;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
+      + '<div style="padding:12px 12px;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
         + '<tr><th style="background:' + t + ';color:#fff;padding:4px 8px;">PAY DATE</th><th style="background:' + t + ';color:#fff;padding:4px 8px;">TITLE</th></tr>'
         + '<tr><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.payDate + '</td><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.designation + '</td></tr>'
         + '<tr><th style="background:' + t + ';color:#fff;padding:4px 8px;">ID #</th><th style="background:' + t + ';color:#fff;padding:4px 8px;">NRC / TAX</th></tr>'
@@ -3568,36 +3568,36 @@ function buildCorporateTemplate(d) {
         + '<tr><th colspan="2" style="background:' + t + ';color:#fff;padding:4px 8px;text-align:center;">PERIOD</th></tr>'
         + '<tr><td colspan="2" style="padding:4px 8px;border:1px solid #e0e0e0;text-align:center;font-weight:600;">' + d.period + '</td></tr>'
         + '</table></div></div>'
-    + '<table style="width:100%;border-collapse:collapse;font-size:10px;">'
-      + '<thead><tr style="background:' + t + ';"><th style="color:#fff;padding:6px 16px;text-align:left;">EARNINGS</th>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:12px;">'
+      + '<thead><tr style="background:' + t + ';"><th style="color:#fff;padding:6px 12px;text-align:left;">EARNINGS</th>'
       + '<th style="color:#fff;padding:6px 8px;text-align:right;">HOURS</th>'
       + '<th style="color:#fff;padding:6px 8px;text-align:right;">RATE</th>'
       + '<th style="color:#fff;padding:6px 8px;text-align:right;">AMOUNT</th></tr></thead>'
       + '<tbody id="previewEarningsList"></tbody>'
       + '<tfoot><tr style="background:' + tl + ';border-top:2px solid ' + t + ';">'
-      + '<td colspan="3" style="padding:6px 16px;font-weight:700;text-align:right;">GROSS PAY</td>'
+      + '<td colspan="3" style="padding:6px 12px;font-weight:700;text-align:right;">GROSS PAY</td>'
       + '<td id="previewTotalEarnings" style="padding:6px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td></tr></tfoot></table>'
-    + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:3px;">'
-      + '<thead><tr style="background:' + dc + ';"><th style="color:#fff;padding:6px 16px;text-align:left;">DEDUCTIONS</th>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;">'
+      + '<thead><tr style="background:' + dc + ';"><th style="color:#fff;padding:6px 12px;text-align:left;">DEDUCTIONS</th>'
       + '<th style="color:#fff;padding:6px 8px;text-align:right;">AMOUNT</th></tr></thead>'
       + '<tbody id="previewDeductionsList"></tbody>'
       + '<tfoot><tr style="background:' + tl + ';border-top:2px solid ' + dc + ';">'
-      + '<td style="padding:6px 16px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>'
+      + '<td style="padding:6px 12px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>'
       + '<td id="previewSummaryDeductions" style="padding:6px 8px;text-align:right;font-weight:700;color:#dc2626;">' + d.currency + ' 0.00</td></tr></tfoot></table>'
-    + '<div style="background:' + t + ';padding:12px 18px;display:flex;justify-content:flex-end;align-items:center;gap:28px;">'
+    + '<div style="background:' + t + ';padding:12px 12px;display:flex;justify-content:flex-end;align-items:center;gap:28px;margin-top:8px;">'
       + '<span style="color:#fff;font-weight:700;font-size:12px;letter-spacing:1px;">NET PAY</span>'
       + '<span id="previewNetPay" style="color:#fff;font-weight:900;font-size:22px;">' + d.currency + ' 0.00</span></div>'
-    + '<div style="padding:14px 18px;display:flex;justify-content:space-between;">'
+    + '<div style="padding:14px 0;display:flex;justify-content:space-between;margin-top:12px;">'
       + '<div style="border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;">Employer Signature / Date</div>'
       + '<div style="border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;text-align:right;">Employee Signature / Date</div></div>'
-    + '<div style="padding:8px 18px;text-align:center;border-top:1px solid #ccc;">'
+    + '<div style="padding:12px 0;text-align:center;border-top:1px solid #ccc;margin-top:8px;">'
       + '<div id="displayFooterText" style="font-size:9px;color:#555;line-height:1.5;white-space:pre-line;">' + d.footerText + '</div></div>'
   + '</div>';
 }
 
 // === Template 3: MINIMAL (Centered header, bold underline sections, no colored backgrounds) ===
 function buildMinimalTemplate(d) {
-  return '<div style="font-family:' + d.fontFamily + ';border:1px solid #e0e0e0;padding:20px;">'
+  return '<div style="font-family:' + d.fontFamily + ';border:1px solid #e0e0e0;padding:24px;">'
     + '<div style="text-align:center;border-bottom:1px solid #e0e0e0;padding-bottom:14px;margin-bottom:16px;">'
       + '<div style="font-size:20px;font-weight:700;color:#111;">Payslip</div>'
       + '<div style="font-size:14px;font-weight:600;margin-top:3px;">' + d.companyName + '</div>'
@@ -3633,7 +3633,7 @@ function buildMinimalTemplate(d) {
       + '<div style="font-size:11px;"><div><strong>Bank details:</strong> [Employee Bank]</div><div><strong>Account number:</strong> [Account No]</div></div>'
       + '<div><span style="font-weight:700;font-size:12px;">Total net pay: </span>'
         + '<span id="previewNetPay" style="font-weight:700;font-size:16px;">' + d.currency + ' 0.00</span></div></div>'
-    + '<div style="margin-top:14px;padding-top:10px;border-top:1px solid #e0e0e0;text-align:center;">'
+    + '<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e0e0e0;text-align:center;">'
       + '<div id="displayFooterText" style="font-size:9px;color:#888;white-space:pre-line;">' + d.footerText + '</div></div>'
   + '</div>';
 }
