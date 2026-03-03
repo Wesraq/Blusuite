@@ -4,6 +4,15 @@
    ============================================ */
 
 /* ============================================
+   GLOBAL SHARP CORNERS - No Rounded Corners
+   ============================================ */
+
+/* Force all elements to have sharp corners */
+*, *::before, *::after {
+    border-radius: 0 !important;
+}
+
+/* ============================================
    FORM FIELD FIX - Prevent Overlapping
    ============================================ */
 
