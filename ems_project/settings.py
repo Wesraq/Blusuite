@@ -306,7 +306,10 @@ TENANT_EXCLUDED_PATH_PREFIXES = tuple(
     os.getenv('TENANT_EXCLUDED_PATHS', '/admin,/static,/media,/health').split(',')
 )
 
-# Stripe Payment Configuration - SECURITY: No hardcoded keys
+# Payment Requirements
+REQUIRE_PAYMENT_FOR_REGISTRATION = os.getenv('REQUIRE_PAYMENT_FOR_REGISTRATION', 'True').lower() == 'true'
+
+# Stripe Payment Configuration
 STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', '')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
@@ -319,9 +322,6 @@ if REQUIRE_PAYMENT_FOR_REGISTRATION and not all([STRIPE_PUBLISHABLE_KEY, STRIPE_
 # Payment Plans Configuration
 DEFAULT_CURRENCY = 'USD'
 DEFAULT_PAYMENT_PLAN_PRICE = 29.99  # Default monthly price
-
-# Payment Requirements
-REQUIRE_PAYMENT_FOR_REGISTRATION = os.getenv('REQUIRE_PAYMENT_FOR_REGISTRATION', 'True').lower() == 'true'
 
 # Django-Axes Configuration (Brute Force Protection)
 AUTHENTICATION_BACKENDS = [

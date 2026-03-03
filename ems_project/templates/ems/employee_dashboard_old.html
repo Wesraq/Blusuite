@@ -1,0 +1,566 @@
+{% extends 'ems/base_employee.html' %}
+{% load static %}
+
+{% block title %}My Dashboard - BLU Suite EMS{% endblock %}
+
+{% block content %}
+<!-- Dashboard Tabs -->
+{% include 'ems/includes/dashboard_tabs.html' with active_tab='employee' %}
+
+<!-- Header -->
+<div class="page-header">
+    <div>
+        <h2>Welcome back, {{ user.first_name }}!</h2>
+        <p>{{ current_date|date:"l, F j, Y" }}</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'notifications_list' %}" class="btn btn-secondary" style="position: relative; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            Notifications
+            {% if unread_notifications > 0 %}
+            <span style="position: absolute; top: -4px; right: -4px; background: #dc2626; color: white; border-radius: 999px; padding: 2px 6px; font-size: 10px; font-weight: 700;">{{ unread_notifications }}</span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+        <div class="stat-details">
+            <h3>{{ profile_complete_percent|default:0 }}%</h3>
+            <p>Profile Completion</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #dcfce7; color: #16a34a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+        <div class="stat-details">
+            <h3>{{ attendance_this_month|default:0 }}</h3>
+            <p>Attendance This Month</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e0e7ff; color: #4f46e5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+        <div class="stat-details">
+            <h3>{{ leave_balance|default:0 }}</h3>
+            <p>Leave Balance</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
+        <div class="stat-details">
+            <h3>{{ documents_total|default:0 }}</h3>
+            <p>Documents</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #fce7f3; color: #db2777;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+        <div class="stat-details">
+            <h3>{{ time_employed_months|default:0 }}</h3>
+            <p>Months Employed</p>
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.stat-box {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.stat-content h3 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+}
+.stat-content p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #64748b;
+}
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.profile-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    object-fit: cover;
+    border: 4px solid var(--company-button, #DC143C);
+}
+.profile-avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #DC143C, #BE123C);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+}
+.profile-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #0f172a;
+}
+.profile-role {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 16px;
+}
+.profile-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #059669;
+    color: white;
+    margin-bottom: 20px;
+}
+.profile-details {
+    text-align: left;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+.profile-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 13px;
+    color: #0f172a;
+}
+.profile-detail-label {
+    color: #64748b;
+}
+.profile-detail-value {
+    font-weight: 600;
+    color: #0f172a;
+}
+.profile-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--company-button, #DC143C);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+.quick-actions-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+}
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    color: #0f172a;
+}
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+}
+.quick-action-btn {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: #0f172a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--company-button, #DC143C);
+}
+.quick-action-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+.quick-action-label {
+    font-size: 13px;
+    font-weight: 600;
+}
+.quick-action-sublabel {
+    font-size: 11px;
+    opacity: 0.6;
+}
+.activity-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+}
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+}
+.activity-content {
+    flex: 1;
+}
+.activity-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: #0f172a;
+}
+.activity-desc {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+}
+.upcoming-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+}
+.upcoming-empty {
+    text-align: center;
+    padding: 40px 20px;
+    opacity: 0.5;
+    font-size: 14px;
+}
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 640px) {
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+    .quick-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'ems/includes/dashboard_tabs.html' with active_tab='employee' %}
+
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h2>My Dashboard</h2>
+            <p>Welcome back, {{ employee.first_name|default:"Employee" }}</p>
+        </div>
+        <button class="btn" onclick="window.open('{% url 'employee_print_profile' %}', '_blank')" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            Notifications
+        </button>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-icon" style="background: #fce7f3; color: #DC143C;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3>{{ profile_complete_percent|default:50 }}%</h3>
+                <p>Profile Completion</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3>{{ attendance_this_month|default:0 }}</h3>
+                <p>Attendance this Month</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background: #fef3c7; color: #d97706;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3>{{ leave_balance|default:21 }}</h3>
+                <p>Leave Balance</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background: #fef3c7; color: #f59e0b;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3>{{ documents_total|default:1 }}</h3>
+                <p>Documents</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background: #fce7f3; color: #db2777;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3>{{ time_employed_months|default:5 }}d</h3>
+                <p>Months Employed</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid: Profile + Quick Actions side by side -->
+    <div class="dashboard-grid">
+        <!-- Profile Card -->
+        <div class="profile-card">
+            {% if employee.profile_picture %}
+                <img src="{{ employee.profile_picture.url }}" alt="{{ employee.get_full_name }}" class="profile-avatar">
+            {% else %}
+                <div class="profile-avatar-placeholder">
+                    {{ employee.first_name|slice:":1"|upper }}{{ employee.last_name|slice:":1"|upper }}
+                </div>
+            {% endif %}
+            <h3 class="profile-name">{{ employee.get_full_name }}</h3>
+            <p class="profile-role">{{ profile.job_title|default:"Employee" }}</p>
+            <span class="profile-status">Active</span>
+            
+            <div class="profile-details">
+                <div class="profile-detail-row">
+                    <span class="profile-detail-label">Employee ID:</span>
+                    <span class="profile-detail-value">{{ profile.employee_id|default:"MR0055" }}</span>
+                </div>
+                <div class="profile-detail-row">
+                    <span class="profile-detail-label">Department:</span>
+                    <span class="profile-detail-value">{{ profile.department|default:"—" }}</span>
+                </div>
+                <div class="profile-detail-row">
+                    <span class="profile-detail-label">Email:</span>
+                    <span class="profile-detail-value" style="font-size: 11px;">{{ employee.email }}</span>
+                </div>
+                <div class="profile-detail-row">
+                    <span class="profile-detail-label">Phone:</span>
+                    <span class="profile-detail-value">{{ employee.phone_number|default:"—" }}</span>
+                </div>
+            </div>
+            
+            <a href="{% url 'employee_profile' %}" class="profile-btn">View Full Profile</a>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-card">
+            <h3 class="card-title">Quick Actions</h3>
+            <div class="quick-actions-grid">
+                <a href="{% url 'employee_attendance_view' %}" class="quick-action-btn">
+                    <div class="quick-action-icon" style="background: #dbeafe; color: #2563eb;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <div class="quick-action-label">My Attendance</div>
+                    <div class="quick-action-sublabel">Mark & View</div>
+                </a>
+                <a href="{% url 'employee_leave_request' %}" class="quick-action-btn">
+                    <div class="quick-action-icon" style="background: #fef3c7; color: #d97706;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="quick-action-label">Request Leave</div>
+                    <div class="quick-action-sublabel">Book time off</div>
+                </a>
+                <a href="{% url 'documents_list' %}?view=personal" class="quick-action-btn">
+                    <div class="quick-action-icon" style="background: #dbeafe; color: #3b82f6;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                    </div>
+                    <div class="quick-action-label">My Documents</div>
+                    <div class="quick-action-sublabel">1 approved</div>
+                </a>
+                <a href="{% url 'employee_my_payslips' %}" class="quick-action-btn">
+                    <div class="quick-action-icon" style="background: #fef3c7; color: #f59e0b;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="quick-action-label">My Payslips</div>
+                    <div class="quick-action-sublabel">View history</div>
+                </a>
+                <a href="{% url 'training_list' %}" class="quick-action-btn">
+                    <div class="quick-action-icon" style="background: #e0e7ff; color: #6366f1;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                        </svg>
+                    </div>
+                    <div class="quick-action-label">My Training</div>
+                    <div class="quick-action-sublabel">Courses</div>
+                </a>
+                <a href="{% url 'benefits_list' %}" class="quick-action-btn">
+                    <div class="quick-action-icon" style="background: #fce7f3; color: #ec4899;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 12v8H4v-8"></path>
+                            <path d="M22 7H2v5h20V7z"></path>
+                            <path d="M12 22V7"></path>
+                            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                        </svg>
+                    </div>
+                    <div class="quick-action-label">My Benefits</div>
+                    <div class="quick-action-sublabel">View perks</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity (Full Width Below) -->
+    <div class="activity-card">
+        <h3 class="card-title">Recent Activity</h3>
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                </div>
+                <div class="activity-content">
+                    <p class="activity-title">Document: CV</p>
+                    <p class="activity-desc">Pending review • Tue, 5 hours ago</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <div class="activity-content">
+                    <p class="activity-title">Attendance: Present</p>
+                    <p class="activity-desc">Feb 24, 2026 • 5 days ago</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <div class="activity-content">
+                    <p class="activity-title">Attendance: Late</p>
+                    <p class="activity-desc">Feb 23, 2026 • 6 days ago</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="upcoming-card">
+        <h3 class="card-title">Upcoming</h3>
+        <div class="upcoming-empty">No upcoming events</div>
+    </div>
+</div>
+{% endblock %}
