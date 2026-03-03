@@ -86,20 +86,21 @@ ENTERPRISE_FEATURES = PROFESSIONAL_FEATURES | {
 
 PLAN_DEFINITIONS = {
     'BASIC': {
-        'name': 'Basic',
+        'name': 'Starter',
         'employee_limit': 25,
         'price': 29.99,
         'features': BASIC_FEATURES,
     },
+    # STANDARD kept for backward compat — treated as Professional tier
     'STANDARD': {
-        'name': 'Standard',
+        'name': 'Professional',
         'employee_limit': 100,
-        'price': 49.99,
-        'features': STANDARD_FEATURES,
+        'price': 79.99,
+        'features': PROFESSIONAL_FEATURES,
     },
     'PROFESSIONAL': {
         'name': 'Professional',
-        'employee_limit': 500,
+        'employee_limit': 100,
         'price': 79.99,
         'features': PROFESSIONAL_FEATURES,
     },

@@ -16,10 +16,10 @@
             <div class="plan-badge">Current Plan</div>
             <h2 class="plan-name">{{ subscription.plan_name }}</h2>
             <div class="plan-price">
-                <span class="price">{{ currency.symbol }} {{ subscription.per_user_monthly }}</span>
-                <span class="period">/user/month</span>
+                <span class="price">{{ currency.symbol }} {{ subscription.flat_monthly }}</span>
+                <span class="period">/month</span>
             </div>
-            <div style="font-size:13px; color:var(--medium-gray); margin:-8px 0 12px;">{{ subscription.active_user_count }} active user{{ subscription.active_user_count|pluralize }} &times; {{ currency.symbol }} {{ subscription.per_user_monthly }}/mo = <strong style="color:var(--dark);">{{ currency.symbol }} {{ subscription.monthly_price }}/mo</strong></div>
+            <div style="font-size:13px; color:var(--medium-gray); margin:-8px 0 12px;">Flat-rate plan &mdash; covers up to {{ subscription.employee_limit }} employees. <strong style="color:var(--dark);">{{ currency.symbol }} {{ subscription.amount_due }}/{{ subscription.billing_period_label }}</strong></div>
             <div class="plan-status">
                 {% if subscription.is_trial %}
                 <span class="status-badge trial">Trial - {{ subscription.trial_days_left }} days left</span>
@@ -30,7 +30,7 @@
             <div class="plan-details">
                 <div class="detail-item">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    <span>{{ subscription.active_user_count }} active users ({{ subscription.employee_count }} employees) &mdash; limit {{ subscription.employee_limit }}</span>
+                    <span>{{ subscription.employee_count }} employees &mdash; limit: {{ subscription.employee_limit }}</span>
                 </div>
                 {% for feat in subscription.features %}
                 <div class="detail-item">
@@ -66,12 +66,12 @@
                 <strong class="value">{{ subscription.next_billing_date|date:"M d, Y" }}</strong>
             </div>
             <div class="summary-item">
-                <span class="label">Per-user rate</span>
-                <strong class="value">{{ currency.symbol }} {{ subscription.per_user_monthly }}/mo</strong>
+                <span class="label">Plan rate</span>
+                <strong class="value">{{ currency.symbol }} {{ subscription.flat_monthly }}/mo (flat-rate)</strong>
             </div>
             <div class="summary-item">
-                <span class="label">Active users</span>
-                <strong class="value">{{ subscription.active_user_count }}</strong>
+                <span class="label">Employees</span>
+                <strong class="value">{{ subscription.employee_count }} / {{ subscription.employee_limit }}</strong>
             </div>
             <div class="summary-item">
                 <span class="label">Amount due</span>
@@ -80,15 +80,15 @@
             <div class="summary-item">
                 <span class="label">Payment method</span>
                 <strong class="value">
-                    {% if subscription.card_last4 %}
-                    {{ subscription.card_brand }} **** {{ subscription.card_last4 }}
+                    {% if subscription.pm_display != 'No payment method' %}
+                    {{ subscription.pm_display }}
                     {% else %}
                     <span style="color:var(--medium-gray);">No payment method</span>
                     {% endif %}
                 </strong>
             </div>
             <button class="btn-primary full-width" onclick="document.getElementById('paymentModal').style.display='flex'">
-                {% if subscription.card_last4 %}Update{% else %}Add{% endif %} Payment Method
+                {% if subscription.pm_display != 'No payment method' %}Update{% else %}Add{% endif %} Payment Method
             </button>
 
             <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color);">
@@ -156,17 +156,17 @@
 
         <div class="plans-grid">
             {% for plan in plans %}
-            <div class="plan-card {% if plan.is_current %}current{% endif %} {% if plan.key == 'STANDARD' %}recommended{% endif %}">
-                {% if plan.key == 'STANDARD' %}<div class="recommended-badge">Most Popular</div>{% endif %}
+            <div class="plan-card {% if plan.is_current %}current{% endif %} {% if plan.key == 'PROFESSIONAL' %}recommended{% endif %}">
+                {% if plan.key == 'PROFESSIONAL' %}<div class="recommended-badge">Most Popular</div>{% endif %}
                 {% if plan.is_current %}<div class="plan-badge">Current</div>{% endif %}
                 <h3 class="plan-name">{{ plan.name }}</h3>
                 <p style="font-size:13px; color:var(--medium-gray); margin:0 0 16px;">{{ plan.description }}</p>
                 <div class="plan-price">
                     <span class="price">{{ currency.symbol }} {{ plan.price }}</span>
-                    <span class="period">/user/month</span>
+                    <span class="period">/month</span>
                 </div>
                 <p class="plan-description" style="font-size:12px; color:var(--medium-gray); margin:0 0 20px;">
-                    Yearly: {{ currency.symbol }} {{ plan.yearly_per_user }}/user/mo (save 20%)
+                    Up to {{ plan.employee_limit }} employees &mdash; Yearly: {{ currency.symbol }} {{ plan.yearly_price }}/yr (save 20%)
                 </p>
                 <ul class="plan-features">
                     {% for feat in plan.features %}
@@ -183,7 +183,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="action" value="change_plan">
                     <input type="hidden" name="plan" value="{{ plan.key }}">
-                    <button type="submit" class="{% if plan.key == 'STANDARD' %}btn-primary{% else %}btn-outline{% endif %}">
+                    <button type="submit" class="{% if plan.key == 'PROFESSIONAL' %}btn-primary{% else %}btn-outline{% endif %}">
                         Select {{ plan.name }}
                     </button>
                 </form>
@@ -283,19 +283,20 @@
             <h3>Update Payment Method</h3>
             <button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">&times;</button>
         </div>
-        <form method="post">
+        <form method="post" id="paymentForm">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_payment">
+            <input type="hidden" name="payment_type" id="paymentTypeInput" value="card">
             <div class="modal-body">
                 <!-- Gateway Tabs -->
                 <div style="display:flex; gap:0; margin-bottom:20px; border:1px solid var(--border-color); border-radius:4px; overflow:hidden;">
-                    <button type="button" class="gw-tab active" data-panel="panel-card" onclick="switchGateway(this, 'panel-card')" style="flex:1; padding:10px; border:none; background:var(--primary); color:white; font-size:13px; font-weight:600; cursor:pointer;">
+                    <button type="button" class="gw-tab active" data-panel="panel-card" onclick="switchGateway(this, 'panel-card', 'card')" style="flex:1; padding:10px; border:none; background:var(--primary); color:white; font-size:13px; font-weight:600; cursor:pointer;">
                         Card
                     </button>
-                    <button type="button" class="gw-tab" data-panel="panel-mobile" onclick="switchGateway(this, 'panel-mobile')" style="flex:1; padding:10px; border:none; background:white; color:var(--dark); font-size:13px; font-weight:600; cursor:pointer; border-left:1px solid var(--border-color);">
+                    <button type="button" class="gw-tab" data-panel="panel-mobile" onclick="switchGateway(this, 'panel-mobile', 'mobile_money')" style="flex:1; padding:10px; border:none; background:white; color:var(--dark); font-size:13px; font-weight:600; cursor:pointer; border-left:1px solid var(--border-color);">
                         Mobile Money
                     </button>
-                    <button type="button" class="gw-tab" data-panel="panel-bank" onclick="switchGateway(this, 'panel-bank')" style="flex:1; padding:10px; border:none; background:white; color:var(--dark); font-size:13px; font-weight:600; cursor:pointer; border-left:1px solid var(--border-color);">
+                    <button type="button" class="gw-tab" data-panel="panel-bank" onclick="switchGateway(this, 'panel-bank', 'bank_transfer')" style="flex:1; padding:10px; border:none; background:white; color:var(--dark); font-size:13px; font-weight:600; cursor:pointer; border-left:1px solid var(--border-color);">
                         Bank Transfer
                     </button>
                 </div>
@@ -483,7 +484,7 @@
 
 <script>
 // Gateway tab switching
-function switchGateway(btn, panelId) {
+function switchGateway(btn, panelId, type) {
     document.querySelectorAll('.gw-tab').forEach(function(t) {
         t.style.background = 'white';
         t.style.color = 'var(--dark)';
@@ -494,6 +495,7 @@ function switchGateway(btn, panelId) {
     btn.classList.add('active');
     document.querySelectorAll('.gw-panel').forEach(function(p) { p.style.display = 'none'; });
     document.getElementById(panelId).style.display = 'block';
+    document.getElementById('paymentTypeInput').value = type || 'card';
 }
 
 // Extract last 4 digits from card number before submit

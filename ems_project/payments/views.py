@@ -35,12 +35,13 @@ def create_checkout_session(request):
         if not plan_type:
             return JsonResponse({'error': 'Plan type required'}, status=400)
         
-        # Define pricing based on your existing plan structure
+        # Canonical 3-plan flat-rate pricing (USD)
         plan_pricing = {
-            'BASIC': {'price': 19.99, 'name': 'Basic Plan'},
-            'STANDARD': {'price': 29.99, 'name': 'Standard Plan'}, 
-            'PROFESSIONAL': {'price': 49.99, 'name': 'Professional Plan'},
-            'ENTERPRISE': {'price': 99.99, 'name': 'Enterprise Plan'}
+            'BASIC': {'price': 29.99, 'name': 'Starter Plan'},
+            'PROFESSIONAL': {'price': 79.99, 'name': 'Professional Plan'},
+            'ENTERPRISE': {'price': 199.99, 'name': 'Enterprise Plan'},
+            # Legacy alias kept for backward compat
+            'STANDARD': {'price': 79.99, 'name': 'Professional Plan'},
         }
         
         if plan_type not in plan_pricing:

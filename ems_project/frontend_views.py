@@ -1596,102 +1596,6 @@ def _collect_blu_suite_overview(user, modules_count):
     }
 
 
-@login_required
-def blu_suite_home(request):
-    """Unified entry point for tenant modules."""
-    user = request.user
-    nav_flags = _blusuite_nav_flags(user)
-
-    modules_config = [
-        {
-            'title': 'Staff Suite (EMS)',
-            'description': 'Operate HR, payroll and workforce journeys in one place.',
-            'icon': '''
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-            ''',
-            'color': '#2563eb',
-            'url_name': 'blu_staff_home',
-            'visible': nav_flags['show_staff_suite'],
-        },
-        {
-            'title': 'Projects Suite (PMS)',
-            'description': 'Plan workstreams, assign tasks and keep milestones on track.',
-            'icon': '''
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 3h7v7H3z"></path>
-                    <path d="M14 3h7v7h-7z"></path>
-                    <path d="M14 14h7v7h-7z"></path>
-                    <path d="M3 14h7v7H3z"></path>
-                </svg>
-            ''',
-            'color': '#f97316',
-            'url_name': 'blu_projects_home',
-            'visible': nav_flags['show_projects_suite'],
-        },
-        {
-            'title': 'Assets Suite (AMS)',
-            'description': 'Control asset registers, lifecycle tracking and assignments.',
-            'icon': '''
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                </svg>
-            ''',
-            'color': '#22c55e',
-            'url_name': 'blu_assets_home',
-            'visible': nav_flags['show_assets_suite'],
-        },
-        {
-            'title': 'Analytics Studio',
-            'description': 'Explore KPIs, custom dashboards and advanced reporting.',
-            'icon': '''
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 20V10"></path>
-                    <path d="M12 20V4"></path>
-                    <path d="M6 20v-6"></path>
-                    <path d="M3 20h18"></path>
-                </svg>
-            ''',
-            'color': '#8b5cf6',
-            'url_name': 'blu_analytics_home',
-            'visible': nav_flags['show_analytics_suite'],
-        },
-        {
-            'title': 'Integrations Suite',
-            'description': 'Connect external services and automate workflows.',
-            'icon': '''
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 4H4"></path>
-                    <path d="M4 4h2.5a2.5 2.5 0 0 1 0 5H4v7h10v-7H4a2.5 2.5 0 0 1 0-5H4"></path>
-                    <path d="M20 4v7h-7"></path>
-                </svg>
-            ''',
-            'color': '#f59e0b',
-            'url_name': 'blu_integrations_home',
-            'visible': nav_flags['show_integrations_suite'],
-        },
-    ]
-
-    overview = _collect_blu_suite_overview(user, len(modules))
-    overview['company_settings'] = _collect_company_settings_context(user, nav_flags)
-
-    return render(
-        request,
-        'ems/blusuite_home.html',
-        {
-            'modules': modules,
-            'home_url': reverse('blu_suite_home'),
-            'overview': overview,
-            **nav_flags,
-        },
-    )
-
-
 from django.views.decorators.csrf import csrf_protect
 
 from .auth_views import finalize_login_session
@@ -3222,55 +3126,40 @@ def blu_billing_home(request):
     currency = get_company_currency(company)
     rate = currency['rate']
 
-    # ── Plan pricing map (base prices in ZMW) ──
+    # ── Canonical plan pricing (USD base, converted to local currency) ──
+    # Flat-rate: one price covers the full employee limit — NOT per user
     PLAN_INFO = {
         'BASIC': {
-            'name': 'Basic',
+            'name': 'Starter',
             'base_price': 29.99,
             'price': round(29.99 * rate, 2),
             'employee_limit': 25,
             'description': 'Perfect for small teams getting started',
             'features': [
-                'Up to 25 users',
-                'Basic attendance tracking',
+                'Up to 25 employees',
+                'Employee database & profiles',
+                'Attendance tracking',
                 'Leave management',
                 'Payroll processing',
-                'Email support',
-                'Responsive web access',
-            ],
-        },
-        'STANDARD': {
-            'name': 'Standard',
-            'base_price': 49.99,
-            'price': round(49.99 * rate, 2),
-            'employee_limit': 100,
-            'description': 'For growing businesses with advanced needs',
-            'features': [
-                'Up to 100 users',
-                'Advanced attendance & GPS tracking',
-                'Leave management & approvals',
-                'Automated payroll processing',
-                'Performance reviews',
                 'Document management',
-                'Custom reports',
-                'Integrations hub',
-                'Priority support',
+                'Email support',
             ],
         },
         'PROFESSIONAL': {
             'name': 'Professional',
             'base_price': 79.99,
             'price': round(79.99 * rate, 2),
-            'employee_limit': 500,
-            'description': 'For large organizations needing full control',
+            'employee_limit': 100,
+            'description': 'For growing businesses with advanced HR needs',
             'features': [
-                'Up to 500 users',
-                'All Standard features',
-                'Advanced analytics & insights',
-                'API access',
-                'Dedicated account manager',
-                'Priority phone support',
-                'Custom training',
+                'Up to 100 employees',
+                'Everything in Starter',
+                'Performance reviews & goals',
+                'Advanced analytics & reports',
+                'Training management',
+                'Benefits management',
+                'Approvals & workflows',
+                'Priority support',
             ],
         },
         'ENTERPRISE': {
@@ -3278,26 +3167,25 @@ def blu_billing_home(request):
             'base_price': 199.99,
             'price': round(199.99 * rate, 2),
             'employee_limit': 99999,
-            'description': 'Unlimited scale with premium support',
+            'description': 'For large organizations with custom requirements',
             'features': [
-                'Unlimited users',
-                'All Professional features',
-                'White-label branding',
-                'Custom SLA guarantee',
-                'On-premise deployment option',
-                '24/7 dedicated support',
-                'Custom development',
-                'Data migration assistance',
+                'Unlimited employees',
+                'Everything in Professional',
+                'Asset management (AMS)',
+                'E-Forms & digital signatures',
+                'Custom integrations & API',
+                'Dedicated account manager',
+                '24/7 phone support',
+                'SLA guarantee',
             ],
         },
     }
 
     # ── Payment gateway options ──
     PAYMENT_GATEWAYS = [
-        {'key': 'card', 'name': 'Credit / Debit Card', 'icon': 'credit-card', 'description': 'Visa, Mastercard, Amex'},
+        {'key': 'card', 'name': 'Credit / Debit Card', 'icon': 'credit-card', 'description': 'Visa, Mastercard, Amex — secured by Stripe'},
         {'key': 'mobile_money', 'name': 'Mobile Money', 'icon': 'smartphone', 'description': 'MTN, Airtel, Zamtel'},
         {'key': 'bank_transfer', 'name': 'Bank Transfer', 'icon': 'building', 'description': 'Direct bank deposit or EFT'},
-        {'key': 'paypal', 'name': 'PayPal', 'icon': 'globe', 'description': 'Pay via PayPal account'},
     ]
 
     # ── Handle POST actions ──
@@ -3310,21 +3198,19 @@ def blu_billing_home(request):
                 old_plan = company.subscription_plan
                 company.subscription_plan = new_plan
                 info = PLAN_INFO[new_plan]
-                company.max_employees = info['employee_limit']
+                company.max_employees = info['employee_limit'] if info['employee_limit'] < 99999 else 9999
                 # End trial if upgrading
                 if company.is_trial and new_plan != 'BASIC':
                     company.is_trial = False
                     company.trial_ends_at = None
                 company.save(update_fields=['subscription_plan', 'max_employees', 'is_trial', 'trial_ends_at'])
-                # Create billing record (per-user pricing)
-                user_count = User.objects.filter(company_id=company.pk, is_active=True).count()
-                invoice_amount = round(info['price'] * user_count, 2)
+                # Flat-rate invoice
                 BillingInvoice.objects.create(
                     company_id=company.pk,
                     date=date.today(),
                     due_date=date.today() + timedelta(days=30),
-                    description=f'Plan change: {PLAN_INFO.get(old_plan, {}).get("name", old_plan)} to {info["name"]} ({user_count} users x {currency["symbol"]} {info["price"]}/user)',
-                    amount=invoice_amount,
+                    description=f'Plan change: {PLAN_INFO.get(old_plan, {}).get("name", old_plan)} → {info["name"]} (flat-rate {currency["symbol"]} {info["price"]}/mo)',
+                    amount=info['price'],
                     status=BillingInvoice.Status.PENDING,
                 )
                 messages.success(request, f'Subscription changed to {info["name"]} plan.')
@@ -3345,24 +3231,43 @@ def blu_billing_home(request):
                 status=BillingInvoice.Status.CANCELLED,
                 notes=reason,
             )
-            messages.success(request, 'Subscription cancelled. You have been moved to the Basic plan.')
+            messages.success(request, 'Subscription cancelled. You have been moved to the Starter plan.')
             return redirect('blu_billing_home')
 
         elif action == 'update_payment':
-            # Store payment method info in security_settings JSON
-            card_last4 = request.POST.get('card_last4', '')
-            card_brand = request.POST.get('card_brand', '')
-            card_expiry = request.POST.get('card_expiry', '')
+            pm_type = request.POST.get('payment_type', 'card')
             if not hasattr(company, 'security_settings') or company.security_settings is None:
                 company.security_settings = {}
-            company.security_settings['payment_method'] = {
-                'card_last4': card_last4,
-                'card_brand': card_brand,
-                'card_expiry': card_expiry,
-                'updated_at': date.today().isoformat(),
-            }
+            if pm_type == 'card':
+                card_last4 = request.POST.get('card_last4', '')
+                card_brand = request.POST.get('card_brand', '')
+                card_expiry = request.POST.get('card_expiry', '')
+                company.security_settings['payment_method'] = {
+                    'type': 'card',
+                    'card_last4': card_last4,
+                    'card_brand': card_brand,
+                    'card_expiry': card_expiry,
+                    'updated_at': date.today().isoformat(),
+                }
+                messages.success(request, 'Card payment method saved successfully.')
+            elif pm_type == 'mobile_money':
+                provider = request.POST.get('mobile_provider', '')
+                number = request.POST.get('mobile_number', '')
+                company.security_settings['payment_method'] = {
+                    'type': 'mobile_money',
+                    'provider': provider,
+                    'mobile_number': number,
+                    'updated_at': date.today().isoformat(),
+                }
+                messages.success(request, f'Mobile Money ({provider}) payment method saved. You will receive payment prompts on {number}.')
+            elif pm_type == 'bank_transfer':
+                company.security_settings['payment_method'] = {
+                    'type': 'bank_transfer',
+                    'confirmed': True,
+                    'updated_at': date.today().isoformat(),
+                }
+                messages.success(request, 'Bank Transfer confirmed. Please use your license key as the payment reference. Allow 1-2 business days for verification.')
             company.save(update_fields=['security_settings'])
-            messages.success(request, 'Payment method updated successfully.')
             return redirect('blu_billing_home')
 
         elif action == 'toggle_billing_cycle':
@@ -3402,30 +3307,37 @@ def blu_billing_home(request):
     if company.license_expiry:
         next_billing = company.license_expiry
 
-    # Count all active users on the system (employees + admins/HR)
+    # Count active users
     active_user_count = User.objects.filter(company_id=company.pk, is_active=True).count()
     employee_count = User.objects.filter(company_id=company.pk, role='EMPLOYEE', is_active=True).count()
 
-    # Per-user pricing: price_per_user × active_users
-    per_user_price = plan_info['price']  # per user per month in local currency
+    # Flat-rate pricing: one fixed price for the plan (NOT per user)
+    flat_monthly = plan_info['price']
     if billing_pref == 'YEARLY':
-        per_user_monthly = round(plan_info['price'] * yearly_discount, 2)  # discounted monthly rate
-        total_monthly = round(per_user_monthly * active_user_count, 2)
-        total_due = round(total_monthly * 12, 2)  # yearly total
+        flat_monthly_discounted = round(flat_monthly * yearly_discount, 2)
+        total_due = round(flat_monthly_discounted * 12, 2)
         billing_period_label = 'year'
     else:
-        per_user_monthly = plan_info['price']
-        total_monthly = round(per_user_monthly * active_user_count, 2)
-        total_due = total_monthly
+        flat_monthly_discounted = flat_monthly
+        total_due = flat_monthly
         billing_period_label = 'month'
+
+    # Payment method display info
+    pm_type = payment.get('type', 'card')
+    pm_display = 'No payment method'
+    if pm_type == 'card' and payment.get('card_last4'):
+        pm_display = f"{payment.get('card_brand', 'Card')} **** {payment['card_last4']}"
+    elif pm_type == 'mobile_money' and payment.get('mobile_number'):
+        pm_display = f"{payment.get('provider', 'Mobile Money')} – {payment['mobile_number']}"
+    elif pm_type == 'bank_transfer' and payment.get('confirmed'):
+        pm_display = 'Bank Transfer (confirmed)'
 
     subscription = {
         'plan_key': current_plan_key,
         'plan_name': plan_info['name'],
-        'per_user_price': plan_info['price'],
-        'per_user_monthly': per_user_monthly,
+        'flat_monthly': flat_monthly,
+        'flat_monthly_discounted': flat_monthly_discounted,
         'price': total_due,
-        'monthly_price': total_monthly,
         'is_trial': company.is_trial,
         'trial_days_left': trial_days_left,
         'employee_limit': plan_info['employee_limit'] if plan_info['employee_limit'] < 99999 else 'Unlimited',
@@ -3435,9 +3347,14 @@ def blu_billing_home(request):
         'next_billing_date': next_billing,
         'amount_due': total_due,
         'billing_period_label': billing_period_label,
+        # Payment method
+        'pm_type': pm_type,
+        'pm_display': pm_display,
         'card_last4': payment.get('card_last4', ''),
         'card_brand': payment.get('card_brand', ''),
         'card_expiry': payment.get('card_expiry', ''),
+        'mobile_provider': payment.get('provider', ''),
+        'mobile_number': payment.get('mobile_number', ''),
         'billing_cycle': billing_pref,
         'license_key': company.license_key,
     }
@@ -3452,7 +3369,7 @@ def blu_billing_home(request):
             'key': key,
             'name': info['name'],
             'price': info['price'],
-            'yearly_per_user': round(info['price'] * yearly_discount, 2),
+            'yearly_price': round(info['price'] * yearly_discount * 12, 2),
             'employee_limit': info['employee_limit'] if info['employee_limit'] < 99999 else 'Unlimited',
             'features': info['features'],
             'description': info.get('description', ''),
