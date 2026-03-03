@@ -187,6 +187,33 @@ def ensure_employee_profile(employee, company):
     }
 
 
+def _parse_security_settings(raw):
+    """Extract security config sub-keys from company.security_settings JSON."""
+    pp = raw.get('password_policy', {})
+    ss = raw.get('session', {})
+    tfa = raw.get('twofa', {})
+    lr = raw.get('login_restrictions', {})
+    return {
+        'min_password_length': pp.get('min_length', 8),
+        'password_expiry_days': pp.get('expiry_days', 90),
+        'require_uppercase': pp.get('require_uppercase', True),
+        'require_lowercase': pp.get('require_lowercase', True),
+        'require_number': pp.get('require_number', True),
+        'require_special': pp.get('require_special', False),
+        'prevent_reuse': pp.get('prevent_reuse', True),
+        'session_timeout_minutes': ss.get('timeout_minutes', 30),
+        'max_session_hours': ss.get('max_hours', 12),
+        'single_session': ss.get('single_session', False),
+        'logout_on_close': ss.get('logout_on_close', False),
+        'twofa_enforcement': tfa.get('enforcement', 'disabled'),
+        'twofa_method': tfa.get('method', 'email'),
+        'max_failed_attempts': lr.get('max_failed_attempts', 5),
+        'lockout_duration_minutes': lr.get('lockout_duration_minutes', 15),
+        'notify_admin_lockout': lr.get('notify_admin_lockout', False),
+        'log_failed_attempts': lr.get('log_failed_attempts', True),
+    }
+
+
 def _collect_company_settings_context(user, nav_flags):
     today = timezone.now().date()
     company = _get_user_company(user)
@@ -781,6 +808,7 @@ def _collect_company_settings_context(user, nav_flags):
         },
         'integration_cards': cards['integrations']['available'],
         'payslip_designer': payslip_state['designer'],
+        'security': _parse_security_settings(company.security_settings or {}),
     }
 
 

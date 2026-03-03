@@ -1521,45 +1521,45 @@
                         <div>
                             <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Minimum Password Length</label>
                             <select name="min_password_length" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
-                                <option value="6">6 characters</option>
-                                <option value="8" selected>8 characters (Recommended)</option>
-                                <option value="10">10 characters</option>
-                                <option value="12">12 characters</option>
-                                <option value="16">16 characters</option>
+                                <option value="6" {% if settings.security.min_password_length == 6 %}selected{% endif %}>6 characters</option>
+                                <option value="8" {% if settings.security.min_password_length == 8 %}selected{% endif %}>8 characters (Recommended)</option>
+                                <option value="10" {% if settings.security.min_password_length == 10 %}selected{% endif %}>10 characters</option>
+                                <option value="12" {% if settings.security.min_password_length == 12 %}selected{% endif %}>12 characters</option>
+                                <option value="16" {% if settings.security.min_password_length == 16 %}selected{% endif %}>16 characters</option>
                             </select>
                         </div>
                         <div>
                             <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Password Expiry</label>
                             <select name="password_expiry_days" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
-                                <option value="0">Never expires</option>
-                                <option value="30">Every 30 days</option>
-                                <option value="60">Every 60 days</option>
-                                <option value="90" selected>Every 90 days (Recommended)</option>
-                                <option value="180">Every 180 days</option>
-                                <option value="365">Every 365 days</option>
+                                <option value="0" {% if settings.security.password_expiry_days == 0 %}selected{% endif %}>Never expires</option>
+                                <option value="30" {% if settings.security.password_expiry_days == 30 %}selected{% endif %}>Every 30 days</option>
+                                <option value="60" {% if settings.security.password_expiry_days == 60 %}selected{% endif %}>Every 60 days</option>
+                                <option value="90" {% if settings.security.password_expiry_days == 90 %}selected{% endif %}>Every 90 days (Recommended)</option>
+                                <option value="180" {% if settings.security.password_expiry_days == 180 %}selected{% endif %}>Every 180 days</option>
+                                <option value="365" {% if settings.security.password_expiry_days == 365 %}selected{% endif %}>Every 365 days</option>
                             </select>
                         </div>
                     </div>
 
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="require_uppercase" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="require_uppercase" {% if settings.security.require_uppercase %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Require at least one uppercase letter (A-Z)
                         </label>
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="require_lowercase" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="require_lowercase" {% if settings.security.require_lowercase %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Require at least one lowercase letter (a-z)
                         </label>
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="require_number" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="require_number" {% if settings.security.require_number %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Require at least one number (0-9)
                         </label>
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="require_special" style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="require_special" {% if settings.security.require_special %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Require at least one special character (!@#$%^&*)
                         </label>
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="prevent_reuse" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="prevent_reuse" {% if settings.security.prevent_reuse %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Prevent reuse of last 5 passwords
                         </label>
                     </div>
@@ -1582,33 +1582,33 @@
                         <div>
                             <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Session Timeout (Idle)</label>
                             <select name="session_timeout_minutes" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
-                                <option value="15">15 minutes</option>
-                                <option value="30" selected>30 minutes</option>
-                                <option value="60">1 hour</option>
-                                <option value="120">2 hours</option>
-                                <option value="480">8 hours</option>
-                                <option value="0">Never (not recommended)</option>
+                                <option value="15" {% if settings.security.session_timeout_minutes == 15 %}selected{% endif %}>15 minutes</option>
+                                <option value="30" {% if settings.security.session_timeout_minutes == 30 %}selected{% endif %}>30 minutes</option>
+                                <option value="60" {% if settings.security.session_timeout_minutes == 60 %}selected{% endif %}>1 hour</option>
+                                <option value="120" {% if settings.security.session_timeout_minutes == 120 %}selected{% endif %}>2 hours</option>
+                                <option value="480" {% if settings.security.session_timeout_minutes == 480 %}selected{% endif %}>8 hours</option>
+                                <option value="0" {% if settings.security.session_timeout_minutes == 0 %}selected{% endif %}>Never (not recommended)</option>
                             </select>
                         </div>
                         <div>
                             <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Maximum Session Duration</label>
                             <select name="max_session_hours" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
-                                <option value="8">8 hours</option>
-                                <option value="12" selected>12 hours</option>
-                                <option value="24">24 hours</option>
-                                <option value="72">3 days</option>
-                                <option value="168">7 days</option>
+                                <option value="8" {% if settings.security.max_session_hours == 8 %}selected{% endif %}>8 hours</option>
+                                <option value="12" {% if settings.security.max_session_hours == 12 %}selected{% endif %}>12 hours</option>
+                                <option value="24" {% if settings.security.max_session_hours == 24 %}selected{% endif %}>24 hours</option>
+                                <option value="72" {% if settings.security.max_session_hours == 72 %}selected{% endif %}>3 days</option>
+                                <option value="168" {% if settings.security.max_session_hours == 168 %}selected{% endif %}>7 days</option>
                             </select>
                         </div>
                     </div>
 
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="single_session" style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="single_session" {% if settings.security.single_session %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Allow only one active session per user (new login terminates previous session)
                         </label>
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="logout_on_close" style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="logout_on_close" {% if settings.security.logout_on_close %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Automatically log out when browser is closed
                         </label>
                     </div>
@@ -1631,18 +1631,18 @@
                         <div>
                             <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">2FA Enforcement</label>
                             <select name="twofa_enforcement" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
-                                <option value="disabled" selected>Disabled</option>
-                                <option value="optional">Optional (users can enable)</option>
-                                <option value="admins_only">Required for admins only</option>
-                                <option value="required">Required for all users</option>
+                                <option value="disabled" {% if settings.security.twofa_enforcement == 'disabled' %}selected{% endif %}>Disabled</option>
+                                <option value="optional" {% if settings.security.twofa_enforcement == 'optional' %}selected{% endif %}>Optional (users can enable)</option>
+                                <option value="admins_only" {% if settings.security.twofa_enforcement == 'admins_only' %}selected{% endif %}>Required for admins only</option>
+                                <option value="required" {% if settings.security.twofa_enforcement == 'required' %}selected{% endif %}>Required for all users</option>
                             </select>
                         </div>
                         <div>
                             <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">2FA Method</label>
                             <select name="twofa_method" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
-                                <option value="email" selected>Email OTP</option>
-                                <option value="sms">SMS OTP</option>
-                                <option value="authenticator">Authenticator App (TOTP)</option>
+                                <option value="email" {% if settings.security.twofa_method == 'email' %}selected{% endif %}>Email OTP</option>
+                                <option value="sms" {% if settings.security.twofa_method == 'sms' %}selected{% endif %}>SMS OTP</option>
+                                <option value="authenticator" {% if settings.security.twofa_method == 'authenticator' %}selected{% endif %}>Authenticator App (TOTP)</option>
                             </select>
                         </div>
                     </div>
@@ -1674,31 +1674,31 @@
                         <div>
                             <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Max Failed Login Attempts</label>
                             <select name="max_failed_attempts" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
-                                <option value="3">3 attempts</option>
-                                <option value="5" selected>5 attempts</option>
-                                <option value="10">10 attempts</option>
-                                <option value="0">Unlimited (not recommended)</option>
+                                <option value="3" {% if settings.security.max_failed_attempts == 3 %}selected{% endif %}>3 attempts</option>
+                                <option value="5" {% if settings.security.max_failed_attempts == 5 %}selected{% endif %}>5 attempts</option>
+                                <option value="10" {% if settings.security.max_failed_attempts == 10 %}selected{% endif %}>10 attempts</option>
+                                <option value="0" {% if settings.security.max_failed_attempts == 0 %}selected{% endif %}>Unlimited (not recommended)</option>
                             </select>
                         </div>
                         <div>
                             <label style="font-size:13px; font-weight:500; display:block; margin-bottom:6px;">Account Lockout Duration</label>
                             <select name="lockout_duration_minutes" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-size:14px;">
-                                <option value="5">5 minutes</option>
-                                <option value="15" selected>15 minutes</option>
-                                <option value="30">30 minutes</option>
-                                <option value="60">1 hour</option>
-                                <option value="0">Until admin unlocks</option>
+                                <option value="5" {% if settings.security.lockout_duration_minutes == 5 %}selected{% endif %}>5 minutes</option>
+                                <option value="15" {% if settings.security.lockout_duration_minutes == 15 %}selected{% endif %}>15 minutes</option>
+                                <option value="30" {% if settings.security.lockout_duration_minutes == 30 %}selected{% endif %}>30 minutes</option>
+                                <option value="60" {% if settings.security.lockout_duration_minutes == 60 %}selected{% endif %}>1 hour</option>
+                                <option value="0" {% if settings.security.lockout_duration_minutes == 0 %}selected{% endif %}>Until admin unlocks</option>
                             </select>
                         </div>
                     </div>
 
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="notify_admin_lockout" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="notify_admin_lockout" {% if settings.security.notify_admin_lockout %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Notify administrators when an account is locked out
                         </label>
                         <label style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--dark-gray); cursor:pointer;">
-                            <input type="checkbox" name="log_failed_attempts" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                            <input type="checkbox" name="log_failed_attempts" {% if settings.security.log_failed_attempts %}checked{% endif %} style="width:18px; height:18px; accent-color:var(--primary);">
                             Log all failed login attempts for audit purposes
                         </label>
                     </div>
@@ -1738,69 +1738,6 @@
                 </div>
             </div>
 
-            <!-- Pre-populate security forms from saved settings -->
-            <script>
-            (function() {
-                var sec = {{ company.security_settings|safe|default:"{}" }};
-                if (!sec || typeof sec !== 'object') sec = {};
-
-                // Password Policy
-                var pp = sec.password_policy || {};
-                if (pp.min_length) {
-                    var el = document.querySelector('[name="min_password_length"]');
-                    if (el) el.value = pp.min_length;
-                }
-                if (pp.expiry_days !== undefined) {
-                    var el = document.querySelector('[name="password_expiry_days"]');
-                    if (el) el.value = pp.expiry_days;
-                }
-                ['require_uppercase','require_lowercase','require_number','require_special','prevent_reuse'].forEach(function(f) {
-                    var cb = document.querySelector('[name="'+f+'"]');
-                    if (cb && pp[f] !== undefined) cb.checked = pp[f];
-                });
-
-                // Session
-                var ss = sec.session || {};
-                if (ss.timeout_minutes !== undefined) {
-                    var el = document.querySelector('[name="session_timeout_minutes"]');
-                    if (el) el.value = ss.timeout_minutes;
-                }
-                if (ss.max_hours !== undefined) {
-                    var el = document.querySelector('[name="max_session_hours"]');
-                    if (el) el.value = ss.max_hours;
-                }
-                ['single_session','logout_on_close'].forEach(function(f) {
-                    var cb = document.querySelector('[name="'+f+'"]');
-                    if (cb && ss[f] !== undefined) cb.checked = ss[f];
-                });
-
-                // 2FA
-                var tfa = sec.twofa || {};
-                if (tfa.enforcement) {
-                    var el = document.querySelector('[name="twofa_enforcement"]');
-                    if (el) el.value = tfa.enforcement;
-                }
-                if (tfa.method) {
-                    var el = document.querySelector('[name="twofa_method"]');
-                    if (el) el.value = tfa.method;
-                }
-
-                // Login Restrictions
-                var lr = sec.login_restrictions || {};
-                if (lr.max_failed_attempts !== undefined) {
-                    var el = document.querySelector('[name="max_failed_attempts"]');
-                    if (el) el.value = lr.max_failed_attempts;
-                }
-                if (lr.lockout_duration_minutes !== undefined) {
-                    var el = document.querySelector('[name="lockout_duration_minutes"]');
-                    if (el) el.value = lr.lockout_duration_minutes;
-                }
-                ['notify_admin_lockout','log_failed_attempts'].forEach(function(f) {
-                    var cb = document.querySelector('[name="'+f+'"]');
-                    if (cb && lr[f] !== undefined) cb.checked = lr[f];
-                });
-            })();
-            </script>
         </div>
 
         <!-- Integrations -->
