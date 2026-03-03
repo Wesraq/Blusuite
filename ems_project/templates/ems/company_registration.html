@@ -642,7 +642,37 @@
                         </div>
                     </div>
 
-                    <p class="currency-note" id="currency-note">Prices shown in USD. Detecting your currency...</p>
+                    <!-- Currency Selector -->
+                    <div style="margin-bottom:20px;">
+                        <label for="currency-selector" style="display:block;margin-bottom:8px;font-weight:500;color:#333;">Select Currency:</label>
+                        <select id="currency-selector" onchange="updatePricingDisplay()" style="padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;width:100%;max-width:300px;cursor:pointer;">
+                            <optgroup label="African Currencies">
+                                <option value="ZM">🇿🇲 Zambian Kwacha (ZMW)</option>
+                                <option value="ZA">🇿🇦 South African Rand (ZAR)</option>
+                                <option value="KE">🇰🇪 Kenyan Shilling (KES)</option>
+                                <option value="NG">🇳🇬 Nigerian Naira (NGN)</option>
+                                <option value="GH">🇬🇭 Ghanaian Cedi (GHS)</option>
+                                <option value="TZ">🇹🇿 Tanzanian Shilling (TZS)</option>
+                                <option value="UG">🇺🇬 Ugandan Shilling (UGX)</option>
+                                <option value="MW">🇲🇼 Malawian Kwacha (MWK)</option>
+                                <option value="BW">🇧🇼 Botswana Pula (BWP)</option>
+                                <option value="MZ">🇲🇿 Mozambican Metical (MZN)</option>
+                                <option value="EG">🇪🇬 Egyptian Pound (EGP)</option>
+                                <option value="MA">🇲🇦 Moroccan Dirham (MAD)</option>
+                                <option value="ET">🇪🇹 Ethiopian Birr (ETB)</option>
+                                <option value="AO">🇦🇴 Angolan Kwanza (AOA)</option>
+                                <option value="ZW">🇿🇼 Zimbabwean Dollar (ZWL)</option>
+                            </optgroup>
+                            <optgroup label="Other Currencies">
+                                <option value="US" selected>🇺🇸 US Dollar (USD)</option>
+                                <option value="GB">🇬🇧 British Pound (GBP)</option>
+                                <option value="EU">🇪🇺 Euro (EUR)</option>
+                                <option value="IN">🇮🇳 Indian Rupee (INR)</option>
+                                <option value="AU">🇦🇺 Australian Dollar (AUD)</option>
+                                <option value="CA">🇨🇦 Canadian Dollar (CAD)</option>
+                            </optgroup>
+                        </select>
+                    </div>
 
                     <!-- Plan Cards -->
                     <div class="plan-cards">
@@ -763,6 +793,7 @@
             'US': { code: 'USD', symbol: '$',    rate: 1 },
             'GB': { code: 'GBP', symbol: '£',    rate: 0.79 },
             'EU': { code: 'EUR', symbol: '€',    rate: 0.92 },
+            // African Currencies
             'ZM': { code: 'ZMW', symbol: 'ZMW ', rate: 27.5 },
             'ZA': { code: 'ZAR', symbol: 'R ',   rate: 18.5 },
             'KE': { code: 'KES', symbol: 'KSh ', rate: 130 },
@@ -773,6 +804,12 @@
             'MW': { code: 'MWK', symbol: 'MK ',  rate: 1730 },
             'BW': { code: 'BWP', symbol: 'P ',   rate: 13.5 },
             'MZ': { code: 'MZN', symbol: 'MT ',  rate: 64 },
+            'EG': { code: 'EGP', symbol: 'E£ ',  rate: 49 },
+            'MA': { code: 'MAD', symbol: 'MAD ', rate: 10.1 },
+            'ET': { code: 'ETB', symbol: 'Br ',  rate: 56 },
+            'AO': { code: 'AOA', symbol: 'Kz ',  rate: 830 },
+            'ZW': { code: 'ZWL', symbol: 'Z$ ',  rate: 322 },
+            // Other Currencies
             'IN': { code: 'INR', symbol: '₹',    rate: 83 },
             'AU': { code: 'AUD', symbol: 'A$',   rate: 1.53 },
             'CA': { code: 'CAD', symbol: 'C$',   rate: 1.36 },
@@ -875,15 +912,14 @@
         }
 
         function updatePricingDisplay() {
-            const sym = detectedCurrency.symbol;
-            const rate = detectedCurrency.rate;
-            const code = detectedCurrency.code;
-
-            // Update currency note
-            const note = document.getElementById('currency-note');
-            if (note) note.textContent = code === 'USD'
-                ? 'Prices shown in USD'
-                : `Prices shown in ${code} (approximate, charged in USD)`;
+            // Get selected currency from dropdown
+            const currencySelector = document.getElementById('currency-selector');
+            const selectedCurrencyCode = currencySelector ? currencySelector.value : 'US';
+            const selectedCurrency = currencyMap[selectedCurrencyCode] || currencyMap['US'];
+            
+            const sym = selectedCurrency.symbol;
+            const rate = selectedCurrency.rate;
+            const code = selectedCurrency.code;
 
             // Update each plan card price
             Object.keys(planConfig).forEach(key => {
