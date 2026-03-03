@@ -37,10 +37,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-hk#y))sfv81zpb*smz!ar3f*f_c2_x4$nh2^cnr(4i&6#v)x1u')
+# No default value - application will fail if SECRET_KEY not set (security best practice)
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-CHANGE-IN-PRODUCTION' if os.getenv('DJANGO_ENV') == 'development' else None)
+if not SECRET_KEY:
+    raise ValueError('SECRET_KEY environment variable must be set in production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+# Default to False for security - explicitly enable in development only
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
@@ -60,6 +64,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'drf_yasg',
+    'axes',  # Account lockout protection
     'health_check',
     'health_check.db',
     'health_check.cache',
@@ -102,6 +107,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',  # Account lockout - must be after AuthenticationMiddleware
     'tenant_management.middleware.TenantContextMiddleware',
 ]
 
@@ -153,6 +159,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 12,  # Increased from default 8
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -160,7 +169,61 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'ems_project.validators.UppercaseValidator',
+    },
+    {
+        'NAME': 'ems_project.validators.LowercaseValidator',
+    },
+    {
+        'NAME': 'ems_project.validators.NumberValidator',
+    },
+    {
+        'NAME': 'ems_project.validators.SpecialCharacterValidator',
+    },
 ]
+
+# Session Security Settings
+SESSION_COOKIE_AGE = 3600  # 1 hour session timeout (instead of 2 weeks default)
+SESSION_COOKIE_SECURE = not DEBUG  # HTTPS only in production
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access
+SESSION_COOKIE_SAMESITE = 'Strict'  # Strict CSRF protection
+SESSION_SAVE_EVERY_REQUEST = True  # Rotate session ID on every request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Clear session when browser closes
+
+# Security Headers
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
+SECURE_BROWSER_XSS_FILTER = True  # Enable browser XSS filter
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
+SECURE_REFERRER_POLICY = 'same-origin'  # Limit referrer information
+
+# HTTPS/SSL Settings (applied when not in DEBUG mode)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+    SECURE_HSTS_SECONDS = 31536000  # 1 year HSTS
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# File Upload Security
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB max file size in memory
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB max request size
+FILE_UPLOAD_PERMISSIONS = 0o644  # Secure file permissions
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755  # Secure directory permissions
+
+# Allowed file extensions for uploads (whitelist)
+ALLOWED_UPLOAD_EXTENSIONS = [
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg',
+    'txt', 'csv', 'zip', 'rar'
+]
+
+# Maximum file sizes by type (in bytes)
+MAX_FILE_SIZE = {
+    'image': 5242880,  # 5MB for images
+    'document': 10485760,  # 10MB for documents
+    'default': 10485760,  # 10MB default
+}
 
 
 # Internationalization
@@ -207,19 +270,17 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only for development
+# CORS settings - SECURITY: Never allow all origins
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://127.0.0.1:8000,http://localhost:8000').split(',')
 
-# CSRF settings for development
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-]
-# For development, allow CSRF cookie to be set
-CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token if needed
-CSRF_COOKIE_SECURE = False  # Set to False for HTTP in development
+# CSRF settings - SECURITY: Secure by default
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1:8000,http://localhost:8000').split(',')
+CSRF_COOKIE_SAMESITE = 'Strict'  # Strict CSRF protection
+CSRF_COOKIE_HTTPONLY = True  # Prevent JavaScript access to CSRF token
+CSRF_COOKIE_SECURE = not DEBUG  # Secure in production (HTTPS only)
+CSRF_USE_SESSIONS = False  # Keep token in cookie for API compatibility
 
 # Email configuration
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
@@ -227,8 +288,9 @@ EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() == 'true'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'emmanuelsimwanza2@gmail.com')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'YOUR_GMAIL_APP_PASSWORD_HERE')
+# SECURITY: No default credentials - must be set via environment variables
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@eiscomtech.com')
 
 # Admin email for notifications
@@ -244,10 +306,15 @@ TENANT_EXCLUDED_PATH_PREFIXES = tuple(
     os.getenv('TENANT_EXCLUDED_PATHS', '/admin,/static,/media,/health').split(',')
 )
 
-# Stripe Payment Configuration
-STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', 'pk_test_51P9DxmAkon9QsgJlzX5kKqOlVRbp3Gq6SneGXilmMDBxUgLD8jzYjBpUS0ZO3NZStAmcR0M7SGkWGvTwISoo8kio00IMpkXdZA')
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_51P9DxmAkon9QsgJlKEQilSPrYPOjdKeLPIO2oQRQjFIPPqWpczk99pkvhlVNSqaY7NOPLEasWQKngK8cxSjvnXGT00h9Vqa7Kl')
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_1234567890abcdef1234567890abcdef')
+# Stripe Payment Configuration - SECURITY: No hardcoded keys
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+
+# Validate Stripe keys are set if payment is required
+if REQUIRE_PAYMENT_FOR_REGISTRATION and not all([STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY]):
+    import warnings
+    warnings.warn('Stripe API keys not configured but payment is required')
 
 # Payment Plans Configuration
 DEFAULT_CURRENCY = 'USD'
@@ -255,3 +322,80 @@ DEFAULT_PAYMENT_PLAN_PRICE = 29.99  # Default monthly price
 
 # Payment Requirements
 REQUIRE_PAYMENT_FOR_REGISTRATION = os.getenv('REQUIRE_PAYMENT_FOR_REGISTRATION', 'True').lower() == 'true'
+
+# Django-Axes Configuration (Brute Force Protection)
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',  # Axes backend for login attempt tracking
+    'django.contrib.auth.backends.ModelBackend',  # Default Django backend
+]
+
+# Axes Settings
+AXES_FAILURE_LIMIT = 5  # Lock account after 5 failed attempts
+AXES_COOLOFF_TIME = 1  # Lock for 1 hour (in hours)
+AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True  # Lock by username + IP combination
+AXES_RESET_ON_SUCCESS = True  # Reset failed attempts counter on successful login
+AXES_LOCKOUT_TEMPLATE = None  # Use default lockout response
+AXES_LOCKOUT_PARAMETERS = [['username', 'ip_address']]  # Track by username and IP
+AXES_VERBOSE = True  # Enable verbose logging
+AXES_ENABLE_ADMIN = True  # Enable admin interface for locked accounts
+AXES_RESET_COOL_OFF_ON_FAILURE_DURING_LOCKOUT = False  # Don't extend lockout on additional attempts
+
+# Logging Configuration for Security Events
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'security.log',
+            'formatter': 'verbose',
+        },
+        'axes_file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'axes.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'axes': {
+            'handlers': ['axes_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['security_file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}

@@ -126,12 +126,10 @@ def tenant_metadata_available():
         return True
 
     try:
-        with connection.cursor() as cursor:
-            cursor.execute(f'PRAGMA table_info({EmployeeBenefit._meta.db_table});')
-            enrollment_columns = [row[1] for row in cursor.fetchall()]
-        with connection.cursor() as cursor:
-            cursor.execute(f'PRAGMA table_info({Benefit._meta.db_table});')
-            benefit_columns = [row[1] for row in cursor.fetchall()]
+        # SECURITY: Use Django's schema inspection instead of raw SQL
+        from django.db import connection
+        enrollment_columns = [field.name for field in EmployeeBenefit._meta.get_fields()]
+        benefit_columns = [field.name for field in Benefit._meta.get_fields()]
         return 'tenant_id' in enrollment_columns and 'tenant_id' in benefit_columns
     except Exception:
         return False
