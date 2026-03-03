@@ -36,7 +36,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter users based on role"""
+        """Filter users based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -47,7 +47,13 @@ class UserViewSet(viewsets.ModelViewSet):
                 Q(employer_profile__user=user) |
                 Q(employee_profile__user__employer_profile__user=user)
             )
-        # Admin sees all users
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see users from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(company=company)
+            return queryset.none()
+        # SUPERADMIN sees all users (system-wide)
         return queryset
 
     @action(detail=False, methods=['get'])
@@ -65,7 +71,7 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter employee profiles based on role"""
+        """Filter employee profiles based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -73,7 +79,13 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
             return queryset.filter(user=user)
         elif user.role == 'EMPLOYER':
             return queryset.filter(user__employer_profile__user=user)
-        # Admin sees all profiles
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see profiles from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(company=company)
+            return queryset.none()
+        # SUPERADMIN sees all profiles (system-wide)
         return queryset
 
 
@@ -103,7 +115,7 @@ class AttendanceViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter attendance records based on role"""
+        """Filter attendance records based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -111,7 +123,13 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             return queryset.filter(employee=user)
         elif user.role == 'EMPLOYER':
             return queryset.filter(employee__employer_profile__user=user)
-        # Admin sees all records
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see attendance from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(employee__company=company)
+            return queryset.none()
+        # SUPERADMIN sees all records (system-wide)
         return queryset
 
     @action(detail=False, methods=['post'])
@@ -186,7 +204,7 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter leave requests based on role"""
+        """Filter leave requests based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -194,7 +212,13 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
             return queryset.filter(employee=user)
         elif user.role == 'EMPLOYER':
             return queryset.filter(employee__employer_profile__user=user)
-        # Admin sees all requests
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see leave requests from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(employee__company=company)
+            return queryset.none()
+        # SUPERADMIN sees all requests (system-wide)
         return queryset
 
     def perform_create(self, serializer):
@@ -218,7 +242,7 @@ class EmployeeDocumentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter documents based on role"""
+        """Filter documents based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -226,7 +250,13 @@ class EmployeeDocumentViewSet(viewsets.ModelViewSet):
             return queryset.filter(employee=user)
         elif user.role == 'EMPLOYER':
             return queryset.filter(employee__employer_profile__user=user)
-        # Admin sees all documents
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see documents from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(employee__company=company)
+            return queryset.none()
+        # SUPERADMIN sees all documents (system-wide)
         return queryset
 
     def perform_create(self, serializer):
@@ -264,7 +294,7 @@ class PerformanceReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter reviews based on role"""
+        """Filter reviews based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -272,7 +302,13 @@ class PerformanceReviewViewSet(viewsets.ModelViewSet):
             return queryset.filter(employee=user)
         elif user.role == 'EMPLOYER':
             return queryset.filter(employee__employer_profile__user=user)
-        # Admin sees all reviews
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see reviews from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(employee__company=company)
+            return queryset.none()
+        # SUPERADMIN sees all reviews (system-wide)
         return queryset
 
     def perform_create(self, serializer):
@@ -288,7 +324,7 @@ class PerformanceGoalViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter goals based on role"""
+        """Filter goals based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -296,7 +332,13 @@ class PerformanceGoalViewSet(viewsets.ModelViewSet):
             return queryset.filter(review__employee=user)
         elif user.role == 'EMPLOYER':
             return queryset.filter(review__employee__employer_profile__user=user)
-        # Admin sees all goals
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see goals from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(review__employee__company=company)
+            return queryset.none()
+        # SUPERADMIN sees all goals (system-wide)
         return queryset
 
 
@@ -308,7 +350,7 @@ class PerformanceMetricViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter metrics based on role"""
+        """Filter metrics based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -316,7 +358,13 @@ class PerformanceMetricViewSet(viewsets.ModelViewSet):
             return queryset.filter(review__employee=user)
         elif user.role == 'EMPLOYER':
             return queryset.filter(review__employee__employer_profile__user=user)
-        # Admin sees all metrics
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see metrics from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(review__employee__company=company)
+            return queryset.none()
+        # SUPERADMIN sees all metrics (system-wide)
         return queryset
 
 
@@ -328,7 +376,7 @@ class PerformanceFeedbackViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter feedback based on role"""
+        """Filter feedback based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
@@ -336,7 +384,13 @@ class PerformanceFeedbackViewSet(viewsets.ModelViewSet):
             return queryset.filter(review__employee=user)
         elif user.role == 'EMPLOYER':
             return queryset.filter(review__employee__employer_profile__user=user)
-        # Admin sees all feedback
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see feedback from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(review__employee__company=company)
+            return queryset.none()
+        # SUPERADMIN sees all feedback (system-wide)
         return queryset
 
     def perform_create(self, serializer):
@@ -352,13 +406,19 @@ class PerformanceTemplateViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Filter templates based on role"""
+        """Filter templates based on role and company"""
         queryset = super().get_queryset()
         user = self.request.user
 
         if user.role == 'EMPLOYER':
             return queryset.filter(created_by=user)
-        # Admin sees all templates
+        elif user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
+            # Company-scoped: only see templates from their own company
+            company = getattr(user, 'company', None)
+            if company:
+                return queryset.filter(created_by__company=company)
+            return queryset.none()
+        # SUPERADMIN sees all templates (system-wide)
         return queryset
 
     def perform_create(self, serializer):
