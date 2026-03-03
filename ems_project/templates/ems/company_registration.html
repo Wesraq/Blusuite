@@ -989,6 +989,131 @@
             return isValid;
         }
 
+        // Country and City dropdown management
+        const citiesByCountry = {
+            'Zambia': [
+                {value: '', text: 'Select City'},
+                {value: 'Lusaka', text: 'Lusaka'},
+                {value: 'Kitwe', text: 'Kitwe'},
+                {value: 'Ndola', text: 'Ndola'},
+                {value: 'Kabwe', text: 'Kabwe'},
+                {value: 'Chingola', text: 'Chingola'},
+                {value: 'Mufulira', text: 'Mufulira'},
+                {value: 'Livingstone', text: 'Livingstone'},
+                {value: 'Luanshya', text: 'Luanshya'},
+                {value: 'Kasama', text: 'Kasama'},
+                {value: 'Chipata', text: 'Chipata'}
+            ],
+            'South Africa': [
+                {value: '', text: 'Select City'},
+                {value: 'Johannesburg', text: 'Johannesburg'},
+                {value: 'Cape Town', text: 'Cape Town'},
+                {value: 'Durban', text: 'Durban'},
+                {value: 'Pretoria', text: 'Pretoria'},
+                {value: 'Port Elizabeth', text: 'Port Elizabeth'},
+                {value: 'Bloemfontein', text: 'Bloemfontein'}
+            ],
+            'Kenya': [
+                {value: '', text: 'Select City'},
+                {value: 'Nairobi', text: 'Nairobi'},
+                {value: 'Mombasa', text: 'Mombasa'},
+                {value: 'Kisumu', text: 'Kisumu'},
+                {value: 'Nakuru', text: 'Nakuru'},
+                {value: 'Eldoret', text: 'Eldoret'}
+            ],
+            'Nigeria': [
+                {value: '', text: 'Select City'},
+                {value: 'Lagos', text: 'Lagos'},
+                {value: 'Abuja', text: 'Abuja'},
+                {value: 'Kano', text: 'Kano'},
+                {value: 'Ibadan', text: 'Ibadan'},
+                {value: 'Port Harcourt', text: 'Port Harcourt'}
+            ],
+            'Ghana': [
+                {value: '', text: 'Select City'},
+                {value: 'Accra', text: 'Accra'},
+                {value: 'Kumasi', text: 'Kumasi'},
+                {value: 'Tamale', text: 'Tamale'},
+                {value: 'Sekondi-Takoradi', text: 'Sekondi-Takoradi'}
+            ],
+            'Zimbabwe': [
+                {value: '', text: 'Select City'},
+                {value: 'Harare', text: 'Harare'},
+                {value: 'Bulawayo', text: 'Bulawayo'},
+                {value: 'Mutare', text: 'Mutare'},
+                {value: 'Gweru', text: 'Gweru'}
+            ],
+            'Tanzania': [
+                {value: '', text: 'Select City'},
+                {value: 'Dar es Salaam', text: 'Dar es Salaam'},
+                {value: 'Dodoma', text: 'Dodoma'},
+                {value: 'Mwanza', text: 'Mwanza'},
+                {value: 'Arusha', text: 'Arusha'}
+            ],
+            'Uganda': [
+                {value: '', text: 'Select City'},
+                {value: 'Kampala', text: 'Kampala'},
+                {value: 'Entebbe', text: 'Entebbe'},
+                {value: 'Gulu', text: 'Gulu'},
+                {value: 'Mbarara', text: 'Mbarara'}
+            ],
+            'United States': [
+                {value: '', text: 'Select City'},
+                {value: 'New York', text: 'New York'},
+                {value: 'Los Angeles', text: 'Los Angeles'},
+                {value: 'Chicago', text: 'Chicago'},
+                {value: 'Houston', text: 'Houston'},
+                {value: 'Phoenix', text: 'Phoenix'},
+                {value: 'Philadelphia', text: 'Philadelphia'},
+                {value: 'San Antonio', text: 'San Antonio'},
+                {value: 'San Diego', text: 'San Diego'},
+                {value: 'Dallas', text: 'Dallas'},
+                {value: 'San Jose', text: 'San Jose'}
+            ],
+            'United Kingdom': [
+                {value: '', text: 'Select City'},
+                {value: 'London', text: 'London'},
+                {value: 'Birmingham', text: 'Birmingham'},
+                {value: 'Manchester', text: 'Manchester'},
+                {value: 'Glasgow', text: 'Glasgow'},
+                {value: 'Liverpool', text: 'Liverpool'},
+                {value: 'Edinburgh', text: 'Edinburgh'}
+            ]
+        };
+
+        function updateCityOptions() {
+            const countrySelect = document.getElementById('id_country');
+            const citySelect = document.getElementById('id_city');
+            const selectedCountry = countrySelect.value;
+
+            // Clear existing options
+            citySelect.innerHTML = '';
+
+            // Get cities for selected country
+            const cities = citiesByCountry[selectedCountry] || [{value: '', text: 'Select City'}];
+
+            // Populate city dropdown
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city.value;
+                option.textContent = city.text;
+                citySelect.appendChild(option);
+            });
+
+            // If no cities available for this country, allow manual entry
+            if (!citiesByCountry[selectedCountry] && selectedCountry) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Enter city manually';
+                citySelect.appendChild(option);
+            }
+        }
+
+        // Initialize city dropdown on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCityOptions();
+        });
+
         // Form submission
         document.getElementById('registrationForm').addEventListener('submit', function(e) {
             if (!validateStep(3)) {
