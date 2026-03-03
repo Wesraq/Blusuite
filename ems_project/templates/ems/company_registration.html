@@ -814,6 +814,31 @@
             'AU': { code: 'AUD', symbol: 'A$',   rate: 1.53 },
             'CA': { code: 'CAD', symbol: 'C$',   rate: 1.36 },
         };
+
+        // Map countries to their currency codes
+        const countryToCurrency = {
+            'Zambia': 'ZM',
+            'South Africa': 'ZA',
+            'Kenya': 'KE',
+            'Nigeria': 'NG',
+            'Ghana': 'GH',
+            'Tanzania': 'TZ',
+            'Uganda': 'UG',
+            'Malawi': 'MW',
+            'Botswana': 'BW',
+            'Mozambique': 'MZ',
+            'Egypt': 'EG',
+            'Morocco': 'MA',
+            'Ethiopia': 'ET',
+            'Angola': 'AO',
+            'Zimbabwe': 'ZW',
+            'United States': 'US',
+            'United Kingdom': 'GB',
+            'India': 'IN',
+            'Australia': 'AU',
+            'Canada': 'CA',
+        };
+
         let detectedCurrency = { code: 'USD', symbol: '$', rate: 1 };
         let detectedCountry = 'US';
 
@@ -967,6 +992,23 @@
         function nextStep(step) {
             if (validateStep(step)) {
                 currentStep = step + 1;
+                
+                // Auto-select currency based on country when moving to Step 3
+                if (currentStep === 3) {
+                    const countrySelect = document.getElementById('id_country');
+                    if (countrySelect) {
+                        const selectedCountry = countrySelect.value;
+                        const currencyCode = countryToCurrency[selectedCountry];
+                        
+                        if (currencyCode) {
+                            const currencySelector = document.getElementById('currency-selector');
+                            if (currencySelector) {
+                                currencySelector.value = currencyCode;
+                            }
+                        }
+                    }
+                }
+                
                 updateStepDisplay();
             }
         }
