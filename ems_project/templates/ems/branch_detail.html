@@ -363,31 +363,84 @@
     {% endif %}
 </div>
 
+<!-- Assign Employee Modal -->
+<div id="assignEmployeeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:8px; padding:28px; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <h3 style="margin:0 0 16px; font-size:18px;">Assign Employee to Branch</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="assign_employee">
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Select Employee</label>
+                <select name="employee_id" required style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:4px; font-size:14px;">
+                    <option value="">-- Choose employee --</option>
+                    {% for emp in all_employees %}
+                    <option value="{{ emp.id }}">{{ emp.get_full_name }} ({{ emp.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display:flex; gap:8px; justify-content:flex-end;">
+                <button type="button" onclick="document.getElementById('assignEmployeeModal').style.display='none'" style="padding:8px 16px; border:1px solid #e2e8f0; border-radius:4px; background:white; cursor:pointer;">Cancel</button>
+                <button type="submit" style="padding:8px 16px; background:#2563eb; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:600;">Assign</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Change Manager Modal -->
+<div id="changeManagerModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:8px; padding:28px; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <h3 style="margin:0 0 16px; font-size:18px;">Change Branch Manager</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="change_manager">
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Select Manager</label>
+                <select name="manager_id" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:4px; font-size:14px;">
+                    <option value="">-- Remove manager --</option>
+                    {% for mgr in all_managers %}
+                    <option value="{{ mgr.id }}" {% if branch.manager_id == mgr.id %}selected{% endif %}>{{ mgr.get_full_name }} ({{ mgr.role }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display:flex; gap:8px; justify-content:flex-end;">
+                <button type="button" onclick="document.getElementById('changeManagerModal').style.display='none'" style="padding:8px 16px; border:1px solid #e2e8f0; border-radius:4px; background:white; cursor:pointer;">Cancel</button>
+                <button type="submit" style="padding:8px 16px; background:#2563eb; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:600;">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Export form (hidden, POST submit) -->
+<form id="exportForm" method="post" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="export_employees">
+</form>
+
 <script>
 function openAddDepartmentModal() {
-    alert('Add Department functionality - Backend integration needed');
-    // TODO: Implement modal for adding department
+    window.location.href = '{{ settings_url }}#employee-configuration';
 }
-
 function openAssignEmployeeModal() {
-    alert('Assign Employee functionality - Backend integration needed');
-    // TODO: Implement modal for assigning employee to branch
+    var m = document.getElementById('assignEmployeeModal');
+    m.style.display = 'flex';
 }
-
 function openChangeBranchManagerModal() {
-    alert('Change Manager functionality - Backend integration needed');
-    // TODO: Implement modal for changing branch manager
+    var m = document.getElementById('changeManagerModal');
+    m.style.display = 'flex';
 }
-
 function editDepartment(deptId) {
-    alert('Edit Department ' + deptId + ' - Backend integration needed');
-    // TODO: Implement edit department modal
+    window.location.href = '{{ settings_url }}#employee-configuration';
 }
-
 function exportEmployeeList() {
-    alert('Export Employee List - Backend integration needed');
-    // TODO: Implement CSV export for branch employees
+    document.getElementById('exportForm').submit();
 }
+// Close modals on backdrop click
+['assignEmployeeModal','changeManagerModal'].forEach(function(id) {
+    document.getElementById(id).addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
+});
 </script>
 </div>
 {% endblock %}

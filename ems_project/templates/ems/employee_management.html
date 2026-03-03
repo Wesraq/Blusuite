@@ -368,19 +368,16 @@ async function toggleEmployeeStatus(employeeId, activate) {
 
 // View employee details
 function viewEmployee(employeeId) {
-    // TODO: Implement view functionality
-    window.location.href = `/admin/employees/${employeeId}/`;
+    window.location.href = '/employer/employees/' + employeeId + '/edit/';
 }
 
 // Edit employee
 function editEmployee(employeeId) {
-    // TODO: Implement edit functionality  
-    window.location.href = `/admin/employees/${employeeId}/edit/`;
+    window.location.href = '/employer/employees/' + employeeId + '/edit/';
 }
 
 // Export employee data
 function exportEmployeeData() {
-    // TODO: Implement export functionality
     const csvContent = "data:text/csv;charset=utf-8," 
         + "ID,Name,Email,Role,Company,Status,Joined\n"
         + filteredEmployees.map(emp => 

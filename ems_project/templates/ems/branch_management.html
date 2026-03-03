@@ -221,10 +221,13 @@
     {% endif %}
 </div>
 
+<form id="exportBranchForm" method="post" action="{% url 'branch_management' %}" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="export_branches">
+</form>
 <script>
 function exportBranches() {
-    alert('Export Branches functionality - Backend integration needed');
-    // TODO: Implement CSV/Excel export for branches
+    document.getElementById('exportBranchForm').submit();
 }
 </script>
 </div>

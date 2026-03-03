@@ -540,6 +540,9 @@ def _collect_company_settings_context(user, nav_flags):
                 'total_positions': positions_qs.count(),
                 'total_pay_grades': pay_grades_qs.count(),
             },
+            'departments': list(departments_qs.values('id', 'name')),
+            'positions': list(positions_qs.values('id', 'name', 'department__name')),
+            'pay_grades': list(pay_grades_qs.values('id', 'name')),
             'position_by_department': list(
                 positions_qs.values('department__name')
                 .annotate(count=Count('id'))
@@ -3053,6 +3056,8 @@ def _handle_blu_settings_post(request, company, form_overrides):
         invite_role = request.POST.get('invite_role', 'EMPLOYEE').strip()
         invite_first = request.POST.get('invite_first_name', '').strip()
         invite_last = request.POST.get('invite_last_name', '').strip()
+        invite_job_title = request.POST.get('invite_job_title', '').strip() or 'Employee'
+        invite_department = request.POST.get('invite_department', '').strip() or 'General'
         if not invite_email:
             messages.error(request, 'Email address is required to invite a user.')
             return redirect('blu_settings_home')
@@ -3060,7 +3065,8 @@ def _handle_blu_settings_post(request, company, form_overrides):
             messages.error(request, f'A user with email {invite_email} already exists.')
             return redirect('blu_settings_home')
         import secrets
-        temp_password = secrets.token_urlsafe(12)
+        from datetime import date as _date
+        temp_password = secrets.token_urlsafe(10)
         new_user = User.objects.create_user(
             email=invite_email,
             password=temp_password,
@@ -3068,8 +3074,48 @@ def _handle_blu_settings_post(request, company, form_overrides):
             last_name=invite_last,
             role=invite_role,
             company=company,
+            must_change_password=True,
         )
-        messages.success(request, f'User {invite_email} has been invited with role {invite_role}.')
+        # For EMPLOYEE role: auto-provision an EmployeeProfile so they appear in EMS
+        if invite_role == 'EMPLOYEE':
+            from blu_staff.apps.accounts.models import EmployeeProfile
+            emp_count = EmployeeProfile.objects.filter(company=company).count()
+            emp_id = f"EMP-{company.id}-{emp_count + 1:03d}"
+            # Ensure unique employee_id
+            while EmployeeProfile.objects.filter(employee_id=emp_id).exists():
+                emp_count += 1
+                emp_id = f"EMP-{company.id}-{emp_count + 1:03d}"
+            EmployeeProfile.objects.create(
+                user=new_user,
+                employee_id=emp_id,
+                job_title=invite_job_title,
+                department=invite_department,
+                date_hired=_date.today(),
+                company=company,
+            )
+        # Send credentials email to the invited user
+        try:
+            from django.core.mail import send_mail
+            login_url = request.build_absolute_uri('/')
+            send_mail(
+                subject=f'Your {company.name} Blusuite account has been created',
+                message=(
+                    f'Hello {invite_first or invite_email},\n\n'
+                    f'An account has been created for you on Blusuite by {request.user.get_full_name()}.\n\n'
+                    f'Login URL: {login_url}\n'
+                    f'Email: {invite_email}\n'
+                    f'Temporary password: {temp_password}\n\n'
+                    f'You will be prompted to change your password on first login.\n\n'
+                    f'Company: {company.name}\n'
+                    f'Role: {invite_role.replace("_", " ").title()}\n'
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[invite_email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+        messages.success(request, f'User {invite_email} created with role {invite_role}. Credentials emailed.')
         return redirect('blu_settings_home')
 
     if action == 'change_user_role':
@@ -15697,23 +15743,43 @@ def system_health(request):
 def branch_management(request):
     """Branch management dashboard"""
     from blu_staff.apps.accounts.models import CompanyBranch
-    
+
     if not (request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] or request.user.is_employer_admin):
         return render(request, 'ems/unauthorized.html')
-    
+
     try:
         company = request.user.company
-    except:
+    except Exception:
         return render(request, 'ems/unauthorized.html')
-    
+
+    if request.method == 'POST' and request.POST.get('action') == 'export_branches':
+        import csv
+        from django.http import HttpResponse
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{company.name}_branches.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Name', 'Code', 'City', 'Country', 'Phone', 'Email', 'Manager', 'Employees'])
+        for b in CompanyBranch.objects.filter(company=company).select_related('manager'):
+            writer.writerow([
+                b.name,
+                getattr(b, 'code', ''),
+                getattr(b, 'city', ''),
+                getattr(b, 'country', ''),
+                getattr(b, 'phone', ''),
+                getattr(b, 'email', ''),
+                b.manager.get_full_name() if b.manager else '',
+                b.employees.count() if hasattr(b, 'employees') else '',
+            ])
+        return response
+
     branches = CompanyBranch.objects.filter(company=company).select_related('manager')
-    
+
     context = {
         'company': company,
         'branches': branches,
     }
     context.update(_get_employer_nav_context(request.user))
-    
+
     return render(request, 'ems/branch_management.html', context)
 
 
@@ -15839,40 +15905,106 @@ def branch_detail(request, branch_id):
     """Branch detail view with employees"""
     from blu_staff.apps.accounts.models import CompanyBranch
     from django.contrib import messages
-    
+
     if not (request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] or request.user.is_employer_admin):
         return render(request, 'ems/unauthorized.html')
-    
+
     try:
         company = request.user.company
         branch = CompanyBranch.objects.get(id=branch_id, company=company)
-    except:
+    except Exception:
         messages.error(request, 'Branch not found')
         return redirect('branch_management')
-    
+
+    # ── POST handlers ────────────────────────────────────────────────
+    if request.method == 'POST':
+        action = request.POST.get('action', '')
+        if action == 'change_manager':
+            manager_id = request.POST.get('manager_id', '').strip()
+            if manager_id:
+                try:
+                    new_manager = User.objects.get(id=manager_id, company=company)
+                    branch.manager = new_manager
+                    branch.save(update_fields=['manager'])
+                    messages.success(request, f'Branch manager changed to {new_manager.get_full_name()}.')
+                except User.DoesNotExist:
+                    messages.error(request, 'Selected user not found.')
+            else:
+                branch.manager = None
+                branch.save(update_fields=['manager'])
+                messages.success(request, 'Branch manager cleared.')
+            return redirect('branch_detail', branch_id=branch_id)
+
+        if action == 'assign_employee':
+            emp_id = request.POST.get('employee_id', '').strip()
+            if emp_id:
+                try:
+                    from blu_staff.apps.accounts.models import EmployeeProfile
+                    ep = EmployeeProfile.objects.get(user_id=emp_id, company=company)
+                    ep.branch = branch
+                    ep.save(update_fields=['branch'])
+                    messages.success(request, f'{ep.user.get_full_name()} assigned to {branch.name}.')
+                except EmployeeProfile.DoesNotExist:
+                    messages.error(request, 'Employee profile not found.')
+            return redirect('branch_detail', branch_id=branch_id)
+
+        if action == 'export_employees':
+            import csv
+            from django.http import HttpResponse
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{branch.name}_employees.csv"'
+            writer = csv.writer(response)
+            writer.writerow(['Employee ID', 'Full Name', 'Email', 'Job Title', 'Department', 'Date Hired'])
+            from blu_staff.apps.accounts.models import EmployeeProfile
+            for ep in EmployeeProfile.objects.filter(branch=branch, company=company).select_related('user'):
+                writer.writerow([
+                    ep.employee_id,
+                    ep.user.get_full_name(),
+                    ep.user.email,
+                    ep.job_title,
+                    ep.department,
+                    ep.date_hired,
+                ])
+            return response
+
     # Get employees in this branch
     employees = User.objects.filter(
         company=company,
         employee_profile__branch=branch,
         role='EMPLOYEE'
     ).select_related('employee_profile')
-    
+
+    # All company employees for assign-employee dropdown
+    all_employees = User.objects.filter(
+        company=company, role='EMPLOYEE', is_active=True
+    ).select_related('employee_profile').order_by('first_name', 'last_name')
+
+    # All company admins/managers for manager dropdown
+    all_managers = User.objects.filter(
+        company=company,
+        role__in=['EMPLOYEE', 'EMPLOYER_ADMIN', 'ADMINISTRATOR'],
+        is_active=True,
+    ).order_by('first_name', 'last_name')
+
     # Get departments in this branch
     from blu_staff.apps.accounts.models import EnhancedDepartment
     departments = EnhancedDepartment.objects.filter(
         company=company,
         branch=branch
     ).select_related('head')
-    
+
     context = {
         'company': company,
         'branch': branch,
         'employees': employees,
+        'all_employees': all_employees,
+        'all_managers': all_managers,
         'departments': departments,
         'employee_count': employees.count(),
         'department_count': departments.count(),
+        'settings_url': _safe_reverse('blu_settings_home'),
     }
-    
+
     return render(request, 'ems/branch_detail.html', context)
 
 

@@ -1387,25 +1387,50 @@
                             <input type="text" name="invite_last_name" class="form-input" placeholder="Last name">
                         </div>
                         <div class="form-group">
-                            <label>Email Address</label>
+                            <label>Email Address *</label>
                             <input type="email" name="invite_email" class="form-input" placeholder="user@company.com" required>
                         </div>
                         <div class="form-group">
-                            <label>Role</label>
-                            <select name="invite_role" class="form-input">
+                            <label>Role *</label>
+                            <select name="invite_role" class="form-input" id="inviteRoleSelect" onchange="toggleEmployeeFields(this.value)">
                                 <option value="EMPLOYEE">Employee</option>
                                 <option value="EMPLOYER_ADMIN">Employer Admin</option>
                                 <option value="ADMINISTRATOR">Administrator</option>
                             </select>
                         </div>
+                        <div class="form-group" id="inviteJobTitleField">
+                            <label>Job Title</label>
+                            <input type="text" name="invite_job_title" class="form-input" placeholder="e.g. Software Developer">
+                        </div>
+                        <div class="form-group" id="inviteDepartmentField">
+                            <label>Department</label>
+                            <input type="text" name="invite_department" class="form-input" placeholder="e.g. Engineering"
+                                list="dept-list">
+                            <datalist id="dept-list">
+                                {% for dept in settings.cards.employee_configuration.departments %}
+                                <option value="{{ dept.name }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
                     </div>
+                    <p style="font-size:12px; color:var(--medium-gray); margin:4px 0 12px;">
+                        A temporary password will be auto-generated and emailed to the user. They must change it on first login.
+                    </p>
                     <div class="card-actions">
                         <button type="submit" class="btn-primary">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                            Invite User
+                            Add &amp; Invite User
                         </button>
                     </div>
                 </form>
+                <script>
+                function toggleEmployeeFields(role) {
+                    var show = role === 'EMPLOYEE';
+                    document.getElementById('inviteJobTitleField').style.display = show ? '' : 'none';
+                    document.getElementById('inviteDepartmentField').style.display = show ? '' : 'none';
+                }
+                toggleEmployeeFields(document.getElementById('inviteRoleSelect').value);
+                </script>
             </div>
 
             <!-- Team Members Table -->
