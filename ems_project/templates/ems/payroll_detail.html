@@ -19,41 +19,49 @@
 .ps-sig-row.stamp-top-right{flex-direction:column-reverse;align-items:flex-end;}
 .ps-sig-row.stamp-top-left{flex-direction:column-reverse;align-items:flex-start;}
 .ps-sig-left{flex:1;} .ps-sig-right{flex:0 0 auto;}
-.corp-wrap{border:2px solid #DC143C;font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
-.corp-header{display:flex;align-items:stretch;border-bottom:3px solid #DC143C;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ps-wrap">
+{% with co=payroll.employee.company %}
+<style>
+/* Dynamic colors from company settings */
+.corp-wrap{border:2px solid {{ co.payslip_section_color|default:'#DC143C' }};font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
+.corp-header{display:flex;align-items:stretch;border-bottom:3px solid {{ co.payslip_section_color|default:'#DC143C' }};}
 .corp-logo-cell{padding:14px 16px;display:flex;align-items:center;background:#fafafa;border-right:1px solid #e0e0e0;}
 .corp-logo-cell img{width:70px;height:70px;object-fit:contain;border:1px solid #e0e0e0;display:block;}
-.corp-logo-text{width:70px;height:70px;background:#DC143C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;text-align:center;padding:4px;word-break:break-all;}
+.corp-logo-text{width:70px;height:70px;background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;text-align:center;padding:4px;word-break:break-all;}
 .corp-company-cell{flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:12px 18px;background:#fff1f2;}
-.corp-payslip-badge{background:#DC143C;color:#fff;padding:6px 20px;font-size:20px;font-weight:700;letter-spacing:3px;margin-bottom:4px;display:inline-block;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.corp-company-name{font-size:13px;font-weight:700;color:#DC143C;}
+.corp-payslip-badge{background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;padding:6px 20px;font-size:20px;font-weight:700;letter-spacing:3px;margin-bottom:4px;display:inline-block;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-company-name{font-size:13px;font-weight:700;color:{{ co.payslip_section_color|default:'#DC143C' }};}
 .corp-company-addr{font-size:9px;color:#555;margin-top:1px;}
-.corp-emp-grid{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #DC143C;}
+.corp-emp-grid{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid {{ co.payslip_section_color|default:'#DC143C' }};}
 .corp-emp-info{padding:12px 16px;border-right:1px solid #ccc;}
 .corp-emp-label{font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
-.corp-emp-name{font-weight:700;font-size:13px;color:#DC143C;border-bottom:2px solid #DC143C;padding-bottom:3px;margin-bottom:4px;}
+.corp-emp-name{font-weight:700;font-size:13px;color:{{ co.payslip_section_color|default:'#DC143C' }};border-bottom:2px solid {{ co.payslip_section_color|default:'#DC143C' }};padding-bottom:3px;margin-bottom:4px;}
 .corp-emp-detail{font-size:10px;color:#444;margin-bottom:2px;}
 .corp-info-table{padding:12px 16px;}
 .corp-info-table table{width:100%;border-collapse:collapse;font-size:10px;}
-.corp-info-table th{background:#DC143C;color:#fff;padding:4px 8px;text-align:left;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-info-table th{background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;padding:4px 8px;text-align:left;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .corp-info-table td{padding:4px 8px;border:1px solid #e0e0e0;}
 .corp-table{width:100%;border-collapse:collapse;font-size:11px;}
-.corp-table thead tr{background:#DC143C;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-table thead tr{background:{{ co.payslip_section_color|default:'#DC143C' }};-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .corp-table thead th{color:#fff;padding:6px 12px;text-align:left;border-radius:0;}
 .corp-table thead th.r{text-align:right;}
 .corp-table tbody td{padding:5px 12px;border-bottom:1px solid #f0f0f0;}
 .corp-table tbody td.r{text-align:right;font-weight:600;}
-.corp-table tfoot tr{background:#fff1f2;border-top:2px solid #DC143C;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-table tfoot tr{background:{{ co.payslip_section_color|default:'#DC143C' }}1a;border-top:2px solid {{ co.payslip_section_color|default:'#DC143C' }};-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .corp-table tfoot td{padding:6px 12px;font-weight:700;}
 .corp-table tfoot td.r{text-align:right;}
-.corp-net{background:#DC143C;padding:12px 18px;display:flex;justify-content:flex-end;align-items:center;gap:28px;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.corp-net{background:{{ co.payslip_section_color|default:'#DC143C' }};padding:12px 18px;display:flex;justify-content:flex-end;align-items:center;gap:28px;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .corp-net-lbl{color:#fff;font-weight:700;font-size:12px;letter-spacing:1px;}
 .corp-net-amt{color:#fff;font-weight:900;font-size:22px;}
 .corp-sig{padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-end;}
 .corp-sig-line{border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;}
 .corp-footer{padding:8px 18px;border-top:1px solid #ccc;text-align:center;font-size:9px;color:#555;line-height:1.5;}
 .classic-wrap{padding:28px 32px;border:1.5px solid #000;font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
-.cl-hd{background:#DC143C;color:#fff;font-weight:700;font-size:11.5px;text-transform:uppercase;padding:5px 12px;letter-spacing:.4px;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.cl-hd{background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;font-weight:700;font-size:11.5px;text-transform:uppercase;padding:5px 12px;letter-spacing:.4px;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .cl-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}
 .cl-table td{padding:3.5px 12px;}
 .cl-r{text-align:right;white-space:nowrap;font-weight:600;}
@@ -85,13 +93,13 @@
   .page-content{padding:0!important;}
   .ps-wrap{margin:0!important;padding:0!important;max-width:100%!important;}
   .corp-wrap,.classic-wrap,.min-wrap{max-width:185mm!important;width:185mm!important;margin:0 auto!important;}
-  .cl-hd{background:#DC143C!important;color:#fff!important;}
-  .cl-gross td{background:#fff1f2!important;}
-  .corp-table thead tr,.corp-net{background:#DC143C!important;}
-  .corp-info-table th{background:#DC143C!important;color:#fff!important;}
-  .corp-company-cell{background:#fff1f2!important;}
-  .corp-payslip-badge{background:#DC143C!important;color:#fff!important;}
-  .corp-table tfoot tr{background:#fff1f2!important;}
+  .cl-hd{background:{{ co.payslip_section_color|default:'#DC143C' }}!important;color:#fff!important;}
+  .cl-gross td{background:{{ co.payslip_section_color|default:'#DC143C' }}1a!important;}
+  .corp-table thead tr,.corp-net{background:{{ co.payslip_section_color|default:'#DC143C' }}!important;}
+  .corp-info-table th{background:{{ co.payslip_section_color|default:'#DC143C' }}!important;color:#fff!important;}
+  .corp-company-cell{background:{{ co.payslip_section_color|default:'#DC143C' }}1a!important;}
+  .corp-payslip-badge{background:{{ co.payslip_section_color|default:'#DC143C' }}!important;color:#fff!important;}
+  .corp-table tfoot tr{background:{{ co.payslip_section_color|default:'#DC143C' }}1a!important;}
   @page{size:A4 portrait;margin:8mm 10mm;}
 }
 </style>
