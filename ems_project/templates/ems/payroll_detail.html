@@ -27,7 +27,7 @@
 {% with co=payroll.employee.company %}
 <style>
 /* Dynamic colors from company settings */
-.corp-wrap{border:2px solid {{ co.payslip_section_color|default:'#DC143C' }};font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
+.corp-wrap{border:2px solid {{ co.payslip_section_color|default:'#DC143C' }};font-family:{{ co.payslip_font_family|default:'Arial, sans-serif' }};font-size:12px;background:#fff;color:#000;}
 .corp-header{display:flex;align-items:stretch;border-bottom:3px solid {{ co.payslip_section_color|default:'#DC143C' }};}
 .corp-logo-cell{padding:14px 16px;display:flex;align-items:center;background:#fafafa;border-right:1px solid #e0e0e0;}
 .corp-logo-cell img{width:70px;height:70px;object-fit:contain;border:1px solid #e0e0e0;display:block;}
@@ -49,6 +49,7 @@
 .corp-table thead tr{background:{{ co.payslip_section_color|default:'#DC143C' }};-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .corp-table thead th{color:#fff;padding:6px 12px;text-align:left;border-radius:0;}
 .corp-table thead th.r{text-align:right;}
+.corp-table.deductions-table thead tr{background:{{ co.payslip_accent_color|default:'#DC143C' }};-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .corp-table tbody td{padding:5px 12px;border-bottom:1px solid #f0f0f0;}
 .corp-table tbody td.r{text-align:right;font-weight:600;}
 .corp-table tfoot tr{background:{{ co.payslip_section_color|default:'#DC143C' }}1a;border-top:2px solid {{ co.payslip_section_color|default:'#DC143C' }};-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -60,21 +61,23 @@
 .corp-sig{padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-end;}
 .corp-sig-line{border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;}
 .corp-footer{padding:8px 18px;border-top:1px solid #ccc;text-align:center;font-size:9px;color:#555;line-height:1.5;}
-.classic-wrap{padding:28px 32px;border:1.5px solid #000;font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
+.classic-wrap{padding:28px 32px;border:1.5px solid #000;font-family:{{ co.payslip_font_family|default:'Arial, sans-serif' }};font-size:12px;background:#fff;color:#000;}
 .cl-hd{background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;font-weight:700;font-size:11.5px;text-transform:uppercase;padding:5px 12px;letter-spacing:.4px;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.cl-hd.deductions-hd{background:{{ co.payslip_accent_color|default:'#DC143C' }};}
 .cl-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}
 .cl-table td{padding:3.5px 12px;}
 .cl-r{text-align:right;white-space:nowrap;font-weight:600;}
 .cl-red{color:#cc0000!important;}
 .cl-gross td{background:#fff1f2;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .cl-net td{font-size:13px;border-top:2px solid #000;border-bottom:2px solid #000;padding:5px 12px;}
-.min-wrap{padding:26px 30px;border:1px solid #d1d5db;font-family:Arial,Helvetica,sans-serif;font-size:12px;background:#fff;color:#000;}
+.min-wrap{padding:26px 30px;border:1px solid #d1d5db;font-family:{{ co.payslip_font_family|default:'Arial, sans-serif' }};font-size:12px;background:#fff;color:#000;}
 .min-rule{border:none;border-top:1.5px solid #111;margin:7px 0;}
 .min-title{text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#374151;padding:5px 0;margin-bottom:10px;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;}
 .min-emp-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;margin-bottom:8px;}
 .min-row{display:flex;gap:8px;font-size:12px;padding:2px 0;}
 .min-lbl{font-weight:700;color:#374151;min-width:110px;flex-shrink:0;}
 .min-sec{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#111;padding:4px 0 3px;border-bottom:1.5px solid #111;margin:7px 0 4px;}
+.min-sec.deductions-sec{color:{{ co.payslip_accent_color|default:'#DC143C' }};border-bottom-color:{{ co.payslip_accent_color|default:'#DC143C' }};}
 .min-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:5px;}
 .min-table td{padding:3px 4px;}
 .min-r{text-align:right;font-weight:600;white-space:nowrap;}
@@ -94,8 +97,10 @@
   .ps-wrap{margin:0!important;padding:0!important;max-width:100%!important;}
   .corp-wrap,.classic-wrap,.min-wrap{max-width:185mm!important;width:185mm!important;margin:0 auto!important;}
   .cl-hd{background:{{ co.payslip_section_color|default:'#DC143C' }}!important;color:#fff!important;}
+  .cl-hd.deductions-hd{background:{{ co.payslip_accent_color|default:'#DC143C' }}!important;}
   .cl-gross td{background:{{ co.payslip_section_color|default:'#DC143C' }}1a!important;}
   .corp-table thead tr,.corp-net{background:{{ co.payslip_section_color|default:'#DC143C' }}!important;}
+  .corp-table.deductions-table thead tr{background:{{ co.payslip_accent_color|default:'#DC143C' }}!important;}
   .corp-info-table th{background:{{ co.payslip_section_color|default:'#DC143C' }}!important;color:#fff!important;}
   .corp-company-cell{background:{{ co.payslip_section_color|default:'#DC143C' }}1a!important;}
   .corp-payslip-badge{background:{{ co.payslip_section_color|default:'#DC143C' }}!important;color:#fff!important;}
@@ -169,7 +174,7 @@
     <tfoot><tr><td colspan="3" style="text-align:right;padding-right:12px;">GROSS PAY</td><td class="r">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td></tr></tfoot>
   </table>
 
-  <table class="corp-table" style="margin-top:4px;">
+  <table class="corp-table deductions-table" style="margin-top:4px;">
     <thead><tr><th>DEDUCTIONS</th><th class="r">AMOUNT</th></tr></thead>
     <tbody>
       <tr><td>NAPSA @5%</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
@@ -258,7 +263,7 @@
   </table>
   <hr class="min-rule">
 
-  <div class="min-sec">DEDUCTIONS</div>
+  <div class="min-sec deductions-sec">DEDUCTIONS</div>
   <table class="min-table">
     <tr><td>NAPSA @5%</td><td class="min-r min-red">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
     <tr><td>NHIMA</td><td class="min-r min-red">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td></tr>
@@ -301,8 +306,12 @@
     </div>
   </div>
   <div class="min-footer">
-    <p>Pay Slip Not Valid Unless Stamped</p>
-    <p>Please Treat Your Pay Slip as Confidential. Have a Nice Month</p>
+    {% if co.payslip_footer_text %}
+      {{ co.payslip_footer_text|linebreaksbr }}
+    {% else %}
+      <p>Pay Slip Not Valid Unless Stamped</p>
+      <p>Please Treat Your Pay Slip as Confidential. Have a Nice Month</p>
+    {% endif %}
     <p style="color:#cc0000;font-style:italic;font-size:10px;">*Payslip System generated</p>
   </div>
 </div>
@@ -348,14 +357,14 @@
     <tr class="cl-gross"><td><strong>Gross Salary</strong></td><td class="cl-r"><strong>{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</strong></td></tr>
   </table>
 
-  <div class="cl-hd">STATUTORY DEDUCTIONS</div>
+  <div class="cl-hd deductions-hd">STATUTORY DEDUCTIONS</div>
   <table class="cl-table">
     <tr><td>NAPSA @5%</td><td class="cl-r cl-red">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
     <tr><td>NHIMA</td><td class="cl-r cl-red">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td></tr>
     <tr><td>PAYE</td><td class="cl-r cl-red">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td></tr>
   </table>
 
-  <div class="cl-hd">OTHER DEDUCTIONS</div>
+  <div class="cl-hd deductions-hd">OTHER DEDUCTIONS</div>
   <table class="cl-table">
     {% for ded in deductions %}{% if not ded.is_statutory %}
     <tr><td>{% if ded.deduction_type == 'LATE' %}Late Deductions{% elif ded.deduction_type == 'ADVANCE' %}Salary Advance{% elif ded.deduction_type == 'LOAN' %}Loans{% else %}{% if ded.description %}{{ ded.description }}{% else %}Other Deduction{% endif %}{% endif %}</td><td class="cl-r cl-red">{{ payroll.currency }} {{ ded.amount|floatformat:2 }}</td></tr>
@@ -402,8 +411,12 @@
   </div>
 
   <div style="text-align:center;margin-top:16px;padding-top:10px;border-top:1px solid #ccc;">
-    <p style="font-size:11px;margin:3px 0;font-weight:600;">Pay Slip Not Valid Unless Stamped</p>
-    <p style="font-size:11px;margin:3px 0;">Please Treat Your Pay Slip as Confidential. Have a Nice Month</p>
+    {% if co.payslip_footer_text %}
+      <p style="font-size:11px;margin:3px 0;">{{ co.payslip_footer_text|linebreaksbr }}</p>
+    {% else %}
+      <p style="font-size:11px;margin:3px 0;font-weight:600;">Pay Slip Not Valid Unless Stamped</p>
+      <p style="font-size:11px;margin:3px 0;">Please Treat Your Pay Slip as Confidential. Have a Nice Month</p>
+    {% endif %}
     <p style="font-size:10px;margin:8px 0 2px;color:#cc0000;font-style:italic;">*Payslip System generated</p>
   </div>
     <div style="font-weight:800;font-size:11px;text-transform:uppercase;margin-bottom:4px;">{% if co.name %}{{ co.name }}{% endif %}</div>
