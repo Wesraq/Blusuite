@@ -1849,11 +1849,11 @@
             <div style="display: grid; gap: 16px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Earnings Header Color</label>
-                <input type="color" id="previewEarningsColor" name="payslip_section_color" value="{{ company.payslip_section_color|default:'#93c5fd' }}" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
+                <input type="color" id="previewEarningsColor" name="payslip_section_color" value="{{ company.payslip_section_color|default:'#DC143C' }}" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Deductions Header Color</label>
-                <input type="color" id="previewDeductionsColor" name="payslip_accent_color" value="{{ company.payslip_accent_color|default:'#93c5fd' }}" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
+                <input type="color" id="previewDeductionsColor" name="payslip_accent_color" value="{{ company.payslip_accent_color|default:'#DC143C' }}" style="width: 100%; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;" onchange="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Font Family</label>
@@ -1940,7 +1940,7 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month' }}</textarea>
           <div id="payslipTemplateContent"></div>
 
           <!-- Permanent stamp section -->
-          <div id="payslipStampSection" style="padding: 16px 20px; border-top: 1px solid #ccc; background: #fafafa;">
+          <div id="payslipStampSection" style="padding: 16px 20px 20px; background: #fff;">
             <table style="width: 100%; font-size: 11px;">
               <tr>
                 <td style="width: 50%; vertical-align: top;">
@@ -1965,7 +1965,7 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month' }}</textarea>
                     <span id="previewStampPlaceholder" style="font-size: 10px; color: #94a3b8;">Stamp Area</span>
                     {% endif %}
                     <!-- Resize handles -->
-                    <div class="resize-handle resize-se" style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #0ea5e9; border: 2px solid white; border-radius: 50%; cursor: se-resize; z-index: 11;"></div>
+                    <div class="resize-handle resize-se" style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #DC143C; border: 2px solid white; border-radius: 50%; cursor: se-resize; z-index: 11;"></div>
                   </div>
                 </td>
               </tr>
@@ -2426,7 +2426,7 @@ function updateStampTabButtons() {
     const isActive = button.dataset.stampTab === activeStampTab;
     button.classList.toggle('active', isActive);
     button.style.background = isActive ? '#ffffff' : 'transparent';
-    button.style.color = isActive ? '#1e3a8a' : '#475569';
+    button.style.color = isActive ? '#0f172a' : '#475569';
     button.style.fontWeight = isActive ? '600' : '500';
   });
   document.querySelectorAll('.stamp-tab-panel').forEach(panel => {
@@ -2802,9 +2802,9 @@ window.applyStampPreset = function(preset) {
       size: 160,
       borderWidth: 3,
       borderStyle: 'solid',
-      borderColor: '#0ea5e9',
-      backgroundColor: '#ecfeff',
-      textColor: '#0c4a6e',
+      borderColor: '#DC143C',
+      backgroundColor: '#fff1f2',
+      textColor: '#9f1239',
       fontSize: 15,
       fontWeight: '700',
       topText: 'MFI DOCUMENT SOLUTIONS',
@@ -3470,8 +3470,8 @@ function getPreviewData() {
     nrc: document.getElementById('previewTaxId')?.value || '',
     period: month.substring(0,3) + '-' + year,
     payDate: new Date().toLocaleDateString(),
-    earningsColor: document.getElementById('previewEarningsColor')?.value || '#4472c4',
-    deductionsColor: document.getElementById('previewDeductionsColor')?.value || '#4472c4',
+    earningsColor: document.getElementById('previewEarningsColor')?.value || '#DC143C',
+    deductionsColor: document.getElementById('previewDeductionsColor')?.value || '#DC143C',
     fontFamily: document.getElementById('previewFontFamily')?.value || 'Arial, sans-serif',
     footerText: document.getElementById('previewFooterText')?.value || 'Pay Slip Not Valid Unless Signed',
     currency: _tplCurrency,
@@ -3483,7 +3483,7 @@ function getPreviewData() {
 function buildClassicTemplate(d) {
   const hc = d.earningsColor; const dc = d.deductionsColor;
   return '<div style="font-family:' + d.fontFamily + ';border:1px solid #bbb;">'
-    + '<div style="padding:14px 18px;border-bottom:2px solid ' + hc + ';display:flex;justify-content:space-between;align-items:flex-start;">'
+    + '<div style="padding:20px 24px;border-bottom:2px solid ' + hc + ';display:flex;justify-content:space-between;align-items:flex-start;">'
       + '<div><div style="font-size:20px;font-weight:700;color:#1e3a5f;">' + d.companyName + '</div>'
         + '<div style="font-size:10px;color:#555;margin-top:3px;">' + d.companyAddress + '</div>'
         + '<div style="font-size:10px;color:#555;">Phone: ' + d.companyPhone + ' &nbsp;|&nbsp; ' + d.companyEmail + '</div></div>'
@@ -3543,7 +3543,7 @@ function buildClassicTemplate(d) {
 
 // === Template 2: CORPORATE (Logo + dark teal banner, full-width headers, big NET PAY) ===
 function buildCorporateTemplate(d) {
-  const t = '#1a5f6b'; const tl = '#e8f5f7';
+  const t = d.earningsColor; const dc = d.deductionsColor; const tl = '#f9fafb';
   return '<div style="font-family:' + d.fontFamily + ';border:2px solid ' + t + ';">'
     + '<div style="display:flex;align-items:stretch;border-bottom:3px solid ' + t + ';">'
       + '<div style="padding:14px 16px;display:flex;align-items:center;background:#fafafa;border-right:1px solid #e0e0e0;">'
@@ -3578,10 +3578,10 @@ function buildCorporateTemplate(d) {
       + '<td colspan="3" style="padding:6px 16px;font-weight:700;text-align:right;">GROSS PAY</td>'
       + '<td id="previewTotalEarnings" style="padding:6px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td></tr></tfoot></table>'
     + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:3px;">'
-      + '<thead><tr style="background:' + t + ';"><th style="color:#fff;padding:6px 16px;text-align:left;">DEDUCTIONS</th>'
+      + '<thead><tr style="background:' + dc + ';"><th style="color:#fff;padding:6px 16px;text-align:left;">DEDUCTIONS</th>'
       + '<th style="color:#fff;padding:6px 8px;text-align:right;">AMOUNT</th></tr></thead>'
       + '<tbody id="previewDeductionsList"></tbody>'
-      + '<tfoot><tr style="background:' + tl + ';border-top:2px solid ' + t + ';">'
+      + '<tfoot><tr style="background:' + tl + ';border-top:2px solid ' + dc + ';">'
       + '<td style="padding:6px 16px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>'
       + '<td id="previewSummaryDeductions" style="padding:6px 8px;text-align:right;font-weight:700;color:#dc2626;">' + d.currency + ' 0.00</td></tr></tfoot></table>'
     + '<div style="background:' + t + ';padding:12px 18px;display:flex;justify-content:flex-end;align-items:center;gap:28px;">'

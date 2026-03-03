@@ -19,11 +19,11 @@
 .cal-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px; background:#fff; border:1px solid #fce7f30; border-radius:12px; padding:14px 18px; }
 .cal-toolbar-left h2 { margin:0; font-size:18px; font-weight:700; color:#0f172a; }
 .cal-toolbar-left p { margin:3px 0 0; font-size:12px; color:#64748b; }
-.cal-toolbar-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.cal-toolbar-right { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
 .cal-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; border:none; cursor:pointer; transition:all .15s; }
 .cal-btn-primary { background:var(--company-button,#DC143C); color:#fff; }
 .cal-btn-primary:hover { opacity:.9; }
-.cal-btn-ghost { background:#DC143Cafc; color:#DC143C1; border:1px solid #fce7f30; }
+.cal-btn-ghost { background:#fff; color:#DC143C; border:1px solid #fce7f3; }
 .cal-btn-ghost:hover { background:#f1f5f9; }
 
 /* ── Legend ── */
@@ -39,7 +39,7 @@
 .fc .fc-button { background:var(--company-button,#DC143C) !important; border-color:var(--company-button,#DC143C) !important; font-size:12px !important; padding:5px 12px !important; }
 .fc .fc-button:hover { opacity:.85 !important; }
 .fc .fc-button-active { opacity:.75 !important; }
-.fc-day-today { background:#eff6ff !important; }
+.fc-day-today { background:#fff1f2 !important; }
 .fc-event { border-radius:5px !important; font-size:12px !important; font-weight:500 !important; }
 .fc .fc-col-header-cell-cushion { font-size:12px !important; font-weight:700 !important; color:#475569 !important; text-transform:uppercase; letter-spacing:.4px; }
 .fc .fc-daygrid-day-number { font-size:12px !important; color:#DC143C1 !important; font-weight:600 !important; }
@@ -52,7 +52,7 @@
 .ev-field { margin-bottom:14px; }
 .ev-field label { font-size:12px; font-weight:600; color:#DC143C1; display:block; margin-bottom:5px; letter-spacing:.2px; }
 .ev-field input, .ev-field textarea, .ev-field select { width:100%; border:1.5px solid #fce7f30; border-radius:8px; padding:9px 12px; font-size:13px; color:#0f172a; font-family:inherit; box-sizing:border-box; transition:border-color .12s; }
-.ev-field input:focus, .ev-field textarea:focus, .ev-field select:focus { border-color:var(--company-button,#DC143C); outline:none; box-shadow:0 0 0 3px rgba(29,78,216,.1); }
+.ev-field input:focus, .ev-field textarea:focus, .ev-field select:focus { border-color:var(--company-button,#DC143C); outline:none; box-shadow:0 0 0 3px rgba(220,20,60,.1); }
 .ev-modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid #f1f5f9; flex-wrap:wrap; }
 
 /* ── Popover ── */
@@ -76,7 +76,7 @@
     <!-- Stat cards -->
     <div class="cal-stats" id="calStats">
         <div class="cal-stat-card">
-            <div class="cal-stat-icon" style="background:#eff6ff;">
+            <div class="cal-stat-icon" style="background:#fff1f2;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <div class="cal-stat-info">
@@ -116,7 +116,7 @@
     <!-- Toolbar -->
     <div class="cal-toolbar">
         <div class="cal-toolbar-left">
-            <h2>&#128197; Calendar</h2>
+            <h2 style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calendar</h2>
             <p>Company events, leave approvals &amp; pay dates in one view</p>
         </div>
         <div class="cal-toolbar-right">
