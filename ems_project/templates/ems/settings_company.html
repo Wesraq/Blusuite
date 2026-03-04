@@ -1930,17 +1930,10 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month{% endif %}</textar
                 <td style="width: 50%; text-align: center; vertical-align: top; position: relative; height: 140px;">
                   <div style="font-weight: 600; margin-bottom: 8px; font-size: 11px;">
                     Company Stamp <span style="font-weight:400;color:#64748b;">(Drag to reposition)</span>
-                    <div style="display: inline-flex; gap: 12px; margin-left: 12px; align-items: center; flex-wrap: wrap;">
-                      <div style="display: inline-flex; gap: 6px; align-items: center;">
-                        <label style="font-size: 11px; font-weight: 400; color: #64748b;">Opacity:</label>
-                        <input type="range" id="stampOpacitySlider" min="10" max="100" value="100" step="5" style="width: 80px;" oninput="updateStampOpacity(this.value)">
-                        <span id="stampOpacityValue" style="font-size: 11px; color: #64748b;">100%</span>
-                      </div>
-                      <div style="display: inline-flex; gap: 6px; align-items: center;">
-                        <label style="font-size: 11px; font-weight: 400; color: #64748b;">Tilt:</label>
-                        <input type="range" id="stampRotationSlider" min="-45" max="45" value="0" step="1" style="width: 80px;" oninput="updateStampRotation(this.value)">
-                        <span id="stampRotationValue" style="font-size: 11px; color: #64748b;">0°</span>
-                      </div>
+                    <div style="display: inline-flex; gap: 6px; margin-left: 12px; align-items: center;">
+                      <label style="font-size: 11px; font-weight: 400; color: #64748b;">Opacity:</label>
+                      <input type="range" id="stampOpacitySlider" min="10" max="100" value="100" step="5" style="width: 80px;" oninput="updateStampOpacity(this.value)">
+                      <span id="stampOpacityValue" style="font-size: 11px; color: #64748b;">100%</span>
                     </div>
                   </div>
                   <div id="previewStampContainer" class="draggable-stamp resizable-stamp" style="position: absolute; left: 50%; top: 20px; transform: translateX(-50%); width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; padding: 12px; background: rgba(248, 250, 252, 0.5); z-index: 10; cursor: move;">
@@ -3395,12 +3388,7 @@ function initializeDraggableStamp() {
     const currentTransform = stampContainer.style.transform || '';
     const baseTransform = currentTransform.replace(/rotate\([^)]*\)/g, '').trim();
     stampContainer.style.transform = `${baseTransform} rotate(${newDeg}deg)`.trim();
-    const slider = document.getElementById('stampRotationSlider');
-    const label = document.getElementById('stampRotationValue');
     const input = document.getElementById('stampRotationInput');
-    const clampedDeg = Math.max(-45, Math.min(45, newDeg));
-    if (slider) slider.value = clampedDeg;
-    if (label) label.textContent = newDeg + '°';
     if (input) input.value = newDeg;
   }
   function onRotateEnd() {
@@ -3460,7 +3448,11 @@ function initializeDraggableStamp() {
   }
   
   function setTranslate(xPos, yPos, el) {
-    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    // Preserve rotation when dragging
+    const currentTransform = el.style.transform || '';
+    const rotateMatch = currentTransform.match(/rotate\(([^)]+)\)/);
+    const rotateStr = rotateMatch ? ` rotate(${rotateMatch[1]})` : '';
+    el.style.transform = `translate(${xPos}px, ${yPos}px)${rotateStr}`;
     el.style.left = '50%';
     el.style.top = '20px';
   }
