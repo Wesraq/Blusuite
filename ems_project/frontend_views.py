@@ -121,13 +121,13 @@ def calculate_distance_meters(lat1, lon1, lat2, lon2):
 
 def tenant_metadata_available():
     from blu_staff.apps.payroll.models import Benefit, EmployeeBenefit
+    from django.db import connection
 
     if connection.vendor != 'sqlite':
         return True
 
     try:
         # SECURITY: Use Django's schema inspection instead of raw SQL
-        from django.db import connection
         enrollment_columns = [field.name for field in EmployeeBenefit._meta.get_fields()]
         benefit_columns = [field.name for field in Benefit._meta.get_fields()]
         return 'tenant_id' in enrollment_columns and 'tenant_id' in benefit_columns
