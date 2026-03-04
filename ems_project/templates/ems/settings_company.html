@@ -1879,8 +1879,8 @@
             <div style="display: grid; gap: 16px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Footer Text</label>
-                <textarea id="previewFooterText" name="payslip_footer_text" placeholder="Pay Slip Not Valid Unless Signed..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px; min-height: 90px; resize: vertical;" oninput="updatePreview()">{{ company.payslip_footer_text|default:'Pay Slip Not Valid Unless Signed
-Please Treat Your Pay Slip as Confidential. Have a Nice Month' }}</textarea>
+                <textarea id="previewFooterText" name="payslip_footer_text" placeholder="Pay Slip Not Valid Unless Signed..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px; min-height: 90px; resize: vertical;" oninput="updatePreview()">{% if company.payslip_footer_text %}{{ company.payslip_footer_text }}{% else %}Pay Slip Not Valid Unless Signed
+Please Treat Your Pay Slip as Confidential. Have a Nice Month{% endif %}</textarea>
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Receiver's Name Label</label>
