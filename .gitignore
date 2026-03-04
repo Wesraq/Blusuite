@@ -93,3 +93,7 @@ coverage.xml
 .pytest_cache/
 .cache/
 node_modules
+
+# --- Dev artefacts ---
+ems_project/_BACKUP_CLEANUP_2026/
+docs/

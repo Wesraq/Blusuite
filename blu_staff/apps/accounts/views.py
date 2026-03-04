@@ -269,7 +269,6 @@ def approve_company(request, request_id):
                             html_message=message
                         )
                     except Exception as e:
-                        print(f"Failed to send approval email: {e}")
 
                     messages.success(
                         request,
@@ -377,10 +376,6 @@ def approve_company(request, request_id):
             registration_request.save()
 
             # Debug: Check company status
-            print(f"DEBUG - Company created: {company.name}")
-            print(f"DEBUG - Company is_approved: {company.is_approved}")
-            print(f"DEBUG - Company is_active: {company.is_active}")
-            print(f"DEBUG - Company approved_at: {company.approved_at}")
 
             # Send approval email to employer
             try:
@@ -406,7 +401,6 @@ def approve_company(request, request_id):
                     html_message=message
                 )
             except Exception as e:
-                print(f"Failed to send approval email: {e}")
 
             messages.success(
                 request,
@@ -458,7 +452,6 @@ def reject_company(request, request_id):
                     html_message=message
                 )
             except Exception as e:
-                print(f"Failed to send rejection email: {e}")
 
             messages.success(request, 'Company registration rejected.')
             return redirect('company_list')
@@ -589,25 +582,18 @@ def company_edit(request, company_id):
                 # Handle corporate colors only
                 if 'primary_color' in request.POST:
                     company.primary_color = request.POST.get('primary_color', '#3b82f6')
-                    print(f"Setting primary_color to: {company.primary_color}")
                 if 'secondary_color' in request.POST:
                     company.secondary_color = request.POST.get('secondary_color', '#10b981')
-                    print(f"Setting secondary_color to: {company.secondary_color}")
                 if 'text_color' in request.POST:
                     company.text_color = request.POST.get('text_color', '#1e293b')
-                    print(f"Setting text_color to: {company.text_color}")
                 if 'background_color' in request.POST:
                     company.background_color = request.POST.get('background_color', '#ffffff')
-                    print(f"Setting background_color to: {company.background_color}")
                 if 'card_header_color' in request.POST:
                     company.card_header_color = request.POST.get('card_header_color', '#10b981')
-                    print(f"Setting card_header_color to: {company.card_header_color}")
                 if 'button_color' in request.POST:
                     company.button_color = request.POST.get('button_color', '#3b82f6')
-                    print(f"Setting button_color to: {company.button_color}")
                 
                 company.save()
-                print(f"Colors saved! Primary: {company.primary_color}, Secondary: {company.secondary_color}, Card Header: {company.card_header_color}, Button: {company.button_color}")
                 
                 # Refresh the company in the session
                 if request.user.company and request.user.company.id == company.id:
@@ -621,7 +607,6 @@ def company_edit(request, company_id):
                 messages.success(request, 'Colors updated successfully!')
                 return redirect(request.path)  # Stay on same page
             except Exception as e:
-                print(f"Error saving colors: {e}")
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     from django.http import JsonResponse
                     return JsonResponse({'success': False, 'error': str(e)}, status=400)
@@ -640,7 +625,6 @@ def company_edit(request, company_id):
 
         if name and address:
             try:
-                print(f"Saving company data - Name: {name}, Address: {address}")
                 company.name = name
                 company.address = address
                 company.phone = phone or ''
@@ -694,17 +678,14 @@ def company_edit(request, company_id):
                 # Handle corporate colors
                 if 'primary_color' in request.POST:
                     company.primary_color = request.POST.get('primary_color', '#3b82f6')
-                    print(f"Setting primary_color to: {company.primary_color}")
                 if 'secondary_color' in request.POST:
                     company.secondary_color = request.POST.get('secondary_color', '#10b981')
-                    print(f"Setting secondary_color to: {company.secondary_color}")
                 if 'text_color' in request.POST:
                     company.text_color = request.POST.get('text_color', '#1e293b')
                 if 'background_color' in request.POST:
                     company.background_color = request.POST.get('background_color', '#ffffff')
                 
                 company.save()
-                print(f"Company saved. Primary: {company.primary_color}, Secondary: {company.secondary_color}")
                 
                 # Refresh the company in the session to ensure updated colors are loaded
                 if request.user.company and request.user.company.id == company.id:
@@ -741,7 +722,6 @@ def company_edit(request, company_id):
                             )
                             messages.success(request, f'Company updated and new password set for administrator!')
                         except Exception as e:
-                            print(f"Failed to send password update email: {e}")
                             messages.success(request, f'Company updated successfully!')
                     else:
                         messages.success(request, f'Company updated successfully! (No administrator account found to update password)')
@@ -758,8 +738,6 @@ def company_edit(request, company_id):
             except Exception as e:
                 import traceback
                 error_details = traceback.format_exc()
-                print(f"Error updating company: {str(e)}")
-                print(f"Full traceback:\n{error_details}")
                 messages.error(request, f'Error updating company: {str(e)}')
                 # Stay on the same page to show error
                 context = {
@@ -770,7 +748,6 @@ def company_edit(request, company_id):
                 return render(request, template_name, context)
         else:
             messages.error(request, 'Company name and address are required.')
-            print(f"Validation failed - Name: {name}, Address: {address}")
 
     context = {
         'company': company,
@@ -838,10 +815,6 @@ def approve_existing_company(request, company_id):
             company.save()
 
             # Debug: Check company status after approval
-            print(f"DEBUG - Existing company approved: {company.name}")
-            print(f"DEBUG - Company is_approved: {company.is_approved}")
-            print(f"DEBUG - Company is_active: {company.is_active}")
-            print(f"DEBUG - Company approved_at: {company.approved_at}")
 
             # Create employer user account
             # First check if user already exists with this email
@@ -929,7 +902,6 @@ def approve_existing_company(request, company_id):
                 html_message=message
             )
         except Exception as e:
-            print(f"Failed to send approval email: {e}")
 
         if company.is_approved:
             messages.success(
@@ -991,7 +963,6 @@ def resend_credentials(request, company_id):
                     html_message=message
                 )
             except Exception as e:
-                print(f"Failed to send resend credentials email: {e}")
 
             messages.success(
                 request,
@@ -1841,9 +1812,5 @@ class CustomLoginView(APIView):
             user_data['companyPhone'] = profile.company_phone
 
         # Debug logging
-        print(f"DEBUG - Login Response for user {user.email}:")
-        print(f"DEBUG - Role: {user.role}")
-        print(f"DEBUG - Company: {user_data.get('companyId', 'None')}")
-        print(f"DEBUG - User Data: {user_data}")
 
         return Response(user_data, status=status.HTTP_200_OK)

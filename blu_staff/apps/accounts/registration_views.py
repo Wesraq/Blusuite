@@ -135,7 +135,6 @@ def _provision_company(registration_request, admin_password=None, approved_by=No
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
                   [registration_request.contact_email], html_message=message)
     except Exception as e:
-        print(f"Failed to send approval email: {e}")
 
     return company, employer_user, final_password
 
@@ -170,7 +169,6 @@ def company_registration_request(request):
                 })
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email], html_message=message)
             except Exception as e:
-                print(f"Failed to send registration notification email: {e}")
 
             # For paid plans: redirect to Stripe checkout
             if billing_pref in ('MONTHLY', 'YEARLY'):
@@ -220,7 +218,6 @@ def company_registration_request(request):
                     return redirect(session.url)
 
                 except Exception as e:
-                    print(f"Stripe session creation failed: {e}")
                     messages.warning(
                         request,
                         'Payment gateway error. Your registration was saved - our team will contact you to complete payment.'
@@ -235,9 +232,7 @@ def company_registration_request(request):
             )
             return redirect('registration_success', request_id=registration_request.request_number)
         else:
-            print("Form validation errors:")
             for field, errors in form.errors.items():
-                print(f"  {field}: {errors}")
             messages.error(request, 'Please correct the errors below.')
     else:
         form = CompanyRegistrationForm()
@@ -333,7 +328,6 @@ def approve_company_registration(request, request_id):
                         html_message=message
                     )
                 except Exception as e:
-                    print(f"Failed to send approval email: {e}")
 
                 messages.success(
                     request,
@@ -492,7 +486,6 @@ def approve_company_registration(request, request_id):
                 html_message=message
             )
         except Exception as e:
-            print(f"Failed to send approval email: {e}")
 
         messages.success(
             request,
@@ -537,7 +530,6 @@ def reject_company_registration(request, request_id):
                 html_message=message
             )
         except Exception as e:
-            print(f"Failed to send rejection email: {e}")
 
         messages.success(request, 'Company registration rejected.')
         return redirect('company_registration_list')

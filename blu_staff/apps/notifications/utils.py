@@ -79,7 +79,6 @@ def send_notification_email(recipient, title, message, link=''):
         if company:
             email_settings = CompanyEmailSettings.objects.filter(company=company).first()
             if email_settings and not email_settings.enable_email_notifications:
-                print(f"Email notifications disabled for company {company.name}")
                 return
         
         subject = f"[EMS] {title}"
@@ -105,9 +104,7 @@ def send_notification_email(recipient, title, message, link=''):
         )
     except Exception as e:
         # Don't let email errors break notification creation
-        print(f"Error sending notification email (non-critical): {e}")
         import traceback
-        print(traceback.format_exc())
 
 
 def notify_leave_request(leave_request, tenant=None):

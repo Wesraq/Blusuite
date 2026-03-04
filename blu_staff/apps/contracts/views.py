@@ -332,12 +332,6 @@ def contract_renew(request, contract_id):
     contract = get_object_or_404(EmployeeContract, id=contract_id)
     
     if request.method == 'POST':
-        print("=" * 80)
-        print(f"CONTRACT RENEWAL POST REQUEST RECEIVED")
-        print(f"Contract ID: {contract_id}")
-        print(f"User: {user.username}")
-        print(f"POST Data: {dict(request.POST)}")
-        print("=" * 80)
         
         try:
             # Get company
@@ -346,7 +340,6 @@ def contract_renew(request, contract_id):
             # Get the action from the button clicked
             action = request.POST.get('action', 'submit_for_approval')
             
-            print(f">>> ACTION DETECTED: '{action}'")
             
             # Debug logging
             import logging
@@ -404,12 +397,6 @@ def contract_renew(request, contract_id):
                 logger.info(f"Creating new contract with number: {new_contract_number}")
                 
                 # Create new contract directly
-                print(f">>> Creating new contract with:")
-                print(f"    Employee: {contract.employee.get_full_name()}")
-                print(f"    Contract Number: {new_contract_number}")
-                print(f"    Start Date: {proposed_start_date}")
-                print(f"    End Date: {proposed_end_date}")
-                print(f"    Salary: {proposed_salary or contract.salary}")
                 
                 new_contract = EmployeeContract.objects.create(
                     employee=contract.employee,
@@ -432,10 +419,6 @@ def contract_renew(request, contract_id):
                     created_by=user,
                 )
                 
-                print(f">>> NEW CONTRACT CREATED SUCCESSFULLY!")
-                print(f"    ID: {new_contract.id}")
-                print(f"    Contract Number: {new_contract.contract_number}")
-                print(f"    Status: {new_contract.status}")
                 
                 logger.info(f"New contract created: {new_contract.id} - {new_contract.contract_number}")
                 
@@ -454,18 +437,10 @@ def contract_renew(request, contract_id):
                     profile.contract_end_date = new_contract.end_date
                     profile.employment_type = 'CONTRACT' if new_contract.contract_type == 'FIXED_TERM' else 'PERMANENT'
                     profile.save()
-                    print(f">>> EMPLOYEE PROFILE UPDATED!")
-                    print(f"    Job Title: {profile.job_title}")
-                    print(f"    Department: {profile.department}")
-                    print(f"    Salary: {profile.salary}")
-                    print(f"    Contract Period: {profile.contract_start_date} to {profile.contract_end_date}")
                     logger.info(f"Employee profile synced with new contract data for {contract.employee.id}")
                 
                 # Create in-app notification for employee
                 from blu_staff.apps.notifications.models import Notification
-                print(f">>> Attempting to create in-app notification for employee")
-                print(f"    Employee: {contract.employee.get_full_name()}")
-                print(f"    Employee ID: {contract.employee.id}")
                 
                 # contract.employee is already a User object
                 try:
@@ -478,14 +453,9 @@ def contract_renew(request, contract_id):
                         category='contract',
                         link=f'/contracts/{new_contract.id}/',
                     )
-                    print(f">>> IN-APP NOTIFICATION CREATED!")
-                    print(f"    Notification ID: {notification.id}")
-                    print(f"    Recipient: {notification.recipient.get_full_name()}")
                     logger.info(f"In-app notification created for employee {contract.employee.id}")
                 except Exception as notif_error:
-                    print(f">>> ERROR creating notification: {str(notif_error)}")
                     import traceback
-                    print(traceback.format_exc())
                     logger.error(f"Error creating in-app notification: {str(notif_error)}")
                 
                 # Send notification to employee
@@ -525,10 +495,6 @@ Best regards,
                     logger.warning(f"No email address for employee {contract.employee.id}")
                     messages.warning(request, 'Contract created but employee has no email address.')
                 
-                print(f">>> RENEWAL COMPLETE - Redirecting to new contract")
-                print(f"    New Contract ID: {new_contract.id}")
-                print(f"    Redirect URL: /contracts/{new_contract.id}/")
-                print("=" * 80)
                 
                 messages.success(request, f'Contract renewed successfully! New contract {new_contract.contract_number} created.')
                 messages.info(request, f'Viewing new contract: {new_contract.contract_number}')
@@ -879,7 +845,6 @@ Best regards,
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [renewal.original_contract.employee.email], fail_silently=True)
             
     except Exception as e:
-        print(f"Error sending renewal approved notification: {str(e)}")
 
 
 def send_renewal_rejected_notification(renewal, rejected_by, reason):
@@ -924,7 +889,6 @@ Best regards,
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [renewal.requested_by.email], fail_silently=True)
             
     except Exception as e:
-        print(f"Error sending renewal rejected notification: {str(e)}")
 
 
 def send_renewal_submitted_notification(renewal):
@@ -983,4 +947,3 @@ Best regards,
             """
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails, fail_silently=True)
     except Exception as e:
-        print(f"Error sending renewal submitted notification: {str(e)}")

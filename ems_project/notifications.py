@@ -270,10 +270,9 @@ class EmailNotificationService:
             )
             email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
-
-            print(f"Email sent: {subject} to {recipient_list}")
         except Exception as e:
-            print(f"Failed to send email: {e}")
+            import logging
+            logging.getLogger(__name__).error(f"Failed to send email '{subject}' to {recipient_list}: {e}")
 
 
 class NotificationManager:

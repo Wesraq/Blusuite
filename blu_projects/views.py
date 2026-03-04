@@ -420,8 +420,8 @@ Best regards,
                             [email],
                             fail_silently=True,
                         )
-                    except Exception as e:
-                        print(f"Error sending email to {email}: {str(e)}")
+                    except Exception:
+                        pass  # Don't fail project creation if invite email fails
             
             messages.success(request, f"Project '{project.name}' created successfully! Client invitations sent.")
             return redirect('blu_projects:project_detail', project_id=project.id)

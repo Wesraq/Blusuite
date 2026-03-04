@@ -287,7 +287,6 @@ def initiate_cycle_reviews(request, cycle_id):
                 # Send notification to employee - NO EMAIL DEPENDENCY
                 from blu_staff.apps.notifications.utils import create_notification
                 try:
-                    print(f"Creating notification for employee: {assignment.employee.get_full_name()}")
                     notif = create_notification(
                         recipient=assignment.employee,
                         sender=request.user,
@@ -298,16 +297,12 @@ def initiate_cycle_reviews(request, cycle_id):
                         link=f'/performance/review/{review.id}/employee/',
                         send_email=False  # Disable email to prevent errors
                     )
-                    print(f"✓ Successfully created notification ID: {notif.id} for {assignment.employee.get_full_name()}")
                 except Exception as notif_error:
                     import traceback
-                    print(f"✗ Error creating employee notification: {notif_error}")
-                    print(traceback.format_exc())
                 
                 # Send notification to reviewer - NO EMAIL DEPENDENCY
                 if assignment.reviewer:
                     try:
-                        print(f"Creating notification for reviewer: {assignment.reviewer.get_full_name()}")
                         notif = create_notification(
                             recipient=assignment.reviewer,
                             sender=request.user,
@@ -318,11 +313,8 @@ def initiate_cycle_reviews(request, cycle_id):
                             link=f'/performance/review/{review.id}/reviewer/',
                             send_email=False  # Disable email to prevent errors
                         )
-                        print(f"✓ Successfully created reviewer notification ID: {notif.id}")
                     except Exception as notif_error:
                         import traceback
-                        print(f"✗ Error creating reviewer notification: {notif_error}")
-                        print(traceback.format_exc())
             
             # Update cycle status
             if cycle.status == 'DRAFT':

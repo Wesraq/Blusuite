@@ -5895,9 +5895,6 @@ def employee_attendance_view(request):
         longitude = request.POST.get('longitude')
         location = request.POST.get('location', '')
         
-        # Debug logging
-        print(f"DEBUG: Action={action}, Lat={latitude}, Lon={longitude}, Location={location}")
-        
         # Get company and employee profile for geofencing check
         company = getattr(request.user, 'company', None)
         employee_profile = getattr(request.user, 'employee_profile', None)
@@ -5905,13 +5902,8 @@ def employee_attendance_view(request):
         # Check if GPS is required for this employee
         require_gps = employee_profile and getattr(employee_profile, 'require_gps_attendance', True)
         
-        print(f"DEBUG: Company={company}, RequireGPS={require_gps}, EnforceGeofencing={company.enforce_geofencing if company else None}")
-        print(f"DEBUG: AllowRemote={company.allow_remote_attendance if company else None}")
-        
         # Geofence validation (only if GPS is required for this employee)
         if company and company.enforce_geofencing and not company.allow_remote_attendance and require_gps:
-            print(f"DEBUG: Geofencing is ACTIVE - checking location")
-            
             if not latitude or not longitude:
                 messages.error(request, 'GPS location is required for attendance. Please enable location services.')
                 return redirect('employee_attendance_view')
@@ -5930,7 +5922,6 @@ def employee_attendance_view(request):
                     office_lon = branch.longitude
                     geofence_radius = branch.geofence_radius_meters
                     location_name = f"{branch.name} branch"
-                    print(f"DEBUG: Using branch location - {location_name}")
             
             # Priority 2: Company head office location
             if not office_lat and company.office_latitude and company.office_longitude:
@@ -5938,10 +5929,6 @@ def employee_attendance_view(request):
                 office_lon = company.office_longitude
                 geofence_radius = company.geofence_radius_meters
                 location_name = "office"
-                print(f"DEBUG: Using company office location")
-            
-            print(f"DEBUG: Office coords: {office_lat}, {office_lon}, Radius: {geofence_radius}m")
-            print(f"DEBUG: Employee coords: {latitude}, {longitude}")
             
             # Validate if we have a location to check against
             if office_lat and office_lon:
@@ -5954,10 +5941,7 @@ def employee_attendance_view(request):
                         employee_lat, employee_lon
                     )
                     
-                    print(f"DEBUG: Calculated distance: {distance}m, Allowed: {geofence_radius}m")
-                    
                     if distance > geofence_radius:
-                        print(f"DEBUG: REJECTED - Distance {distance}m > Radius {geofence_radius}m")
                         messages.error(
                             request,
                             f'You are {int(distance)}m from the {location_name}. You must be within {geofence_radius}m to clock in/out.'
@@ -8379,9 +8363,8 @@ def employer_add_employee(request):
             try:
                 from blu_staff.apps.contracts.utils import create_or_update_employee_contract
                 create_or_update_employee_contract(user, profile, created_by=request.user)
-            except Exception as e:
-                # Don't fail employee creation if contract creation fails
-                print(f"Contract creation failed: {str(e)}")
+            except Exception:
+                pass  # Don't fail employee creation if contract creation fails
             
             # Send welcome email with credentials
             try:
@@ -8464,12 +8447,6 @@ def employer_edit_employee(request, employee_id):
         if not (is_admin or is_hr):
             messages.error(request, 'Access denied. Only administrators and HR can edit employee information.')
             return redirect('employer_edit_employee', employee_id=employee_id)
-        print("=" * 80)
-        print("FORM SUBMISSION RECEIVED")
-        print(f"POST Data: {dict(request.POST)}")
-        print(f"FILES: {dict(request.FILES)}")
-        print("=" * 80)
-        
         # Get form data
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -8507,8 +8484,6 @@ def employer_edit_employee(request, employee_id):
         branch_id = request.POST.get('branch')
         require_gps = request.POST.get('require_gps_attendance') == 'on'
         
-        print(f"Processing update for: {first_name} {last_name}")
-
         if employee_role_value not in EmployeeProfile.EmployeeRole.values:
             employee_role_value = EmployeeProfile.EmployeeRole.EMPLOYEE
         
@@ -8667,16 +8642,10 @@ def employer_edit_employee(request, employee_id):
                 profile.company = company
             profile.save()
 
-            print(f"[OK] Employee {first_name} {last_name} updated successfully!")
-            print("=" * 80)
             messages.success(request, f'Employee {first_name} {last_name} has been updated successfully! All changes saved.')
             return redirect('employer_edit_employee', employee_id=employee_id)
 
         except Exception as e:
-            print(f"[ERR] ERROR updating employee: {str(e)}")
-            print("=" * 80)
-            import traceback
-            traceback.print_exc()
             messages.error(request, f'Error updating employee: {str(e)}')
             return redirect('employer_edit_employee', employee_id=employee_id)
 
@@ -8716,10 +8685,6 @@ def employer_edit_employee(request, employee_id):
     selected_employment_type = getattr(profile_instance, 'employment_type', '') or ''
     selected_currency = getattr(profile_instance, 'currency', EmployeeProfile.Currency.ZMW) or EmployeeProfile.Currency.ZMW
     
-    # Debug logging
-    print(f"DEBUG - Profile employee_role from DB: '{profile_instance.employee_role}'")
-    print(f"DEBUG - Selected role for template: '{selected_role}'")
-
     # Get company configuration options
     departments = CompanyDepartment.objects.filter(company=company).order_by('name')
     positions = CompanyPosition.objects.filter(company=company).order_by('name')
@@ -9056,9 +9021,8 @@ def employee_reset_password(request):
                 new_password=new_password,
                 changed_by=request.user
             )
-        except Exception as e:
-            # Don't fail password reset if email fails
-            print(f"Failed to send password reset email: {e}")
+        except Exception:
+            pass  # Don't fail password reset if email fails
         
         return JsonResponse({
             'success': True,
@@ -15709,10 +15673,8 @@ def system_health(request):
         system_metrics['cpu_usage'] = 0
         system_metrics['memory_usage'] = 0
         system_metrics['disk_usage'] = 0
-    except Exception as e:
-        # Handle any other psutil errors gracefully
-        print(f"Error getting system metrics: {e}")
-        # Keep default mock values
+    except Exception:
+        pass  # Keep default mock values if psutil fails
 
     # Recent system events — built from real DB activity
     recent_events = []
