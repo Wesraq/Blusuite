@@ -347,7 +347,7 @@
   
   <div style="padding:20px 24px;border-bottom:2px solid {{ co.payslip_section_color|default:'#DC143C' }};display:flex;justify-content:space-between;align-items:flex-start;">
     <div>
-      <div style="font-size:20px;font-weight:700;color:#1e3a5f;">{% if co.name %}{{ co.name }}{% endif %}</div>
+      <div style="font-size:20px;font-weight:700;color:{{ co.payslip_section_color|default:'#DC143C' }};">{% if co.name %}{{ co.name }}{% endif %}</div>
       <div style="font-size:10px;color:#555;margin-top:3px;">{% if co.address %}{{ co.address }}{% endif %}</div>
       <div style="font-size:10px;color:#555;">{% if co.phone %}Phone: {{ co.phone }}{% endif %}{% if co.email %} &nbsp;|&nbsp; {{ co.email }}{% endif %}</div>
     </div>
