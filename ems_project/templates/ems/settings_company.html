@@ -3291,6 +3291,29 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize draggable stamp
   initializeDraggableStamp();
+
+  // Apply saved stamp rotation from hidden input on page load
+  const _savedRotInput = document.getElementById('stampRotationInput');
+  const _stampCont = document.getElementById('previewStampContainer');
+  if (_stampCont && _savedRotInput) {
+    const _savedRot = parseInt(_savedRotInput.value) || 0;
+    if (_savedRot !== 0) {
+      const _cur = _stampCont.style.transform || '';
+      const _base = _cur.replace(/rotate\([^)]*\)/g, '').trim();
+      _stampCont.style.transform = (_base + ' rotate(' + _savedRot + 'deg)').trim();
+    }
+  }
+
+  // Apply saved opacity on page load
+  const _savedOpacInput = document.getElementById('stampOpacityInput');
+  if (_savedOpacInput) {
+    const _savedOpac = parseInt(_savedOpacInput.value) || 100;
+    if (_savedOpac !== 100) {
+      updateStampOpacity(_savedOpac);
+      const _slider = document.getElementById('stampOpacitySlider');
+      if (_slider) _slider.value = _savedOpac;
+    }
+  }
 });
 
 // Stamp opacity control
@@ -3679,11 +3702,13 @@ function buildMinimalTemplate(d) {
       + '<tbody id="previewDeductionsList"></tbody>'
       + '<tfoot><tr style="border-top:2px solid #333;"><td style="padding:5px 8px;font-weight:700;">Total Deductions</td>'
         + '<td id="previewSummaryDeductions" style="padding:5px 8px;text-align:right;font-weight:700;color:#dc2626;">' + d.currency + ' 0.00</td></tr></tfoot></table></div>'
-    + '<div style="border-top:2px solid #333;padding-top:10px;display:flex;justify-content:space-between;align-items:center;">'
-      + '<div style="font-size:11px;"><div><strong>Bank details:</strong> [Employee Bank]</div><div><strong>Account number:</strong> [Account No]</div></div>'
-      + '<div><span style="font-weight:700;font-size:12px;">Total net pay: </span>'
-        + '<span id="previewNetPay" style="font-weight:700;font-size:16px;">' + d.currency + ' 0.00</span></div></div>'
-    + '<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e0e0e0;text-align:center;">'
+    + '<div style="border-top:2px solid #333;padding-top:8px;display:flex;justify-content:space-between;align-items:center;margin-top:4px;">'
+      + '<span style="font-weight:700;font-size:12px;">Total net pay: </span>'
+      + '<span id="previewNetPay" style="font-weight:900;font-size:18px;">' + d.currency + ' 0.00</span></div>'
+    + '<div style="display:flex;justify-content:space-between;margin-top:16px;padding-top:4px;">'
+      + '<div style="border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;">Employer Signature / Date</div>'
+      + '<div style="border-top:1px solid #333;padding-top:4px;font-size:10px;width:40%;text-align:right;">Employee Signature / Date</div></div>'
+    + '<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e0e0e0;text-align:center;">'
       + '<div id="displayFooterText" style="font-size:9px;color:#888;white-space:pre-line;">' + d.footerText + '</div></div>'
   + '</div>';
 }

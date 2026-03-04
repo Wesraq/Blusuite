@@ -7685,7 +7685,12 @@ def settings_dashboard(request):
                 
                 # Header and footer
                 company.payslip_header_style = request.POST.get('payslip_header_style', 'professional_table')
-                company.payslip_footer_text = request.POST.get('payslip_footer_text', '')
+                footer_text_raw = request.POST.get('payslip_footer_text', '')
+                # Strip literal Django template syntax saved accidentally (e.g. {{ company.payslip_footer_text|default:'...' }})
+                import re as _re
+                if _re.search(r'\{\{.*?\}\}|\{%.*?%\}', footer_text_raw):
+                    footer_text_raw = ''
+                company.payslip_footer_text = footer_text_raw
                 
                 # Layout style
                 payslip_layout_style = request.POST.get('payslip_layout_style', 'professional_table')

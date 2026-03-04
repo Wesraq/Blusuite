@@ -121,7 +121,6 @@
     <div><button onclick="window.print()" class="btn btn-primary">&#128438; Print / Save PDF</button></div>
   </div>
 
-<!-- DEBUG: Layout = {{ co.payslip_layout }} -->
 {% if co.payslip_layout == 'modern' %}
 <div class="corp-wrap">
 
@@ -150,8 +149,10 @@
       <table>
         <tr><th>PAY DATE</th><th>TITLE</th></tr>
         <tr><td>{{ pay_date_formatted }}</td><td>{% if payroll.employee.employee_profile.job_title %}{{ payroll.employee.employee_profile.job_title }}{% else %}&mdash;{% endif %}</td></tr>
-        <tr><th>ID #</th><th>NRC / TAX</th></tr>
+        <tr><th>ID #</th><th>NRC</th></tr>
         <tr><td>{{ payroll.employee.employee_profile.employee_id }}</td><td>{% if payroll.employee.employee_profile.nrc_number %}{{ payroll.employee.employee_profile.nrc_number }}{% else %}&mdash;{% endif %}</td></tr>
+        <tr><th colspan="2">Tax ID</th></tr>
+        <tr><td colspan="2">{% if co.business_registration %}{{ co.business_registration }}{% else %}&mdash;{% endif %}</td></tr>
         <tr><th colspan="2" style="text-align:center;">PERIOD</th></tr>
         <tr><td colspan="2" style="text-align:center;font-weight:600;">{{ period_start_formatted }}</td></tr>
       </table>
@@ -300,35 +301,35 @@
     </table>
   </div>
 
-  <div style="border-top:2px solid #333;padding-top:10px;display:flex;justify-content:space-between;align-items:center;position:relative;">
-    <div style="font-size:11px;">
-      <div><strong>Bank details:</strong> [Employee Bank]</div>
-      <div><strong>Account number:</strong> [Account No]</div>
-    </div>
-    <div>
-      <span style="font-weight:700;font-size:12px;">Total net pay: </span>
-      <span style="font-weight:700;font-size:16px;">{{ payroll.currency }} {{ payroll.net_pay|floatformat:2 }}</span>
-    </div>
-    {% if co.company_stamp %}
-      <img src="{{ co.company_stamp.url }}" alt="Stamp" style="position:absolute;right:0;top:50%;transform:translateY(-50%) translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px) rotate({{ stamp_config.rotation }}deg);width:{{ stamp_config.size }}px;height:{{ stamp_config.size }}px;object-fit:contain;opacity:calc({{ stamp_config.opacity }} / 100);">
-    {% else %}
-      <div style="position:absolute;right:0;top:50%;transform:translateY(-50%) translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px) rotate({{ stamp_config.rotation }}deg);width:{{ stamp_config.size }}px;height:{{ stamp_config.size }}px;opacity:calc({{ stamp_config.opacity }} / 100);">
-        <div style="position:relative;width:100%;height:100%;border:3.5px solid {{ co.payslip_section_color|default:'#DC143C' }};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;box-sizing:border-box;">
-          <div style="font-size:7.5px;font-weight:900;color:{{ co.payslip_section_color|default:'#DC143C' }};text-transform:uppercase;line-height:1.25;margin-bottom:3px;word-break:break-word;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
-          {% if co.phone %}<div style="font-size:7px;color:{{ co.payslip_section_color|default:'#DC143C' }};line-height:1.3;">Tel: {{ co.phone }}</div>{% endif %}
-          <div style="background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;font-size:11px;font-weight:900;padding:2px 8px;margin:4px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">{{ pay_date_formatted }}</div>
-          {% if co.email %}<div style="font-size:6.5px;color:{{ co.payslip_section_color|default:'#DC143C' }};word-break:break-all;">{{ co.email }}</div>{% endif %}
-          {% if co.city %}<div style="font-size:7px;color:{{ co.payslip_section_color|default:'#DC143C' }};margin-top:2px;">{{ co.city }}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
-        </div>
-      </div>
-    {% endif %}
+  <div style="border-top:2px solid #333;padding-top:8px;display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+    <span style="font-weight:700;font-size:12px;">Total net pay:</span>
+    <span style="font-weight:900;font-size:18px;">{{ payroll.currency }} {{ payroll.net_pay|floatformat:2 }}</span>
   </div>
 
-  <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e0e0e0;">
-    <div style="font-weight:700;text-transform:uppercase;padding-bottom:22px;">{{ payroll.employee.get_full_name }}</div>
-    <div style="border-top:1px solid #111;width:180px;margin-bottom:4px;"></div>
-    <div style="font-size:11px;">Receiver's Signature</div>
-  </div>
+  <table style="width:100%;margin-top:16px;font-size:11px;">
+    <tr>
+      <td style="width:50%;vertical-align:top;padding-right:16px;">
+        <div style="font-weight:700;text-transform:uppercase;margin-bottom:18px;">{{ payroll.employee.get_full_name }}</div>
+        <div style="border-top:1px solid #111;width:180px;padding-top:4px;">Employer Signature / Date</div>
+      </td>
+      <td style="width:50%;text-align:center;vertical-align:top;position:relative;height:130px;">
+        <div style="position:absolute;left:50%;top:0;transform:translateX(-50%) translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px) rotate({{ stamp_config.rotation }}deg);width:{{ stamp_config.size }}px;height:{{ stamp_config.size }}px;display:flex;align-items:center;justify-content:center;opacity:calc({{ stamp_config.opacity }} / 100);">
+          {% if co.company_stamp %}
+            <img src="{{ co.company_stamp.url }}" alt="Stamp" style="width:100%;height:100%;object-fit:contain;">
+          {% else %}
+            <div style="position:relative;width:100%;height:100%;border:3.5px solid {{ co.payslip_section_color|default:'#DC143C' }};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;box-sizing:border-box;">
+              <div style="font-size:7.5px;font-weight:900;color:{{ co.payslip_section_color|default:'#DC143C' }};text-transform:uppercase;line-height:1.25;margin-bottom:3px;word-break:break-word;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
+              {% if co.phone %}<div style="font-size:7px;color:{{ co.payslip_section_color|default:'#DC143C' }};line-height:1.3;">Tel: {{ co.phone }}</div>{% endif %}
+              <div style="background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;font-size:11px;font-weight:900;padding:2px 8px;margin:4px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">{{ pay_date_formatted }}</div>
+              {% if co.email %}<div style="font-size:6.5px;color:{{ co.payslip_section_color|default:'#DC143C' }};word-break:break-all;">{{ co.email }}</div>{% endif %}
+              {% if co.city %}<div style="font-size:7px;color:{{ co.payslip_section_color|default:'#DC143C' }};margin-top:2px;">{{ co.city }}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
+            </div>
+          {% endif %}
+        </div>
+        <div style="position:absolute;bottom:0;right:0;border-top:1px solid #111;width:180px;padding-top:4px;font-size:10px;text-align:right;">Employee Signature / Date</div>
+      </td>
+    </tr>
+  </table>
 
   <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e0e0e0;text-align:center;">
     {% if co.payslip_footer_text %}
@@ -363,6 +364,7 @@
       <div style="font-size:10px;color:#333;">{% if payroll.employee.employee_profile.department %}{{ payroll.employee.employee_profile.department }}{% else %}&mdash;{% endif %}</div>
       <div style="font-size:10px;color:#333;">ID: {{ payroll.employee.employee_profile.employee_id }}</div>
       <div style="font-size:10px;color:#333;">NRC: {% if payroll.employee.employee_profile.nrc_number %}{{ payroll.employee.employee_profile.nrc_number }}{% else %}&mdash;{% endif %}</div>
+      <div style="font-size:10px;color:#333;">Tax ID: {% if co.business_registration %}{{ co.business_registration }}{% else %}&mdash;{% endif %}</div>
     </div>
     <div style="padding:12px 16px;">
       <table style="width:100%;border-collapse:collapse;font-size:10px;">
