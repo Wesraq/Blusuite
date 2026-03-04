@@ -268,7 +268,8 @@ def approve_company(request, request_id):
                             [registration_request.contact_email],
                             html_message=message
                         )
-                    except Exception as e:
+                    except Exception:
+                        pass
 
                     messages.success(
                         request,
@@ -400,8 +401,7 @@ def approve_company(request, request_id):
                     [registration_request.contact_email],
                     html_message=message
                 )
-            except Exception as e:
-
+            except Exception:                pass
             messages.success(
                 request,
                 f'Company registration approved! Login credentials sent to {registration_request.contact_email}'
@@ -451,8 +451,7 @@ def reject_company(request, request_id):
                     [registration_request.contact_email],
                     html_message=message
                 )
-            except Exception as e:
-
+            except Exception:                pass
             messages.success(request, 'Company registration rejected.')
             return redirect('company_list')
 
@@ -901,8 +900,7 @@ def approve_existing_company(request, company_id):
                 [company.email],
                 html_message=message
             )
-        except Exception as e:
-
+        except Exception:            pass
         if company.is_approved:
             messages.success(
                 request,
@@ -962,8 +960,7 @@ def resend_credentials(request, company_id):
                     [company.email],  # Send to company email
                     html_message=message
                 )
-            except Exception as e:
-
+            except Exception:                pass
             messages.success(
                 request,
                 f'Login credentials resent for {company.name}! Email sent to {company.email}'

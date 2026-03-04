@@ -844,7 +844,8 @@ Best regards,
             """
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [renewal.original_contract.employee.email], fail_silently=True)
             
-    except Exception as e:
+    except Exception:
+        pass
 
 
 def send_renewal_rejected_notification(renewal, rejected_by, reason):
@@ -888,8 +889,10 @@ Best regards,
             """
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [renewal.requested_by.email], fail_silently=True)
             
-    except Exception as e:
+    except Exception:
+        pass
 
+        pass
 
 def send_renewal_submitted_notification(renewal):
     """Send notification when HR submits a renewal request"""
@@ -946,4 +949,5 @@ Best regards,
 {renewal.original_contract.company.name}
             """
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails, fail_silently=True)
-    except Exception as e:
+    except Exception:
+        pass

@@ -134,7 +134,8 @@ def _provision_company(registration_request, admin_password=None, approved_by=No
         })
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
                   [registration_request.contact_email], html_message=message)
-    except Exception as e:
+    except Exception:
+        pass
 
     return company, employer_user, final_password
 
@@ -168,7 +169,8 @@ def company_registration_request(request):
                     'request': registration_request,
                 })
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email], html_message=message)
-            except Exception as e:
+            except Exception:
+                pass
 
             # For paid plans: redirect to Stripe checkout
             if billing_pref in ('MONTHLY', 'YEARLY'):
@@ -233,6 +235,7 @@ def company_registration_request(request):
             return redirect('registration_success', request_id=registration_request.request_number)
         else:
             for field, errors in form.errors.items():
+                pass
             messages.error(request, 'Please correct the errors below.')
     else:
         form = CompanyRegistrationForm()
@@ -327,7 +330,8 @@ def approve_company_registration(request, request_id):
                         [registration_request.contact_email],
                         html_message=message
                     )
-                except Exception as e:
+                except Exception:
+                    pass
 
                 messages.success(
                     request,
@@ -485,7 +489,8 @@ def approve_company_registration(request, request_id):
                 [registration_request.contact_email],
                 html_message=message
             )
-        except Exception as e:
+        except Exception:
+            pass
 
         messages.success(
             request,
@@ -529,7 +534,8 @@ def reject_company_registration(request, request_id):
                 [registration_request.contact_email],
                 html_message=message
             )
-        except Exception as e:
+        except Exception:
+            pass
 
         messages.success(request, 'Company registration rejected.')
         return redirect('company_registration_list')
