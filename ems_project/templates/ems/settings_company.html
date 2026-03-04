@@ -2224,7 +2224,6 @@ let stampConfig = {
 
 // Render Earnings List
 function renderEarnings() {
-  console.log('Rendering earnings:', earningsData.length, 'items');
   const container = document.getElementById('earningsList');
   if (!container) {
     console.error('Earnings container not found');
@@ -2243,13 +2242,11 @@ function renderEarnings() {
     `;
     container.appendChild(div);
   });
-  console.log('Earnings rendered, calling updateTotals');
   updateTotals();
 }
 
 // Render Deductions List
 function renderDeductions() {
-  console.log('Rendering deductions:', deductionsData.length, 'items');
   const container = document.getElementById('deductionsList');
   if (!container) {
     console.error('Deductions container not found');
@@ -2268,19 +2265,15 @@ function renderDeductions() {
     `;
     container.appendChild(div);
   });
-  console.log('Deductions rendered, calling updateTotals');
   updateTotals();
 }
 
 // Update Totals and Preview
 function updateTotals() {
-  console.log('updateTotals called');
   const currency = document.getElementById('previewCurrency')?.value || 'ZMW';
   const totalEarnings = earningsData.filter(e => e.enabled).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
   const totalDeductions = deductionsData.filter(d => d.enabled).reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
   const netPay = totalEarnings - totalDeductions;
-  
-  console.log('Totals calculated:', { totalEarnings, totalDeductions, netPay, currency });
   
   // Update tab totals
   const earningsEl = document.getElementById('totalEarnings');
@@ -2290,11 +2283,9 @@ function updateTotals() {
   
   // Update preview earnings
   const previewEarningsEl = document.getElementById('previewEarningsList');
-  console.log('Preview earnings element:', !!previewEarningsEl);
   if (previewEarningsEl) {
     previewEarningsEl.innerHTML = '';
     const enabledEarnings = earningsData.filter(e => e.enabled);
-    console.log('Enabled earnings:', enabledEarnings.length);
     enabledEarnings.forEach(item => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -2307,11 +2298,9 @@ function updateTotals() {
   
   // Update preview deductions
   const previewDeductionsEl = document.getElementById('previewDeductionsList');
-  console.log('Preview deductions element:', !!previewDeductionsEl);
   if (previewDeductionsEl) {
     previewDeductionsEl.innerHTML = '';
     const enabledDeductions = deductionsData.filter(d => d.enabled);
-    console.log('Enabled deductions:', enabledDeductions.length);
     enabledDeductions.forEach(item => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -2332,7 +2321,6 @@ function updateTotals() {
   if (previewSummaryDeductionsEl) previewSummaryDeductionsEl.textContent = `${currency} ${totalDeductions.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   if (previewNetPayEl) previewNetPayEl.textContent = `${currency} ${netPay.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   
-  console.log('updateTotals completed');
 }
 
 // Earnings Functions
@@ -2856,17 +2844,14 @@ function updatePreview() {
 
 // Handle Stamp Upload
 window.handleStampUpload = function(input) {
-  console.log('Stamp upload triggered', input.files);
   if (input.files && input.files[0]) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      console.log('Image loaded successfully');
       stampConfig.customImage = e.target.result;
       updateStampPreview();
     };
     reader.readAsDataURL(input.files[0]);
   } else {
-    console.log('No file selected');
     stampConfig.customImage = null;
     updateStampPreview();
   }
@@ -3208,12 +3193,10 @@ class TabSystem {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         const tabName = button.getAttribute('data-tab');
-        console.log('[OK] Main tab clicked:', tabName);
         this.switchTab(tabName);
       });
     });
 
-    console.log('[OK] Main TabSystem initialized with', this.buttons.length, 'tabs');
   }
 
   switchTab(tabName) {
@@ -3231,7 +3214,6 @@ class TabSystem {
     const activeButton = this.nav.querySelector(`[data-tab="${tabName}"]`);
     if (activeButton) {
       activeButton.classList.add('active');
-      console.log('[OK] Button marked active:', tabName);
     }
 
     // Hide all content
@@ -3244,34 +3226,23 @@ class TabSystem {
     const activeContent = document.getElementById(tabName);
     if (activeContent) {
       activeContent.classList.add('active');
-      console.log('[OK] Content shown:', tabName);
     } else {
-      console.error('[ERR] Content NOT found for:', tabName);
-      console.log('Available IDs:', Array.from(allContent).map(c => c.id));
+      console.error('[ERR] Content not found for tab:', tabName);
     }
   }
 }
 
   // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('=== INITIALIZING TAB SYSTEMS ===');
-  
-  // Initialize Main Settings Tabs
-  console.log('Starting main tab system...');
   new TabSystem('#settings-tabs', '.tab-btn', '.tab-content');
-  
-  // Initialize Payslip Designer Tabs
-  console.log('Starting designer tab system...');
+
   const designerTabs = document.querySelectorAll('.designer-tab');
   const designerTabContents = document.querySelectorAll('.designer-tab-content');
-
-  console.log('Found', designerTabs.length, 'designer tabs');
 
   designerTabs.forEach(tab => {
     tab.addEventListener('click', function(e) {
       e.preventDefault();
       const tabName = this.dataset.tab;
-      console.log('Designer tab clicked:', tabName);
 
       // Remove active from all tabs
       designerTabs.forEach(t => t.classList.remove('active'));
@@ -3282,13 +3253,10 @@ document.addEventListener('DOMContentLoaded', function() {
       const content = document.getElementById(`tab-${tabName}`);
       if (content) {
         content.classList.add('active');
-        console.log('Designer tab active:', tabName);
       }
     });
   });
 
-  console.log('=== ALL TAB SYSTEMS INITIALIZED ===');
-  
   // Initialize draggable stamp
   initializeDraggableStamp();
 

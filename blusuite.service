@@ -1,0 +1,25 @@
+[Unit]
+Description=BLU Suite EMS - Gunicorn Application Server
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+RuntimeDirectory=gunicorn
+WorkingDirectory=/opt/blusuite
+ExecStart=/opt/blusuite/venv/bin/gunicorn \
+          --config /opt/blusuite/gunicorn.conf.py \
+          ems_project.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+RestartSec=5
+
+# Environment
+EnvironmentFile=/opt/blusuite/.env
+
+[Install]
+WantedBy=multi-user.target
