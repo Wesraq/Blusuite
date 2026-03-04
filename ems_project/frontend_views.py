@@ -13454,6 +13454,7 @@ def payroll_detail(request, payroll_id):
         'drag_y': 0,
         'opacity': 100,
         'size': 130,
+        'rotation': 0,
     }
     if company and hasattr(company, 'payslip_field_positions') and company.payslip_field_positions:
         field_pos = company.payslip_field_positions
@@ -13463,6 +13464,7 @@ def payroll_detail(request, payroll_id):
                 stamp_config['drag_y'] = field_pos['stamp_drag'].get('y', 0)
             stamp_config['opacity'] = field_pos.get('stamp_opacity', 100)
             stamp_config['size'] = field_pos.get('stamp_size', 130)
+            stamp_config['rotation'] = field_pos.get('stamp_rotation', 0)
 
     context = {
         'payroll': payroll,
