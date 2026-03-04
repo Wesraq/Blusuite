@@ -419,28 +419,30 @@
     <span style="color:#fff;font-weight:700;font-size:14px;">{{ payroll.currency }} {{ payroll.net_pay|floatformat:2 }}</span>
   </div>
 
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:16px;padding:16px;border-top:1px solid #ccc;">
-    <div style="flex:1;">
-      <div style="font-weight:700;font-size:11px;margin-bottom:8px;">Receiver's Name:</div>
-      <div style="font-size:12px;font-weight:600;text-transform:uppercase;">{{ payroll.employee.get_full_name }}</div>
-    </div>
-    <div style="flex:1;text-align:right;position:relative;">
-      <div style="font-weight:700;font-size:11px;margin-bottom:8px;">Company Stamp:</div>
-      {% if co.company_stamp %}
-        <img src="{{ co.company_stamp.url }}" alt="Stamp" style="max-height:{{ stamp_config.size }}px;max-width:{{ stamp_config.size }}px;object-fit:contain;display:inline-block;opacity:calc({{ stamp_config.opacity }} / 100);transform:translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px);">
-      {% else %}
-        <div style="display:inline-block;position:relative;width:130px;height:130px;transform:translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px);opacity:calc({{ stamp_config.opacity }} / 100);">
-          <div style="position:absolute;inset:0;border:3.5px solid {{ co.payslip_section_color|default:'#DC143C' }};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;box-sizing:border-box;">
-            <div style="font-size:7.5px;font-weight:900;color:{{ co.payslip_section_color|default:'#DC143C' }};text-transform:uppercase;line-height:1.25;margin-bottom:3px;word-break:break-word;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
-            {% if co.phone %}<div style="font-size:7px;color:{{ co.payslip_section_color|default:'#DC143C' }};line-height:1.3;">Tel: {{ co.phone }}</div>{% endif %}
-            <div style="background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;font-size:11px;font-weight:900;padding:2px 8px;margin:4px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">{{ pay_date_formatted }}</div>
-            {% if co.email %}<div style="font-size:6.5px;color:{{ co.payslip_section_color|default:'#DC143C' }};word-break:break-all;">{{ co.email }}</div>{% endif %}
-            {% if co.city %}<div style="font-size:7px;color:{{ co.payslip_section_color|default:'#DC143C' }};margin-top:2px;">{{ co.city }}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
-          </div>
+  <table style="width:100%;font-size:11px;margin-top:16px;">
+    <tr>
+      <td style="width:50%;vertical-align:top;">
+        <div style="font-weight:600;margin-bottom:40px;">Receiver's Name:</div>
+        <div style="border-bottom:1px solid #000;padding-bottom:2px;text-transform:uppercase;font-weight:600;">{{ payroll.employee.get_full_name }}</div>
+      </td>
+      <td style="width:50%;text-align:center;vertical-align:top;position:relative;height:140px;">
+        <div style="font-weight:600;margin-bottom:8px;font-size:11px;">Company Stamp:</div>
+        <div style="position:absolute;left:50%;top:20px;transform:translateX(-50%) translate({{ stamp_config.drag_x }}px, {{ stamp_config.drag_y }}px);width:{{ stamp_config.size }}px;height:{{ stamp_config.size }}px;display:flex;align-items:center;justify-content:center;opacity:calc({{ stamp_config.opacity }} / 100);">
+          {% if co.company_stamp %}
+            <img src="{{ co.company_stamp.url }}" alt="Stamp" style="width:100%;height:100%;object-fit:contain;">
+          {% else %}
+            <div style="position:relative;width:100%;height:100%;border:3.5px solid {{ co.payslip_section_color|default:'#DC143C' }};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;box-sizing:border-box;">
+              <div style="font-size:7.5px;font-weight:900;color:{{ co.payslip_section_color|default:'#DC143C' }};text-transform:uppercase;line-height:1.25;margin-bottom:3px;word-break:break-word;">{% if co.name %}{{ co.name|upper }}{% endif %}</div>
+              {% if co.phone %}<div style="font-size:7px;color:{{ co.payslip_section_color|default:'#DC143C' }};line-height:1.3;">Tel: {{ co.phone }}</div>{% endif %}
+              <div style="background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;font-size:11px;font-weight:900;padding:2px 8px;margin:4px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">{{ pay_date_formatted }}</div>
+              {% if co.email %}<div style="font-size:6.5px;color:{{ co.payslip_section_color|default:'#DC143C' }};word-break:break-all;">{{ co.email }}</div>{% endif %}
+              {% if co.city %}<div style="font-size:7px;color:{{ co.payslip_section_color|default:'#DC143C' }};margin-top:2px;">{{ co.city }}{% if co.country %}, {{ co.country }}{% endif %}</div>{% endif %}
+            </div>
+          {% endif %}
         </div>
-      {% endif %}
-    </div>
-  </div>
+      </td>
+    </tr>
+  </table>
 
   <div style="padding:12px 16px;text-align:center;border-top:1px solid #ccc;margin-top:8px;">
     {% if co.payslip_footer_text %}
