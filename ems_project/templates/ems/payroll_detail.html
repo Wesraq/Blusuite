@@ -159,28 +159,28 @@
   </div>
 
   <table class="corp-table">
-    <thead><tr><th>EARNINGS</th><th class="r">HOURS</th><th class="r">RATE</th><th class="r">AMOUNT</th></tr></thead>
+    <thead><tr><th>EARNINGS</th><th class="r">AMOUNT</th></tr></thead>
     <tbody>
-      <tr><td>Basic Salary</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td></tr>
-      {% if payroll.allowances > 0 %}<tr><td>House Rent Allowance (HRA @30%)</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td></tr>{% endif %}
-      {% if payroll.commission > 0 %}<tr><td>Transport Allowance</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td></tr>{% endif %}
-      {% if payroll.bonus > 0 %}<tr><td>Leave Pay</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td></tr>{% endif %}
-      {% if payroll.overtime_pay > 0 %}<tr><td>Overtime</td><td class="r">&mdash;</td><td class="r">&mdash;</td><td class="r">{{ payroll.currency }} {{ payroll.overtime_pay|floatformat:2 }}</td></tr>{% endif %}
+      <tr><td>Basic Salary</td><td class="r">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td></tr>
+      {% if payroll.allowances > 0 %}<tr><td>House Rent Allowance (HRA @30%)</td><td class="r">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.commission > 0 %}<tr><td>Transport Allowance</td><td class="r">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.bonus > 0 %}<tr><td>Leave Pay</td><td class="r">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.overtime_pay > 0 %}<tr><td>Overtime</td><td class="r">{{ payroll.currency }} {{ payroll.overtime_pay|floatformat:2 }}</td></tr>{% endif %}
     </tbody>
-    <tfoot><tr><td colspan="3" style="text-align:right;padding-right:12px;">GROSS PAY</td><td class="r">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td></tr></tfoot>
+    <tfoot><tr><td style="text-align:right;padding-right:12px;">GROSS PAY</td><td class="r">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td></tr></tfoot>
   </table>
 
   <table class="corp-table deductions-table" style="margin-top:4px;">
     <thead><tr><th>DEDUCTIONS</th><th class="r">AMOUNT</th></tr></thead>
     <tbody>
-      <tr><td>NAPSA @5%</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
-      <tr><td>NHIMA</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td></tr>
-      <tr><td>PAYE</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td></tr>
+      <tr><td>NAPSA @5%</td><td class="r">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
+      <tr><td>NHIMA</td><td class="r">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td></tr>
+      <tr><td>PAYE</td><td class="r">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td></tr>
       {% for ded in deductions %}{% if not ded.is_statutory %}
-      <tr><td>{% if ded.deduction_type == 'LATE' %}Late Deductions{% elif ded.deduction_type == 'ADVANCE' %}Salary Advance{% elif ded.deduction_type == 'LOAN' %}Loans{% else %}{% if ded.description %}{{ ded.description }}{% else %}Other Deduction{% endif %}{% endif %}</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ ded.amount|floatformat:2 }}</td></tr>
+      <tr><td>{% if ded.deduction_type == 'LATE' %}Late Deductions{% elif ded.deduction_type == 'ADVANCE' %}Salary Advance{% elif ded.deduction_type == 'LOAN' %}Loans{% else %}{% if ded.description %}{{ ded.description }}{% else %}Other Deduction{% endif %}{% endif %}</td><td class="r">{{ payroll.currency }} {{ ded.amount|floatformat:2 }}</td></tr>
       {% endif %}{% endfor %}
     </tbody>
-    <tfoot><tr><td style="text-align:right;padding-right:12px;">TOTAL DEDUCTIONS</td><td class="r" style="color:#cc0000;">{{ payroll.currency }} {{ payroll.total_deductions|floatformat:2 }}</td></tr></tfoot>
+    <tfoot><tr><td style="text-align:right;padding-right:12px;">TOTAL DEDUCTIONS</td><td class="r">{{ payroll.currency }} {{ payroll.total_deductions|floatformat:2 }}</td></tr></tfoot>
   </table>
 
   <div class="corp-net">
@@ -241,7 +241,8 @@
       <div><strong>Designation:</strong> {% if payroll.employee.employee_profile.job_title %}{{ payroll.employee.employee_profile.job_title }}{% else %}&mdash;{% endif %}</div>
       <div><strong>Department:</strong> {% if payroll.employee.employee_profile.department %}{{ payroll.employee.employee_profile.department }}{% else %}&mdash;{% endif %}</div>
       <div><strong>Employee ID:</strong> {{ payroll.employee.employee_profile.employee_id }}</div>
-      <div><strong>NRC / Tax:</strong> {% if payroll.employee.employee_profile.nrc_number %}{{ payroll.employee.employee_profile.nrc_number }}{% else %}&mdash;{% endif %}</div>
+      <div><strong>NRC:</strong> {% if payroll.employee.employee_profile.nrc_number %}{{ payroll.employee.employee_profile.nrc_number }}{% else %}&mdash;{% endif %}</div>
+      <div><strong>Tax ID:</strong> {% if co.business_registration %}{{ co.business_registration }}{% else %}&mdash;{% endif %}</div>
     </div>
     <div>
       <div><strong>Pay period:</strong> {{ period_start_formatted }}</div>
@@ -255,20 +256,18 @@
       <thead>
         <tr style="background:#f4f4f4;">
           <th style="padding:4px 8px;text-align:left;border-bottom:1px solid #ccc;">Description</th>
-          <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Hours/Units</th>
-          <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Rate</th>
-          <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Total</th>
+          <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td style="padding:4px 8px;">Basic Salary</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td></tr>
-        {% if payroll.allowances > 0 %}<tr><td style="padding:4px 8px;">House Rents Allowance (HRA @30%)</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td></tr>{% endif %}
-        {% if payroll.commission > 0 %}<tr><td style="padding:4px 8px;">Transport Allowance</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td></tr>{% endif %}
-        {% if payroll.bonus > 0 %}<tr><td style="padding:4px 8px;">Lunch Allowance</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td></tr>{% endif %}
+        <tr><td style="padding:4px 8px;">Basic Salary</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td></tr>
+        {% if payroll.allowances > 0 %}<tr><td style="padding:4px 8px;">House Rents Allowance (HRA @30%)</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td></tr>{% endif %}
+        {% if payroll.commission > 0 %}<tr><td style="padding:4px 8px;">Transport Allowance</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td></tr>{% endif %}
+        {% if payroll.bonus > 0 %}<tr><td style="padding:4px 8px;">Lunch Allowance</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td></tr>{% endif %}
       </tbody>
       <tfoot>
         <tr style="border-top:2px solid #333;">
-          <td colspan="3" style="padding:5px 8px;font-weight:700;">Total</td>
+          <td style="padding:5px 8px;font-weight:700;">Total</td>
           <td style="padding:5px 8px;text-align:right;font-weight:700;">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td>
         </tr>
       </tfoot>
@@ -393,53 +392,47 @@
 
   <table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:12px;">
     <thead>
-      <tr><td colspan="5" style="background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;padding:5px 16px;font-weight:700;">EARNINGS</td></tr>
+      <tr><td colspan="2" style="background:{{ co.payslip_section_color|default:'#DC143C' }};color:#fff;padding:5px 16px;font-weight:700;">EARNINGS</td></tr>
       <tr style="background:#f5f5f5;">
         <th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>
-        <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Hours</th>
-        <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Rate</th>
         <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th>
-        <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">YTD</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td style="padding:4px 18px;">Basic Salary</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>
-      {% if payroll.allowances > 0 %}<tr><td style="padding:4px 18px;">House Rent Allowance (HRA @30%)</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>{% endif %}
-      {% if payroll.commission > 0 %}<tr><td style="padding:4px 18px;">Transport Allowance</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>{% endif %}
-      {% if payroll.bonus > 0 %}<tr><td style="padding:4px 18px;">Leave Pay</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>{% endif %}
-      {% if payroll.overtime_pay > 0 %}<tr><td style="padding:4px 18px;">Overtime</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">&mdash;</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.overtime_pay|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>{% endif %}
+      <tr><td style="padding:4px 18px;">Basic Salary</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.base_pay|floatformat:2 }}</td></tr>
+      {% if payroll.allowances > 0 %}<tr><td style="padding:4px 18px;">House Rent Allowance (HRA @30%)</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.allowances|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.commission > 0 %}<tr><td style="padding:4px 18px;">Transport Allowance</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.commission|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.bonus > 0 %}<tr><td style="padding:4px 18px;">Leave Pay</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.bonus|floatformat:2 }}</td></tr>{% endif %}
+      {% if payroll.overtime_pay > 0 %}<tr><td style="padding:4px 18px;">Overtime</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.overtime_pay|floatformat:2 }}</td></tr>{% endif %}
     </tbody>
     <tfoot>
       <tr style="background:#f0f0f0;border-top:1px solid #ccc;">
-        <td colspan="3" style="padding:5px 16px;font-weight:700;text-align:right;">GROSS PAY</td>
+        <td style="padding:5px 16px;font-weight:700;text-align:right;">GROSS PAY</td>
         <td style="padding:5px 8px;text-align:right;font-weight:700;">{{ payroll.currency }} {{ payroll.gross_pay|floatformat:2 }}</td>
-        <td style="padding:5px 8px;"></td>
       </tr>
     </tfoot>
   </table>
 
   <table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;">
     <thead>
-      <tr><td colspan="3" style="background:{{ co.payslip_accent_color|default:'#DC143C' }};color:#fff;padding:5px 16px;font-weight:700;">DEDUCTIONS</td></tr>
+      <tr><td colspan="2" style="background:{{ co.payslip_accent_color|default:'#DC143C' }};color:#fff;padding:5px 16px;font-weight:700;">DEDUCTIONS</td></tr>
       <tr style="background:#f5f5f5;">
         <th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>
-        <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Current</th>
-        <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">YTD</th>
+        <th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td style="padding:4px 18px;">NAPSA @5%</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>
-      <tr><td style="padding:4px 18px;">NHIMA</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>
-      <tr><td style="padding:4px 18px;">PAYE</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>
+      <tr><td style="padding:4px 18px;">NAPSA @5%</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.social_security|floatformat:2 }}</td></tr>
+      <tr><td style="padding:4px 18px;">NHIMA</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.insurance|floatformat:2 }}</td></tr>
+      <tr><td style="padding:4px 18px;">PAYE</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ payroll.tax|floatformat:2 }}</td></tr>
       {% for ded in deductions %}{% if not ded.is_statutory %}
-      <tr><td style="padding:4px 18px;">{% if ded.deduction_type == 'LATE' %}Late Deductions{% elif ded.deduction_type == 'ADVANCE' %}Salary Advance{% elif ded.deduction_type == 'LOAN' %}Loans{% else %}{% if ded.description %}{{ ded.description }}{% else %}Other Deduction{% endif %}{% endif %}</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ ded.amount|floatformat:2 }}</td><td style="padding:4px 8px;text-align:right;">&mdash;</td></tr>
+      <tr><td style="padding:4px 18px;">{% if ded.deduction_type == 'LATE' %}Late Deductions{% elif ded.deduction_type == 'ADVANCE' %}Salary Advance{% elif ded.deduction_type == 'LOAN' %}Loans{% else %}{% if ded.description %}{{ ded.description }}{% else %}Other Deduction{% endif %}{% endif %}</td><td style="padding:4px 8px;text-align:right;">{{ payroll.currency }} {{ ded.amount|floatformat:2 }}</td></tr>
       {% endif %}{% endfor %}
     </tbody>
     <tfoot>
       <tr style="background:#f0f0f0;border-top:1px solid #ccc;">
         <td style="padding:5px 16px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>
         <td style="padding:5px 8px;text-align:right;font-weight:700;color:#dc2626;">{{ payroll.currency }} {{ payroll.total_deductions|floatformat:2 }}</td>
-        <td></td>
       </tr>
     </tfoot>
   </table>

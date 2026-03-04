@@ -1683,8 +1683,8 @@
                 <textarea id="previewCompanyAddress" name="company_address" placeholder="Street Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px; min-height: 70px; resize: vertical;" oninput="updatePreview()">{{ company.address }}</textarea>
               </div>
               <div>
-                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Tax ID / NRC</label>
-                <input type="text" id="previewTaxId" value="{{ company.business_registration }}" placeholder="TAX-12345" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Tax ID / TPIN</label>
+                <input type="text" id="previewTaxId" value="{% if company.tpin %}{{ company.tpin }}{% else %}{% if company.business_registration and company.business_registration|slice:':4' != 'comp' %}{{ company.business_registration }}{% endif %}{% endif %}" placeholder="TAX-12345" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Currency</label>
@@ -1727,6 +1727,10 @@
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Department</label>
                 <input type="text" id="previewDepartment" value="Engineering" placeholder="Department" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">NRC Number</label>
+                <input type="text" id="previewNrc" value="" placeholder="e.g. 123456/10/1" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Date of Joining</label>
@@ -1947,8 +1951,10 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month{% endif %}</textar
                     <img id="previewStampImage" src="" alt="" style="width: 100%; height: 100%; object-fit: contain; display: none;">
                     <span id="previewStampPlaceholder" style="font-size: 10px; color: #94a3b8;">Stamp Area</span>
                     {% endif %}
-                    <!-- Resize handles -->
+                    <!-- Resize handle (bottom-right) -->
                     <div class="resize-handle resize-se" style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #DC143C; border: 2px solid white; cursor: se-resize; z-index: 11;"></div>
+                    <!-- Rotation handle (top-right) -->
+                    <div class="rotate-handle" title="Drag to rotate" style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #2563eb; border: 2px solid white; cursor: crosshair; z-index: 11; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; border-radius: 2px;">&#8635;</div>
                   </div>
                 </td>
               </tr>
@@ -3357,10 +3363,55 @@ function initializeDraggableStamp() {
     document.addEventListener('mousemove', resize);
     document.addEventListener('mouseup', resizeEnd);
   }
-  
+
+  // Rotation handle drag-to-rotate
+  let isRotating = false;
+  let rotateStartAngle = 0;
+  let rotateCurrentDeg = 0;
+  const rotateHandle = stampContainer.querySelector('.rotate-handle');
+  if (rotateHandle) {
+    rotateHandle.addEventListener('mousedown', function(e) {
+      e.stopPropagation();
+      isRotating = true;
+      const rect = stampContainer.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      rotateStartAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+      const currentTransform = stampContainer.style.transform || '';
+      const match = currentTransform.match(/rotate\(([-\d.]+)deg\)/);
+      rotateCurrentDeg = match ? parseFloat(match[1]) : 0;
+      document.addEventListener('mousemove', onRotateMove);
+      document.addEventListener('mouseup', onRotateEnd);
+    });
+  }
+  function onRotateMove(e) {
+    if (!isRotating) return;
+    const rect = stampContainer.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const angle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+    const delta = angle - rotateStartAngle;
+    const newDeg = Math.round(rotateCurrentDeg + delta);
+    const currentTransform = stampContainer.style.transform || '';
+    const baseTransform = currentTransform.replace(/rotate\([^)]*\)/g, '').trim();
+    stampContainer.style.transform = `${baseTransform} rotate(${newDeg}deg)`.trim();
+    const slider = document.getElementById('stampRotationSlider');
+    const label = document.getElementById('stampRotationValue');
+    const input = document.getElementById('stampRotationInput');
+    const clampedDeg = Math.max(-45, Math.min(45, newDeg));
+    if (slider) slider.value = clampedDeg;
+    if (label) label.textContent = newDeg + '°';
+    if (input) input.value = newDeg;
+  }
+  function onRotateEnd() {
+    isRotating = false;
+    document.removeEventListener('mousemove', onRotateMove);
+    document.removeEventListener('mouseup', onRotateEnd);
+  }
+
   function dragStart(e) {
-    // Don't drag if clicking on resize handle
-    if (e.target.classList.contains('resize-handle')) {
+    // Don't drag if clicking on resize or rotate handle
+    if (e.target.classList.contains('resize-handle') || e.target.classList.contains('rotate-handle')) {
       return;
     }
     
@@ -3474,7 +3525,8 @@ function getPreviewData() {
     empId: document.getElementById('previewEmployeeId')?.value || 'EMP-001',
     designation: (document.getElementById('previewDesignation')?.value || 'Staff').toUpperCase(),
     department: (document.getElementById('previewDepartment')?.value || '').toUpperCase(),
-    nrc: document.getElementById('previewTaxId')?.value || '',
+    nrc: document.getElementById('previewNrc')?.value || '',
+    taxId: document.getElementById('previewTaxId')?.value || '',
     period: month.substring(0,3) + '-' + year,
     payDate: new Date().toLocaleDateString(),
     earningsColor: document.getElementById('previewEarningsColor')?.value || '#DC143C',
@@ -3505,7 +3557,8 @@ function buildClassicTemplate(d) {
         + '<div style="font-size:10px;color:#333;">' + d.designation + '</div>'
         + '<div style="font-size:10px;color:#333;">' + d.department + '</div>'
         + '<div style="font-size:10px;color:#333;">ID: ' + d.empId + '</div>'
-        + '<div style="font-size:10px;color:#333;">NRC: ' + d.nrc + '</div></div>'
+        + '<div style="font-size:10px;color:#333;">NRC: ' + d.nrc + '</div>'
+        + '<div style="font-size:10px;color:#333;">Tax ID: ' + d.taxId + '</div></div>'
       + '<div style="padding:12px 16px;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
         + '<tr><th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;text-align:center;">PAY DATE</th>'
         + '<th style="background:#7f7f7f;color:#fff;padding:4px 6px;border:1px solid #bbb;text-align:center;">PAY TYPE</th>'
@@ -3521,27 +3574,23 @@ function buildClassicTemplate(d) {
         + '<td style="padding:4px 6px;border:1px solid #bbb;text-align:center;">' + d.period + '</td></tr>'
         + '</table></div></div>'
     + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:12px;">'
-      + '<thead><tr><td colspan="5" style="background:' + hc + ';color:' + hct + ';padding:5px 16px;font-weight:700;">EARNINGS</td></tr>'
+      + '<thead><tr><td colspan="2" style="background:' + hc + ';color:' + hct + ';padding:5px 16px;font-weight:700;">EARNINGS</td></tr>'
       + '<tr style="background:#f5f5f5;"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
-      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Hours</th>'
-      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Rate</th>'
-      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th>'
-      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">YTD</th></tr></thead>'
+      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th></tr></thead>'
       + '<tbody id="previewEarningsList"></tbody>'
       + '<tfoot><tr style="background:#f0f0f0;border-top:1px solid #ccc;">'
-      + '<td colspan="3" style="padding:5px 16px;font-weight:700;text-align:right;">GROSS PAY</td>'
+      + '<td style="padding:5px 16px;font-weight:700;text-align:right;">GROSS PAY</td>'
       + '<td id="previewTotalEarnings" style="padding:5px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td>'
-      + '<td style="padding:5px 8px;"></td></tr></tfoot></table>'
+      + '</tr></tfoot></table>'
     + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;">'
-      + '<thead><tr><td colspan="3" style="background:' + dc + ';color:' + dct + ';padding:5px 16px;font-weight:700;">DEDUCTIONS</td></tr>'
+      + '<thead><tr><td colspan="2" style="background:' + dc + ';color:' + dct + ';padding:5px 16px;font-weight:700;">DEDUCTIONS</td></tr>'
       + '<tr style="background:#f5f5f5;"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
-      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Current</th>'
-      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">YTD</th></tr></thead>'
+      + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th></tr></thead>'
       + '<tbody id="previewDeductionsList"></tbody>'
       + '<tfoot><tr style="background:#f0f0f0;border-top:1px solid #ccc;">'
       + '<td style="padding:5px 16px;font-weight:700;text-align:right;">TOTAL DEDUCTIONS</td>'
       + '<td id="previewSummaryDeductions" style="padding:5px 8px;text-align:right;font-weight:700;color:#dc2626;">' + d.currency + ' 0.00</td>'
-      + '<td></td></tr></tfoot></table>'
+      + '</tr></tfoot></table>'
     + '<div style="background:#333;padding:10px 16px;display:flex;justify-content:flex-end;align-items:center;gap:24px;margin-top:8px;">'
       + '<span style="color:#fff;font-weight:700;font-size:13px;">NET PAY</span>'
       + '<span id="previewNetPay" style="color:#fff;font-weight:700;font-size:14px;">' + d.currency + ' 0.00</span></div>'
@@ -3574,19 +3623,17 @@ function buildCorporateTemplate(d) {
       + '<div style="padding:12px 12px;"><table style="width:100%;border-collapse:collapse;font-size:10px;">'
         + '<tr><th style="background:' + t + ';color:' + tt + ';padding:4px 8px;">PAY DATE</th><th style="background:' + t + ';color:' + tt + ';padding:4px 8px;">TITLE</th></tr>'
         + '<tr><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.payDate + '</td><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.designation + '</td></tr>'
-        + '<tr><th style="background:' + t + ';color:' + tt + ';padding:4px 8px;">ID #</th><th style="background:' + t + ';color:' + tt + ';padding:4px 8px;">NRC / TAX</th></tr>'
+        + '<tr><th style="background:' + t + ';color:' + tt + ';padding:4px 8px;">ID #</th><th style="background:' + t + ';color:' + tt + ';padding:4px 8px;">NRC</th></tr>'
         + '<tr><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.empId + '</td><td style="padding:4px 8px;border:1px solid #e0e0e0;">' + d.nrc + '</td></tr>'
         + '<tr><th colspan="2" style="background:' + t + ';color:' + tt + ';padding:4px 8px;text-align:center;">PERIOD</th></tr>'
         + '<tr><td colspan="2" style="padding:4px 8px;border:1px solid #e0e0e0;text-align:center;font-weight:600;">' + d.period + '</td></tr>'
         + '</table></div></div>'
     + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:12px;">'
       + '<thead><tr style="background:' + t + ';"><th style="color:' + tt + ';padding:6px 12px;text-align:left;">EARNINGS</th>'
-      + '<th style="color:' + tt + ';padding:6px 8px;text-align:right;">HOURS</th>'
-      + '<th style="color:' + tt + ';padding:6px 8px;text-align:right;">RATE</th>'
       + '<th style="color:' + tt + ';padding:6px 8px;text-align:right;">AMOUNT</th></tr></thead>'
       + '<tbody id="previewEarningsList"></tbody>'
       + '<tfoot><tr style="background:' + tl + ';border-top:2px solid ' + t + ';">'
-      + '<td colspan="3" style="padding:6px 12px;font-weight:700;text-align:right;">GROSS PAY</td>'
+      + '<td style="padding:6px 12px;font-weight:700;text-align:right;">GROSS PAY</td>'
       + '<td id="previewTotalEarnings" style="padding:6px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td></tr></tfoot></table>'
     + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;">'
       + '<thead><tr style="background:' + dc + ';"><th style="color:' + dct + ';padding:6px 12px;text-align:left;">DEDUCTIONS</th>'
@@ -3620,18 +3667,17 @@ function buildMinimalTemplate(d) {
         + '<div><strong>Designation:</strong> ' + d.designation + '</div>'
         + '<div><strong>Department:</strong> ' + d.department + '</div>'
         + '<div><strong>Employee ID:</strong> ' + d.empId + '</div>'
-        + '<div><strong>NRC / Tax:</strong> ' + d.nrc + '</div></div>'
+        + '<div><strong>NRC:</strong> ' + d.nrc + '</div>'
+        + '<div><strong>Tax ID:</strong> ' + d.taxId + '</div></div>'
       + '<div><div><strong>Pay period:</strong> ' + d.period + '</div>'
         + '<div><strong>Pay date:</strong> ' + d.payDate + '</div></div></div>'
     + '<div style="margin-bottom:14px;">'
       + '<div style="font-weight:700;font-size:12px;border-bottom:2px solid #333;padding-bottom:4px;margin-bottom:6px;">Earnings</div>'
       + '<table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#f4f4f4;">'
         + '<th style="padding:4px 8px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
-        + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Hours/Units</th>'
-        + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Rate</th>'
-        + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Total</th></tr></thead>'
+        + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th></tr></thead>'
       + '<tbody id="previewEarningsList"></tbody>'
-      + '<tfoot><tr style="border-top:2px solid #333;"><td colspan="3" style="padding:5px 8px;font-weight:700;">Total</td>'
+      + '<tfoot><tr style="border-top:2px solid #333;"><td style="padding:5px 8px;font-weight:700;">Total</td>'
         + '<td id="previewTotalEarnings" style="padding:5px 8px;text-align:right;font-weight:700;">' + d.currency + ' 0.00</td></tr></tfoot></table></div>'
     + '<div style="margin-bottom:14px;">'
       + '<div style="font-weight:700;font-size:12px;border-bottom:2px solid #333;padding-bottom:4px;margin-bottom:6px;">Deductions</div>'
