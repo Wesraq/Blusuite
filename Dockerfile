@@ -36,8 +36,9 @@ COPY . /app/
 # Create necessary directories
 RUN mkdir -p /app/staticfiles /app/media /app/logs
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Copy and set up entrypoint script
+COPY entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \
@@ -47,5 +48,5 @@ USER appuser
 # Expose port
 EXPOSE 8000
 
-# Run gunicorn with config file
-CMD ["gunicorn", "-c", "gunicorn.conf.py", "ems_project.wsgi:application"]
+# Run entrypoint script
+CMD ["/app/entrypoint.sh"]
