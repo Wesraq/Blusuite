@@ -36,8 +36,8 @@ COPY . /app/
 # Create necessary directories
 RUN mkdir -p /app/staticfiles /app/media /app/logs
 
-# Collect static files (will be run in entrypoint for production)
-# RUN python manage.py collectstatic --noinput
+# Collect static files
+RUN python manage.py collectstatic --noinput
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \
@@ -47,5 +47,5 @@ USER appuser
 # Expose port
 EXPOSE 8000
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "ems_project.wsgi:application"]
+# Run gunicorn with config file
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "ems_project.wsgi:application"]
