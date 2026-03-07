@@ -18273,7 +18273,7 @@ def superadmin_tenants(request):
         company.monthly_revenue = 0
         
         # Determine status
-        if company.is_trial and company.trial_ends_at and company.trial_ends_at < today:
+        if company.is_trial and company.trial_ends_at and company.trial_ends_at.date() < today:
             company.status = 'expired'
         elif hasattr(company, 'is_suspended') and company.is_suspended:
             company.status = 'suspended'
