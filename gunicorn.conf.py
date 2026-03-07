@@ -13,12 +13,12 @@ worker_connections = 1000
 max_requests = 1000
 max_requests_jitter = 100
 preload_app = True
-timeout = 30
+timeout = 120
 keepalive = 2
 
 # Logging
-accesslog = "/app/logs/access.log"
-errorlog = "/app/logs/error.log"
+accesslog = "/opt/blusuite/logs/access.log"
+errorlog = "/opt/blusuite/logs/error.log"
 loglevel = "info"
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
 
@@ -40,3 +40,11 @@ certfile = None
 limit_request_line = 4096       # Must not be 0 (disables request-line length check)
 limit_request_fields = 100
 limit_request_field_size = 8190
+
+
+def post_fork(server, worker):
+    " \Warm up DB connection after worker fork to avoid cold-start 502s\ try:
+ from django.db import connection
+ connection.ensure_connection()
+ except Exception:
+ pass
