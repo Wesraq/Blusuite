@@ -277,6 +277,10 @@
         <button class="filter-btn" data-filter="trial">Trial</button>
         <button class="filter-btn" data-filter="expired">Expired</button>
         <button class="filter-btn" data-filter="suspended">Suspended</button>
+        <button class="filter-btn pending-tab" data-filter="pending" id="pendingTab" onclick="showPendingSection()">
+            Pending Requests
+            {% if pending_count > 0 %}<span style="background:#dc143c;color:white;border-radius:4px;padding:1px 7px;font-size:11px;margin-left:4px;">{{ pending_count }}</span>{% endif %}
+        </button>
     </div>
     
     <div class="search-box">
@@ -356,6 +360,66 @@
     </div>
     {% endfor %}
 </div>
+
+<!-- Pending Registration Requests Section -->
+<div id="pendingSection" style="display:none; margin-top: 0;">
+    {% if pending_registrations %}
+    <div style="display: grid; gap: 16px;">
+        {% for reg in pending_registrations %}
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <div style="font-size:16px;font-weight:700;color:#1e293b;">{{ reg.company_name }}</div>
+                    <div style="font-size:12px;color:#64748b;margin-top:2px;">{{ reg.request_number }} &bull; Submitted {{ reg.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+                <span style="background:#fef9c3;color:#92400e;border:1px solid #fde68a;border-radius:4px;padding:4px 10px;font-size:12px;font-weight:600;">Pending Review</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9;">
+                <div><span style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Contact</span><div style="font-size:13px;font-weight:500;margin-top:2px;">{{ reg.contact_first_name }} {{ reg.contact_last_name }}</div><div style="font-size:12px;color:#64748b;">{{ reg.contact_email }}</div></div>
+                <div><span style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Location</span><div style="font-size:13px;font-weight:500;margin-top:2px;">{{ reg.city }}, {{ reg.country }}</div></div>
+                <div><span style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Plan</span><div style="font-size:13px;font-weight:500;margin-top:2px;">{{ reg.get_subscription_plan_display }}</div><div style="font-size:12px;color:#64748b;">{{ reg.number_of_employees }} employees</div></div>
+                <div><span style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Business</span><div style="font-size:13px;font-weight:500;margin-top:2px;">{{ reg.get_business_type_display|default:reg.business_type }}</div></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+                <a href="{% url 'approve_company_registration' reg.id %}"
+                   onclick="return confirm('Approve registration for {{ reg.company_name }}? This will create their tenant account.')"
+                   style="background:#16a34a;color:white;padding:9px 20px;border-radius:4px;font-weight:600;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                    &#10003; Approve
+                </a>
+                <a href="{% url 'reject_company_registration' reg.id %}"
+                   onclick="return confirm('Reject registration for {{ reg.company_name }}?')"
+                   style="background:#white;color:#dc2626;border:1px solid #fca5a5;padding:9px 20px;border-radius:4px;font-weight:600;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                    &#10005; Reject
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:60px 20px;color:#64748b;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 16px;display:block;"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <div style="font-size:16px;font-weight:500;margin-bottom:8px;">No pending requests</div>
+        <div style="font-size:14px;">All registration requests have been reviewed</div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function showPendingSection() {
+    document.getElementById('tenantGrid').style.display = 'none';
+    document.getElementById('pendingSection').style.display = 'block';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('pendingTab').classList.add('active');
+}
+document.querySelectorAll('.filter-btn:not(#pendingTab)').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.getElementById('tenantGrid').style.display = '';
+        document.getElementById('pendingSection').style.display = 'none';
+    });
+});
+// Auto-show pending if there are pending requests and URL has #pending
+if (window.location.hash === '#pending') { showPendingSection(); }
+</script>
 
 <script>
 // Filter functionality

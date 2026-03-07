@@ -147,10 +147,12 @@
                     <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ new_companies_this_month|default:"0" }}</div>
                     <div style="font-size: 14px; color: #64748b;">New This Month</div>
                 </div>
+                <a href="/superadmin/tenants/#pending" style="text-decoration:none;color:inherit;">
                 <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
                     <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ pending_company_requests|default:"0" }}</div>
-                    <div style="font-size: 14px; color: #64748b;">Pending Requests</div>
+                    <div style="font-size: 14px; color: #64748b;">Pending Registration Requests</div>
                 </div>
+                </a>
                 <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
                     <div style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">{{ trials_expiring_30|default:"0" }}</div>
                     <div style="font-size: 14px; color: #64748b;">Expiring Soon</div>

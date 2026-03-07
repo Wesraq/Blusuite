@@ -18300,6 +18300,17 @@ def superadmin_tenants(request):
         models.Q(license_expiry__lte=today + timedelta(days=30))
     ).count()
     
+    # Pending registration requests
+    from blu_staff.apps.accounts.models import CompanyRegistrationRequest
+    try:
+        pending_registrations = CompanyRegistrationRequest.objects.filter(
+            status='PENDING'
+        ).order_by('-created_at')
+        pending_count = pending_registrations.count()
+    except Exception:
+        pending_registrations = []
+        pending_count = 0
+
     context = {
         'companies': companies,
         'total_tenants': total_tenants,
@@ -18308,6 +18319,8 @@ def superadmin_tenants(request):
         'total_users': total_users,
         'new_this_month': new_this_month,
         'expiring_soon': expiring_soon,
+        'pending_registrations': pending_registrations,
+        'pending_count': pending_count,
     }
     
     return render(request, 'ems/superadmin_tenants.html', context)
