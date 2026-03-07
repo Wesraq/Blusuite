@@ -43,8 +43,9 @@ limit_request_field_size = 8190
 
 
 def post_fork(server, worker):
-    " \Warm up DB connection after worker fork to avoid cold-start 502s\ try:
- from django.db import connection
- connection.ensure_connection()
- except Exception:
- pass
+    """Warm up DB connection after worker fork to avoid cold-start 502s"""
+    try:
+        from django.db import connection
+        connection.ensure_connection()
+    except Exception:
+        pass
