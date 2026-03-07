@@ -19849,20 +19849,132 @@ def company_registration_list(request):
 
 @login_required
 def approve_company_registration(request, request_id):
-    """Approve a company registration request"""
+    """Approve a company registration request - creates tenant + admin user"""
     if not (hasattr(request.user, 'is_superadmin') and request.user.is_superadmin):
         return render(request, 'ems/unauthorized.html')
-    
+
+    from blu_staff.apps.accounts.models import CompanyRegistrationRequest, Company, User
+    import secrets, string
+    from datetime import date, timedelta
+
     try:
-        from blu_staff.apps.accounts.models import CompanyRegistrationRequest
         registration = CompanyRegistrationRequest.objects.get(id=request_id)
-        registration.status = 'APPROVED'
-        registration.save()
-        messages.success(request, f'Registration for {registration.company_name} has been approved')
     except CompanyRegistrationRequest.DoesNotExist:
         messages.error(request, 'Registration request not found')
-    
-    return redirect('company_registration_list')
+        return redirect('superadmin_tenants')
+
+    if registration.status == 'APPROVED':
+        messages.warning(request, f'{registration.company_name} is already approved.')
+        return redirect('superadmin_tenants')
+
+    try:
+        # Check if company already exists
+        if Company.objects.filter(name=registration.company_name).exists():
+            messages.error(request, f'A company named "{registration.company_name}" already exists.')
+            return redirect('registration_detail', request_id=request_id)
+
+        # Check if admin user email already exists
+        if User.objects.filter(email=registration.contact_email).exists():
+            messages.error(request, f'A user with email "{registration.contact_email}" already exists.')
+            return redirect('registration_detail', request_id=request_id)
+
+        # Generate a secure temporary password
+        alphabet = string.ascii_letters + string.digits + '!@#$%'
+        temp_password = ''.join(secrets.choice(alphabet) for _ in range(12))
+
+        # Create the Company
+        company = Company.objects.create(
+            name=registration.company_name,
+            email=registration.company_email,
+            phone=registration.contact_phone or '',
+            address=registration.company_address or '',
+            city=registration.city or '',
+            country=registration.country or '',
+            website=registration.company_website or '',
+            tax_id=registration.tax_id or '',
+            subscription_plan=registration.subscription_plan,
+            is_active=True,
+            is_approved=True,
+            approved_by=request.user,
+            registration_request=registration,
+            is_trial=True,
+            trial_ends_at=__import__('django.utils.timezone', fromlist=['now']).now() + timedelta(days=30),
+            max_employees=registration.number_of_employees or 10,
+        )
+
+        # Create the admin user
+        admin_user = User.objects.create_user(
+            email=registration.contact_email,
+            password=temp_password,
+            first_name=registration.contact_first_name,
+            last_name=registration.contact_last_name,
+            role='ADMINISTRATOR',
+            company=company,
+            must_change_password=True,
+            is_active=True,
+        )
+
+        # Mark registration as approved
+        registration.status = 'APPROVED'
+        registration.save()
+
+        # Try to send welcome email (may fail if SMTP blocked)
+        email_sent = False
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+            send_mail(
+                subject=f'Welcome to BLU Suite EMS - {registration.company_name}',
+                message=f"""Dear {registration.contact_first_name},
+
+Your company registration for {registration.company_name} has been approved!
+
+Your login credentials:
+  Email: {registration.contact_email}
+  Password: {temp_password}
+
+Please login at: http://161.35.192.144/
+You will be prompted to change your password on first login.
+
+Best regards,
+BLU Suite EMS Team""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[registration.contact_email],
+                fail_silently=False,
+            )
+            email_sent = True
+        except Exception:
+            email_sent = False
+
+        # Store credentials in session for display on success page
+        request.session['approval_success'] = {
+            'company_name': registration.company_name,
+            'contact_name': f'{registration.contact_first_name} {registration.contact_last_name}',
+            'contact_email': registration.contact_email,
+            'temp_password': temp_password,
+            'email_sent': email_sent,
+            'company_id': company.id,
+        }
+
+        return redirect('approval_success')
+
+    except Exception as e:
+        logger.error(f"Error approving registration {request_id}: {e}", exc_info=True)
+        messages.error(request, f'Error approving registration: {str(e)}')
+        return redirect('registration_detail', request_id=request_id)
+
+
+def approval_success(request):
+    """Show approval success page with generated credentials"""
+    if not (hasattr(request.user, 'is_superadmin') and request.user.is_superadmin):
+        return render(request, 'ems/unauthorized.html')
+
+    data = request.session.pop('approval_success', None)
+    if not data:
+        return redirect('superadmin_tenants')
+
+    return render(request, 'ems/admin/approval_success.html', {'data': data})
+
 
 @login_required
 def reject_company_registration(request, request_id):
