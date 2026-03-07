@@ -27,7 +27,7 @@
         }
         .card {
             background: var(--card);
-            border-radius: 18px;
+            border-radius: 4px;
             box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
             border: 1px solid var(--border);
             overflow: hidden;
@@ -43,7 +43,7 @@
         .hero .icon {
             width: 64px;
             height: 64px;
-            border-radius: 16px;
+            border-radius: 4px;
             background: rgba(255,255,255,0.12);
             display: grid;
             place-items: center;
@@ -59,7 +59,7 @@
         .panel {
             background: #f9fafb;
             border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            border-radius: 4px;
             padding: 20px;
         }
         .panel h3 { margin-bottom: 12px; color: var(--text); }
@@ -70,28 +70,75 @@
             gap: 12px;
             background: #fff;
             border: 1px solid #e5e7eb;
-            border-radius: 10px;
+            border-radius: 4px;
             padding: 10px 12px;
         }
         .info-item span:last-child { font-weight: 600; }
         .pill {
             display: inline-block;
             padding: 6px 12px;
-            border-radius: 999px;
+            border-radius: 4px;
             background: #dcfce7;
             color: #166534;
             border: 1px solid #bbf7d0;
             font-weight: 600;
+            font-size: 13px;
         }
         .steps { list-style: none; display: grid; gap: 12px; margin: 0; padding: 0; }
         .steps li { display: flex; gap: 10px; align-items: flex-start; color: #374151; }
-        .steps svg { color: var(--primary); margin-top: 4px; }
+        .steps svg { color: var(--primary); margin-top: 4px; flex-shrink: 0; }
         .note { color: var(--muted); margin-top: 6px; }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #cbd5e1;
+        }
+
+        @media print {
+            .actions { display: none !important; }
+            .card { box-shadow: none; }
+            body { background: white; }
+        }
 
         @media (max-width: 768px) {
             .shell { margin: 20px auto; }
             .hero { flex-direction: column; align-items: flex-start; }
             .info-item { flex-direction: column; align-items: flex-start; }
+            .actions { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -100,7 +147,10 @@
     <div class="card">
         <div class="hero">
             <div class="icon">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
             </div>
             <div>
                 <h1>Registration Submitted</h1>
@@ -112,10 +162,10 @@
             <div class="panel">
                 <h3>Request Details</h3>
                 <ul class="info-list">
-                    <li class="info-item"><span>Company</span><span>{{ request.company_name }}</span></li>
-                    <li class="info-item"><span>Request Number</span><span>{{ request.request_number }}</span></li>
-                    <li class="info-item"><span>Submitted</span><span>{{ request.created_at|date:"M j, Y H:i" }}</span></li>
-                    <li class="info-item"><span>Status</span><span class="pill">{{ request.get_status_display }}</span></li>
+                    <li class="info-item"><span>Company</span><span>{{ registration.company_name }}</span></li>
+                    <li class="info-item"><span>Request Number</span><span>{{ registration.request_number }}</span></li>
+                    <li class="info-item"><span>Submitted</span><span>{{ registration.created_at|date:"M j, Y H:i" }}</span></li>
+                    <li class="info-item"><span>Status</span><span class="pill">{{ registration.get_status_display }}</span></li>
                 </ul>
             </div>
 
@@ -140,6 +190,21 @@
                     </li>
                 </ul>
                 <p class="note">Thank you for choosing our Employee Management System!</p>
+            </div>
+
+            <div class="actions">
+                <a href="/" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Back to Home
+                </a>
+                <a href="/register/" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Register Another Company
+                </a>
+                <button onclick="window.print()" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Print Details
+                </button>
             </div>
         </div>
     </div>

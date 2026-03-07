@@ -108,6 +108,8 @@ class CompanyRegistrationForm(forms.ModelForm):
             ('Kitwe', 'Kitwe'),
             ('Ndola', 'Ndola'),
             ('Kabwe', 'Kabwe'),
+            ("Solwezi", "Solwezi"),
+            ("Mongu", "Mongu"),
             ('Chingola', 'Chingola'),
             ('Mufulira', 'Mufulira'),
             ('Livingstone', 'Livingstone'),
@@ -643,3 +645,74 @@ class SystemSettingsForm(forms.ModelForm):
                 attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional maintenance message shown to users.'}
             ),
         }
+
+class CompanyRegistrationRequestForm(forms.ModelForm):
+    """Form for company registration requests"""
+    class Meta:
+        model = CompanyRegistrationRequest
+        fields = [
+            'company_name', 'company_address', 'company_phone', 'company_email',
+            'company_website', 'country', 'city', 'contact_first_name', 'contact_last_name',
+            'contact_email', 'contact_phone', 'contact_position', 'subscription_plan',
+            'billing_preference', 'number_of_employees', 'business_type', 'company_size'
+        ]
+        widgets = {
+            'company_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'company_address': forms.TextInput(attrs={'class': 'form-control'}),
+            'company_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'company_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'company_website': forms.URLInput(attrs={'class': 'form-control'}),
+            'country': forms.Select(attrs={'class': 'form-control', 'id': 'id_country', 'onchange': 'updateCityOptions()'}),
+            'city': forms.Select(attrs={'class': 'form-control', 'id': 'id_city'}),
+            'contact_first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'contact_last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'contact_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'contact_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'contact_position': forms.TextInput(attrs={'class': 'form-control'}),
+            'subscription_plan': forms.Select(attrs={'class': 'form-control'}),
+            'billing_preference': forms.Select(attrs={'class': 'form-control'}),
+            'number_of_employees': forms.NumberInput(attrs={'class': 'form-control'}),
+            'business_type': forms.Select(attrs={'class': 'form-control'}),
+            'company_size': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    COUNTRY_CHOICES = [
+        ('', 'Select Country'),
+        ('Algeria', 'Algeria'), ('Angola', 'Angola'), ('Botswana', 'Botswana'),
+        ('Cameroon', 'Cameroon'), ('Congo', 'Congo'), ('Egypt', 'Egypt'),
+        ('Ethiopia', 'Ethiopia'), ('Ghana', 'Ghana'), ('Kenya', 'Kenya'),
+        ('Malawi', 'Malawi'), ('Morocco', 'Morocco'), ('Mozambique', 'Mozambique'),
+        ('Namibia', 'Namibia'), ('Nigeria', 'Nigeria'), ('Rwanda', 'Rwanda'),
+        ('Senegal', 'Senegal'), ('South Africa', 'South Africa'),
+        ('Tanzania', 'Tanzania'), ('Uganda', 'Uganda'), ('Zambia', 'Zambia'),
+        ('Zimbabwe', 'Zimbabwe'),
+    ]
+
+    country = forms.ChoiceField(
+        choices=COUNTRY_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'id_country',
+            'onchange': 'updateCityOptions()'
+        }),
+        required=False
+    )
+
+    city = forms.ChoiceField(
+        choices=[('', 'Select City')],
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'id_city'
+        }),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Populate city choices based on selected country
+        from blu_staff.apps.accounts.forms import CompanyRegistrationForm
+        city_choices_map = getattr(CompanyRegistrationForm, 'CITY_CHOICES', {})
+        if self.data.get('country') and self.data['country'] in city_choices_map:
+            self.fields['city'].choices = city_choices_map[self.data['country']]
+        else:
+            self.fields['city'].choices = [('', 'Select City')]

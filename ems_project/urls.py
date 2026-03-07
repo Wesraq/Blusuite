@@ -15,13 +15,6 @@ from django.conf.urls.static import static
 
 from . import frontend_views, auth_views
 from blu_staff.apps.accounts import views as account_views
-from blu_staff.apps.accounts.registration_views import (
-    company_registration_request,
-    registration_success,
-    company_registration_list,
-    approve_company_registration,
-    reject_company_registration
-)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -63,11 +56,11 @@ urlpatterns = [
     path('accounts/login/', auth_views.general_user_login, name='accounts_login'),
 
     # Company Registration
-    path('register/', company_registration_request, name='company_registration'),
-    path('register/success/<str:request_id>/', registration_success, name='registration_success'),
-    path('admin/company-requests/', company_registration_list, name='company_registration_list'),
-    path('admin/company-requests/<int:request_id>/approve/', approve_company_registration, name='approve_company_registration'),
-    path('admin/company-requests/<int:request_id>/reject/', reject_company_registration, name='reject_company_registration'),
+    path('register/', frontend_views.company_registration_request, name='company_registration'),
+    path('register/success/<str:request_id>/', frontend_views.registration_success, name='registration_success'),
+    path('admin/company-requests/', frontend_views.company_registration_list, name='company_registration_list'),
+    path('admin/company-requests/<int:request_id>/approve/', frontend_views.approve_company_registration, name='approve_company_registration'),
+    path('admin/company-requests/<int:request_id>/reject/', frontend_views.reject_company_registration, name='reject_company_registration'),
 
     # Auth/session helpers
     path('api/v1/auth/users/me/', frontend_views.api_current_user, name='api_current_user'),
@@ -81,7 +74,7 @@ urlpatterns = [
     # System owner portals (platform roles)
     path('owner/billing/', frontend_views.owner_billing_portal, name='owner_billing_portal'),
     path('owner/support/', frontend_views.owner_support_portal, name='owner_support_portal'),
-    path('owner/registration/', frontend_views.owner_registration_portal, name='owner_registration_portal'),
+    path('owner/registration/', frontend_views.company_registration_request, name='owner_registration_portal'),
     path('owner/account-manager/', frontend_views.owner_account_manager_portal, name='owner_account_manager_portal'),
     path('superadmin/settings/', frontend_views.superadmin_settings, name='superadmin_settings'),
     
