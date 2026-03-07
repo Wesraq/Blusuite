@@ -19886,7 +19886,7 @@ def approve_company_registration(request, request_id):
         company = Company.objects.create(
             name=registration.company_name,
             email=registration.company_email,
-            phone=registration.contact_phone or '',
+            phone=registration.company_phone or '',
             address=registration.company_address or '',
             city=registration.city or '',
             country=registration.country or '',
@@ -19915,8 +19915,15 @@ def approve_company_registration(request, request_id):
         )
 
         # Mark registration as approved
+        from django.utils import timezone
         registration.status = 'APPROVED'
+        registration.reviewed_by = request.user
+        registration.reviewed_at = timezone.now()
         registration.save()
+
+        # Set approved_at on company
+        company.approved_at = timezone.now()
+        company.save(update_fields=['approved_at'])
 
         # Try to send welcome email (may fail if SMTP blocked)
         email_sent = False
