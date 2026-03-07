@@ -6,234 +6,162 @@
 
 {% block content %}
 <style>
-    .tenant-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 20px;
-        margin-bottom: 24px;
-    }
-    
-    .tenant-card {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 4px;
-        padding: 20px;
-        transition: all 0.2s;
-    }
-    
-    .tenant-card:hover {
-        border-color: #E11D48;
-        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.1);
-    }
-    
-    .tenant-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 16px;
-    }
-    
-    .tenant-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 4px;
-    }
-    
-    .tenant-status {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .status-active {
-        background: #d1fae5;
-        color: #065f46;
-    }
-    
-    .status-trial {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    .status-expired {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-    
-    .status-suspended {
-        background: #f3f4f6;
-        color: #374151;
-    }
-    
-    .tenant-metrics {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin: 16px 0;
-    }
-    
-    .metric {
-        text-align: center;
-        padding: 12px;
-        background: #f8fafc;
-        border-radius: 4px;
-    }
-    
-    .metric-value {
-        font-size: 24px;
-        font-weight: 700;
-        color: #E11D48;
-    }
-    
-    .metric-label {
-        font-size: 11px;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-top: 4px;
-    }
-    
-    .tenant-actions {
-        display: flex;
-        gap: 8px;
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid #e2e8f0;
-    }
-    
-    .action-btn {
-        flex: 1;
-        padding: 8px 12px;
-        border-radius: 4px;
-        font-size: 13px;
-        font-weight: 500;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
-    }
-    
-    .action-btn-primary {
-        background: #E11D48;
-        color: white;
-        border: none;
-    }
-    
-    .action-btn-primary:hover {
-        background: #BE123C;
-    }
-    
-    .action-btn-secondary {
-        background: white;
-        color: #64748b;
-        border: 1px solid #e2e8f0;
-    }
-    
-    .action-btn-secondary:hover {
-        border-color: #E11D48;
-        color: #E11D48;
-    }
-    
-    .filters-bar {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 4px;
-        padding: 16px 20px;
-        margin-bottom: 24px;
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-    
-    .filter-group {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-    
-    .filter-btn {
-        padding: 6px 14px;
-        border-radius: 4px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: 1px solid #e2e8f0;
-        background: white;
-        color: #64748b;
-    }
-    
-    .filter-btn.active {
-        background: #E11D48;
-        color: white;
-        border-color: #E11D48;
-    }
-    
-    .search-box {
-        flex: 1;
-        min-width: 250px;
-        position: relative;
-    }
-    
-    .search-box input {
-        width: 100%;
-        padding: 8px 12px 8px 36px;
-        border: 1px solid #e2e8f0;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-    
-    .search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #94a3b8;
-    }
-    
+    :root { --red: #E11D48; --red-dark: #BE123C; }
+
     .stats-overview {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 16px;
         margin-bottom: 24px;
     }
-    
     .stat-card {
         background: white;
         border: 1px solid #e2e8f0;
         border-radius: 4px;
         padding: 20px;
     }
-    
-    .stat-value {
-        font-size: 32px;
-        font-weight: 700;
-        color: #111827;
+    .stat-value { font-size: 32px; font-weight: 700; color: #111827; }
+    .stat-label { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .stat-change { font-size: 12px; margin-top: 8px; }
+    .stat-change.positive { color: #059669; }
+    .stat-change.negative { color: #dc2626; }
+
+    .section-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        margin-bottom: 24px;
+        overflow: hidden;
     }
-    
-    .stat-label {
+    .section-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .section-title { font-size: 15px; font-weight: 600; color: #111827; margin: 0; }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .filter-group { display: flex; gap: 6px; }
+    .filter-btn {
+        padding: 6px 14px;
+        border-radius: 4px;
         font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid #e2e8f0;
+        background: white;
         color: #64748b;
-        margin-top: 4px;
+        transition: all 0.15s;
     }
-    
-    .stat-change {
+    .filter-btn.active, .filter-btn:hover { background: var(--red); color: white; border-color: var(--red); }
+    .search-input {
+        padding: 7px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        font-size: 13px;
+        width: 220px;
+    }
+    .btn-add {
+        background: var(--red);
+        color: white;
+        padding: 8px 18px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .btn-add:hover { background: var(--red-dark); color: white; }
+
+    /* Table styles */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table thead th {
+        background: #f8fafc;
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+    .data-table tbody td {
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #374151;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: #fafafa; }
+
+    /* Badges */
+    .badge {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-trial  { background: #fef3c7; color: #92400e; }
+    .badge-expired { background: #fee2e2; color: #991b1b; }
+    .badge-suspended { background: #f3f4f6; color: #374151; }
+    .badge-pending { background: #fef9c3; color: #92400e; border: 1px solid #fde68a; }
+
+    /* Action buttons in table */
+    .action-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 4px;
         font-size: 12px;
-        margin-top: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.15s;
+        white-space: nowrap;
     }
-    
-    .stat-change.positive {
-        color: #059669;
-    }
-    
-    .stat-change.negative {
-        color: #dc2626;
+    .action-link-primary   { background: var(--red); color: white; }
+    .action-link-primary:hover { background: var(--red-dark); color: white; }
+    .action-link-secondary { background: white; color: #64748b; border: 1px solid #e2e8f0; }
+    .action-link-secondary:hover { border-color: var(--red); color: var(--red); }
+    .action-link-success   { background: #16a34a; color: white; }
+    .action-link-success:hover { background: #15803d; color: white; }
+    .action-link-danger    { background: white; color: #dc2626; border: 1px solid #fca5a5; }
+    .action-link-danger:hover  { background: #fee2e2; }
+    .action-link-info      { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .action-link-info:hover    { background: #dbeafe; }
+
+    .actions-cell { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+    .empty-state { text-align: center; padding: 48px 20px; color: #94a3b8; }
+    .empty-state svg { margin: 0 auto 12px; display: block; }
+
+    .company-name-cell { font-weight: 600; color: #111827; }
+    .company-sub-cell  { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    .pending-badge {
+        background: var(--red);
+        color: white;
+        border-radius: 4px;
+        padding: 1px 7px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 6px;
     }
 </style>
 
@@ -242,26 +170,18 @@
     <div class="stat-card">
         <div class="stat-value">{{ total_tenants|default:0 }}</div>
         <div class="stat-label">Total Tenants</div>
-        <div class="stat-change positive">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle;">
-                <polyline points="18 15 12 9 6 15"></polyline>
-            </svg>
-            +{{ new_this_month|default:0 }} this month
-        </div>
+        <div class="stat-change positive">+{{ new_this_month|default:0 }} this month</div>
     </div>
-    
     <div class="stat-card">
         <div class="stat-value">{{ active_tenants|default:0 }}</div>
         <div class="stat-label">Active Subscriptions</div>
         <div class="stat-change">{{ trial_tenants|default:0 }} on trial</div>
     </div>
-    
     <div class="stat-card">
         <div class="stat-value">{{ total_users|default:0 }}</div>
         <div class="stat-label">Total Users</div>
         <div class="stat-change">Across all tenants</div>
     </div>
-    
     <div class="stat-card">
         <div class="stat-value">{{ expiring_soon|default:0 }}</div>
         <div class="stat-label">Expiring Soon</div>
@@ -269,190 +189,174 @@
     </div>
 </div>
 
-<!-- Filters Bar -->
-<div class="filters-bar">
-    <div class="filter-group">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="active">Active</button>
-        <button class="filter-btn" data-filter="trial">Trial</button>
-        <button class="filter-btn" data-filter="expired">Expired</button>
-        <button class="filter-btn" data-filter="suspended">Suspended</button>
-        <button class="filter-btn pending-tab" data-filter="pending" id="pendingTab" onclick="showPendingSection()">
-            Pending Requests
-            {% if pending_count > 0 %}<span style="background:#dc143c;color:white;border-radius:4px;padding:1px 7px;font-size:11px;margin-left:4px;">{{ pending_count }}</span>{% endif %}
-        </button>
+<!-- ============================================================ -->
+<!-- PENDING REGISTRATION REQUESTS TABLE -->
+<!-- ============================================================ -->
+{% if pending_registrations %}
+<div class="section-card">
+    <div class="section-header">
+        <h5 class="section-title">
+            Pending Registration Requests
+            <span class="pending-badge">{{ pending_count }}</span>
+        </h5>
     </div>
-    
-    <div class="search-box">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-        </svg>
-        <input type="text" id="tenantSearch" placeholder="Search tenants...">
+    <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Contact</th>
+                    <th>Location</th>
+                    <th>Plan</th>
+                    <th>Business</th>
+                    <th>Employees</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reg in pending_registrations %}
+                <tr>
+                    <td>
+                        <div class="company-name-cell">{{ reg.company_name }}</div>
+                        <div class="company-sub-cell">{{ reg.request_number }}</div>
+                    </td>
+                    <td>
+                        <div>{{ reg.contact_first_name }} {{ reg.contact_last_name }}</div>
+                        <div class="company-sub-cell">{{ reg.contact_email }}</div>
+                        <div class="company-sub-cell">{{ reg.contact_phone }}</div>
+                    </td>
+                    <td>{{ reg.city }}, {{ reg.country }}</td>
+                    <td>{{ reg.get_subscription_plan_display }}</td>
+                    <td>{{ reg.business_type }}</td>
+                    <td style="text-align:center;">{{ reg.number_of_employees }}</td>
+                    <td>{{ reg.created_at|date:"M d, Y" }}<div class="company-sub-cell">{{ reg.created_at|date:"H:i" }}</div></td>
+                    <td><span class="badge badge-pending">Pending</span></td>
+                    <td>
+                        <div class="actions-cell">
+                            <a href="{% url 'registration_detail' reg.id %}" class="action-link action-link-info" title="View full details">
+                                👁 Review
+                            </a>
+                            <a href="{% url 'approve_company_registration' reg.id %}"
+                               onclick="return confirm('Approve {{ reg.company_name }}? This will create their tenant account.')"
+                               class="action-link action-link-success">
+                                ✓ Approve
+                            </a>
+                            <a href="{% url 'reject_company_registration' reg.id %}"
+                               onclick="return confirm('Reject {{ reg.company_name }}?')"
+                               class="action-link action-link-danger">
+                                ✕ Reject
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    
-    <a href="{% url 'company_registration' %}" class="action-btn action-btn-primary" style="white-space: nowrap;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 4px;">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-        Add Tenant
-    </a>
 </div>
+{% endif %}
 
-<!-- Tenant Grid -->
-<div class="tenant-grid" id="tenantGrid">
-    {% for company in companies %}
-    <div class="tenant-card" data-status="{{ company.status|lower }}" data-name="{{ company.name|lower }}">
-        <div class="tenant-header">
-            <div>
-                <div class="tenant-name">{{ company.name }}</div>
-                <div style="font-size: 12px; color: #64748b;">{{ company.industry|default:"Not specified" }}</div>
+<!-- ============================================================ -->
+<!-- ALL TENANTS TABLE -->
+<!-- ============================================================ -->
+<div class="section-card">
+    <div class="section-header">
+        <h5 class="section-title">All Tenants</h5>
+        <div class="toolbar">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="trial">Trial</button>
+                <button class="filter-btn" data-filter="expired">Expired</button>
+                <button class="filter-btn" data-filter="suspended">Suspended</button>
             </div>
-            <span class="tenant-status status-{{ company.status|lower }}">
-                {% if company.is_trial %}Trial{% elif company.is_active %}Active{% elif company.is_suspended %}Suspended{% else %}Expired{% endif %}
-            </span>
-        </div>
-        
-        <div class="tenant-metrics">
-            <div class="metric">
-                <div class="metric-value">{{ company.total_users|default:0 }}</div>
-                <div class="metric-label">Users</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">{{ company.total_employees|default:0 }}</div>
-                <div class="metric-label">Employees</div>
-            </div>
-        </div>
-        
-        <div style="font-size: 12px; color: #64748b; margin-top: 12px;">
-            <div style="margin-bottom: 4px;">
-                <strong>Plan:</strong> {{ company.get_subscription_plan_display|default:"Free" }}
-            </div>
-            <div style="margin-bottom: 4px;">
-                <strong>Created:</strong> {{ company.created_at|date:"M d, Y" }}
-            </div>
-            {% if company.trial_ends_at %}
-            <div style="color: #f59e0b;">
-                <strong>Trial ends:</strong> {{ company.trial_ends_at|date:"M d, Y" }}
-            </div>
-            {% elif company.license_expiry %}
-            <div>
-                <strong>Expires:</strong> {{ company.license_expiry|date:"M d, Y" }}
-            </div>
-            {% endif %}
-        </div>
-        
-        <div class="tenant-actions">
-            <a href="{% url 'tenant_detail' company.id %}" class="action-btn action-btn-primary">Manage</a>
-            <a href="{% url 'tenant_users' company.id %}" class="action-btn action-btn-secondary">Users</a>
-            <a href="{% url 'tenant_analytics' company.id %}" class="action-btn action-btn-secondary">Analytics</a>
+            <input type="text" id="tenantSearch" class="search-input" placeholder="Search tenants...">
+            <a href="{% url 'company_registration' %}" class="btn-add">+ Add Tenant</a>
         </div>
     </div>
-    {% empty %}
-    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #64748b;">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px;">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        <div style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">No tenants found</div>
-        <div style="font-size: 14px;">Get started by adding your first tenant</div>
+    <div style="overflow-x:auto;">
+        <table class="data-table" id="tenantsTable">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Plan</th>
+                    <th>Users</th>
+                    <th>Employees</th>
+                    <th>Storage</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tenantTableBody">
+                {% for company in companies %}
+                <tr data-status="{{ company.status|lower }}" data-name="{{ company.name|lower }}">
+                    <td>
+                        <div class="company-name-cell">{{ company.name }}</div>
+                        <div class="company-sub-cell">{{ company.industry|default:"Not specified" }}</div>
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ company.status|lower }}">
+                            {% if company.is_trial %}Trial
+                            {% elif company.is_active %}Active
+                            {% else %}Expired{% endif %}
+                        </span>
+                        {% if company.trial_ends_at %}
+                        <div class="company-sub-cell">Ends {{ company.trial_ends_at|date:"M d" }}</div>
+                        {% endif %}
+                    </td>
+                    <td>{{ company.get_subscription_plan_display|default:"Free" }}</td>
+                    <td style="text-align:center;font-weight:600;color:var(--red);">{{ company.total_users|default:0 }}</td>
+                    <td style="text-align:center;font-weight:600;color:var(--red);">{{ company.total_employees|default:0 }}</td>
+                    <td>{{ company.storage_used|default:0 }} GB</td>
+                    <td>{{ company.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <a href="{% url 'tenant_detail' company.id %}" class="action-link action-link-primary">Manage</a>
+                            <a href="{% url 'tenant_users' company.id %}" class="action-link action-link-secondary">Users</a>
+                            <a href="{% url 'tenant_analytics' company.id %}" class="action-link action-link-secondary">Analytics</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            No tenants found
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    {% endfor %}
-</div>
-
-<!-- Pending Registration Requests Section -->
-<div id="pendingSection" style="display:none; margin-top: 0;">
-    {% if pending_registrations %}
-    <div style="display: grid; gap: 16px;">
-        {% for reg in pending_registrations %}
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:20px;">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
-                <div>
-                    <div style="font-size:16px;font-weight:700;color:#1e293b;">{{ reg.company_name }}</div>
-                    <div style="font-size:12px;color:#64748b;margin-top:2px;">{{ reg.request_number }} &bull; Submitted {{ reg.created_at|date:"M d, Y H:i" }}</div>
-                </div>
-                <span style="background:#fef9c3;color:#92400e;border:1px solid #fde68a;border-radius:4px;padding:4px 10px;font-size:12px;font-weight:600;">Pending Review</span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9;">
-                <div><span style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Contact</span><div style="font-size:13px;font-weight:500;margin-top:2px;">{{ reg.contact_first_name }} {{ reg.contact_last_name }}</div><div style="font-size:12px;color:#64748b;">{{ reg.contact_email }}</div></div>
-                <div><span style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Location</span><div style="font-size:13px;font-weight:500;margin-top:2px;">{{ reg.city }}, {{ reg.country }}</div></div>
-                <div><span style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Plan</span><div style="font-size:13px;font-weight:500;margin-top:2px;">{{ reg.get_subscription_plan_display }}</div><div style="font-size:12px;color:#64748b;">{{ reg.number_of_employees }} employees</div></div>
-                <div><span style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Business</span><div style="font-size:13px;font-weight:500;margin-top:2px;">{{ reg.get_business_type_display|default:reg.business_type }}</div></div>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:14px;">
-                <a href="{% url 'approve_company_registration' reg.id %}"
-                   onclick="return confirm('Approve registration for {{ reg.company_name }}? This will create their tenant account.')"
-                   style="background:#16a34a;color:white;padding:9px 20px;border-radius:4px;font-weight:600;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-                    &#10003; Approve
-                </a>
-                <a href="{% url 'reject_company_registration' reg.id %}"
-                   onclick="return confirm('Reject registration for {{ reg.company_name }}?')"
-                   style="background:#white;color:#dc2626;border:1px solid #fca5a5;padding:9px 20px;border-radius:4px;font-weight:600;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-                    &#10005; Reject
-                </a>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div style="text-align:center;padding:60px 20px;color:#64748b;">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 16px;display:block;"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        <div style="font-size:16px;font-weight:500;margin-bottom:8px;">No pending requests</div>
-        <div style="font-size:14px;">All registration requests have been reviewed</div>
-    </div>
-    {% endif %}
 </div>
 
 <script>
-function showPendingSection() {
-    document.getElementById('tenantGrid').style.display = 'none';
-    document.getElementById('pendingSection').style.display = 'block';
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('pendingTab').classList.add('active');
-}
-document.querySelectorAll('.filter-btn:not(#pendingTab)').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.getElementById('tenantGrid').style.display = '';
-        document.getElementById('pendingSection').style.display = 'none';
-    });
-});
-// Auto-show pending if there are pending requests and URL has #pending
-if (window.location.hash === '#pending') { showPendingSection(); }
-</script>
-
-<script>
-// Filter functionality
+// Filter tabs
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-        
         const filter = this.dataset.filter;
-        const cards = document.querySelectorAll('.tenant-card');
-        
-        cards.forEach(card => {
-            if (filter === 'all' || card.dataset.status === filter) {
-                card.style.display = 'block';
+        document.querySelectorAll('#tenantTableBody tr').forEach(row => {
+            if (filter === 'all' || row.dataset.status === filter) {
+                row.style.display = '';
             } else {
-                card.style.display = 'none';
+                row.style.display = 'none';
             }
         });
     });
 });
 
-// Search functionality
-document.getElementById('tenantSearch').addEventListener('input', function(e) {
-    const search = e.target.value.toLowerCase();
-    const cards = document.querySelectorAll('.tenant-card');
-    
-    cards.forEach(card => {
-        const name = card.dataset.name;
-        if (name.includes(search)) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
+// Search
+document.getElementById('tenantSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#tenantTableBody tr').forEach(row => {
+        row.style.display = (row.dataset.name && row.dataset.name.includes(q)) ? '' : 'none';
     });
 });
 </script>

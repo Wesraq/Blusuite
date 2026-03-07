@@ -19820,6 +19820,24 @@ def registration_success(request, request_id):
         return redirect('register')
 
 @login_required
+
+def registration_detail(request, request_id):
+    """View full details of a company registration request before approving/rejecting"""
+    if not (hasattr(request.user, 'is_superadmin') and request.user.is_superadmin):
+        return render(request, 'ems/unauthorized.html')
+
+    from blu_staff.apps.accounts.models import CompanyRegistrationRequest
+    try:
+        registration = CompanyRegistrationRequest.objects.get(id=request_id)
+    except CompanyRegistrationRequest.DoesNotExist:
+        messages.error(request, 'Registration request not found')
+        return redirect('superadmin_tenants')
+
+    return render(request, 'ems/admin/registration_detail.html', {
+        'registration': registration
+    })
+
+
 def company_registration_list(request):
     """List all company registration requests (for admin)"""
     if not (hasattr(request.user, 'is_superadmin') and request.user.is_superadmin):

@@ -61,6 +61,7 @@ urlpatterns = [
     path('admin/company-requests/', frontend_views.company_registration_list, name='company_registration_list'),
     path('admin/company-requests/<int:request_id>/approve/', frontend_views.approve_company_registration, name='approve_company_registration'),
     path('admin/company-requests/<int:request_id>/reject/', frontend_views.reject_company_registration, name='reject_company_registration'),
+    path('admin/company-requests/<int:request_id>/detail/', frontend_views.registration_detail, name='registration_detail'),
 
     # Auth/session helpers
     path('api/v1/auth/users/me/', frontend_views.api_current_user, name='api_current_user'),
