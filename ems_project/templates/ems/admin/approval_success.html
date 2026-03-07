@@ -54,7 +54,7 @@
     </div>
     {% else %}
     <div class="email-status email-err">
-        ⚠️ Email could not be sent (server SMTP is restricted). Please share the credentials below manually with <strong>{{ data.contact_email }}</strong>.
+        ⚠️ Welcome email not sent — please share these credentials directly with <strong>{{ data.contact_email }}</strong>.
     </div>
     {% endif %}
 
@@ -93,21 +93,6 @@
                     <span class="cred-value">http://161.35.192.144/</span>
                 </div>
             </div>
-            <div class="warn-box">
-                ⚠️ <div><strong>Important:</strong> The company admin will be required to change their password on first login. Share these credentials securely — do not send via unencrypted channels.</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Next Steps -->
-    <div class="card">
-        <div class="card-header"><h3>Next Steps</h3></div>
-        <div class="card-body" style="font-size:13px;color:#374151;line-height:1.7;">
-            <ol style="padding-left:18px;margin:0;">
-                <li>Share the login credentials above with <strong>{{ data.contact_name }}</strong> at <strong>{{ data.contact_email }}</strong></li>
-                <li>The admin logs in at <code>http://161.35.192.144/</code> and sets a new password</li>
-                <li>They can then set up their company profile, departments, and invite employees</li>
-            </ol>
         </div>
     </div>
 
