@@ -19787,8 +19787,6 @@ def company_registration_request(request):
             except Exception as e:
                 messages.error(request, f'An error occurred: {str(e)}')
         else:
-            import logging
-            logger = logging.getLogger(__name__)
             logger.error(f"Form errors: {form.errors}")
             for field, errors in form.errors.items():
                 for error in errors:
