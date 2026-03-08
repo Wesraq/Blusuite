@@ -392,8 +392,8 @@ html[data-theme*="-dark"] .sidebar-logo-img {
     padding: 4px !important;
 }
 html[data-theme*="-dark"] .sidebar-logo-block {
-    background: rgba(255,255,255,0.12) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
+    background: transparent !important;
+    border: none !important;
 }
 
 /* Sidebar header text in dark mode */
@@ -941,8 +941,8 @@ html[data-theme*="-light"] {
 /* ── Adaptive sidebar/topbar text colors for custom themes ────── */
 /* Calculate if custom color is dark and adjust text accordingly */
 html[data-theme="company-light"] {
-    --sidebar-text: #1f2937;
-    --topbar-text: #1f2937;
+    --sidebar-text: #ffffff;
+    --topbar-text: #ffffff;
 }
 
 html[data-theme="company-dark"] {
@@ -961,4 +961,57 @@ html[data-theme*="company"] header {
 html[data-theme*="company"] .nav-text,
 html[data-theme*="company"] .sidebar-company-name {
     color: var(--sidebar-text, #e5e7eb) !important;
+}
+
+/* ── Logo block: never show a gradient/background wrapper ── */
+.sidebar-logo-block {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+/* ── Company theme: force white text on all sidebar/topbar elements ── */
+html[data-theme*="company"] .nav-link,
+html[data-theme*="company"] .nav-link *,
+html[data-theme*="company"] .nav-text {
+    color: rgba(255,255,255,0.85) !important;
+}
+html[data-theme*="company"] .nav-link svg,
+html[data-theme*="company"] .nav-icon svg {
+    stroke: rgba(255,255,255,0.85) !important;
+}
+html[data-theme*="company"] .nav-link:hover:not(.active) {
+    background: rgba(255,255,255,0.1) !important;
+    color: #ffffff !important;
+}
+html[data-theme*="company"] .nav-link:hover:not(.active) .nav-text,
+html[data-theme*="company"] .nav-link:hover:not(.active) svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+html[data-theme*="company"] .nav-link.active {
+    background: #E11D48 !important;
+    color: #ffffff !important;
+}
+html[data-theme*="company"] .nav-link.active .nav-text,
+html[data-theme*="company"] .nav-link.active svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+html[data-theme*="company"] .sidebar-title,
+html[data-theme*="company"] .nav-section-title {
+    color: rgba(255,255,255,0.5) !important;
+}
+html[data-theme*="company"] .top-header,
+html[data-theme*="company"] .top-header * {
+    color: #ffffff !important;
+}
+html[data-theme*="company"] .top-header svg {
+    stroke: #ffffff !important;
+}
+html[data-theme*="company"] .sidebar-company-name,
+html[data-theme*="company"] .sidebar-company-name *,
+html[data-theme*="company"] .sidebar-brand {
+    color: #ffffff !important;
 }

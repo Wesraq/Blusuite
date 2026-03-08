@@ -16,7 +16,7 @@
     border: none;
 }
 .sidebar-header {
-    background: var(--t-surface, #fff) !important;
+    background: transparent !important;
 }
 .sidebar-company-name div {
     color: white !important;
@@ -43,7 +43,7 @@ function getCompanyInitials(name) {
             {% endif %}
         </div>
         <div class="sidebar-company-name" style="flex: 1; min-width: 0;">
-            <div style="font-size: 13px; font-weight: 700; color: var(--sidebar-text, var(--t-text, #0f172a)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.company.name|default:"EMS Portal" }}</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--sidebar-text, #ffffff); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.company.name|default:"EMS Portal" }}</div>
         </div>
     </div>
     <nav>
