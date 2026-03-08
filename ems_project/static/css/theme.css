@@ -1007,6 +1007,14 @@ html[data-theme*="company"] .sidebar-title,
 html[data-theme*="company"] .nav-section-title {
     color: rgba(255,255,255,0.5) !important;
 }
+/* ── Section headers white on company themes ── */
+html[data-theme*="company"] .nav-section-header {
+    color: rgba(255,255,255,0.5) !important;
+}
+html[data-theme="company-light"].theme-light .nav-section-header {
+    color: rgba(255,255,255,0.5) !important;
+}
+
 html[data-theme*="company"] .top-header,
 html[data-theme*="company"] .top-header * {
     color: #ffffff !important;
