@@ -1123,9 +1123,9 @@
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
-    const topText = document.getElementById('stampTopText').value || 'EISCOMTECH LIMITED';
-    const middleText = document.getElementById('stampMiddleText').value || 'Tel: 0211 123456, Fax: 0211 654321\nzambia@eicsomtech.com';
-    const bottomText = document.getElementById('stampBottomText').value || 'P.O.Box 56879 Lusaka Zambia';
+    const topText = document.getElementById('stampTopText').value || '{{ company.name|upper|default:"YOUR COMPANY NAME" }}';
+    const middleText = document.getElementById('stampMiddleText').value || '';
+    const bottomText = document.getElementById('stampBottomText').value || '';
     const shape = document.getElementById('stampShape').value;
     const size = document.getElementById('stampSize').value;
     const borderStyle = document.getElementById('stampBorder').value;

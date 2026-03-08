@@ -567,6 +567,14 @@ def company_edit(request, company_id):
                             user.save()
                         except User.DoesNotExist:
                             pass
+                # Handle stamp rotation
+                if 'stamp_rotation' in request.POST:
+                    try:
+                        rotation = int(request.POST.get('stamp_rotation', 0))
+                        company.stamp_rotation = rotation % 360  # Normalize to 0-360
+                    except (ValueError, TypeError):
+                        company.stamp_rotation = 0
+
                 
                 company.save()
                 messages.success(request, '✅ Documents, stamps, and signatures saved successfully!')

@@ -112,6 +112,7 @@ class Company(models.Model):
     tax_id = models.CharField(max_length=50, blank=True)
     logo = models.ImageField(upload_to='company_logos/', null=True, blank=True)
     company_stamp = models.ImageField(upload_to='company_stamps/', null=True, blank=True, help_text="Company official stamp for payslips")
+    stamp_rotation = models.IntegerField(default=0, help_text="Stamp rotation angle in degrees (0-360)")
     signature = models.ImageField(upload_to='company_signatures/', null=True, blank=True, help_text="Authorized signatory signature")
     city = models.CharField(max_length=100, blank=True)
     province = models.CharField(max_length=100, blank=True, help_text="Province or state")
