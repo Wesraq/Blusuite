@@ -18,7 +18,7 @@
   .tab-nav {
     display: flex;
     gap: 4px;
-    background: #f8fafc;
+    background: var(--t-surf2, #f8fafc);
     padding: 6px;
     border: 1px solid var(--t-border, #e2e8f0);
     flex-wrap: wrap;
@@ -143,7 +143,7 @@
   .card-content textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--t-border, #d1d5db);
     font-size: 14px;
     background: var(--t-surface, #fff);
     color: var(--t-text, #1e293b);
@@ -234,7 +234,7 @@
   }
 
   .card-content .btn-secondary {
-    background: #f1f5f9;
+    background: var(--t-surf2, #f1f5f9);
     color: #334155;
     border: 1px solid var(--t-border, #e2e8f0);
   }
@@ -314,7 +314,7 @@
   }
 
   .settings-section {
-    background: #f8fafc;
+    background: var(--t-surf2, #f8fafc);
     border: 1px solid var(--t-border, #e2e8f0);
     padding: 20px;
     margin-bottom: 20px;
@@ -372,7 +372,7 @@
     align-items: center;
     padding: 14px 16px;
     background: var(--t-surface, #ffffff);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--t-border, #e5e7eb);
     cursor: pointer;
     transition: all 0.2s ease;
     gap: 14px;
@@ -421,7 +421,7 @@
   .settings-section textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--t-border, #d1d5db);
     font-size: 14px;
     transition: all 0.2s ease;
     box-sizing: border-box;
@@ -456,7 +456,7 @@
   .settings-section .list-item {
     padding: 12px;
     background: var(--t-surface, white);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--t-border, #e5e7eb);
     margin-bottom: 8px;
     transition: all 0.2s ease;
   }
@@ -481,7 +481,7 @@
   }
 
   .integration-card {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--t-border, #e5e7eb);
     background: var(--t-surface, #fff);
     padding: 18px;
     display: flex;
@@ -547,7 +547,7 @@
   }
 
   .integration-status-pill.status-error {
-    background: #fef2f2;
+    background: var(--t-surf2, #fef2f2);
     color: #b91c1c;
   }
 
@@ -578,7 +578,7 @@
   }
 
   .integration-meta strong {
-    color: #1f2937;
+    color: var(--t-text, #1f2937);
   }
 
   .integration-actions {
@@ -593,7 +593,7 @@
     gap: 12px;
     padding: 12px;
     border: 1px dashed #cbd5f5;
-    background: #f8fafc;
+    background: var(--t-surf2, #f8fafc);
   }
 
   .integration-credentials label {
@@ -626,7 +626,7 @@
   .integration-error-message {
     font-size: 12px;
     color: #b91c1c;
-    background: #fef2f2;
+    background: var(--t-surf2, #fef2f2);
     border: 1px solid #fecaca;
     padding: 10px;
   }
@@ -673,7 +673,7 @@
     padding: 2px 8px;
     font-size: 11px;
     font-weight: 600;
-    background: #e0f2fe;
+    background: var(--t-info-bg, #e0f2fe);
     color: #0369a1;
   }
 
@@ -727,7 +727,7 @@
     text-align: center;
     padding: 32px 20px;
     color: #9ca3af;
-    background: #f9fafb;
+    background: var(--t-surf2, #f9fafb);
     border: 1px dashed #d1d5db;
   }
 
@@ -741,7 +741,7 @@
   textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--t-border, #d1d5db);
     font-size: 14px;
     transition: all 0.2s ease;
     background: var(--t-surface, white);
@@ -853,7 +853,7 @@
   }
 
   button.btn-secondary, .btn-secondary {
-    background: #f1f5f9;
+    background: var(--t-surf2, #f1f5f9);
     color: #475569;
   }
 
@@ -958,16 +958,16 @@
   }
 
   .action-btn.edit:hover {
-    background: #bfdbfe;
+    background: var(--t-info-bg, #bfdbfe);
   }
 
   .action-btn.delete {
-    background: #fee2e2;
+    background: var(--t-surf2, #fee2e2);
     color: #991b1b;
   }
 
   .action-btn.delete:hover {
-    background: #fecaca;
+    background: var(--t-surf2, #fecaca);
   }
 
   /* Collapsible Sections */
@@ -1029,7 +1029,7 @@
   }
 
   .draggable:hover {
-    background: #f9fafb;
+    background: var(--t-surf2, #f9fafb);
   }
 
   .dragging {
@@ -1151,7 +1151,7 @@
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon" style="background-color: #fef3c7; color: #d97706;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="stat-icon" style="background-color: var(--t-warning-bg, #fef3c7); color: #d97706;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="1" x2="12" y2="23"></line>
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg></div>
@@ -1247,7 +1247,7 @@
 
   <!-- Employee configuration tab -->
   <div class="content-card tab-content active" id="employee-config">
-    <div class="card-header" style="display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid #f1f5f9;">
+    <div class="card-header" style="display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid var(--t-border, #f1f5f9);">
       <div style="width: 40px; height: 40px; background: #fff1f2; display: flex; align-items: center; justify-content: center; color: #E11D48; flex-shrink: 0;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
       </div>
@@ -1404,7 +1404,7 @@
 
   <!-- Notifications tab -->
   <div class="content-card tab-content" id="notifications">
-    <div class="card-header" style="display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid #f1f5f9;">
+    <div class="card-header" style="display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid var(--t-border, #f1f5f9);">
       <div style="width: 40px; height: 40px; background: #fff1f2; display: flex; align-items: center; justify-content: center; color: #E11D48; flex-shrink: 0;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
       </div>
@@ -1533,7 +1533,7 @@
 
   <!-- Payslip Designer Tab -->
 <div class="content-card tab-content" id="payslip-designer">
-  <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 24px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap;">
+  <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 24px; border-bottom: 1px solid var(--t-border, #f1f5f9); flex-wrap: wrap;">
     <div style="display: flex; align-items: center; gap: 14px;">
       <div style="width: 40px; height: 40px; background: #fff1f2; display: flex; align-items: center; justify-content: center; color: #E11D48; flex-shrink: 0;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
@@ -1563,19 +1563,19 @@
   </div>
 
   <div class="card-content" style="padding: 0;">
-      <div style="padding: 24px; background: #f8fafc;">
+      <div style="padding: 24px; background: var(--t-surf2, #f8fafc);">
         <div class="payslip-designer-layout">
         <!-- Left Panel: Template Designer -->
         <div style="background: transparent;">
 
           <div style="background: var(--t-surface, white); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08); border: 1px solid var(--t-border, #e2e8f0); display: flex; flex-direction: column; height: 100%;">
-          <div style="padding: 24px 28px; border-bottom: 1px solid var(--t-border, #e5e7eb); background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);">
+          <div style="padding: 24px 28px; border-bottom: 1px solid var(--t-border, #e5e7eb); background: #E11D48;">
             <h3 style="font-size: 18px; font-weight: 600; color: var(--t-text, #111827); margin-bottom: 4px;">Template Designer</h3>
             <p style="font-size: 13px; color: #6b7280;">Customize your payslip template</p>
           </div>
 
           <!-- Always-visible Template Selector -->
-          <div style="padding: 12px 20px 14px; border-bottom: 1px solid var(--t-border, #e5e7eb); background: #f8fafc;">
+          <div style="padding: 12px 20px 14px; border-bottom: 1px solid var(--t-border, #e5e7eb); background: var(--t-surf2, #f8fafc);">
             <div style="font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">Payslip Layout</div>
             <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;" id="settingsTemplateGrid">
               <!-- Classic: Company name left + PAYSLIP right header, two-column employee/pay grid -->
@@ -1591,7 +1591,7 @@
                   </div>
                   <div style="background:#4472c4;height:4px;"></div><div style="background:#e8eef7;height:3px;"></div>
                   <div style="padding:1px 3px;"><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;"></div></div>
-                  <div style="display:flex;justify-content:flex-end;padding:1px 3px;background:#f5f5f5;"><div style="height:2.5px;background:#888;width:16px;"></div></div>
+                  <div style="display:flex;justify-content:flex-end;padding:1px 3px;background: var(--t-surf2, #f5f5f5);"><div style="height:2.5px;background:#888;width:16px;"></div></div>
                   <div style="background:#4472c4;height:4px;"></div>
                   <div style="padding:1px 3px;"><div style="height:1px;background:#e0e0e0;margin-bottom:1px;"></div><div style="height:1px;background:#e0e0e0;"></div></div>
                   <div style="background:#888;height:5px;"></div>
@@ -1668,27 +1668,27 @@
             <div style="display: grid; gap: 14px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Company Name</label>
-                <input type="text" id="previewCompanyName" name="company_name" value="{{ company.name }}" placeholder="Company Name" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewCompanyName" name="company_name" value="{{ company.name }}" placeholder="Company Name" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Phone</label>
-                <input type="text" id="previewCompanyPhone" name="company_phone" value="{{ company.phone }}" placeholder="Phone Number" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewCompanyPhone" name="company_phone" value="{{ company.phone }}" placeholder="Phone Number" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Email</label>
-                <input type="email" id="previewCompanyEmail" name="company_email" value="{{ company.email }}" placeholder="Email Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="email" id="previewCompanyEmail" name="company_email" value="{{ company.email }}" placeholder="Email Address" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Address</label>
-                <textarea id="previewCompanyAddress" name="company_address" placeholder="Street Address" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px; min-height: 70px; resize: vertical;" oninput="updatePreview()">{{ company.address }}</textarea>
+                <textarea id="previewCompanyAddress" name="company_address" placeholder="Street Address" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px; min-height: 70px; resize: vertical;" oninput="updatePreview()">{{ company.address }}</textarea>
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Tax ID / TPIN</label>
-                <input type="text" id="previewTaxId" value="{% if company.tpin %}{{ company.tpin }}{% else %}{% if company.business_registration and company.business_registration|slice:':4' != 'comp' %}{{ company.business_registration }}{% endif %}{% endif %}" placeholder="TAX-12345" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewTaxId" value="{% if company.tpin %}{{ company.tpin }}{% else %}{% if company.business_registration and company.business_registration|slice:':4' != 'comp' %}{{ company.business_registration }}{% endif %}{% endif %}" placeholder="TAX-12345" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Currency</label>
-                <select id="previewCurrency" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" onchange="updatePreview()">
+                <select id="previewCurrency" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" onchange="updatePreview()">
                   <option value="ZMW" {% if currency_code == 'ZMW' %}selected{% endif %}>ZMW - Zambian Kwacha</option>
                   <option value="MWK" {% if currency_code == 'MWK' %}selected{% endif %}>MWK - Malawian Kwacha</option>
                   <option value="KES" {% if currency_code == 'KES' %}selected{% endif %}>KES - Kenyan Shilling</option>
@@ -1714,27 +1714,27 @@
             <div style="display: grid; gap: 14px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Employee Name</label>
-                <input type="text" id="previewEmployeeName" value="EMMANUEL SIMWANZA" placeholder="Full Name" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewEmployeeName" value="EMMANUEL SIMWANZA" placeholder="Full Name" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Employee ID</label>
-                <input type="text" id="previewEmployeeId" value="EMP-2024-001" placeholder="Employee ID" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewEmployeeId" value="EMP-2024-001" placeholder="Employee ID" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Designation</label>
-                <input type="text" id="previewDesignation" value="Software Engineer" placeholder="Job Title" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewDesignation" value="Software Engineer" placeholder="Job Title" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Department</label>
-                <input type="text" id="previewDepartment" value="Engineering" placeholder="Department" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewDepartment" value="Engineering" placeholder="Department" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">NRC Number</label>
-                <input type="text" id="previewNrc" value="" placeholder="e.g. 123456/10/1" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewNrc" value="" placeholder="e.g. 123456/10/1" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Date of Joining</label>
-                <input type="date" id="previewDateOfJoining" value="2020-01-15" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="date" id="previewDateOfJoining" value="2020-01-15" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
             </div>
           </div>
@@ -1745,7 +1745,7 @@
             <div style="display: grid; gap: 14px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Month</label>
-                <select id="previewMonth" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" onchange="updatePreview()">
+                <select id="previewMonth" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" onchange="updatePreview()">
                   <option value="January">January</option>
                   <option value="February">February</option>
                   <option value="March">March</option>
@@ -1762,20 +1762,20 @@
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Year</label>
-                <input type="number" id="previewYear" value="2024" placeholder="2024" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="number" id="previewYear" value="2024" placeholder="2024" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Pay Date</label>
-                <input type="date" id="previewPayDate" value="2024-12-31" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="date" id="previewPayDate" value="2024-12-31" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                 <div>
                   <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Working Days</label>
-                  <input type="number" id="previewWorkingDays" value="22" placeholder="22" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                  <input type="number" id="previewWorkingDays" value="22" placeholder="22" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
                 </div>
                 <div>
                   <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Present Days</label>
-                  <input type="number" id="previewPresentDays" value="22" placeholder="22" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                  <input type="number" id="previewPresentDays" value="22" placeholder="22" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
                 </div>
               </div>
             </div>
@@ -1817,7 +1817,7 @@
             <div id="deductionsList" style="display: flex; flex-direction: column; gap: 8px;">
               <!-- Deductions items will be added here by JavaScript -->
             </div>
-            <div style="margin-top: 16px; padding: 12px; background: #fef2f2; border: 1px solid #fecaca; display: flex; justify-content: space-between; align-items: center;">
+            <div style="margin-top: 16px; padding: 12px; background: var(--t-surf2, #fef2f2); border: 1px solid #fecaca; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-weight: 600; color: #991b1b; font-size: 13px;">Total Deductions</span>
               <span id="totalDeductions" style="font-weight: 700; font-size: 16px; color: #dc2626;">$0.00</span>
             </div>
@@ -1829,15 +1829,15 @@
             <div style="display: grid; gap: 16px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Earnings Header Color</label>
-                <input type="color" id="previewEarningsColor" name="payslip_section_color" value="{{ company.payslip_section_color|default:'#DC143C' }}" style="width: 100%; height: 45px; border: 1px solid #d1d5db; cursor: pointer;" onchange="updatePreview()">
+                <input type="color" id="previewEarningsColor" name="payslip_section_color" value="{{ company.payslip_section_color|default:'#DC143C' }}" style="width: 100%; height: 45px; border: 1px solid var(--t-border, #d1d5db); cursor: pointer;" onchange="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Deductions Header Color</label>
-                <input type="color" id="previewDeductionsColor" name="payslip_accent_color" value="{{ company.payslip_accent_color|default:'#DC143C' }}" style="width: 100%; height: 45px; border: 1px solid #d1d5db; cursor: pointer;" onchange="updatePreview()">
+                <input type="color" id="previewDeductionsColor" name="payslip_accent_color" value="{{ company.payslip_accent_color|default:'#DC143C' }}" style="width: 100%; height: 45px; border: 1px solid var(--t-border, #d1d5db); cursor: pointer;" onchange="updatePreview()">
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Font Family</label>
-                <select id="previewFontFamily" name="payslip_font_family" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" onchange="updatePreview()">
+                <select id="previewFontFamily" name="payslip_font_family" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" onchange="updatePreview()">
                   <option value="Arial, sans-serif" selected>Arial</option>
                   <option value="'Times New Roman', serif">Times New Roman</option>
                   <option value="Georgia, serif">Georgia</option>
@@ -1845,12 +1845,12 @@
                   <option value="Inter, sans-serif">Inter</option>
                 </select>
               </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f9fafb;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--t-surf2, #f9fafb);">
                 <span style="font-size: 13px; font-weight: 500; color: var(--t-text, #374151);">Show Company Logo</span>
                 <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
                   <input type="checkbox" id="previewShowLogo" name="show_company_logo" {% if company.show_company_logo %}checked{% endif %} onchange="updatePreview()" style="opacity: 0; width: 0; height: 0;">
                   <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #DC143C; transition: 0.3s;"></span>
-                  <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s;"></span>
+                  <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--t-surface, white); transition: 0.3s;"></span>
                 </label>
               </div>
               <div>
@@ -1858,19 +1858,19 @@
                 <div style="display: grid; gap: 8px;">
                   <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; cursor: pointer; background: var(--t-surface, #fff);">
                     <input type="radio" name="payslip_logo_position" value="logo-left" {% if not company.payslip_logo_position or company.payslip_logo_position == 'logo-left' %}checked{% endif %} onchange="updatePreview()" style="accent-color: #DC143C;">
-                    <span style="font-size: 13px; color: #1f2937;">Logo left, company info right</span>
+                    <span style="font-size: 13px; color: var(--t-text, #1f2937);">Logo left, company info right</span>
                   </label>
                   <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; cursor: pointer; background: var(--t-surface, #fff);">
                     <input type="radio" name="payslip_logo_position" value="logo-right" {% if company.payslip_logo_position == 'logo-right' %}checked{% endif %} onchange="updatePreview()" style="accent-color: #DC143C;">
-                    <span style="font-size: 13px; color: #1f2937;">Company info left, logo right</span>
+                    <span style="font-size: 13px; color: var(--t-text, #1f2937);">Company info left, logo right</span>
                   </label>
                   <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; cursor: pointer; background: var(--t-surface, #fff);">
                     <input type="radio" name="payslip_logo_position" value="stacked-logo-top" {% if company.payslip_logo_position == 'stacked-logo-top' %}checked{% endif %} onchange="updatePreview()" style="accent-color: #DC143C;">
-                    <span style="font-size: 13px; color: #1f2937;">Logo top, company info below</span>
+                    <span style="font-size: 13px; color: var(--t-text, #1f2937);">Logo top, company info below</span>
                   </label>
                   <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #dbe2f0; cursor: pointer; background: var(--t-surface, #fff);">
                     <input type="radio" name="payslip_logo_position" value="stacked-info-top" {% if company.payslip_logo_position == 'stacked-info-top' %}checked{% endif %} onchange="updatePreview()" style="accent-color: #DC143C;">
-                    <span style="font-size: 13px; color: #1f2937;">Company info top, logo below</span>
+                    <span style="font-size: 13px; color: var(--t-text, #1f2937);">Company info top, logo below</span>
                   </label>
                 </div>
               </div>
@@ -1883,12 +1883,12 @@
             <div style="display: grid; gap: 16px;">
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Footer Text</label>
-                <textarea id="previewFooterText" name="payslip_footer_text" placeholder="Pay Slip Not Valid Unless Signed..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px; min-height: 90px; resize: vertical;" oninput="updatePreview()">{% if company.payslip_footer_text %}{{ company.payslip_footer_text }}{% else %}Pay Slip Not Valid Unless Signed
+                <textarea id="previewFooterText" name="payslip_footer_text" placeholder="Pay Slip Not Valid Unless Signed..." style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px; min-height: 90px; resize: vertical;" oninput="updatePreview()">{% if company.payslip_footer_text %}{{ company.payslip_footer_text }}{% else %}Pay Slip Not Valid Unless Signed
 Please Treat Your Pay Slip as Confidential. Have a Nice Month{% endif %}</textarea>
               </div>
               <div>
                 <label style="display: block; font-size: 13px; font-weight: 500; color: var(--t-text, #374151); margin-bottom: 6px;">Receiver's Name Label</label>
-                <input type="text" id="previewReceiverLabel" value="Receiver's Name:" placeholder="Receiver's Name:" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; font-size: 14px;" oninput="updatePreview()">
+                <input type="text" id="previewReceiverLabel" value="Receiver's Name:" placeholder="Receiver's Name:" style="width: 100%; padding: 10px; border: 1px solid var(--t-border, #d1d5db); font-size: 14px;" oninput="updatePreview()">
               </div>
             </div>
           </div>
@@ -1909,7 +1909,7 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month{% endif %}</textar
       <!-- Right Panel: Live Preview -->
       <div style="background: transparent; min-width: 0;">
         <div style="background: var(--t-surface, white); box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08); border: 1px solid var(--t-border, #e2e8f0); display: flex; flex-direction: column; width: 100%; max-width: 760px;">
-        <div style="padding: 24px 28px; border-bottom: 1px solid var(--t-border, #e5e7eb); background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);">
+        <div style="padding: 24px 28px; border-bottom: 1px solid var(--t-border, #e5e7eb); background: #E11D48;">
           <h3 style="font-size: 18px; font-weight: 600; color: var(--t-text, #111827); margin-bottom: 4px;">Live Preview</h3>
           <p style="font-size: 13px; color: #6b7280;">Changes appear instantly as you edit</p>
         </div>
@@ -1989,7 +1989,7 @@ Please Treat Your Pay Slip as Confidential. Have a Nice Month{% endif %}</textar
 }
 
 #designerPreviewModal .designer-preview-modal-panel::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--t-surf2, #f1f5f9);
 }
 
 #designerPreviewModal .designer-preview-modal-panel::-webkit-scrollbar-thumb {
@@ -2233,12 +2233,12 @@ function renderEarnings() {
   container.innerHTML = '';
   earningsData.forEach(item => {
     const div = document.createElement('div');
-    div.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb;';
+    div.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px; background: var(--t-surf2, #f9fafb); border: 1px solid var(--t-border, #e5e7eb);';
     div.innerHTML = `
       <input type="checkbox" ${item.enabled ? 'checked' : ''} onchange="toggleEarning(${item.id})" style="width: 16px; height: 16px; cursor: pointer;">
-      <input type="text" value="${item.label}" onchange="updateEarningLabel(${item.id}, this.value)" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; font-size: 12px;">
-      <input type="number" value="${item.amount}" onchange="updateEarningAmount(${item.id}, this.value)" style="width: 90px; padding: 6px; border: 1px solid #d1d5db; font-size: 12px;">
-      <button type="button" onclick="removeEarning(${item.id})" style="padding: 4px 8px; background: #fee2e2; color: #dc2626; border: none; cursor: pointer; font-size: 11px;">×</button>
+      <input type="text" value="${item.label}" onchange="updateEarningLabel(${item.id}, this.value)" style="flex: 1; padding: 6px; border: 1px solid var(--t-border, #d1d5db); font-size: 12px;">
+      <input type="number" value="${item.amount}" onchange="updateEarningAmount(${item.id}, this.value)" style="width: 90px; padding: 6px; border: 1px solid var(--t-border, #d1d5db); font-size: 12px;">
+      <button type="button" onclick="removeEarning(${item.id})" style="padding: 4px 8px; background: var(--t-surf2, #fee2e2); color: #dc2626; border: none; cursor: pointer; font-size: 11px;">×</button>
     `;
     container.appendChild(div);
   });
@@ -2256,12 +2256,12 @@ function renderDeductions() {
   container.innerHTML = '';
   deductionsData.forEach(item => {
     const div = document.createElement('div');
-    div.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb;';
+    div.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px; background: var(--t-surf2, #f9fafb); border: 1px solid var(--t-border, #e5e7eb);';
     div.innerHTML = `
       <input type="checkbox" ${item.enabled ? 'checked' : ''} onchange="toggleDeduction(${item.id})" style="width: 16px; height: 16px; cursor: pointer;">
-      <input type="text" value="${item.label}" onchange="updateDeductionLabel(${item.id}, this.value)" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; font-size: 12px;">
-      <input type="number" value="${item.amount}" onchange="updateDeductionAmount(${item.id}, this.value)" style="width: 90px; padding: 6px; border: 1px solid #d1d5db; font-size: 12px;">
-      <button type="button" onclick="removeDeduction(${item.id})" style="padding: 4px 8px; background: #fee2e2; color: #dc2626; border: none; cursor: pointer; font-size: 11px;">×</button>
+      <input type="text" value="${item.label}" onchange="updateDeductionLabel(${item.id}, this.value)" style="flex: 1; padding: 6px; border: 1px solid var(--t-border, #d1d5db); font-size: 12px;">
+      <input type="number" value="${item.amount}" onchange="updateDeductionAmount(${item.id}, this.value)" style="width: 90px; padding: 6px; border: 1px solid var(--t-border, #d1d5db); font-size: 12px;">
+      <button type="button" onclick="removeDeduction(${item.id})" style="padding: 4px 8px; background: var(--t-surf2, #fee2e2); color: #dc2626; border: none; cursor: pointer; font-size: 11px;">×</button>
     `;
     container.appendChild(div);
   });
@@ -2990,7 +2990,7 @@ function showSettingsMessage(message, type) {
     display: flex; align-items: center; gap: 10px;
     animation: slideInRight 0.3s ease;
     ${type === 'success' ? 'background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;' : ''}
-    ${type === 'error' ? 'background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;' : ''}
+    ${type === 'error' ? 'background: var(--t-surf2, #fef2f2); color: #991b1b; border: 1px solid #fecaca;' : ''}
     ${type === 'info' ? 'background: #fce7f3; color: #DC143C; border: 1px solid #fca5a5;' : ''}
   `;
   const icon = type === 'success' ? '&#10003;' : type === 'error' ? '&#10007;' : '&#9432;';
@@ -3558,7 +3558,7 @@ function buildClassicTemplate(d) {
         + '</table></div></div>'
     + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:12px;">'
       + '<thead><tr><td colspan="2" style="background:' + hc + ';color:' + hct + ';padding:5px 16px;font-weight:700;">EARNINGS</td></tr>'
-      + '<tr style="background:#f5f5f5;"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
+      + '<tr style="background: var(--t-surf2, #f5f5f5);"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
       + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th></tr></thead>'
       + '<tbody id="previewEarningsList"></tbody>'
       + '<tfoot><tr style="background:#f0f0f0;border-top:1px solid #ccc;">'
@@ -3567,7 +3567,7 @@ function buildClassicTemplate(d) {
       + '</tr></tfoot></table>'
     + '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;">'
       + '<thead><tr><td colspan="2" style="background:' + dc + ';color:' + dct + ';padding:5px 16px;font-weight:700;">DEDUCTIONS</td></tr>'
-      + '<tr style="background:#f5f5f5;"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
+      + '<tr style="background: var(--t-surf2, #f5f5f5);"><th style="padding:4px 18px;text-align:left;border-bottom:1px solid #ccc;">Description</th>'
       + '<th style="padding:4px 8px;text-align:right;border-bottom:1px solid #ccc;">Amount</th></tr></thead>'
       + '<tbody id="previewDeductionsList"></tbody>'
       + '<tfoot><tr style="background:#f0f0f0;border-top:1px solid #ccc;">'
@@ -3589,7 +3589,7 @@ function buildCorporateTemplate(d) {
   return '<style>*,*::before,*::after{!important;}</style>'
   + '<div style="font-family:' + d.fontFamily + ';padding:20px;">'
     + '<div style="display:flex;align-items:stretch;border-bottom:3px solid ' + t + ';">'
-      + '<div style="padding:14px 16px;display:flex;align-items:center;background:#fafafa;border-right:1px solid #e0e0e0;">'
+      + '<div style="padding:14px 16px;display:flex;align-items:center;background: var(--t-surf2, #fafafa);border-right:1px solid #e0e0e0;">'
         + '<div style="width:68px;height:68px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid #e0e0e0;">' + d.logoImg + '</div></div>'
       + '<div style="flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:12px 18px;background:' + tl + ';">'
         + '<div style="background:' + t + ';color:' + tt + ';padding:6px 20px;font-size:20px;font-weight:700;letter-spacing:3px;margin-bottom:4px;">PAYSLIP</div>'
@@ -3728,6 +3728,17 @@ function savePayslipDesign() {
   if (sizeInput) {
     const stampEl = document.getElementById('previewStampContainer');
     sizeInput.value = window._stampSize !== undefined ? window._stampSize : (stampEl ? (stampEl.offsetWidth || 120) : 120);
+  }
+
+  // Sync rotation from container transform (in case drag-rotate was used)
+  const rotInput = document.getElementById('stampRotationInput');
+  if (rotInput) {
+    const stampEl2 = document.getElementById('previewStampContainer');
+    if (stampEl2) {
+      const t = stampEl2.style.transform || '';
+      const m = t.match(/rotate\(([-\d.]+)deg\)/);
+      if (m) rotInput.value = Math.round(parseFloat(m[1]));
+    }
   }
 
   document.getElementById('payslipDesignForm').submit();

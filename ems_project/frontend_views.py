@@ -7557,6 +7557,7 @@ def settings_dashboard(request):
                     }
                     field_positions['stamp_opacity'] = float(request.POST.get('stamp_opacity', 100))
                     field_positions['stamp_size'] = float(request.POST.get('stamp_size', 120))
+                    field_positions['stamp_rotation'] = float(request.POST.get('stamp_rotation', 0))
                     font_family = request.POST.get('payslip_font_family', '').strip()
                     if font_family:
                         field_positions['font_family'] = font_family
