@@ -8344,7 +8344,7 @@ def employer_edit_employee(request, employee_id):
         return redirect('employer_employee_management')
     
     # Check permissions
-    is_admin = request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] or request.user.is_employer_admin
+    is_admin = request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN', 'SUPERADMIN'] or request.user.is_employer_admin or getattr(request.user, 'is_superadmin', False) or getattr(request.user, 'is_superuser', False)
     is_hr = hasattr(request.user, 'employee_profile') and request.user.employee_profile.employee_role == 'HR'
     is_supervisor = hasattr(request.user, 'employee_profile') and request.user.employee_profile.employee_role == 'SUPERVISOR'
     is_supervising = is_supervisor and employee.employee_profile.supervisor == request.user
@@ -9215,7 +9215,7 @@ def reports_center(request):
         return render(request, 'ems/unauthorized.html')
 
     # Feature gate only for admin/accountant — HR and supervisors bypass
-    if not (is_supervisor or is_hr):
+    if not (is_supervisor or is_hr) and not (getattr(request.user, 'is_superadmin', False) or getattr(request.user, 'is_superuser', False) or getattr(request.user, 'role', '') == 'SUPERADMIN'):
         from ems_project.plan_features import company_has_feature, FEAT_CUSTOM_REPORTS
         company = getattr(request.user, 'company', None)
         # If no company (e.g., platform admin), skip feature gate
@@ -15194,7 +15194,10 @@ def analytics_dashboard_view(request):
         leave_type_data = [0]
     
     # Performance Rating Distribution
-    rating_distribution = review_qs.values('overall_rating').annotate(count=Count('id')).order_by('overall_rating')
+    if hasattr(review_qs, 'values'):
+        rating_distribution = review_qs.values('overall_rating').annotate(count=Count('id')).order_by('overall_rating')
+    else:
+        rating_distribution = []
     rating_labels = []
     rating_data = []
     for entry in rating_distribution:
@@ -15227,7 +15230,8 @@ def analytics_dashboard_view(request):
             'status': leave.get_status_display(),
         })
     
-    for review in review_qs.order_by('-review_date')[:5]:
+    _rev_list = list(review_qs.order_by('-review_date')[:5]) if hasattr(review_qs, 'order_by') else []
+    for review in _rev_list:
         activity_feed.append({
             'type': 'review',
             'title': f"Performance review - {review.employee.get_full_name()}",

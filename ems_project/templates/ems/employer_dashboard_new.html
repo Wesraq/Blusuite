@@ -1357,7 +1357,7 @@ function toggleLicenseKey() {
       <div style="display:flex;justify-content:space-between;margin-top:24px;">
         <button onclick="qsgBack()" class="qbg">← Back</button>
         <div style="display:flex;gap:8px;">
-          <a href="#" onclick="qsgGo('{% url \'settings_hub\' }', 3); return false;" class="qbs">Open Settings →</a>
+          <a href="{% url 'settings_hub' %}" onclick="qsgGo(this.href, 3); return false;" class="qbs">Open Settings →</a>
           <button onclick="qsgNext()" class="qbp">Next →</button>
         </div>
       </div>
@@ -1411,7 +1411,7 @@ function toggleLicenseKey() {
       <div style="display:flex;justify-content:space-between;margin-top:22px;">
         <button onclick="qsgBack()" class="qbg">← Back</button>
         <div style="display:flex;gap:8px;">
-          <a href="#" onclick="qsgGo('{% url \'settings_hub\' }', 3); return false;" class="qbs">Open Settings →</a>
+          <a href="{% url 'settings_hub' %}" onclick="qsgGo(this.href, 3); return false;" class="qbs">Open Settings →</a>
           <button onclick="qsgNext()" class="qbp">Next →</button>
         </div>
       </div>
@@ -1466,7 +1466,7 @@ function toggleLicenseKey() {
       <div style="display:flex;justify-content:space-between;margin-top:24px;">
         <button onclick="qsgBack()" class="qbg">← Back</button>
         <div style="display:flex;gap:8px;">
-          <a href="#" onclick="qsgGo('{% url \'employer_add_employee\' }', 5); return false;" class="qbs">Add Employee →</a>
+          <a href="{% url 'employer_add_employee' %}" onclick="qsgGo(this.href, 5); return false;" class="qbs">Add Employee →</a>
           <button onclick="qsgNext()" class="qbp">Next →</button>
         </div>
       </div>

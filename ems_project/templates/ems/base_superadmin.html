@@ -267,5 +267,45 @@
 
     {% block scripts %}
     {% endblock %}
+
+<script>
+/* BLU Suite: dark-mode surface scrubber */
+(function(){
+function isDark(){var t=document.documentElement.getAttribute('data-theme')||'';return t.indexOf('-dark')>-1;}
+function rgb(r,g,b){return 'rgb('+r+','+g+','+b+')';}
+var SURF='#161b22', SURF2='#1c2128', BORD='#30363d', TEXT='#e6edf3';
+var WHITE_PAT=[/^#fff(fff)?$/i,/^white$/i,/^rgb\(255,\s*255,\s*255\)$/i,/^rgba\(255,\s*255,\s*255,\s*1\)$/i];
+var LIGHT_PAT=[/^#f[89a-f][a-f0-9][a-f0-9][a-f0-9][a-f0-9]$/i,/^#f[0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9]$/i,
+               /^rgb\(24[0-9],/i,/^rgb\(25[0-5],/i,/^rgb\(2[0-3][0-9],/i];
+function isWhite(v){v=(v||'').replace(/\s/g,'');return WHITE_PAT.some(function(p){return p.test(v);});}
+function isLight(v){v=(v||'').replace(/\s/g,'');return LIGHT_PAT.some(function(p){return p.test(v);});}
+function scrub(){
+  if(!isDark()) return;
+  document.querySelectorAll('*').forEach(function(el){
+    try{
+      var cs=window.getComputedStyle(el);
+      var bg=cs.backgroundColor;
+      if(!bg||bg==='transparent'||bg==='rgba(0,0,0,0)') return;
+      var cl=el.className||'', id=el.id||'';
+      if(/btn-primary|btn-danger|module-header|gradient|qbadge|qbp|badge-/.test(cl)) return;
+      if(isWhite(bg)||isLight(bg)){
+        var si=el.style;
+        si.setProperty('background','var(--t-surface,'+SURF+')','important');
+        si.setProperty('border-color','var(--t-border,'+BORD+')','important');
+        // fix text that would become invisible on dark surface
+        var tc=cs.color;
+        var dr=[/^rgb\(1[0-6]/,/^rgb\([0-9]\s*,/,/^rgb\(1[0-9]\s*,/,/^rgba\([0-6][0-9],/];
+        if(dr.some(function(p){return p.test((tc||'').replace(/\s/g,''));})){
+          si.setProperty('color','var(--t-text,'+TEXT+')','important');
+        }
+      }
+    }catch(e){}
+  });
+}
+document.addEventListener('DOMContentLoaded',function(){setTimeout(scrub,50);});
+var _orig=window.setAppTheme;
+if(typeof _orig==='function'){window.setAppTheme=function(t){_orig(t);setTimeout(scrub,80);};}
+})();
+</script>
 </body>
 </html>
