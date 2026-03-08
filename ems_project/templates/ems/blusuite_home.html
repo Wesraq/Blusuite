@@ -12,7 +12,7 @@
     <section class="overview-banner">
         <div class="banner-content">
             <div class="company-info">
-                <span class="chip">Active Tenant</span>
+                {% if user.is_superadmin or user.role == "SUPERADMIN" %}<span class="chip">Active Tenant</span>{% endif %}
                 <h2>{{ overview.tenant_name|default:"Your Organization" }}</h2>
                 <p>Managing {{ modules|length }} active suite{{ modules|length|pluralize }} with full admin access</p>
             </div>
@@ -293,14 +293,14 @@
         gap: 20px;
     }
     .overview-banner {
-        background: white;
+        background: var(--t-surface, white);
         border-radius: 4px;
         padding: 28px;
         border: 1px solid var(--border-color);
         margin-bottom: 0;
     }
     .metrics-dashboard {
-        background: white;
+        background: var(--t-surface, white);
         border-radius: 4px;
         padding: 24px;
         border: 1px solid var(--border-color);
@@ -398,7 +398,7 @@
         flex-wrap: wrap;
     }
     .stat-card {
-        background: white;
+        background: var(--t-surface, white);
         border: 1px solid var(--border-color);
         border-radius: 4px;
         padding: 16px 20px;
@@ -460,7 +460,7 @@
     }
     .hub-card {
         text-decoration: none;
-        background: white;
+        background: var(--t-surface, white);
         border-radius: 4px;
         padding: 24px;
         border: 1px solid var(--border-color);
@@ -523,7 +523,7 @@
         gap: 16px;
     }
     .insight-block {
-        background: white;
+        background: var(--t-surface, white);
         border-radius: 4px;
         padding: 20px;
         border: 1px solid var(--border-color);
