@@ -229,10 +229,12 @@ urlpatterns = [
     path('requests/<int:request_id>/action/', frontend_views.request_approve_reject, name='request_approve_reject'),
     
     # Communication
+    path('groups/create/', frontend_views.create_chat_group, name='create_chat_group'),
     path('groups/', frontend_views.chat_groups_list, name='chat_groups_list'),
     path('groups/<int:group_id>/', frontend_views.chat_group_detail, name='chat_group_detail'),
     path('messages/', frontend_views.direct_messages_list, name='direct_messages_list'),
     path('messages/<int:user_id>/', frontend_views.direct_message_conversation, name='direct_message_conversation'),
+    path('announcements/create/', frontend_views.create_announcement, name='create_announcement'),
     path('announcements/', frontend_views.announcements_list, name='announcements_list'),
     path('announcements/<int:announcement_id>/', frontend_views.announcement_detail, name='announcement_detail'),
     

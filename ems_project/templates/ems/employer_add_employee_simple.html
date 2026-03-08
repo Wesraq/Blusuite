@@ -76,9 +76,11 @@
     border-bottom: 1px solid var(--t-border, #e2e8f0);
     margin-bottom: 24px;
     overflow-x: auto;
+    width: 100%;
   }
   .ae-tab-btn {
-    padding: 11px 20px;
+    flex: 1;
+    padding: 11px 8px;
     border: none;
     background: none;
     cursor: pointer;
@@ -90,6 +92,7 @@
     white-space: nowrap;
     transition: all 0.15s;
     font-family: inherit;
+    text-align: center;
   }
   .ae-tab-btn:hover { color: var(--t-text, #0f172a); background: var(--t-surf2, #f8fafc); }
   .ae-tab-btn.active {

@@ -1,0 +1,62 @@
+{% extends base_template|default:'ems/base_employer.html' %}
+{% load static %}
+
+{% block title %}Create Announcement{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 24px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+        <a href="{% url 'announcements_list' %}" style="color: #64748b; text-decoration: none; font-size: 14px;">← Back to Announcements</a>
+    </div>
+
+    <div style="background: var(--t-surface, #fff); border: 1px solid var(--t-border, #e2e8f0); border-radius: 8px; padding: 32px;">
+        <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 700; color: var(--t-text, #0f172a);">Create Announcement</h2>
+        <p style="margin: 0 0 28px; font-size: 14px; color: #64748b;">Post an announcement to your team</p>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div style="padding: 12px 16px; margin-bottom: 16px; border-radius: 6px; background: var(--t-surf2, #f8fafc); border: 1px solid var(--t-border, #e2e8f0); color: var(--t-text, #0f172a); font-size: 14px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: var(--t-text, #0f172a); margin-bottom: 6px;">Title *</label>
+                <input type="text" name="title" required style="width: 100%; padding: 10px 14px; border: 1px solid var(--t-border, #e2e8f0); border-radius: 6px; font-size: 14px; color: var(--t-text, #0f172a); background: var(--t-surface, #fff); box-sizing: border-box;" placeholder="Announcement title...">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: var(--t-text, #0f172a); margin-bottom: 6px;">Priority</label>
+                    <select name="priority" style="width: 100%; padding: 10px 14px; border: 1px solid var(--t-border, #e2e8f0); border-radius: 6px; font-size: 14px; color: var(--t-text, #0f172a); background: var(--t-surface, #fff);">
+                        <option value="NORMAL">Normal</option>
+                        <option value="HIGH">High</option>
+                        <option value="URGENT">Urgent</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: var(--t-text, #0f172a); margin-bottom: 6px;">Audience</label>
+                    <select name="audience" style="width: 100%; padding: 10px 14px; border: 1px solid var(--t-border, #e2e8f0); border-radius: 6px; font-size: 14px; color: var(--t-text, #0f172a); background: var(--t-surface, #fff);">
+                        <option value="ALL">All Employees</option>
+                        <option value="MANAGEMENT">Management Only</option>
+                        <option value="HR">HR Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 28px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: var(--t-text, #0f172a); margin-bottom: 6px;">Content *</label>
+                <textarea name="content" required rows="8" style="width: 100%; padding: 10px 14px; border: 1px solid var(--t-border, #e2e8f0); border-radius: 6px; font-size: 14px; color: var(--t-text, #0f172a); background: var(--t-surface, #fff); box-sizing: border-box; resize: vertical;" placeholder="Write your announcement here..."></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <a href="{% url 'announcements_list' %}" style="padding: 10px 24px; border: 1px solid var(--t-border, #e2e8f0); border-radius: 6px; font-size: 14px; font-weight: 600; color: var(--t-text, #0f172a); text-decoration: none; background: var(--t-surface, #fff);">Cancel</a>
+                <button type="submit" style="padding: 10px 24px; background: #E11D48; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">Post Announcement</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

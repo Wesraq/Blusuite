@@ -8569,7 +8569,8 @@ def employer_edit_employee(request, employee_id):
         from blu_staff.apps.accounts.models import EmployeeProfile
         profile_instance = getattr(employee, 'employee_profile', None)
         if not profile_instance:
-            profile_instance = EmployeeProfile.objects.create(user=employee)
+            from datetime import date as _date
+            profile_instance = EmployeeProfile.objects.create(user=employee, date_hired=_date.today())
 
     # Prepare document context
     categories = list(DocumentCategory.objects.all().order_by('-is_required', 'name'))
@@ -16820,6 +16821,55 @@ def request_approve_reject(request, request_id):
 # ============================================================================
 
 @login_required
+@login_required
+def create_chat_group(request):
+    """Create a new chat group"""
+    from blu_staff.apps.communication.models import ChatGroup
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    if not (request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] or
+            getattr(getattr(request.user, 'employee_profile', None), 'employee_role', '') in ['HR', 'HUMAN_RESOURCES', 'SUPERVISOR']):
+        return render(request, 'ems/unauthorized.html')
+
+    company = _get_user_company(request.user)
+    base_template = 'ems/base_employer.html'
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+        is_private = request.POST.get('is_private') == 'on'
+        member_ids = request.POST.getlist('members')
+
+        if not name:
+            messages.error(request, 'Group name is required.')
+        else:
+            try:
+                group = ChatGroup.objects.create(
+                    name=name,
+                    description=description,
+                    is_private=is_private,
+                    company=company,
+                    created_by=request.user,
+                )
+                group.members.add(request.user)
+                if member_ids:
+                    members = User.objects.filter(id__in=member_ids, company=company)
+                    group.members.add(*members)
+                messages.success(request, f'Chat group "{name}" created successfully.')
+                return redirect('chat_groups_list')
+            except Exception as e:
+                messages.error(request, f'Error creating group: {str(e)}')
+
+    # Get company employees for member selection
+    employees = User.objects.filter(company=company, is_active=True).exclude(id=request.user.id)
+    context = {
+        'employees': employees,
+        'base_template': base_template,
+    }
+    return render(request, 'ems/create_chat_group.html', context)
+
+
 def chat_groups_list(request):
     """List chat groups"""
     from blu_staff.apps.communication.models import ChatGroup
@@ -17048,6 +17098,46 @@ def direct_message_conversation(request, user_id):
 
 
 @login_required
+@login_required
+def create_announcement(request):
+    """Create a new company announcement"""
+    from blu_staff.apps.communication.models import Announcement
+    if not (request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN'] or
+            getattr(getattr(request.user, 'employee_profile', None), 'employee_role', '') in ['HR', 'HUMAN_RESOURCES']):
+        return render(request, 'ems/unauthorized.html')
+
+    company = _get_user_company(request.user)
+    base_template = 'ems/base_employer.html'
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        content = request.POST.get('content', '').strip()
+        priority = request.POST.get('priority', 'NORMAL')
+        audience = request.POST.get('audience', 'ALL')
+
+        if not title or not content:
+            messages.error(request, 'Title and content are required.')
+        else:
+            try:
+                Announcement.objects.create(
+                    title=title,
+                    content=content,
+                    priority=priority,
+                    audience=audience,
+                    company=company,
+                    created_by=request.user,
+                )
+                messages.success(request, 'Announcement created successfully.')
+                return redirect('announcements_list')
+            except Exception as e:
+                messages.error(request, f'Error creating announcement: {str(e)}')
+
+    context = {
+        'base_template': base_template,
+    }
+    return render(request, 'ems/create_announcement.html', context)
+
+
 def announcements_list(request):
     """List announcements"""
     from blu_staff.apps.communication.models import Announcement, AnnouncementRead
