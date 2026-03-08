@@ -1352,7 +1352,7 @@ def _blusuite_nav_flags(user):
         'show_staff_suite': True,
         'show_projects_suite': is_admin,
         'show_assets_suite': is_admin or has_hr,
-        'show_analytics_suite': is_admin and plan_ctx.get('has_advanced_analytics', False),
+        'show_analytics_suite': is_admin,  # Always show for admins
         'show_integrations_suite': is_admin and plan_ctx.get('has_custom_integrations', False),
         'show_company_settings': is_admin,
         'show_company_billing': is_admin,
@@ -1362,8 +1362,8 @@ def _blusuite_nav_flags(user):
         'show_leave': plan_ctx.get('has_leave_management', True),
         'show_payroll': plan_ctx.get('has_payroll_basic', True),
         'show_performance': plan_ctx.get('has_performance_reviews', False),
-        'show_documents': plan_ctx.get('has_document_management', False),
-        'show_reports': plan_ctx.get('has_custom_reports', False),
+        'show_documents': is_admin or plan_ctx.get('has_document_management', False),  # Always show for admins
+        'show_reports': is_admin or plan_ctx.get('has_custom_reports', False),  # Always show for admins
     }
     # Merge full plan context so templates can use any has_* flag
     nav.update(plan_ctx)
