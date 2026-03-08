@@ -533,7 +533,11 @@ def company_edit(request, company_id):
         form_type = request.POST.get('form_type', '')
         
         # Handle documents form submission
-        if form_type == 'documents':
+        if form_type == 'basic_info':
+            # Explicit basic info form submission - fall through to name/address handler
+            pass  # handled below
+
+        elif form_type == 'documents':
             try:
                 # Handle company documents
                 if 'tax_certificate' in request.FILES:
@@ -619,7 +623,20 @@ def company_edit(request, company_id):
                     return JsonResponse({'success': False, 'error': str(e)}, status=400)
                 messages.error(request, f'Error updating colors: {str(e)}')
         
-        # Regular form submission (Basic Info, Branding, Documents, etc.)
+        # Handle branding / logo-only upload
+        elif request.POST.get('action') == 'company_profile' or (
+            'logo' in request.FILES and not request.POST.get('name')
+        ):
+            try:
+                if 'logo' in request.FILES:
+                    company.logo = request.FILES['logo']
+                messages.success(request, 'Logo saved successfully!')
+                company.save()
+            except Exception as e:
+                messages.error(request, f'Error saving logo: {str(e)}')
+            return redirect(request.path)
+
+        # Regular form submission (Basic Info)
         name = request.POST.get('name')
         address = request.POST.get('address')
         phone = request.POST.get('phone')
