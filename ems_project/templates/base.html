@@ -1109,5 +1109,47 @@
         {% endif %}
     </nav>
     {% endif %}
+
+<script>
+/* ── BLU Suite: Global dark-mode white-background scrubber ── */
+(function(){
+    function isDark(){
+        var t=document.documentElement.getAttribute('data-theme')||'';
+        return t.indexOf('-dark')>-1;
+    }
+    function scrubWhites(){
+        if(!isDark()) return;
+        var surf='#161b22', surf2='#1c2128', bord='#30363d', txt='#e6edf3', soft='#8b949e';
+        var WHITES=['#ffffff','#fff','white','rgb(255,255,255)','rgb(255, 255, 255)','#f8fafc','#f9fafb','#f0f2f5'];
+        var LIGHTS=['#f1f5f9','#f8fafc','#f9fafb','#f0f2f5','#fafafa','#f5f5f5'];
+        document.querySelectorAll('[style]').forEach(function(el){
+            var s=el.style;
+            var bg=(s.background||s.backgroundColor||'').toLowerCase().replace(/\s/g,'');
+            if(!bg) return;
+            // Skip elements that intentionally keep color (badges, gradients, buttons with specific brand colours)
+            var cl=el.className||'';
+            if(/badge|gradient|btn-primary|module-header|qbadge|qbp/.test(cl)) return;
+            var matched=false;
+            WHITES.forEach(function(w){ if(bg.indexOf(w.replace(/\s/g,''))>-1) matched=true; });
+            if(matched){
+                s.background=surf;
+                s.borderColor=bord;
+                // also fix explicit white text that would now be invisible
+                var col=(s.color||'').toLowerCase().replace(/\s/g,'');
+                var darkText=['#0f172a','#1e293b','#111827','#374151','rgb(15,23,42)','rgb(30,41,59)'];
+                darkText.forEach(function(c){ if(col.indexOf(c.replace(/\s/g,''))>-1) s.color=txt; });
+            }
+        });
+        // Also fix elements with class-defined white backgrounds that CSS can't reach
+        // (e.g., elements where bg comes from JS or dynamic style)
+    }
+    document.addEventListener('DOMContentLoaded', scrubWhites);
+    // Re-run after theme switch
+    var _orig=window.setAppTheme;
+    if(typeof _orig==='function'){
+        window.setAppTheme=function(t){_orig(t); setTimeout(scrubWhites,50);};
+    }
+})();
+</script>
 </body>
 </html>

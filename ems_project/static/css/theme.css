@@ -631,3 +631,219 @@ html[data-theme*="-dark"] #theme-picker-panel {
 html[data-theme*="-dark"] #theme-picker-panel .tp-label {
     color: #64748b !important;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   BLU Suite — Global dark-mode surface overrides
+   Catches hardcoded white/light backgrounds across all templates
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Surfaces: cards, sections, panels, boxes ─────────────── */
+html[data-theme*="-dark"] .card,
+html[data-theme*="-dark"] .section-card,
+html[data-theme*="-dark"] .page-card,
+html[data-theme*="-dark"] .info-card,
+html[data-theme*="-dark"] .detail-card,
+html[data-theme*="-dark"] .form-card,
+html[data-theme*="-dark"] .data-card,
+html[data-theme*="-dark"] .report-card,
+html[data-theme*="-dark"] .widget-card,
+html[data-theme*="-dark"] .analytics-card,
+html[data-theme*="-dark"] .chart-card,
+html[data-theme*="-dark"] .summary-card,
+html[data-theme*="-dark"] .profile-card,
+html[data-theme*="-dark"] .tab-card,
+html[data-theme*="-dark"] .modal-card,
+html[data-theme*="-dark"] .settings-card,
+html[data-theme*="-dark"] .setting-card,
+html[data-theme*="-dark"] .option-card,
+html[data-theme*="-dark"] .feature-card,
+html[data-theme*="-dark"] .metric-card,
+html[data-theme*="-dark"] .activity-card,
+html[data-theme*="-dark"] .notification-card,
+html[data-theme*="-dark"] .payslip-card,
+html[data-theme*="-dark"] .leave-card,
+html[data-theme*="-dark"] .contract-card,
+html[data-theme*="-dark"] .employee-card,
+html[data-theme*="-dark"] .document-card,
+html[data-theme*="-dark"] .asset-card,
+html[data-theme*="-dark"] .task-card,
+html[data-theme*="-dark"] .request-card,
+html[data-theme*="-dark"] .branch-card,
+html[data-theme*="-dark"] .payroll-card,
+html[data-theme*="-dark"] .hr-card,
+html[data-theme*="-dark"] .kpi-card,
+html[data-theme*="-dark"] .panel,
+html[data-theme*="-dark"] .page-panel,
+html[data-theme*="-dark"] .main-panel,
+html[data-theme*="-dark"] .side-panel,
+html[data-theme*="-dark"] .content-panel,
+html[data-theme*="-dark"] .form-panel,
+html[data-theme*="-dark"] .data-panel,
+html[data-theme*="-dark"] .inner-panel,
+html[data-theme*="-dark"] .section-panel,
+html[data-theme*="-dark"] .page-section,
+html[data-theme*="-dark"] .content-section,
+html[data-theme*="-dark"] .main-section,
+html[data-theme*="-dark"] .form-section,
+html[data-theme*="-dark"] .data-section,
+html[data-theme*="-dark"] .info-section,
+html[data-theme*="-dark"] .header-section,
+html[data-theme*="-dark"] .body-section,
+html[data-theme*="-dark"] .tab-section,
+html[data-theme*="-dark"] .table-section,
+html[data-theme*="-dark"] .white-box,
+html[data-theme*="-dark"] .white-card,
+html[data-theme*="-dark"] .white-panel,
+html[data-theme*="-dark"] .light-card,
+html[data-theme*="-dark"] .bg-white,
+html[data-theme*="-dark"] .bg-light,
+html[data-theme*="-dark"] .page-header:not(.no-dark),
+html[data-theme*="-dark"] .section-header-box,
+html[data-theme*="-dark"] .header-box,
+html[data-theme*="-dark"] .content-box,
+html[data-theme*="-dark"] .settings-section,
+html[data-theme*="-dark"] .settings-block,
+html[data-theme*="-dark"] .settings-group,
+html[data-theme*="-dark"] .config-section,
+html[data-theme*="-dark"] .config-card,
+html[data-theme*="-dark"] .tab-pane,
+html[data-theme*="-dark"] .tab-content,
+html[data-theme*="-dark"] .employee-config-header {
+    background: var(--t-surface, #161b22) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+
+/* ── Secondary surfaces ────────────────────────────────────── */
+html[data-theme*="-dark"] .sub-card,
+html[data-theme*="-dark"] .inner-card,
+html[data-theme*="-dark"] .secondary-card,
+html[data-theme*="-dark"] .muted-card,
+html[data-theme*="-dark"] .hover-card,
+html[data-theme*="-dark"] .alt-card,
+html[data-theme*="-dark"] .filter-bar,
+html[data-theme*="-dark"] .search-bar,
+html[data-theme*="-dark"] .toolbar,
+html[data-theme*="-dark"] .action-bar,
+html[data-theme*="-dark"] .filter-row,
+html[data-theme*="-dark"] .table-header-row,
+html[data-theme*="-dark"] .list-item,
+html[data-theme*="-dark"] .item-row,
+html[data-theme*="-dark"] .data-row,
+html[data-theme*="-dark"] .row-item,
+html[data-theme*="-dark"] .sub-row {
+    background: var(--t-surf2, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+
+/* ── Text colours ──────────────────────────────────────────── */
+html[data-theme*="-dark"] .card h1, html[data-theme*="-dark"] .card h2,
+html[data-theme*="-dark"] .card h3, html[data-theme*="-dark"] .card h4,
+html[data-theme*="-dark"] .card h5,
+html[data-theme*="-dark"] .section-card h1, html[data-theme*="-dark"] .section-card h2,
+html[data-theme*="-dark"] .section-card h3, html[data-theme*="-dark"] .section-card h4,
+html[data-theme*="-dark"] .page-card h1, html[data-theme*="-dark"] .page-card h2,
+html[data-theme*="-dark"] .page-card h3, html[data-theme*="-dark"] .page-card h4,
+html[data-theme*="-dark"] .panel h1, html[data-theme*="-dark"] .panel h2,
+html[data-theme*="-dark"] .panel h3, html[data-theme*="-dark"] .panel h4,
+html[data-theme*="-dark"] .page-title,
+html[data-theme*="-dark"] .section-title,
+html[data-theme*="-dark"] .card-title,
+html[data-theme*="-dark"] .form-title,
+html[data-theme*="-dark"] .panel-title,
+html[data-theme*="-dark"] .widget-title,
+html[data-theme*="-dark"] .tab-title {
+    color: var(--t-text, #e6edf3) !important;
+}
+
+html[data-theme*="-dark"] .page-subtitle,
+html[data-theme*="-dark"] .card-subtitle,
+html[data-theme*="-dark"] .section-subtitle,
+html[data-theme*="-dark"] .helper-text,
+html[data-theme*="-dark"] .form-hint,
+html[data-theme*="-dark"] .label-hint,
+html[data-theme*="-dark"] .text-muted,
+html[data-theme*="-dark"] .text-secondary {
+    color: var(--t-soft, #8b949e) !important;
+}
+
+/* ── Inputs and selects (global) ───────────────────────────── */
+html[data-theme*="-dark"] input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-theme*="-dark"] select,
+html[data-theme*="-dark"] textarea {
+    background: var(--t-input, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] input::placeholder,
+html[data-theme*="-dark"] textarea::placeholder {
+    color: var(--t-muted, #484f58) !important;
+}
+
+/* ── Generic tables (global) ───────────────────────────────── */
+html[data-theme*="-dark"] table:not(.no-dark) thead,
+html[data-theme*="-dark"] table:not(.no-dark) th {
+    background: var(--t-surf2, #1c2128) !important;
+    color: var(--t-soft, #8b949e) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+html[data-theme*="-dark"] table:not(.no-dark) td {
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] table:not(.no-dark) tbody tr:nth-child(even) {
+    background: var(--t-row, #1c2128) !important;
+}
+html[data-theme*="-dark"] table:not(.no-dark) tbody tr:hover {
+    background: rgba(220,20,60,0.06) !important;
+}
+
+/* ── Labels and form groups ────────────────────────────────── */
+html[data-theme*="-dark"] label:not(.btn):not(.badge) {
+    color: var(--t-text, #e6edf3) !important;
+}
+html[data-theme*="-dark"] .form-label,
+html[data-theme*="-dark"] .field-label,
+html[data-theme*="-dark"] .input-label,
+html[data-theme*="-dark"] .group-label {
+    color: var(--t-text, #e6edf3) !important;
+}
+
+/* ── Modal/dialog surfaces ─────────────────────────────────── */
+html[data-theme*="-dark"] .modal-content,
+html[data-theme*="-dark"] .modal-header,
+html[data-theme*="-dark"] .modal-body,
+html[data-theme*="-dark"] .modal-footer,
+html[data-theme*="-dark"] .dialog-content {
+    background: var(--t-surface, #161b22) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+
+/* ── Outline/secondary buttons (global) ─────────────────────── */
+html[data-theme*="-dark"] .btn-outline,
+html[data-theme*="-dark"] .btn-outline-secondary,
+html[data-theme*="-dark"] .btn-default,
+html[data-theme*="-dark"] .btn-light,
+html[data-theme*="-dark"] .btn-white,
+html[data-theme*="-dark"] a.btn-outline {
+    background: var(--t-surf2, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
+
+/* ── Specific to settings_company.html ─────────────────────── */
+html[data-theme*="-dark"] .settings-header-card,
+html[data-theme*="-dark"] .settings-tab-content,
+html[data-theme*="-dark"] .dept-card,
+html[data-theme*="-dark"] .pos-card,
+html[data-theme*="-dark"] .grade-card,
+html[data-theme*="-dark"] .payslip-preview,
+html[data-theme*="-dark"] .payslip-preview-inner,
+html[data-theme*="-dark"] .tpl-preview,
+html[data-theme*="-dark"] .settings-tpl-card {
+    background: var(--t-surface, #161b22) !important;
+    border-color: var(--t-border, #30363d) !important;
+    color: var(--t-text, #e6edf3) !important;
+}

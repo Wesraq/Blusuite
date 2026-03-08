@@ -1357,7 +1357,7 @@ function toggleLicenseKey() {
       <div style="display:flex;justify-content:space-between;margin-top:24px;">
         <button onclick="qsgBack()" class="qbg">← Back</button>
         <div style="display:flex;gap:8px;">
-          <a href="{% url 'settings_hub' %}" class="qbs" target="_blank">Open Settings ↗</a>
+          <a href="#" onclick="qsgGo('{% url \'settings_hub\' }', 3); return false;" class="qbs">Open Settings →</a>
           <button onclick="qsgNext()" class="qbp">Next →</button>
         </div>
       </div>
@@ -1411,7 +1411,7 @@ function toggleLicenseKey() {
       <div style="display:flex;justify-content:space-between;margin-top:22px;">
         <button onclick="qsgBack()" class="qbg">← Back</button>
         <div style="display:flex;gap:8px;">
-          <a href="{% url 'settings_hub' %}" class="qbs" target="_blank">Open Settings ↗</a>
+          <a href="#" onclick="qsgGo('{% url \'settings_hub\' }', 3); return false;" class="qbs">Open Settings →</a>
           <button onclick="qsgNext()" class="qbp">Next →</button>
         </div>
       </div>
@@ -1466,7 +1466,7 @@ function toggleLicenseKey() {
       <div style="display:flex;justify-content:space-between;margin-top:24px;">
         <button onclick="qsgBack()" class="qbg">← Back</button>
         <div style="display:flex;gap:8px;">
-          <a href="{% url 'employer_add_employee' %}" class="qbs" target="_blank">Add Employee ↗</a>
+          <a href="#" onclick="qsgGo('{% url \'employer_add_employee\' }', 5); return false;" class="qbs">Add Employee →</a>
           <button onclick="qsgNext()" class="qbp">Next →</button>
         </div>
       </div>
@@ -1537,19 +1537,39 @@ function toggleLicenseKey() {
 
 <script>
 (function(){
-var cur=1,CSRF='{{ csrf_token }}';
+var CSRF='{{ csrf_token }}';
+var STEP_KEY='qsg_step_{{ company.id|default:"0" }}';
+
+// Resume from saved step (after redirect back from settings/employees page)
+var saved=parseInt(localStorage.getItem(STEP_KEY)||'1');
+if(saved>5) saved=1;
+var cur=saved;
+
 function show(n){
   for(var i=1;i<=5;i++){var el=document.getElementById('qs'+i);if(el)el.style.display=i===n?'':'none';}
   document.querySelectorAll('.qd').forEach(function(d){d.style.background=parseInt(d.dataset.s)<=n?'#DC143C':'var(--t-border,#e5e7eb)';});
   document.getElementById('qsg-pfill').style.width=(n/5*100)+'%';
   cur=n;
+  localStorage.setItem(STEP_KEY, n);
 }
+
 window.qsgNext=function(){if(cur<5)show(cur+1);};
 window.qsgBack=function(){if(cur>1)show(cur-1);};
 window.qsgClose=function(){document.getElementById('qsg-overlay').style.display='none';done();};
 window.qsgFinish=function(){document.getElementById('qsg-overlay').style.display='none';done();};
-function done(){fetch('/employer/onboarding-complete/',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'}});}
-show(1);
+
+// Navigate to a setup page, save next step so guide resumes on return
+window.qsgGo=function(url, nextStep){
+  localStorage.setItem(STEP_KEY, nextStep);
+  window.location.href=url;
+};
+
+function done(){
+  localStorage.removeItem(STEP_KEY);
+  fetch('/employer/onboarding-complete/',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'}});
+}
+
+show(cur);
 })();
 </script>
 {% endif %}
