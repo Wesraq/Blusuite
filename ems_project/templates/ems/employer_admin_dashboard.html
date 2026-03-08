@@ -389,4 +389,234 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+{% if show_qsg %}
+<!-- ═══════════════════════════════════════════════════════════
+     QUICK START GUIDE MODAL
+     Shown once for newly approved companies until dismissed.
+═══════════════════════════════════════════════════════════ -->
+<div id="qsg-overlay" style="
+    position:fixed; inset:0; background:rgba(15,23,42,0.55);
+    backdrop-filter:blur(3px); z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+">
+  <div id="qsg-modal" style="
+      background:#fff; border-radius:16px;
+      width:100%; max-width:560px;
+      box-shadow:0 24px 64px -12px rgba(15,23,42,0.45);
+      overflow:hidden; position:relative;
+  ">
+
+    <!-- Progress bar -->
+    <div id="qsg-progress-bar" style="height:4px; background:#e5e7eb;">
+      <div id="qsg-progress-fill" style="height:100%; background:#E11D48; width:20%; transition:width 0.35s ease;"></div>
+    </div>
+
+    <!-- Step indicator -->
+    <div style="display:flex; justify-content:center; gap:8px; padding:20px 24px 0;">
+      {% for i in "12345" %}
+      <div class="qsg-dot" data-step="{{ forloop.counter }}" style="
+          width:10px; height:10px; border-radius:50%;
+          background:{% if forloop.counter == 1 %}#E11D48{% else %}#e5e7eb{% endif %};
+          transition:background 0.25s;
+      "></div>
+      {% endfor %}
+    </div>
+
+    <!-- ── STEP 1 : Welcome ─────────────────────────────────── -->
+    <div class="qsg-step" id="qsg-step-1" style="padding:28px 32px 32px; text-align:center;">
+      <div style="font-size:52px; margin-bottom:16px;">👋</div>
+      <h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0 0 10px;">Welcome to <span style="color:#E11D48;">{{ company.name }}</span>!</h2>
+      <p style="color:#64748b; font-size:14px; line-height:1.65; margin:0 0 28px;">
+        Your account is ready. This quick guide will walk you through the <strong>5 key steps</strong> to get your company up and running on BLU Suite EMS.
+      </p>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button onclick="qsgClose()" class="qsg-btn-ghost">Skip for now</button>
+        <button onclick="qsgNext()" class="qsg-btn-primary">Let's get started →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2 : Company Profile ─────────────────────────── -->
+    <div class="qsg-step" id="qsg-step-2" style="padding:28px 32px 32px; display:none;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+        <div class="qsg-step-badge">1</div>
+        <div>
+          <div style="font-size:17px; font-weight:700; color:#0f172a;">Company Profile</div>
+          <div style="font-size:13px; color:#64748b;">Add your logo, branding, and contact details</div>
+        </div>
+      </div>
+      <div class="qsg-checklist">
+        <div class="qsg-check-item">🏢 Set your company name, address, and phone</div>
+        <div class="qsg-check-item">🎨 Upload your company logo</div>
+        <div class="qsg-check-item">🌐 Add your website and industry</div>
+        <div class="qsg-check-item">🖨 Configure your payslip branding colours</div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:space-between; margin-top:28px;">
+        <button onclick="qsgBack()" class="qsg-btn-ghost">← Back</button>
+        <div style="display:flex; gap:10px;">
+          <a href="/company-settings/" class="qsg-btn-secondary" target="_blank">Open Settings ↗</a>
+          <button onclick="qsgNext()" class="qsg-btn-primary">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 3 : Departments ─────────────────────────────── -->
+    <div class="qsg-step" id="qsg-step-3" style="padding:28px 32px 32px; display:none;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+        <div class="qsg-step-badge">2</div>
+        <div>
+          <div style="font-size:17px; font-weight:700; color:#0f172a;">Departments & Positions</div>
+          <div style="font-size:13px; color:#64748b;">Structure your company hierarchy</div>
+        </div>
+      </div>
+      <div class="qsg-checklist">
+        <div class="qsg-check-item">🏗 Create your main departments (HR, Finance, IT…)</div>
+        <div class="qsg-check-item">📋 Add job positions for each department</div>
+        <div class="qsg-check-item">🔗 Link departments to reporting managers</div>
+      </div>
+      <p style="font-size:12px; color:#94a3b8; margin-top:14px; margin-bottom:0;">
+        Tip: You can always add more departments later from the Company Settings menu.
+      </p>
+      <div style="display:flex; gap:10px; justify-content:space-between; margin-top:24px;">
+        <button onclick="qsgBack()" class="qsg-btn-ghost">← Back</button>
+        <div style="display:flex; gap:10px;">
+          <a href="/company-settings/" class="qsg-btn-secondary" target="_blank">Open Settings ↗</a>
+          <button onclick="qsgNext()" class="qsg-btn-primary">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 4 : Add Employees ───────────────────────────── -->
+    <div class="qsg-step" id="qsg-step-4" style="padding:28px 32px 32px; display:none;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+        <div class="qsg-step-badge">3</div>
+        <div>
+          <div style="font-size:17px; font-weight:700; color:#0f172a;">Add Your Employees</div>
+          <div style="font-size:13px; color:#64748b;">Invite your team and assign roles</div>
+        </div>
+      </div>
+      <div class="qsg-checklist">
+        <div class="qsg-check-item">👤 Add employees one by one or via bulk import</div>
+        <div class="qsg-check-item">📧 They'll receive an invitation to log in</div>
+        <div class="qsg-check-item">🔐 Assign roles: HR, Accountant, Supervisor, or Employee</div>
+        <div class="qsg-check-item">📁 Attach contracts and employee documents</div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:space-between; margin-top:28px;">
+        <button onclick="qsgBack()" class="qsg-btn-ghost">← Back</button>
+        <div style="display:flex; gap:10px;">
+          <a href="/employees/add/" class="qsg-btn-secondary" target="_blank">Add Employee ↗</a>
+          <button onclick="qsgNext()" class="qsg-btn-primary">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 5 : Done ────────────────────────────────────── -->
+    <div class="qsg-step" id="qsg-step-5" style="padding:28px 32px 36px; text-align:center; display:none;">
+      <div style="font-size:56px; margin-bottom:16px;">🎉</div>
+      <h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0 0 10px;">You're all set!</h2>
+      <p style="color:#64748b; font-size:14px; line-height:1.65; margin:0 0 24px;">
+        Your BLU Suite EMS is ready to use. Explore the dashboard, track attendance, process payroll, and manage your team — all in one place.
+      </p>
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:16px 20px; text-align:left; margin-bottom:28px;">
+        <div style="font-size:13px; font-weight:600; color:#166534; margin-bottom:8px;">Quick links to get started:</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <a href="/employees/" style="font-size:13px; color:#1d4ed8; text-decoration:none;">👥 Employees</a>
+          <a href="/payroll/" style="font-size:13px; color:#1d4ed8; text-decoration:none;">💰 Payroll</a>
+          <a href="/attendance/" style="font-size:13px; color:#1d4ed8; text-decoration:none;">📅 Attendance</a>
+          <a href="/company-settings/" style="font-size:13px; color:#1d4ed8; text-decoration:none;">⚙️ Settings</a>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button onclick="qsgFinish()" class="qsg-btn-primary" style="padding:12px 32px; font-size:15px;">
+          Go to Dashboard ✓
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /qsg-modal -->
+</div><!-- /qsg-overlay -->
+
+<style>
+.qsg-btn-primary {
+    background:#E11D48; color:#fff; border:none; border-radius:8px;
+    padding:10px 22px; font-size:14px; font-weight:600; cursor:pointer;
+    transition:background 0.15s;
+}
+.qsg-btn-primary:hover { background:#BE123C; }
+.qsg-btn-ghost {
+    background:transparent; color:#64748b; border:1px solid #e2e8f0;
+    border-radius:8px; padding:10px 18px; font-size:14px; font-weight:500;
+    cursor:pointer; transition:all 0.15s;
+}
+.qsg-btn-ghost:hover { background:#f8fafc; color:#374151; }
+.qsg-btn-secondary {
+    background:#f1f5f9; color:#334155; border:none; border-radius:8px;
+    padding:10px 18px; font-size:14px; font-weight:500; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center;
+    transition:background 0.15s;
+}
+.qsg-btn-secondary:hover { background:#e2e8f0; }
+.qsg-step-badge {
+    width:38px; height:38px; border-radius:50%;
+    background:linear-gradient(135deg,#E11D48,#9f1239);
+    color:#fff; font-weight:700; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+}
+.qsg-checklist { display:flex; flex-direction:column; gap:10px; }
+.qsg-check-item {
+    background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;
+    padding:11px 14px; font-size:14px; color:#374151;
+}
+</style>
+
+<script>
+(function() {
+    var TOTAL = 5;
+    var current = 1;
+    var CSRF = '{{ csrf_token }}';
+
+    function showStep(n) {
+        for (var i = 1; i <= TOTAL; i++) {
+            var el = document.getElementById('qsg-step-' + i);
+            if (el) el.style.display = (i === n) ? '' : 'none';
+        }
+        // dots
+        document.querySelectorAll('.qsg-dot').forEach(function(d) {
+            d.style.background = parseInt(d.dataset.step) <= n ? '#E11D48' : '#e5e7eb';
+        });
+        // progress bar
+        var fill = document.getElementById('qsg-progress-fill');
+        if (fill) fill.style.width = (n / TOTAL * 100) + '%';
+        current = n;
+    }
+
+    window.qsgNext = function() {
+        if (current < TOTAL) showStep(current + 1);
+    };
+    window.qsgBack = function() {
+        if (current > 1) showStep(current - 1);
+    };
+    window.qsgClose = function() {
+        document.getElementById('qsg-overlay').style.display = 'none';
+        markDone();
+    };
+    window.qsgFinish = function() {
+        document.getElementById('qsg-overlay').style.display = 'none';
+        markDone();
+    };
+
+    function markDone() {
+        fetch('/employer/onboarding-complete/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': CSRF, 'Content-Type': 'application/json'}
+        });
+    }
+
+    // Initialise
+    showStep(1);
+})();
+</script>
+{% endif %}
+
 {% endblock %}

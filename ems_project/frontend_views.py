@@ -3756,6 +3756,7 @@ def employer_admin_dashboard(request):
         'today_attendance': today_attendance,
         'pending_leave_requests': pending_leave_requests,
         'recent_activities': recent_activities,
+        'show_qsg': not getattr(company, 'onboarding_complete', True),
     }
 
     return render(request, 'ems/employer_admin_dashboard.html', context)
@@ -19900,6 +19901,7 @@ def approve_company_registration(request, request_id):
             is_trial=True,
             trial_ends_at=__import__('django.utils.timezone', fromlist=['now']).now() + timedelta(days=30),
             max_employees=registration.number_of_employees or 10,
+            onboarding_complete=False,
         )
 
         # Create the admin user
@@ -19969,6 +19971,23 @@ BLU Suite EMS Team""",
         logger.error(f"Error approving registration {request_id}: {e}", exc_info=True)
         messages.error(request, f'Error approving registration: {str(e)}')
         return redirect('registration_detail', request_id=request_id)
+
+
+@login_required
+def mark_onboarding_complete(request):
+    """AJAX: mark company onboarding as done"""
+    if request.method != 'POST':
+        from django.http import JsonResponse
+        return JsonResponse({'error': 'POST required'}, status=405)
+    from django.http import JsonResponse
+    try:
+        company = request.user.company
+        company.onboarding_complete = True
+        company.save(update_fields=['onboarding_complete'])
+        return JsonResponse({'ok': True})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
 
 
 def approval_success(request):

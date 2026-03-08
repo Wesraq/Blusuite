@@ -238,6 +238,7 @@ class Company(models.Model):
     license_expiry = models.DateField(null=True, blank=True)
     max_employees = models.PositiveIntegerField(default=10)
     is_trial = models.BooleanField(default=False)
+    onboarding_complete = models.BooleanField(default=True, help_text='False for newly approved companies until QSG is completed')
     trial_ends_at = models.DateTimeField(null=True, blank=True)
 
     # Parent-child relationship for sub-companies

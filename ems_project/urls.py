@@ -103,6 +103,7 @@ urlpatterns = [
     path('financial-assets/', frontend_views.financial_assets_view, name='financial_assets'),
     path('financial-analytics/', frontend_views.financial_analytics_view, name='financial_analytics'),
     path('employer/', frontend_views.employer_dashboard, name='employer_dashboard'),
+    path('employer/onboarding-complete/', frontend_views.mark_onboarding_complete, name='mark_onboarding_complete'),
     path('blusuite/', frontend_views.blu_suite_home, name='blu_suite_home'),
     path('blusuite/staff/', frontend_views.blu_staff_home, name='blu_staff_home'),
     path('blusuite/projects/', frontend_views.blu_projects_home, name='blu_projects_home'),
