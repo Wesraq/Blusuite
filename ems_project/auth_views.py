@@ -163,12 +163,13 @@ def login_redirect(request):
     return redirect('/')
 
 
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
 @csrf_protect
+@ensure_csrf_cookie
 def general_user_login(request):
     """General login for employees and other users"""
-    if request.method == 'GET':
+    if request.method in ["GET", "HEAD"]:
         if request.user.is_authenticated:
             return redirect('/dashboard/')
         

@@ -1136,6 +1136,107 @@ function toggleLicenseKey() {
         border-color: var(--primary);
     }
 
+
+    /* ── DARK MODE OVERRIDES ─────────────────────────────────────────────── */
+    html[data-theme*="-dark"] .dashboard-header,
+    html[data-theme*="-dark"] .tab-navigation,
+    html[data-theme*="-dark"] .stat-card,
+    html[data-theme*="-dark"] .module-card,
+    html[data-theme*="-dark"] .content-section,
+    html[data-theme*="-dark"] .company-profile-card,
+    html[data-theme*="-dark"] .alert-card,
+    html[data-theme*="-dark"] .detail-card {
+        background: var(--t-surface, #161b22) !important;
+        border-color: var(--t-border, #30363d) !important;
+    }
+
+    html[data-theme*="-dark"] .quick-stat,
+    html[data-theme*="-dark"] .info-card,
+    html[data-theme*="-dark"] .logo-placeholder {
+        background: var(--t-surf2, #1c2128) !important;
+        border-color: var(--t-border, #30363d) !important;
+    }
+
+    html[data-theme*="-dark"] .btn-secondary,
+    html[data-theme*="-dark"] .btn-action,
+    html[data-theme*="-dark"] .btn-icon-small,
+    html[data-theme*="-dark"] .btn-module {
+        background: var(--t-surf2, #1c2128) !important;
+        border-color: var(--t-border, #30363d) !important;
+        color: var(--t-text, #e6edf3) !important;
+    }
+
+    html[data-theme*="-dark"] .btn-secondary:hover,
+    html[data-theme*="-dark"] .btn-action:hover,
+    html[data-theme*="-dark"] .btn-module:hover {
+        background: var(--primary, #DC143C) !important;
+        border-color: var(--primary, #DC143C) !important;
+        color: #fff !important;
+    }
+
+    html[data-theme*="-dark"] .header-text h1,
+    html[data-theme*="-dark"] .stat-value,
+    html[data-theme*="-dark"] .section-header h2,
+    html[data-theme*="-dark"] .info-card h3,
+    html[data-theme*="-dark"] .detail-card h4,
+    html[data-theme*="-dark"] .alert-header h4,
+    html[data-theme*="-dark"] .company-info h3,
+    html[data-theme*="-dark"] .module-content,
+    html[data-theme*="-dark"] .document-list li,
+    html[data-theme*="-dark"] .detail-list dd,
+    html[data-theme*="-dark"] .quick-stat .stat-value {
+        color: var(--t-text, #e6edf3) !important;
+    }
+
+    html[data-theme*="-dark"] .subtitle,
+    html[data-theme*="-dark"] .stat-label,
+    html[data-theme*="-dark"] .stat-change,
+    html[data-theme*="-dark"] .section-subtitle,
+    html[data-theme*="-dark"] .module-description,
+    html[data-theme*="-dark"] .alert-content,
+    html[data-theme*="-dark"] .module-stat,
+    html[data-theme*="-dark"] .company-address,
+    html[data-theme*="-dark"] .info-list li,
+    html[data-theme*="-dark"] .detail-list dt,
+    html[data-theme*="-dark"] .swatch-label,
+    html[data-theme*="-dark"] .logo-placeholder,
+    html[data-theme*="-dark"] .quick-stat .stat-label {
+        color: var(--t-soft, #8b949e) !important;
+    }
+
+    html[data-theme*="-dark"] .section-header,
+    html[data-theme*="-dark"] .tab-navigation {
+        border-color: var(--t-border, #30363d) !important;
+    }
+
+    /* Tab navigation active state stays red */
+    html[data-theme*="-dark"] .tab-btn {
+        color: var(--t-soft, #8b949e) !important;
+    }
+    html[data-theme*="-dark"] .tab-btn:hover {
+        background: var(--t-surf2, #1c2128) !important;
+        color: var(--t-text, #e6edf3) !important;
+    }
+    html[data-theme*="-dark"] .tab-btn.active {
+        background: var(--primary, #DC143C) !important;
+        color: #fff !important;
+    }
+
+    /* Module card buttons keep border visible */
+    html[data-theme*="-dark"] .btn-module {
+        background: var(--t-surf2, #1c2128) !important;
+        border-color: var(--t-border, #30363d) !important;
+        color: var(--t-text, #e6edf3) !important;
+    }
+
+    /* Quick actions */
+    html[data-theme*="-dark"] .info-grid .info-card,
+    html[data-theme*="-dark"] .info-grid .action-buttons .btn-action {
+        background: var(--t-surf2, #1c2128) !important;
+        border-color: var(--t-border, #30363d) !important;
+        color: var(--t-text, #e6edf3) !important;
+    }
+
     @media (max-width: 768px) {
         .ems-dashboard {
             padding: 16px;
@@ -1168,4 +1269,159 @@ function toggleLicenseKey() {
         }
     }
 </style>
+
+{% if show_qsg %}
+<div id="qsg-overlay" style="
+    position:fixed; inset:0; background:rgba(15,23,42,0.6);
+    backdrop-filter:blur(4px); z-index:9999;
+    display:flex; align-items:center; justify-content:center; padding:16px;">
+  <div id="qsg-modal" style="
+      background:#fff; border-radius:16px; width:100%; max-width:560px;
+      box-shadow:0 24px 64px -12px rgba(15,23,42,0.5); overflow:hidden; position:relative;">
+
+    <!-- Progress bar -->
+    <div style="height:4px; background:#e5e7eb;">
+      <div id="qsg-pfill" style="height:100%; background:#DC143C; width:20%; transition:width .35s ease;"></div>
+    </div>
+
+    <!-- Step dots -->
+    <div style="display:flex; justify-content:center; gap:8px; padding:18px 24px 0;">
+      <div class="qd" data-s="1" style="width:9px;height:9px;border-radius:50%;background:#DC143C;transition:background .2s;"></div>
+      <div class="qd" data-s="2" style="width:9px;height:9px;border-radius:50%;background:#e5e7eb;transition:background .2s;"></div>
+      <div class="qd" data-s="3" style="width:9px;height:9px;border-radius:50%;background:#e5e7eb;transition:background .2s;"></div>
+      <div class="qd" data-s="4" style="width:9px;height:9px;border-radius:50%;background:#e5e7eb;transition:background .2s;"></div>
+      <div class="qd" data-s="5" style="width:9px;height:9px;border-radius:50%;background:#e5e7eb;transition:background .2s;"></div>
+    </div>
+
+    <!-- Step 1: Welcome -->
+    <div class="qs" id="qs1" style="padding:26px 32px 30px;text-align:center;">
+      <div style="font-size:50px;margin-bottom:14px;">👋</div>
+      <h2 style="font-size:21px;font-weight:800;color:#0f172a;margin:0 0 10px;">Welcome to <span style="color:#DC143C;">{{ company.name }}</span>!</h2>
+      <p style="color:#64748b;font-size:14px;line-height:1.7;margin:0 0 26px;">
+        Your account is ready. This quick guide walks you through <strong>5 key steps</strong> to get your company up and running on BLU Suite EMS.
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button onclick="qsgClose()" class="qbg">Skip for now</button>
+        <button onclick="qsgNext()" class="qbp">Let's get started →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Company Profile -->
+    <div class="qs" id="qs2" style="padding:26px 32px 30px;display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div class="qbadge">1</div>
+        <div><div style="font-size:16px;font-weight:700;color:#0f172a;">Company Profile</div>
+        <div style="font-size:13px;color:#64748b;">Add your logo, branding & contact details</div></div>
+      </div>
+      <div class="qcl">
+        <div class="qci">🏢 Set your company name, address, and phone</div>
+        <div class="qci">🎨 Upload your company logo &amp; set brand colours</div>
+        <div class="qci">🌐 Add your website and industry type</div>
+        <div class="qci">🖨 Configure your payslip branding</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:24px;">
+        <button onclick="qsgBack()" class="qbg">← Back</button>
+        <div style="display:flex;gap:8px;">
+          <a href="/company-settings/" class="qbs" target="_blank">Open Settings ↗</a>
+          <button onclick="qsgNext()" class="qbp">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Departments -->
+    <div class="qs" id="qs3" style="padding:26px 32px 30px;display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div class="qbadge">2</div>
+        <div><div style="font-size:16px;font-weight:700;color:#0f172a;">Departments &amp; Positions</div>
+        <div style="font-size:13px;color:#64748b;">Structure your company hierarchy</div></div>
+      </div>
+      <div class="qcl">
+        <div class="qci">🏗 Create departments (HR, Finance, IT…)</div>
+        <div class="qci">📋 Add job positions for each department</div>
+        <div class="qci">🔗 Link departments to reporting managers</div>
+      </div>
+      <p style="font-size:12px;color:#94a3b8;margin:12px 0 0;">Tip: You can add more departments anytime from Company Settings.</p>
+      <div style="display:flex;justify-content:space-between;margin-top:22px;">
+        <button onclick="qsgBack()" class="qbg">← Back</button>
+        <div style="display:flex;gap:8px;">
+          <a href="/company-settings/" class="qbs" target="_blank">Open Settings ↗</a>
+          <button onclick="qsgNext()" class="qbp">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Add Employees -->
+    <div class="qs" id="qs4" style="padding:26px 32px 30px;display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div class="qbadge">3</div>
+        <div><div style="font-size:16px;font-weight:700;color:#0f172a;">Add Your Employees</div>
+        <div style="font-size:13px;color:#64748b;">Invite your team and assign roles</div></div>
+      </div>
+      <div class="qcl">
+        <div class="qci">👤 Add employees one by one or via bulk import</div>
+        <div class="qci">📧 They receive login credentials via email</div>
+        <div class="qci">🔐 Assign roles: HR, Accountant, Supervisor, Employee</div>
+        <div class="qci">📁 Attach contracts and employee documents</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:24px;">
+        <button onclick="qsgBack()" class="qbg">← Back</button>
+        <div style="display:flex;gap:8px;">
+          <a href="/employees/add/" class="qbs" target="_blank">Add Employee ↗</a>
+          <button onclick="qsgNext()" class="qbp">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Done -->
+    <div class="qs" id="qs5" style="padding:26px 32px 34px;text-align:center;display:none;">
+      <div style="font-size:52px;margin-bottom:14px;">🎉</div>
+      <h2 style="font-size:21px;font-weight:800;color:#0f172a;margin:0 0 10px;">You're all set!</h2>
+      <p style="color:#64748b;font-size:14px;line-height:1.7;margin:0 0 22px;">
+        BLU Suite EMS is ready. Track attendance, process payroll, and manage your team — all in one place.
+      </p>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 18px;text-align:left;margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:600;color:#166534;margin-bottom:8px;">Quick links:</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <a href="/employees/" style="font-size:13px;color:#1d4ed8;text-decoration:none;">👥 Employees</a>
+          <a href="/payroll/" style="font-size:13px;color:#1d4ed8;text-decoration:none;">💰 Payroll</a>
+          <a href="/attendance/" style="font-size:13px;color:#1d4ed8;text-decoration:none;">📅 Attendance</a>
+          <a href="/company-settings/" style="font-size:13px;color:#1d4ed8;text-decoration:none;">⚙️ Settings</a>
+        </div>
+      </div>
+      <button onclick="qsgFinish()" class="qbp" style="padding:12px 32px;font-size:15px;">Go to Dashboard ✓</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.qbp{background:#DC143C;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;}
+.qbp:hover{background:#BE123C;}
+.qbg{background:transparent;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;}
+.qbg:hover{background:#f8fafc;color:#374151;}
+.qbs{background:#f1f5f9;color:#334155;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;transition:background .15s;}
+.qbs:hover{background:#e2e8f0;}
+.qbadge{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#DC143C,#9f1239);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.qcl{display:flex;flex-direction:column;gap:9px;}
+.qci{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:14px;color:#374151;}
+</style>
+
+<script>
+(function(){
+var cur=1,CSRF='{{ csrf_token }}';
+function show(n){
+  for(var i=1;i<=5;i++){var el=document.getElementById('qs'+i);if(el)el.style.display=i===n?'':'none';}
+  document.querySelectorAll('.qd').forEach(function(d){d.style.background=parseInt(d.dataset.s)<=n?'#DC143C':'#e5e7eb';});
+  document.getElementById('qsg-pfill').style.width=(n/5*100)+'%';
+  cur=n;
+}
+window.qsgNext=function(){if(cur<5)show(cur+1);};
+window.qsgBack=function(){if(cur>1)show(cur-1);};
+window.qsgClose=function(){document.getElementById('qsg-overlay').style.display='none';done();};
+window.qsgFinish=function(){document.getElementById('qsg-overlay').style.display='none';done();};
+function done(){fetch('/employer/onboarding-complete/',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'}});}
+show(1);
+})();
+</script>
+{% endif %}
+
 {% endblock %}

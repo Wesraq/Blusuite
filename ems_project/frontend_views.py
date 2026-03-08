@@ -4754,6 +4754,7 @@ def employer_dashboard(request):
         'show_payroll': True,
         'show_reports': True,
         'show_analytics_suite': True,
+        'show_qsg': not getattr(company, 'onboarding_complete', True),
     }
 
     return render(request, 'ems/employer_dashboard_new.html', context)
