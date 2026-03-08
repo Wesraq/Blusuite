@@ -1,5 +1,29 @@
 <aside class="sidebar">
-    <div class="sidebar-header" style="padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
+    
+<style>
+.company-logo-initials {
+    width: 48px;
+    height: 48px;
+    background: #E11D48;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+</style>
+<script>
+function getCompanyInitials(name) {
+    if (!name) return 'E';
+    var words = name.trim().split(/\s+/);
+    if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase();
+}
+</script>
+<div class="sidebar-header" style="padding: 20px; border-bottom: 1px solid var(--t-border, #e2e8f0); display: flex; align-items: center; gap: 12px;">
         <div class="sidebar-logo-block">
             {% if user.company.logo %}
                 <img src="{{ user.company.logo.url }}" alt="Logo" class="sidebar-logo-img">
@@ -8,7 +32,7 @@
             {% endif %}
         </div>
         <div class="sidebar-company-name" style="flex: 1; min-width: 0;">
-            <div style="font-size: 13px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">EMS Portal</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--t-text, #0f172a); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">EMS Portal</div>
         </div>
     </div>
     <nav>
@@ -204,7 +228,7 @@
             
 
             <!-- Compensation & Benefits Section -->
-            <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0;">Compensation</li>
+            <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid var(--t-border, #e2e8f0);">Compensation</li>
             {% if show_payroll %}
             <li class="nav-item">
                 <a href="{% url 'payroll_list' %}" class="nav-link {% if 'payroll' in request.resolver_match.url_name %}active{% endif %}">
@@ -251,7 +275,7 @@
             </li>
             
             <!-- Operations Section -->
-            <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0;">Operations</li>
+            <li class="nav-section-header" style="margin-top: 24px; padding: 8px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; border-top: 1px solid var(--t-border, #e2e8f0);">Operations</li>
             <li class="nav-item">
                 <a href="{% url 'eforms_list' %}" class="nav-link {% if 'eforms' in request.resolver_match.url_name %}active{% endif %}">
                     <span class="nav-icon">
