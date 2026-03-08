@@ -280,7 +280,7 @@ CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://127.0.0.1:8000,
 # CSRF settings - SECURITY: Secure by default
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1:8000,http://localhost:8000').split(',')
 CSRF_COOKIE_SAMESITE = 'Strict'  # Strict CSRF protection
-CSRF_COOKIE_HTTPONLY = True  # Prevent JavaScript access to CSRF token
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access to CSRF token for form submissions
 CSRF_COOKIE_SECURE = not DEBUG  # Secure in production (HTTPS only)
 CSRF_USE_SESSIONS = False  # Keep token in cookie for API compatibility
 
