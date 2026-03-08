@@ -370,6 +370,35 @@ html[data-theme*="-dark"] .page-header h1,
 html[data-theme*="-dark"] .page-header h2,
 html[data-theme*="-dark"] .page-header h3,
 html[data-theme*="-dark"] .page-header p { color: var(--t-text, #e6edf3) !important; }
+/* ── Page header text white on company themes ── */
+html[data-theme*="company"] .page-header h1,
+html[data-theme*="company"] .page-header h2,
+html[data-theme*="company"] .page-header h3,
+html[data-theme*="company"] .page-header p,
+html[data-theme*="company"] .page-header span,
+html[data-theme*="company"] .page-header div {
+    color: rgba(255,255,255,0.95) !important;
+}
+
+/* ── Sidebar header company name always white ── */
+html[data-theme*="company"] .sidebar-header h1,
+html[data-theme*="company"] .sidebar-header h2,
+html[data-theme*="company"] .sidebar-header h3,
+html[data-theme*="company"] .sidebar-header div,
+html[data-theme*="company"] .sidebar-header span {
+    color: #ffffff !important;
+}
+
+/* ── Top header (if exists) text white on company themes ── */
+html[data-theme*="company"] .top-header h1,
+html[data-theme*="company"] .top-header h2,
+html[data-theme*="company"] .top-header h3,
+html[data-theme*="company"] .top-header div,
+html[data-theme*="company"] .top-header span,
+html[data-theme*="company"] .top-header p {
+    color: #ffffff !important;
+}
+
 
 /* stats-grid, content wrappers: make sure no white bg bleeds through */
 html[data-theme*="-dark"] .stats-grid,
