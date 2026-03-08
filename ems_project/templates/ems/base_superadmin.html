@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style class="fouc-prevent">
+    html[data-theme*="-dark"]{background:#0d1117!important;color:#e6edf3!important;}
+    html[data-theme*="-dark"] body{background:#0d1117!important;color:#e6edf3!important;}
+    html[data-theme*="-dark"] .card,html[data-theme*="-dark"] .panel,html[data-theme*="-dark"] .section-card,html[data-theme*="-dark"] .page-card,html[data-theme*="-dark"] .stat-card,html[data-theme*="-dark"] .info-card,html[data-theme*="-dark"] .module-card{background:#161b22!important;border-color:#30363d!important;color:#e6edf3!important;}
+    html[data-theme*="-dark"] [style*="background:#fff"],html[data-theme*="-dark"] [style*="background: #fff"],html[data-theme*="-dark"] [style*="background:#ffffff"],html[data-theme*="-dark"] [style*="background: #ffffff"],html[data-theme*="-dark"] [style*="background:white"],html[data-theme*="-dark"] [style*="background: white"],html[data-theme*="-dark"] [style*="background:#f8fafc"],html[data-theme*="-dark"] [style*="background: #f8fafc"],html[data-theme*="-dark"] [style*="background:#f9fafb"],html[data-theme*="-dark"] [style*="background: #f9fafb"],html[data-theme*="-dark"] [style*="background:#fafafa"],html[data-theme*="-dark"] [style*="background: #fafafa"],html[data-theme*="-dark"] [style*="background-color:#fff"],html[data-theme*="-dark"] [style*="background-color: #fff"],html[data-theme*="-dark"] [style*="background-color:#ffffff"],html[data-theme*="-dark"] [style*="background-color: #ffffff"],html[data-theme*="-dark"] [style*="background-color:white"],html[data-theme*="-dark"] [style*="background-color: white"]{background:var(--t-surface,#161b22)!important;background-color:var(--t-surface,#161b22)!important;border-color:var(--t-border,#30363d)!important;}
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Employee Management System{% endblock %}</title>

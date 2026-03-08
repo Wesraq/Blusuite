@@ -12,17 +12,35 @@
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     
     <!-- BLOCKING: Detect theme preference BEFORE first paint to prevent flash -->
-    <style id="fouc-fix">
+        <style id="fouc-fix">
     /* Prevent white flash on dark mode page load */
-    html[data-theme*="-dark"] { background:#0d1117!important; }
+    html[data-theme*="-dark"] { background:#0d1117!important;color:#e6edf3!important; }
     html[data-theme*="-dark"] body { background:#0d1117!important;color:#e6edf3!important; }
-    html[data-theme*="-dark"] .card,
-    html[data-theme*="-dark"] .panel,
-    html[data-theme*="-dark"] .section-card,
-    html[data-theme*="-dark"] .page-card,
-    html[data-theme*="-dark"] .content-section,
-    html[data-theme*="-dark"] .tab-content,
-    html[data-theme*="-dark"] .main-content { background:#161b22!important;border-color:#30363d!important;color:#e6edf3!important; }
+    /* Common surface classes */
+    html[data-theme*="-dark"] .card,html[data-theme*="-dark"] .panel,html[data-theme*="-dark"] .section-card,
+    html[data-theme*="-dark"] .page-card,html[data-theme*="-dark"] .content-section,
+    html[data-theme*="-dark"] .tab-content,html[data-theme*="-dark"] .main-content,
+    html[data-theme*="-dark"] .settings-card,html[data-theme*="-dark"] .modal-content,
+    html[data-theme*="-dark"] .dropdown-menu,html[data-theme*="-dark"] .list-group-item,
+    html[data-theme*="-dark"] .stat-card,html[data-theme*="-dark"] .info-card,
+    html[data-theme*="-dark"] .module-card,html[data-theme*="-dark"] .data-card { background:#161b22!important;border-color:#30363d!important;color:#e6edf3!important; }
+    /* Inline style overrides — CSS !important beats non-!important inline styles */
+    html[data-theme*="-dark"] [style*="background:#fff"],html[data-theme*="-dark"] [style*="background: #fff"],
+    html[data-theme*="-dark"] [style*="background:#ffffff"],html[data-theme*="-dark"] [style*="background: #ffffff"],
+    html[data-theme*="-dark"] [style*="background:#FFFFFF"],html[data-theme*="-dark"] [style*="background: #FFFFFF"],
+    html[data-theme*="-dark"] [style*="background:white"],html[data-theme*="-dark"] [style*="background: white"],
+    html[data-theme*="-dark"] [style*="background:#f8fafc"],html[data-theme*="-dark"] [style*="background: #f8fafc"],
+    html[data-theme*="-dark"] [style*="background:#f9fafb"],html[data-theme*="-dark"] [style*="background: #f9fafb"],
+    html[data-theme*="-dark"] [style*="background:#fafafa"],html[data-theme*="-dark"] [style*="background: #fafafa"],
+    html[data-theme*="-dark"] [style*="background:#f5f5f5"],html[data-theme*="-dark"] [style*="background: #f5f5f5"],
+    html[data-theme*="-dark"] [style*="background-color:#fff"],html[data-theme*="-dark"] [style*="background-color: #fff"],
+    html[data-theme*="-dark"] [style*="background-color:#ffffff"],html[data-theme*="-dark"] [style*="background-color: #ffffff"],
+    html[data-theme*="-dark"] [style*="background-color:white"],html[data-theme*="-dark"] [style*="background-color: white"] { background:var(--t-surface,#161b22)!important;background-color:var(--t-surface,#161b22)!important;border-color:var(--t-border,#30363d)!important; }
+    html[data-theme*="-dark"] [style*="color:#0f172a"],html[data-theme*="-dark"] [style*="color: #0f172a"],
+    html[data-theme*="-dark"] [style*="color:#111827"],html[data-theme*="-dark"] [style*="color: #111827"],
+    html[data-theme*="-dark"] [style*="color:#374151"],html[data-theme*="-dark"] [style*="color: #374151"],
+    html[data-theme*="-dark"] [style*="color:black"],html[data-theme*="-dark"] [style*="color:#000"],
+    html[data-theme*="-dark"] [style*="color:#000000"] { color:var(--t-text,#e6edf3)!important; }
     </style>
 
     <script>

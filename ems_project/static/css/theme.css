@@ -847,3 +847,78 @@ html[data-theme*="-dark"] .settings-tpl-card {
     border-color: var(--t-border, #30363d) !important;
     color: var(--t-text, #e6edf3) !important;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   FOUC FIX: Override inline style="background: white/fff" 
+   CSS !important overrides non-!important inline styles — no JS needed
+   ═══════════════════════════════════════════════════════════════ */
+html[data-theme*="-dark"] [style*="background:#fff"],
+html[data-theme*="-dark"] [style*="background: #fff"],
+html[data-theme*="-dark"] [style*="background:#ffffff"],
+html[data-theme*="-dark"] [style*="background: #ffffff"],
+html[data-theme*="-dark"] [style*="background:#FFFFFF"],
+html[data-theme*="-dark"] [style*="background: #FFFFFF"],
+html[data-theme*="-dark"] [style*="background:white"],
+html[data-theme*="-dark"] [style*="background: white"],
+html[data-theme*="-dark"] [style*="background:White"],
+html[data-theme*="-dark"] [style*="background: White"],
+html[data-theme*="-dark"] [style*="background-color:#fff"],
+html[data-theme*="-dark"] [style*="background-color: #fff"],
+html[data-theme*="-dark"] [style*="background-color:#ffffff"],
+html[data-theme*="-dark"] [style*="background-color: #ffffff"],
+html[data-theme*="-dark"] [style*="background-color:white"],
+html[data-theme*="-dark"] [style*="background-color: white"],
+html[data-theme*="-dark"] [style*="background:#f8fafc"],
+html[data-theme*="-dark"] [style*="background: #f8fafc"],
+html[data-theme*="-dark"] [style*="background:#f9fafb"],
+html[data-theme*="-dark"] [style*="background: #f9fafb"],
+html[data-theme*="-dark"] [style*="background:#f0f2f5"],
+html[data-theme*="-dark"] [style*="background: #f0f2f5"],
+html[data-theme*="-dark"] [style*="background:#fafafa"],
+html[data-theme*="-dark"] [style*="background: #fafafa"],
+html[data-theme*="-dark"] [style*="background:#f5f5f5"],
+html[data-theme*="-dark"] [style*="background: #f5f5f5"] {
+    background: var(--t-surface, #161b22) !important;
+    background-color: var(--t-surface, #161b22) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+
+/* Light-grey inline backgrounds (#e- #d- patterns) */
+html[data-theme*="-dark"] [style*="background:#e2e8f0"],
+html[data-theme*="-dark"] [style*="background: #e2e8f0"],
+html[data-theme*="-dark"] [style*="background:#edf2f7"],
+html[data-theme*="-dark"] [style*="background: #edf2f7"],
+html[data-theme*="-dark"] [style*="background:#eff3f6"],
+html[data-theme*="-dark"] [style*="background: #eff3f6"] {
+    background: var(--t-surf2, #1c2128) !important;
+    background-color: var(--t-surf2, #1c2128) !important;
+    border-color: var(--t-border, #30363d) !important;
+}
+
+/* Dark text that becomes invisible on dark surface */
+html[data-theme*="-dark"] [style*="color:#0f172a"],
+html[data-theme*="-dark"] [style*="color: #0f172a"],
+html[data-theme*="-dark"] [style*="color:#1e293b"],
+html[data-theme*="-dark"] [style*="color: #1e293b"],
+html[data-theme*="-dark"] [style*="color:#111827"],
+html[data-theme*="-dark"] [style*="color: #111827"],
+html[data-theme*="-dark"] [style*="color:#374151"],
+html[data-theme*="-dark"] [style*="color: #374151"],
+html[data-theme*="-dark"] [style*="color:#1f2937"],
+html[data-theme*="-dark"] [style*="color: #1f2937"],
+html[data-theme*="-dark"] [style*="color:black"],
+html[data-theme*="-dark"] [style*="color: black"],
+html[data-theme*="-dark"] [style*="color:#000"],
+html[data-theme*="-dark"] [style*="color: #000"],
+html[data-theme*="-dark"] [style*="color:#000000"],
+html[data-theme*="-dark"] [style*="color: #000000"] {
+    color: var(--t-text, #e6edf3) !important;
+}
+
+/* ── Ensure body and html always dark in dark mode ─ */
+html[data-theme*="-dark"],
+html[data-theme*="-dark"] body {
+    background: var(--t-bg, #0d1117) !important;
+    color: var(--t-text, #e6edf3) !important;
+}
