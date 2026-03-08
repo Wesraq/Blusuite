@@ -922,3 +922,17 @@ html[data-theme*="-dark"] body {
     background: var(--t-bg, #0d1117) !important;
     color: var(--t-text, #e6edf3) !important;
 }
+
+
+/* ── Warning/Info/Success backgrounds for dark mode ──────────────── */
+html[data-theme*="-dark"] {
+    --t-warning-bg: rgba(251, 191, 36, 0.1); /* Subtle amber glow instead of bright yellow */
+    --t-info-bg: rgba(59, 130, 246, 0.1); /* Subtle blue glow */
+    --t-success-bg: rgba(34, 197, 94, 0.1); /* Subtle green glow */
+}
+
+html[data-theme*="-light"] {
+    --t-warning-bg: #fef3c7; /* Light yellow for light mode */
+    --t-info-bg: #dbeafe; /* Light blue for light mode */
+    --t-success-bg: #d1fae5; /* Light green for light mode */
+}
