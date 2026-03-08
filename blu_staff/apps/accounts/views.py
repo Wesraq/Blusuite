@@ -754,8 +754,8 @@ def company_edit(request, company_id):
 
                 # Redirect based on user role
                 if request.user.role in ['ADMINISTRATOR', 'EMPLOYER_ADMIN']:
-                    # For employers, stay on the edit page or go to dashboard
-                    return redirect('employer_dashboard')
+                    # Stay on the edit page so user can see the saved changes
+                    return redirect(request.path)
                 else:
                     # For superadmins, go to company list
                     return redirect('company_list')
