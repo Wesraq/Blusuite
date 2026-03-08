@@ -12,6 +12,19 @@
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     
     <!-- BLOCKING: Detect theme preference BEFORE first paint to prevent flash -->
+    <style id="fouc-fix">
+    /* Prevent white flash on dark mode page load */
+    html[data-theme*="-dark"] { background:#0d1117!important; }
+    html[data-theme*="-dark"] body { background:#0d1117!important;color:#e6edf3!important; }
+    html[data-theme*="-dark"] .card,
+    html[data-theme*="-dark"] .panel,
+    html[data-theme*="-dark"] .section-card,
+    html[data-theme*="-dark"] .page-card,
+    html[data-theme*="-dark"] .content-section,
+    html[data-theme*="-dark"] .tab-content,
+    html[data-theme*="-dark"] .main-content { background:#161b22!important;border-color:#30363d!important;color:#e6edf3!important; }
+    </style>
+
     <script>
         (function() {
             try {

@@ -520,6 +520,14 @@ function toggleLicenseKey() {
 
 {% block extra_css %}
 <style>
+        /* Ensure all tabs have identical background */
+        .tab-content {
+            background: transparent !important;
+        }
+        .tab-content > * {
+            /* Let child elements inherit theme surface colors */
+        }
+
     :root {
         --primary: #DC143C;
         --primary-hover: #FFC5C5;

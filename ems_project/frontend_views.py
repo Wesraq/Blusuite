@@ -9215,7 +9215,7 @@ def reports_center(request):
         return render(request, 'ems/unauthorized.html')
 
     # Feature gate only for admin/accountant — HR and supervisors bypass
-    if not (is_supervisor or is_hr) and not (getattr(request.user, 'is_superadmin', False) or getattr(request.user, 'is_superuser', False) or getattr(request.user, 'role', '') == 'SUPERADMIN'):
+    if not (is_supervisor or is_hr or is_admin) and not (getattr(request.user, 'is_superadmin', False) or getattr(request.user, 'is_superuser', False)):
         from ems_project.plan_features import company_has_feature, FEAT_CUSTOM_REPORTS
         company = getattr(request.user, 'company', None)
         # If no company (e.g., platform admin), skip feature gate
