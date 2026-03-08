@@ -6,33 +6,33 @@
 {% block extra_css %}
 <style>
 .an-page { display: flex; flex-direction: column; gap: 20px; }
-.an-header h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; color: #0f172a; }
+.an-header h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; color: var(--t-text, #0f172a); }
 .an-header p { margin: 0; font-size: 14px; color: #64748b; }
 .an-alert { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 4px; }
 .an-alert svg { color: #DC143C; flex-shrink: 0; }
 .an-alert strong { color: #9f1239; font-size: 14px; }
 .an-list { display: flex; flex-direction: column; gap: 14px; }
-.an-card { position: relative; display: flex; gap: 16px; padding: 18px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; transition: border-color .15s, box-shadow .15s; }
+.an-card { position: relative; display: flex; gap: 16px; padding: 18px 20px; background: var(--t-surface, #fff); border: 1px solid var(--t-border, #e2e8f0); border-radius: 4px; transition: border-color .15s, box-shadow .15s; }
 .an-card:hover { border-color: #DC143C; box-shadow: 0 2px 8px rgba(220,20,60,.10); }
 .an-card.an-unread { border-color: #fca5a5; background: #fff8f8; }
 .an-new-badge { position: absolute; top: 14px; right: 14px; background: #DC143C; color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
 .an-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.an-icon.an-urgent { background: #fee2e2; color: #dc2626; }
-.an-icon.an-high { background: #fef3c7; color: #d97706; }
+.an-icon.an-urgent { background: var(--t-surf2, #fee2e2); color: #dc2626; }
+.an-icon.an-high { background: var(--t-warning-bg, #fef3c7); color: #d97706; }
 .an-icon.an-normal { background: #fff1f2; color: #DC143C; }
 .an-body { flex: 1; min-width: 0; }
-.an-title { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: #0f172a; }
+.an-title { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: var(--t-text, #0f172a); }
 .an-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .an-tag { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
-.an-tag-urgent { background: #fee2e2; color: #991b1b; }
-.an-tag-high { background: #fef3c7; color: #92400e; }
-.an-tag-audience { background: #f1f5f9; color: #64748b; }
+.an-tag-urgent { background: var(--t-surf2, #fee2e2); color: #991b1b; }
+.an-tag-high { background: var(--t-warning-bg, #fef3c7); color: #92400e; }
+.an-tag-audience { background: var(--t-surf2, #f1f5f9); color: #64748b; }
 .an-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
 .an-meta svg { vertical-align: middle; margin-right: 2px; }
 .an-excerpt { margin: 0 0 14px; font-size: 14px; color: #475569; line-height: 1.6; }
 .an-btn-read { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; background: #e11d48; color: #fff; border-radius: 4px; font-size: 13px; font-weight: 600; text-decoration: none; transition: background .15s; }
 .an-btn-read:hover { background: #be123c; }
-.an-empty { text-align: center; padding: 60px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; }
+.an-empty { text-align: center; padding: 60px 20px; background: var(--t-surface, #fff); border: 1px solid var(--t-border, #e2e8f0); border-radius: 4px; }
 .an-empty svg { color: #cbd5e1; margin-bottom: 12px; }
 .an-empty h3 { margin: 0 0 6px; color: #64748b; font-size: 16px; font-weight: 600; }
 .an-empty p { margin: 0; color: #94a3b8; font-size: 13px; }
@@ -41,9 +41,20 @@
 
 {% block content %}
 <div class="an-page">
-    <div class="an-header">
-        <h2>Company Announcements</h2>
-        <p>Stay updated with important news</p>
+    <div class="an-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2>Company Announcements</h2>
+            <p>Stay updated with important news</p>
+        </div>
+        {% if user.role in 'ADMINISTRATOR,EMPLOYER_ADMIN' or user.employee_profile.employee_role in 'HR,HUMAN_RESOURCES' %}
+        <a href="{% url 'create_announcement' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #E11D48; color: white; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.15s;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create Announcement
+        </a>
+        {% endif %}
     </div>
 
     {% if unread_count > 0 %}

@@ -12,11 +12,11 @@
   .ae-form-control {
     width: 100%;
     padding: 9px 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--t-border, #e2e8f0);
     border-radius: 4px;
     font-size: 13px;
     font-family: inherit;
-    background-color: #fff;
+    background-color: var(--t-surface, #fff);
     transition: border-color 0.15s;
     box-sizing: border-box;
   }
@@ -38,13 +38,13 @@
     appearance: none;
   }
   textarea.ae-form-control { min-height: 72px; resize: vertical; }
-  input[type="file"].ae-form-control { padding: 7px 10px; background: #f8fafc; }
+  input[type="file"].ae-form-control { padding: 7px 10px; background: var(--t-surf2, #f8fafc); }
 
   .ae-form-label {
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--t-text, #0f172a);
     margin-bottom: 5px;
   }
   .ae-form-row {
@@ -56,11 +56,11 @@
   .ae-form-section {
     margin-bottom: 24px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--t-border, #f1f5f9);
   }
   .ae-section-title {
     margin: 0 0 16px 0;
-    color: #0f172a;
+    color: var(--t-text, #0f172a);
     font-size: 15px;
     font-weight: 600;
     display: flex;
@@ -73,7 +73,7 @@
   .ae-tab-bar {
     display: flex;
     gap: 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--t-border, #e2e8f0);
     margin-bottom: 24px;
     overflow-x: auto;
   }
@@ -91,7 +91,7 @@
     transition: all 0.15s;
     font-family: inherit;
   }
-  .ae-tab-btn:hover { color: #0f172a; background: #f8fafc; }
+  .ae-tab-btn:hover { color: var(--t-text, #0f172a); background: var(--t-surf2, #f8fafc); }
   .ae-tab-btn.active {
     color: #e11d48;
     border-bottom-color: #e11d48;
@@ -100,8 +100,8 @@
 
   /* Progress */
   .ae-progress {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--t-surf2, #f8fafc);
+    border: 1px solid var(--t-border, #e2e8f0);
     border-radius: 4px;
     padding: 14px 18px;
     margin-bottom: 20px;
@@ -136,8 +136,8 @@
   }
   .ae-btn-primary { background: #e11d48; color: #fff; border-color: #e11d48; }
   .ae-btn-primary:hover { background: #be123c; border-color: #be123c; }
-  .ae-btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
-  .ae-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+  .ae-btn-secondary { background: var(--t-surface, #fff); color: var(--t-text, #0f172a); border-color: var(--t-border, #e2e8f0); }
+  .ae-btn-secondary:hover { background: var(--t-surf2, #f8fafc); border-color: #cbd5e1; }
   .ae-btn-sm { padding: 6px 12px; font-size: 12px; }
 
   .ae-field-help {
@@ -153,11 +153,41 @@
 {% endblock %}
 
 {% block content %}
+
+<style>
+/* Center the form container */
+.add-employee-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Distribute tabs evenly */
+.tab-navigation {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.tab-navigation button {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 16px;
+    text-align: center;
+}
+
+/* Ensure form content is centered */
+.form-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+</style>
 <!-- Page Header -->
-<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 20px 24px; margin-bottom: 20px;">
+<div style="background: var(--t-surface, #fff); border: 1px solid var(--t-border, #e2e8f0); border-radius: 4px; padding: 20px 24px; margin-bottom: 20px;">
   <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
     <div>
-      <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: #0f172a;">Add New Employee</h1>
+      <h1 style="margin: 0 0 4px; font-size: 20px; font-weight: 600; color: var(--t-text, #0f172a);">Add New Employee</h1>
       <p style="margin: 0; font-size: 13px; color: #64748b;">{{ company.name|default:"Company" }} &middot; Fill in the details below</p>
     </div>
     <a href="{% url 'employer_employee_management' %}" class="ae-btn ae-btn-secondary">
@@ -167,7 +197,7 @@
   </div>
 </div>
 
-<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; max-width: 960px;">
+<div style="background: var(--t-surface, #fff); border: 1px solid var(--t-border, #e2e8f0); border-radius: 4px; max-width: 960px;">
   <!-- Progress -->
   <div class="ae-progress">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -314,7 +344,7 @@
               </select>
             </div>
             <div style="display: flex; align-items: center; padding-top: 22px;">
-              <label style="display:flex; align-items:center; gap:8px; font-weight:600; color:#0f172a; font-size: 13px; cursor: pointer;">
+              <label style="display:flex; align-items:center; gap:8px; font-weight:600; color: var(--t-text, #0f172a); font-size: 13px; cursor: pointer;">
                 <input type="checkbox" name="on_payroll" value="on" checked>
                 Add to payroll
               </label>
@@ -452,7 +482,7 @@
       </div>
 
       <!-- Form Actions -->
-      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 8px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--t-border, #e2e8f0);">
         <a href="{% url 'employer_employee_management' %}" class="ae-btn ae-btn-secondary">Cancel</a>
         <button type="submit" class="ae-btn ae-btn-primary">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
