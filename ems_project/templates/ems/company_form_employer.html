@@ -10,7 +10,7 @@
   .tab-nav {
     display: flex;
     gap: 8px;
-    background: linear-gradient(135deg, #f8fafc 0%, #DC143Cf9 100%);
+    background: #E11D48;
     padding: 8px;
     border-radius: 12px;
     border: 1px solid #fce7f30;
@@ -40,7 +40,7 @@
     transform: translateY(-2px);
   }
   .tab-btn.active {
-    background: #fff;
+    background: var(--t-surface, #fff);
     color: #DC143C;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     font-weight: 600;
@@ -119,16 +119,16 @@
 
 {% block content %}
 <div class="content-card">
-  <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-bottom: 2px solid #fce7f30;">
+  <div class="card-header" style="background: #E11D48; border-bottom: 2px solid #fce7f30;">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
       <div>
-        <div class="card-title" style="font-size: 28px; color: #0f172a; margin-bottom: 8px;">{% if action == 'Create' %}Create New Company{% else %}Edit Company Profile{% endif %}</div>
+        <div class="card-title" style="font-size: 28px; color: var(--t-text, #0f172a); margin-bottom: 8px;">{% if action == 'Create' %}Create New Company{% else %}Edit Company Profile{% endif %}</div>
         <div class="card-subtitle" style="font-size: 15px; color: #64748b;">{% if action == 'Create' %}Set up your company profile and branding{% else %}Customize your company profile, branding, documents, and theme{% endif %}</div>
       </div>
       {% if company.company_id %}
       <div style="text-align: right;">
         <div style="font-size: 12px; color: #64748b; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Company ID</div>
-        <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; color: #DC143C; background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); padding: 10px 20px; border-radius: 8px; border: 2px solid #99f6e4; box-shadow: 0 2px 4px rgba(0,128,128,0.1);">{{ company.company_id }}</div>
+        <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; color: #DC143C; background: #E11D48; padding: 10px 20px; border-radius: 8px; border: 2px solid #99f6e4; box-shadow: 0 2px 4px rgba(0,128,128,0.1);">{{ company.company_id }}</div>
       </div>
       {% endif %}
     </div>
@@ -187,18 +187,18 @@
           <div>
             <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Company Information</h4>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Company Name <span style="color:#ef4444;">*</span></label>
-              <input type="text" name="name" value="{% if company %}{{ company.name }}{% endif %}" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="Enter company name">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Company Name <span style="color:#ef4444;">*</span></label>
+              <input type="text" name="name" value="{% if company %}{{ company.name }}{% endif %}" required style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="Enter company name">
               <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Official registered name</p>
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Tax ID / Registration Number</label>
-              <input type="text" name="tax_id" value="{% if company %}{{ company.tax_id }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., 200002565235">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Tax ID / Registration Number</label>
+              <input type="text" name="tax_id" value="{% if company %}{{ company.tax_id }}{% endif %}" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., 200002565235">
               <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Business registration number</p>
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Industry/Sector</label>
-              <select name="industry" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Industry/Sector</label>
+              <select name="industry" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;">
                 <option value="">Select Industry</option>
                 <option value="technology">Technology</option>
                 <option value="finance">Finance & Banking</option>
@@ -212,8 +212,8 @@
               </select>
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Company Size</label>
-              <select name="company_size" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Company Size</label>
+              <select name="company_size" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;">
                 <option value="">Select Size</option>
                 <option value="1-10">1-10 employees</option>
                 <option value="11-50">11-50 employees</option>
@@ -228,23 +228,23 @@
           <div>
             <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Contact Details</h4>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Email Address</label>
-              <input type="email" name="email" value="{% if company %}{{ company.email }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="company@example.com">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Email Address</label>
+              <input type="email" name="email" value="{% if company %}{{ company.email }}{% endif %}" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="company@example.com">
               <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Primary contact email</p>
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Phone Number</label>
-              <input type="tel" name="phone" value="{% if company %}{{ company.phone }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="+260 XXX XXX XXX">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Phone Number</label>
+              <input type="tel" name="phone" value="{% if company %}{{ company.phone }}{% endif %}" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="+260 XXX XXX XXX">
               <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Main office phone</p>
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Alternative Phone</label>
-              <input type="tel" name="alt_phone" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="+260 XXX XXX XXX">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Alternative Phone</label>
+              <input type="tel" name="alt_phone" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="+260 XXX XXX XXX">
               <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Secondary contact number</p>
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Website</label>
-              <input type="url" name="website" value="{% if company %}{{ company.website }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="https://www.company.com">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Website</label>
+              <input type="url" name="website" value="{% if company %}{{ company.website }}{% endif %}" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="https://www.company.com">
               <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Company website URL</p>
             </div>
           </div>
@@ -253,25 +253,25 @@
           <div>
             <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Location & Address</h4>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Street Address <span style="color:#ef4444;">*</span></label>
-              <textarea name="address" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; resize:vertical; min-height:80px; box-sizing:border-box;" placeholder="Enter full street address">{% if company %}{{ company.address }}{% endif %}</textarea>
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Street Address <span style="color:#ef4444;">*</span></label>
+              <textarea name="address" required style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; resize:vertical; min-height:80px; box-sizing:border-box;" placeholder="Enter full street address">{% if company %}{{ company.address }}{% endif %}</textarea>
               <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Physical office location</p>
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">City</label>
-              <input type="text" name="city" value="{% if company %}{{ company.city }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Lusaka">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">City</label>
+              <input type="text" name="city" value="{% if company %}{{ company.city }}{% endif %}" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Lusaka">
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Province/State</label>
-              <input type="text" name="province" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Lusaka Province">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Province/State</label>
+              <input type="text" name="province" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Lusaka Province">
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Country</label>
-              <input type="text" name="country" value="{% if company %}{{ company.country }}{% endif %}" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Zambia">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Country</label>
+              <input type="text" name="country" value="{% if company %}{{ company.country }}{% endif %}" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., Zambia">
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display:block; margin-bottom:6px; font-weight:500; color:#374151; font-size:13px;">Postal/Zip Code</label>
-              <input type="text" name="postal_code" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., 10101">
+              <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Postal/Zip Code</label>
+              <input type="text" name="postal_code" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="e.g., 10101">
             </div>
           </div>
         </div>
@@ -324,7 +324,7 @@
         
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
           <!-- Logo Upload -->
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
               <div style="width:40px; height:40px; background:#DC143C; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -338,7 +338,7 @@
             </div>
             
             {% if company.logo %}
-            <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #fce7f30; border-radius:8px; text-align:center;">
+            <div style="margin-bottom:16px; padding:20px; background: var(--t-surface, white); border:2px dashed #fce7f30; border-radius:8px; text-align:center;">
               <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Current Logo:</p>
               <img src="{{ company.logo.url }}" alt="Logo" style="max-height:120px; max-width:100%; object-fit:contain;">
               <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
@@ -360,7 +360,7 @@
               </div>
             </div>
             {% else %}
-            <div style="margin-bottom:16px; padding:40px 20px; background:white; border:2px dashed #d1d5db; border-radius:8px; text-align:center;">
+            <div style="margin-bottom:16px; padding:40px 20px; background: var(--t-surface, white); border:2px dashed #d1d5db; border-radius:8px; text-align:center;">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin-bottom:8px;">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -370,9 +370,9 @@
             </div>
             {% endif %}
             
-            <input type="file" name="company_logo" id="logoInput" accept="image/*" onchange="previewImage(this, 'logoPreview')" style="width:100%; padding:12px; border:2px dashed #d1d5db; border-radius:8px; font-size:14px; background:white; cursor:pointer;">
+            <input type="file" name="logo" id="logoInput" accept="image/*" onchange="previewImage(this, 'logoPreview')" style="width:100%; padding:12px; border:2px dashed #d1d5db; border-radius:8px; font-size:14px; background: var(--t-surface, white); cursor:pointer;">
             
-            <div style="margin-top:12px; padding:12px; background:#fef3c7; border-radius:6px;">
+            <div style="margin-top:12px; padding:12px; background: var(--t-warning-bg, #fef3c7); border-radius:6px;">
               <p style="font-size:11px; color:#92400e; margin:0; display:flex; align-items:center; gap:6px;"><strong>Best Practices:</strong></p>
               <ul style="font-size:11px; color:#92400e; margin:8px 0 0 16px; padding:0;">
                 <li>PNG or SVG format recommended</li>
@@ -385,9 +385,9 @@
           
           <!-- Logo Preview & Usage -->
           <div>
-            <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30; margin-bottom:16px;">
+            <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30; margin-bottom:16px;">
               <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e#DC143C;">Logo Preview</h4>
-              <div id="logoPreview" style="padding:20px; background:white; border:1px solid #fce7f30; border-radius:8px; text-align:center; min-height:150px; display:flex; align-items:center; justify-content:center;">
+              <div id="logoPreview" style="padding:20px; background: var(--t-surface, white); border:1px solid #fce7f30; border-radius:8px; text-align:center; min-height:150px; display:flex; align-items:center; justify-content:center;">
                 {% if company.logo %}
                 <img src="{{ company.logo.url }}" style="max-height:120px; max-width:100%; object-fit:contain;">
                 {% else %}
@@ -396,28 +396,28 @@
               </div>
             </div>
             
-            <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
               <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e#DC143C;">Where Your Logo Appears</h4>
               <div style="display:flex; flex-direction:column; gap:8px;">
-                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background: var(--t-surface, white); border-radius:4px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span style="font-size:13px; color:#374151;">Payslips & Salary Documents</span>
+                  <span style="font-size:13px; color: var(--t-text-secondary, #374151);">Payslips & Salary Documents</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background: var(--t-surface, white); border-radius:4px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span style="font-size:13px; color:#374151;">Employee Contracts</span>
+                  <span style="font-size:13px; color: var(--t-text-secondary, #374151);">Employee Contracts</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background: var(--t-surface, white); border-radius:4px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span style="font-size:13px; color:#374151;">Official Letters & Documents</span>
+                  <span style="font-size:13px; color: var(--t-text-secondary, #374151);">Official Letters & Documents</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background: var(--t-surface, white); border-radius:4px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span style="font-size:13px; color:#374151;">Email Communications</span>
+                  <span style="font-size:13px; color: var(--t-text-secondary, #374151);">Email Communications</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px; padding:8px; background:white; border-radius:4px;">
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; background: var(--t-surface, white); border-radius:4px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span style="font-size:13px; color:#374151;">System Dashboard</span>
+                  <span style="font-size:13px; color: var(--t-text-secondary, #374151);">System Dashboard</span>
                 </div>
               </div>
             </div>
@@ -464,7 +464,7 @@
           <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
             
             <!-- Tax Certificate -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
+            <div style="background: var(--t-surf2, #f8fafc); padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#10b981; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -477,12 +477,12 @@
                   <p style="font-size:11px; color:#64748b; margin:0;">TPIN Certificate</p>
                 </div>
               </div>
-              <input type="file" name="tax_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <input type="file" name="tax_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; font-size:12px; margin-bottom:8px;">
               <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
             </div>
             
             <!-- Business Registration -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
+            <div style="background: var(--t-surf2, #f8fafc); padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#DC143C; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -495,12 +495,12 @@
                   <p style="font-size:11px; color:#64748b; margin:0;">PACRA Certificate</p>
                 </div>
               </div>
-              <input type="file" name="business_registration" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <input type="file" name="business_registration" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; font-size:12px; margin-bottom:8px;">
               <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
             </div>
             
             <!-- Trade License -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
+            <div style="background: var(--t-surf2, #f8fafc); padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#f59e0b; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -513,12 +513,12 @@
                   <p style="font-size:11px; color:#64748b; margin:0;">Trading License</p>
                 </div>
               </div>
-              <input type="file" name="trade_license" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <input type="file" name="trade_license" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; font-size:12px; margin-bottom:8px;">
               <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
             </div>
             
             <!-- NAPSA Certificate -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
+            <div style="background: var(--t-surf2, #f8fafc); padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#8b5cf6; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -531,12 +531,12 @@
                   <p style="font-size:11px; color:#64748b; margin:0;">Social Security</p>
                 </div>
               </div>
-              <input type="file" name="napsa_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <input type="file" name="napsa_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; font-size:12px; margin-bottom:8px;">
               <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
             </div>
             
             <!-- NHIMA Certificate -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
+            <div style="background: var(--t-surf2, #f8fafc); padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#ec4899; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -549,12 +549,12 @@
                   <p style="font-size:11px; color:#64748b; margin:0;">Health Insurance</p>
                 </div>
               </div>
-              <input type="file" name="nhima_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <input type="file" name="nhima_certificate" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; font-size:12px; margin-bottom:8px;">
               <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
             </div>
             
             <!-- Workers Compensation -->
-            <div style="background:#f8fafc; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
+            <div style="background: var(--t-surf2, #f8fafc); padding:20px; border-radius:8px; border:1px solid #fce7f30;">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <div style="width:36px; height:36px; background:#06b6d4; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -567,7 +567,7 @@
                   <p style="font-size:11px; color:#64748b; margin:0;">WCF Certificate</p>
                 </div>
               </div>
-              <input type="file" name="workers_compensation" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; margin-bottom:8px;">
+              <input type="file" name="workers_compensation" accept=".pdf,.jpg,.jpeg,.png" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; font-size:12px; margin-bottom:8px;">
               <p style="font-size:10px; color:#64748b; margin:0;">PDF, JPG, PNG (Max 5MB)</p>
             </div>
             
@@ -577,12 +577,12 @@
         <!-- Stamps & Signatures Section -->
         <h4 style="font-size:15px; font-weight:600; margin-bottom:16px; color:#1e#DC143C; padding-bottom:8px; border-bottom:2px solid #fce7f30;">Stamps & Signatures</h4>
         <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap:24px;">
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <label style="display:block; margin-bottom:12px; font-weight:600; color:#1e#DC143C; font-size:15px;">Company Stamp</label>
             <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Design your stamp or upload an image</p>
             
             {% if company.company_stamp %}
-            <div style="margin-bottom:16px; padding:16px; background:white; border:1px solid #fce7f30; border-radius:8px; text-align:center;">
+            <div style="margin-bottom:16px; padding:16px; background: var(--t-surface, white); border:1px solid #fce7f30; border-radius:8px; text-align:center;">
               <p style="font-size:12px; color:#10b981; font-weight:600; margin-bottom:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Current Stamp</p>
               <img src="{{ company.company_stamp.url }}" alt="Company Stamp" style="max-height:120px; max-width:100%; object-fit:contain;">
             </div>
@@ -611,7 +611,7 @@
               </div>
               
               <!-- Stamp Designer Tool -->
-              <div id="stampDesigner" style="display:none; background:white; padding:20px; border-radius:8px; border:1px solid #fce7f30;">
+              <div id="stampDesigner" style="display:none; background: var(--t-surface, white); padding:20px; border-radius:8px; border:1px solid #fce7f30;">
                 <h4 style="font-size:14px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="13.5" cy="6.5" r=".5"></circle>
@@ -628,26 +628,26 @@
                   <div>
                     <div style="margin-bottom:12px;">
                       <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Top Text (Curved)</label>
-                      <input type="text" id="stampTopText" placeholder="e.g., COMPANY NAME" value="{{ company.name|upper }}" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                      <input type="text" id="stampTopText" placeholder="e.g., COMPANY NAME" value="{{ company.name|upper }}" style="width:100%; max-width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; box-sizing:border-box;">
                       <p style="font-size:11px; color:#64748b; margin-top:4px;">Text that curves along the top</p>
                     </div>
                     
                     <div style="margin-bottom:12px;">
                       <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Middle Text</label>
-                      <textarea id="stampMiddleText" placeholder="e.g., Tel: 0211 123456, Fax: 0211 654321&#10;zambia@eicsomtech.com" rows="3" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
+                      <textarea id="stampMiddleText" placeholder="e.g., Tel: 0211 123456, Fax: 0211 654321&#10;zambia@eicsomtech.com" rows="3" style="width:100%; max-width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
                       <p style="font-size:11px; color:#64748b; margin-top:4px;">Center text (contact info, email, etc.) - Press Enter for new line</p>
                     </div>
                     
                     <div style="margin-bottom:12px;">
                       <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Bottom Text (Curved)</label>
-                      <input type="text" id="stampBottomText" placeholder="e.g., P.O.Box 56789 Lusaka Zambia" style="width:100%; max-width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                      <input type="text" id="stampBottomText" placeholder="e.g., P.O.Box 56789 Lusaka Zambia" style="width:100%; max-width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; box-sizing:border-box;">
                       <p style="font-size:11px; color:#64748b; margin-top:4px;">Text that curves along the bottom</p>
                     </div>
                     
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                       <div>
                         <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Shape</label>
-                        <select id="stampShape" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                        <select id="stampShape" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px;">
                           <option value="oval" selected>Oval (Recommended)</option>
                           <option value="circle">Circle</option>
                           <option value="square">Square</option>
@@ -656,7 +656,7 @@
                       </div>
                       <div>
                         <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Size</label>
-                        <select id="stampSize" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                        <select id="stampSize" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px;">
                           <option value="small">Small</option>
                           <option value="medium" selected>Medium</option>
                           <option value="large">Large</option>
@@ -667,7 +667,7 @@
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                       <div>
                         <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Border Style</label>
-                        <select id="stampBorder" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                        <select id="stampBorder" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px;">
                           <option value="solid">Solid</option>
                           <option value="double">Double</option>
                           <option value="dashed">Dashed</option>
@@ -684,7 +684,7 @@
                     
                     <div style="margin-bottom:12px;" id="textPlacementContainer" style="display:none;">
                       <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Text Placement (Double Border)</label>
-                      <select id="stampTextPlacement" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                      <select id="stampTextPlacement" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px;">
                         <option value="between">Between Borders</option>
                         <option value="inside">Inside Inner Border</option>
                       </select>
@@ -693,7 +693,7 @@
                     
                     <div style="margin-bottom:12px;">
                       <label style="font-size:13px; font-weight:500; margin-bottom:4px; display:block;">Font Style</label>
-                      <select id="stampFontStyle" onchange="updateStampPreview()" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;">
+                      <select id="stampFontStyle" onchange="updateStampPreview()" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px;">
                         <option value="Arial">Arial</option>
                         <option value="Times New Roman">Times New Roman</option>
                         <option value="Georgia">Georgia</option>
@@ -722,7 +722,7 @@
                       </div>
                       <div style="display:flex; gap:8px; align-items:center;">
                         <input type="color" id="stampColor" value="#dc2626" style="width:50px; height:40px; border:none; border-radius:4px; cursor:pointer;">
-                        <input type="text" id="stampColorText" value="#dc2626" style="flex:1; padding:8px; border:1px solid #d1d5db; border-radius:4px; font-family:monospace;">
+                        <input type="text" id="stampColorText" value="#dc2626" style="flex:1; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; font-family:monospace;">
                       </div>
                     </div>
                     
@@ -731,10 +731,10 @@
                         <input type="checkbox" id="stampAddDate" style="margin-right:6px;">
                         Add Date Stamp
                       </label>
-                      <div id="dateStampOptions" style="display:none; margin-top:8px; padding:12px; background:#f8fafc; border-radius:6px; border:1px solid #fce7f30;">
+                      <div id="dateStampOptions" style="display:none; margin-top:8px; padding:12px; background: var(--t-surf2, #f8fafc); border-radius:6px; border:1px solid #fce7f30;">
                         <div style="margin-bottom:8px;">
                           <label style="font-size:12px; font-weight:500; margin-bottom:4px; display:block;">Date Format</label>
-                          <select id="stampDateFormat" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;">
+                          <select id="stampDateFormat" style="width:100%; padding:6px; border: 1px solid var(--t-border, #d1d5db); border-radius:4px; font-size:12px;">
                             <option value="DD MMM YYYY">14 JAN 2026</option>
                             <option value="DD/MM/YYYY">14/01/2026</option>
                             <option value="MM/DD/YYYY">01/14/2026</option>
@@ -754,7 +754,7 @@
                             <button type="button" onclick="setDateColor('#dc2626')" style="width:24px; height:24px; background:#dc2626; border:2px solid #fce7f30; border-radius:3px; cursor:pointer;"></button>
                             <button type="button" onclick="setDateColor('#0369a1')" style="width:24px; height:24px; background:#0369a1; border:2px solid #fce7f30; border-radius:3px; cursor:pointer;"></button>
                             <button type="button" onclick="setDateColor('#059669')" style="width:24px; height:24px; background:#059669; border:2px solid #fce7f30; border-radius:3px; cursor:pointer;"></button>
-                            <input type="color" id="stampDateColor" value="#dc2626" style="width:30px; height:24px; border:1px solid #d1d5db; border-radius:3px; cursor:pointer;">
+                            <input type="color" id="stampDateColor" value="#dc2626" style="width:30px; height:24px; border: 1px solid var(--t-border, #d1d5db); border-radius:3px; cursor:pointer;">
                           </div>
                         </div>
                         <div>
@@ -769,12 +769,12 @@
                   
                   <!-- Right Column - Preview -->
                   <div>
-                    <div style="margin-bottom:16px; padding:20px; background:#f8fafc; border-radius:8px; text-align:center; min-height:350px; display:flex; flex-direction:column; justify-content:center;">
+                    <div style="margin-bottom:16px; padding:20px; background: var(--t-surf2, #f8fafc); border-radius:8px; text-align:center; min-height:350px; display:flex; flex-direction:column; justify-content:center;">
                       <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Live Preview:</p>
-                      <canvas id="stampCanvas" width="400" height="300" style="max-width:100%; border:1px solid #fce7f30; background:white; margin:0 auto;"></canvas>
+                      <canvas id="stampCanvas" width="400" height="300" style="max-width:100%; border:1px solid #fce7f30; background: var(--t-surface, white); margin:0 auto;"></canvas>
                     </div>
                     
-                    <div style="background:#fef3c7; padding:12px; border-radius:6px; margin-bottom:12px;">
+                    <div style="background: var(--t-warning-bg, #fef3c7); padding:12px; border-radius:6px; margin-bottom:12px;">
                       <p style="font-size:12px; color:#92400e; margin:0; display:flex; align-items:center; gap:6px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"></circle>
@@ -798,29 +798,29 @@
               <!-- Upload Option -->
               <div id="stampUpload">
                 {% if company.company_stamp %}
-                <div style="margin-bottom:16px; padding:20px; background:white; border:2px dashed #fce7f30; border-radius:8px; text-align:center;">
+                <div style="margin-bottom:16px; padding:20px; background: var(--t-surface, white); border:2px dashed #fce7f30; border-radius:8px; text-align:center;">
                   <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Current Stamp:</p>
                   <img src="{{ company.company_stamp.url }}" alt="Stamp" style="max-height:100px; max-width:100%; object-fit:contain;">
                 </div>
                 {% endif %}
-                <input type="file" name="company_stamp" accept="image/*" style="width:100%; padding:12px; border:2px dashed #d1d5db; border-radius:8px; font-size:14px; background:white;">
+                <input type="file" name="company_stamp" accept="image/*" style="width:100%; padding:12px; border:2px dashed #d1d5db; border-radius:8px; font-size:14px; background: var(--t-surface, white);">
                 <p style="font-size:12px; color:#64748b; margin-top:8px;">PNG with transparency recommended</p>
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
             <label style="display:block; margin-bottom:12px; font-weight:600; color:#1e#DC143C; font-size:15px;">Authorized Signatures</label>
             <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Assign digital signatures to authorized users</p>
             
             <!-- Company Default Signature -->
-            <div style="margin-bottom:20px; padding:16px; background:white; border-radius:8px; border:1px solid #fce7f30;">
+            <div style="margin-bottom:20px; padding:16px; background: var(--t-surface, white); border-radius:8px; border:1px solid #fce7f30;">
               <h4 style="font-size:14px; font-weight:600; color:#1e#DC143C; margin-bottom:12px;">Company Default Signature</h4>
               {% if company.signature %}
-              <div style="margin-bottom:12px; padding:12px; background:#f8fafc; border:1px solid #fce7f30; border-radius:6px; text-align:center;">
+              <div style="margin-bottom:12px; padding:12px; background: var(--t-surf2, #f8fafc); border:1px solid #fce7f30; border-radius:6px; text-align:center;">
                 <img src="{{ company.signature.url }}" alt="Company Signature" style="max-height:60px; max-width:100%; object-fit:contain;">
               </div>
               {% endif %}
-              <input type="file" name="signature" accept="image/*" style="width:100%; padding:10px; border:1px solid #d1d5db; border-radius:6px; font-size:13px;">
+              <input type="file" name="signature" accept="image/*" style="width:100%; padding:10px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:13px;">
             </div>
             
             <!-- User-Specific Signatures -->
@@ -828,7 +828,7 @@
               <h4 style="font-size:14px; font-weight:600; color:#1e#DC143C; margin-bottom:12px;">User-Specific Signatures</h4>
               {% for user in company.user_set.all %}
               {% if user.role in 'EMPLOYER_ADMIN,ADMINISTRATOR' %}
-              <div style="margin-bottom:12px; padding:12px; background:white; border-radius:8px; border:1px solid #fce7f30;">
+              <div style="margin-bottom:12px; padding:12px; background: var(--t-surface, white); border-radius:8px; border:1px solid #fce7f30;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                   <div>
                     <span style="font-weight:600; color:#1e#DC143C; font-size:13px;">{{ user.get_full_name|default:user.username }}</span>
@@ -838,7 +838,7 @@
                   <span style="color:#10b981; font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Has signature</span>
                   {% endif %}
                 </div>
-                <input type="file" name="authorized_signature_{{ user.id }}" accept="image/*" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:6px; font-size:12px;">
+                <input type="file" name="authorized_signature_{{ user.id }}" accept="image/*" style="width:100%; padding:8px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:12px;">
               </div>
               {% endif %}
               {% empty %}
@@ -868,68 +868,68 @@
         {% csrf_token %}
         <h3 style="font-size:16px; font-weight:600; margin-bottom:16px; color:#1e#DC143C;">Corporate Colors & Theme</h3>
         <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap:24px;">
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
-            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Primary Brand Color</label>
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color: var(--t-text-secondary, #374151);">Primary Brand Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="primary_color" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#DC143C{% endif %}" id="primary_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#DC143C{% endif %}" id="primary_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.primary_color %}{{ company.primary_color }}{% else %}#DC143C{% endif %}" id="primary_color_text" style="width:120px; padding:8px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Main brand color</p>
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
-            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Secondary Color</label>
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color: var(--t-text-secondary, #374151);">Secondary Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="secondary_color" value="{% if company.secondary_color %}{{ company.secondary_color }}{% else %}#10b981{% endif %}" id="secondary_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.secondary_color %}{{ company.secondary_color }}{% else %}#10b981{% endif %}" id="secondary_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.secondary_color %}{{ company.secondary_color }}{% else %}#10b981{% endif %}" id="secondary_color_text" style="width:120px; padding:8px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Accent color</p>
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
-            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Text Color</label>
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color: var(--t-text-secondary, #374151);">Text Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="text_color" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e#DC143C{% endif %}" id="text_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e#DC143C{% endif %}" id="text_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.text_color %}{{ company.text_color }}{% else %}#1e#DC143C{% endif %}" id="text_color_text" style="width:120px; padding:8px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Primary text</p>
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
-            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Background Color</label>
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color: var(--t-text-secondary, #374151);">Background Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="background_color" value="{% if company.background_color %}{{ company.background_color }}{% else %}#ffffff{% endif %}" id="bg_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.background_color %}{{ company.background_color }}{% else %}#ffffff{% endif %}" id="bg_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.background_color %}{{ company.background_color }}{% else %}#ffffff{% endif %}" id="bg_color_text" style="width:120px; padding:8px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Page background</p>
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
-            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Card Header Color</label>
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color: var(--t-text-secondary, #374151);">Card Header Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="card_header_color" value="{% if company.card_header_color %}{{ company.card_header_color }}{% else %}#10b981{% endif %}" id="card_header_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.card_header_color %}{{ company.card_header_color }}{% else %}#10b981{% endif %}" id="card_header_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.card_header_color %}{{ company.card_header_color }}{% else %}#10b981{% endif %}" id="card_header_color_text" style="width:120px; padding:8px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Content card headers</p>
               </div>
             </div>
           </div>
-          <div style="background:#f8fafc; padding:24px; border-radius:8px; border:1px solid #fce7f30;">
-            <label style="display:block; margin-bottom:12px; font-weight:600; color:#374151;">Button Color</label>
+          <div style="background: var(--t-surf2, #f8fafc); padding:24px; border-radius:8px; border:1px solid #fce7f30;">
+            <label style="display:block; margin-bottom:12px; font-weight:600; color: var(--t-text-secondary, #374151);">Button Color</label>
             <div class="color-picker-wrapper">
               <input type="color" name="button_color" value="{% if company.button_color %}{{ company.button_color }}{% else %}#DC143C{% endif %}" id="button_color" style="width:60px; height:60px; border:none; border-radius:8px; cursor:pointer;">
               <div>
-                <input type="text" value="{% if company.button_color %}{{ company.button_color }}{% else %}#DC143C{% endif %}" id="button_color_text" style="width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:14px;">
+                <input type="text" value="{% if company.button_color %}{{ company.button_color }}{% else %}#DC143C{% endif %}" id="button_color_text" style="width:120px; padding:8px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-family:monospace; font-size:14px;">
                 <p style="font-size:12px; color:#64748b; margin-top:4px;">Primary buttons</p>
               </div>
             </div>
           </div>
         </div>
-        <div style="margin-top:24px; padding:20px; background:white; border:1px solid #fce7f30; border-radius:8px;">
+        <div style="margin-top:24px; padding:20px; background: var(--t-surface, white); border:1px solid #fce7f30; border-radius:8px;">
           <h4 style="font-size:14px; font-weight:600; margin-bottom:12px; color:#1e#DC143C;">Live Preview</h4>
           <div id="colorPreview" style="padding:24px; border-radius:8px; background:{% if company.primary_color %}{{ company.primary_color }}{% else %}#DC143C{% endif %}; color:white; text-align:center; transition:all 0.3s ease;">
             <p style="font-size:20px; font-weight:600; margin-bottom:8px;">{{ company.name|default:"Your Company" }}</p>
@@ -940,7 +940,7 @@
             </div>
           </div>
         </div>
-        <div style="background:#e0f2fe; padding:12px; border-radius:6px; margin-top:16px; border-left:4px solid #0284c7;">
+        <div style="background: var(--t-info-bg, #e0f2fe); padding:12px; border-radius:6px; margin-top:16px; border-left:4px solid #0284c7;">
           <p style="font-size:12px; color:#075985; margin:0; display:flex; align-items:center; gap:8px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
