@@ -8561,7 +8561,15 @@ def employer_edit_employee(request, employee_id):
             return redirect('employer_edit_employee', employee_id=employee_id)
 
     # Get employee profile
-    profile_instance, _ = ensure_employee_profile(employee, company)
+    result = ensure_employee_profile(employee, company)
+    if result:
+        profile_instance, _ = result
+    else:
+        # ensure_employee_profile returned None, create profile manually
+        from blu_staff.apps.accounts.models import EmployeeProfile
+        profile_instance = getattr(employee, 'employee_profile', None)
+        if not profile_instance:
+            profile_instance = EmployeeProfile.objects.create(user=employee)
 
     # Prepare document context
     categories = list(DocumentCategory.objects.all().order_by('-is_required', 'name'))
@@ -9145,9 +9153,11 @@ def bulk_employee_import(request):
                     )
                     
                     # Create profile
+                    from datetime import date
                     profile, created = EmployeeProfile.objects.get_or_create(user=user)
                     profile.employee_id = row.get('employee_id', '')
                     profile.job_title = row.get('job_title', '')
+                    profile.date_hired = row.get('date_hired', date.today())  # Default to today if not provided
                     profile.department = row.get('department', '')
                     profile.phone_number = row.get('phone_number', '')
                     profile.date_hired = row.get('date_hired', None)
