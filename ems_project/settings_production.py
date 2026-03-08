@@ -41,6 +41,9 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False   # Allow JS to read CSRF token
+CSRF_COOKIE_SAMESITE = 'Lax'  # Allow same-origin form submissions
+CSRF_TRUSTED_ORIGINS = ['http://161.35.192.144']
 X_FRAME_OPTIONS = 'DENY'
 
 # Email configuration for production
