@@ -47,10 +47,10 @@
         (function() {
             try {
                 var theme = localStorage.getItem('appTheme');
-                // Force light themes only - dark themes disabled
-                if (!theme || theme.indexOf('-dark') > -1) {
-                    theme = 'company-light';
-                    localStorage.setItem('appTheme', 'company-light');
+                if (!theme) {
+                    // Migrate old single-toggle preference
+                    var old = localStorage.getItem('userThemePreference');
+                    theme = (old === 'light') ? 'company-light' : 'company-dark';
                 }
                 document.documentElement.setAttribute('data-theme', theme);
                 // Keep legacy class for any remaining theme-light CSS rules
@@ -924,6 +924,10 @@
                                 <button onclick="setAppTheme('default-light')" class="theme-opt" data-t="default-light" style="background:transparent;border:1px solid transparent;border-radius:7px;padding:8px 6px;cursor:pointer;text-align:center;transition:all .15s;">
                                     <div style="height:28px;background:linear-gradient(135deg,#2563eb 50%,#f0f2f5 50%);border-radius:5px;margin-bottom:6px;"></div>
                                     <div style="font-size:11px;font-weight:600;color:inherit;">Default Light</div>
+                                </button>
+                                <button onclick="setAppTheme('default-dark')" class="theme-opt" data-t="default-dark" style="background:transparent;border:1px solid transparent;border-radius:7px;padding:8px 6px;cursor:pointer;text-align:center;transition:all .15s;">
+                                    <div style="height:28px;background:linear-gradient(135deg,#2563eb 50%,#0d1117 50%);border-radius:5px;margin-bottom:6px;"></div>
+                                    <div style="font-size:11px;font-weight:600;color:inherit;">Default Dark</div>
                                 </button>
                                 </div>
                         </div>
