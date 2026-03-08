@@ -422,6 +422,9 @@ html[data-theme="company-light"].theme-light .sidebar-toggle-btn svg {
 html[data-theme="company-light"].theme-light .nav-link {
     color: rgba(255,255,255,0.75) !important;
 }
+html[data-theme="company-light"].theme-light .nav-link .nav-text {
+    color: rgba(255,255,255,0.85) !important;
+}
 html[data-theme="company-light"].theme-light .nav-link svg {
     stroke: rgba(255,255,255,0.75) !important;
 }
@@ -974,8 +977,9 @@ html[data-theme*="company"] .sidebar-company-name {
 /* ── Company theme: force white text on all sidebar/topbar elements ── */
 html[data-theme*="company"] .nav-link,
 html[data-theme*="company"] .nav-link *,
-html[data-theme*="company"] .nav-text {
-    color: rgba(255,255,255,0.85) !important;
+html[data-theme*="company"] .nav-text,
+html[data-theme*="company"] .nav-link .nav-text {
+    color: rgba(255,255,255,0.95) !important;
 }
 html[data-theme*="company"] .nav-link svg,
 html[data-theme*="company"] .nav-icon svg {
@@ -1014,4 +1018,12 @@ html[data-theme*="company"] .sidebar-company-name,
 html[data-theme*="company"] .sidebar-company-name *,
 html[data-theme*="company"] .sidebar-brand {
     color: #ffffff !important;
+}
+
+/* ── Force nav-text to be white on company themes ── */
+html[data-theme*="company"] .sidebar .nav-text {
+    color: rgba(255,255,255,0.95) !important;
+}
+html[data-theme*="company"] .sidebar .nav-link:not(.active) .nav-text {
+    color: rgba(255,255,255,0.9) !important;
 }
