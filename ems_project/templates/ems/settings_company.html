@@ -1659,7 +1659,7 @@
           <input type="hidden" name="stamp_drag_y" id="stampDragY" value="{% if company.payslip_field_positions.stamp_drag %}{{ company.payslip_field_positions.stamp_drag.y|default:0 }}{% else %}0{% endif %}">
           <input type="hidden" name="stamp_opacity" id="stampOpacityInput" value="{% if company.payslip_field_positions.stamp_opacity %}{{ company.payslip_field_positions.stamp_opacity }}{% else %}100{% endif %}">
           <input type="hidden" name="stamp_size" id="stampSizeInput" value="{% if company.payslip_field_positions.stamp_size %}{{ company.payslip_field_positions.stamp_size }}{% else %}120{% endif %}">
-          <input type="hidden" name="stamp_rotation" id="stampRotationInput" value="{% if company.payslip_field_positions.stamp_rotation %}{{ company.payslip_field_positions.stamp_rotation }}{% else %}0{% endif %}">
+          <input type="hidden" name="stamp_rotation" id="stampRotationInput" value="{{ company.payslip_field_positions.stamp_rotation|default:'0' }}">
           <input type="hidden" id="fontFamilyRestore" value="{% if company.payslip_field_positions.font_family %}{{ company.payslip_field_positions.font_family }}{% else %}Arial, sans-serif{% endif %}">
           <div style="flex: 1; overflow-y: auto; padding: 24px 28px;">
           <!-- Company Tab -->

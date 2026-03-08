@@ -657,6 +657,19 @@ def company_edit(request, company_id):
                 company.tax_id = tax_id or ''
                 company.city = city or ''
                 company.country = country or 'Zambia'
+                # Dropdown fields (were not being saved)
+                industry = request.POST.get('industry', '')
+                if industry:
+                    company.industry = industry
+                company_size = request.POST.get('company_size', '')
+                if company_size:
+                    company.company_size = company_size
+                province = request.POST.get('province', '')
+                company.province = province or ''
+                postal_code = request.POST.get('postal_code', '')
+                company.postal_code = postal_code or ''
+                alt_phone = request.POST.get('alt_phone', '')
+                company.alternative_phone = alt_phone or ''
                 
                 # Handle logo upload
                 if 'logo' in request.FILES:

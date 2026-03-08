@@ -201,26 +201,26 @@
               <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Industry/Sector</label>
               <select name="industry" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;">
                 <option value="">Select Industry</option>
-                <option value="technology">Technology</option>
+                <option value="technology" {% if company.industry == "technology" %}selected{% endif %}>Technology</option>
                 <option value="finance">Finance & Banking</option>
-                <option value="healthcare">Healthcare</option>
-                <option value="education">Education</option>
-                <option value="retail">Retail</option>
-                <option value="manufacturing">Manufacturing</option>
-                <option value="construction">Construction</option>
-                <option value="hospitality">Hospitality</option>
-                <option value="other">Other</option>
+                <option value="healthcare" {% if company.industry == "healthcare" %}selected{% endif %}>Healthcare</option>
+                <option value="education" {% if company.industry == "education" %}selected{% endif %}>Education</option>
+                <option value="retail" {% if company.industry == "retail" %}selected{% endif %}>Retail</option>
+                <option value="manufacturing" {% if company.industry == "manufacturing" %}selected{% endif %}>Manufacturing</option>
+                <option value="construction" {% if company.industry == "construction" %}selected{% endif %}>Construction</option>
+                <option value="hospitality" {% if company.industry == "hospitality" %}selected{% endif %}>Hospitality</option>
+                <option value="other" {% if company.industry == "other" %}selected{% endif %}>Other</option>
               </select>
             </div>
             <div style="margin-bottom: 20px;">
               <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Company Size</label>
               <select name="company_size" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;">
                 <option value="">Select Size</option>
-                <option value="1-10">1-10 employees</option>
-                <option value="11-50">11-50 employees</option>
-                <option value="51-200">51-200 employees</option>
-                <option value="201-500">201-500 employees</option>
-                <option value="500+">500+ employees</option>
+                <option value="1-10" {% if company.company_size == "1-10" %}selected{% endif %}>1-10 employees</option>
+                <option value="11-50" {% if company.company_size == "11-50" %}selected{% endif %}>11-50 employees</option>
+                <option value="51-200" {% if company.company_size == "51-200" %}selected{% endif %}>51-200 employees</option>
+                <option value="201-500" {% if company.company_size == "201-500" %}selected{% endif %}>201-500 employees</option>
+                <option value="500+" {% if company.company_size == "500+" %}selected{% endif %}>500+ employees</option>
               </select>
             </div>
           </div>
@@ -240,7 +240,7 @@
             </div>
             <div style="margin-bottom: 20px;">
               <label style="display:block; margin-bottom:6px; font-weight:500; color: var(--t-text-secondary, #374151); font-size:13px;">Alternative Phone</label>
-              <input type="tel" name="alt_phone" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="+260 XXX XXX XXX">
+              <input type="tel" name="alt_phone" value="{% if company %}{{ company.alternative_phone }}{% endif %}" style="width:100%; padding:10px 12px; border: 1px solid var(--t-border, #d1d5db); border-radius:6px; font-size:14px; box-sizing:border-box;" placeholder="+260 XXX XXX XXX">
               <p style="font-size:11px; color:#64748b; margin-top:4px; margin-bottom:0;">Secondary contact number</p>
             </div>
             <div style="margin-bottom: 20px;">
