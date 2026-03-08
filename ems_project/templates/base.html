@@ -1174,5 +1174,57 @@
     }
 })();
 </script>
+
+<script>
+// Detect if custom company color is dark and adjust text colors
+(function() {
+    function getLuminance(hex) {
+        // Convert hex to RGB
+        hex = hex.replace('#', '');
+        var r = parseInt(hex.substr(0, 2), 16) / 255;
+        var g = parseInt(hex.substr(2, 2), 16) / 255;
+        var b = parseInt(hex.substr(4, 2), 16) / 255;
+        
+        // Calculate relative luminance
+        r = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+        g = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+        b = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+        
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+    
+    function adjustTextColors() {
+        var theme = document.documentElement.getAttribute('data-theme');
+        if (!theme || theme.indexOf('company') === -1) return;
+        
+        // Get the custom company button color
+        var companyButton = getComputedStyle(document.documentElement).getPropertyValue('--company-button').trim();
+        if (!companyButton || companyButton.indexOf('#') !== 0) return;
+        
+        var luminance = getLuminance(companyButton);
+        
+        // If dark color (luminance < 0.5), use light text
+        if (luminance < 0.5) {
+            document.documentElement.style.setProperty('--sidebar-text', '#e5e7eb');
+            document.documentElement.style.setProperty('--topbar-text', '#e5e7eb');
+        } else {
+            document.documentElement.style.setProperty('--sidebar-text', '#1f2937');
+            document.documentElement.style.setProperty('--topbar-text', '#1f2937');
+        }
+    }
+    
+    // Run on load and theme change
+    document.addEventListener('DOMContentLoaded', adjustTextColors);
+    
+    // Hook into setAppTheme if it exists
+    var originalSetTheme = window.setAppTheme;
+    if (typeof originalSetTheme === 'function') {
+        window.setAppTheme = function(theme) {
+            originalSetTheme(theme);
+            setTimeout(adjustTextColors, 100);
+        };
+    }
+})();
+</script>
 </body>
 </html>

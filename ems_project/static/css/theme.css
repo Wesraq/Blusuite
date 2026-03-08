@@ -936,3 +936,29 @@ html[data-theme*="-light"] {
     --t-info-bg: #dbeafe; /* Light blue for light mode */
     --t-success-bg: #d1fae5; /* Light green for light mode */
 }
+
+
+/* ── Adaptive sidebar/topbar text colors for custom themes ────── */
+/* Calculate if custom color is dark and adjust text accordingly */
+html[data-theme="company-light"] {
+    --sidebar-text: #1f2937;
+    --topbar-text: #1f2937;
+}
+
+html[data-theme="company-dark"] {
+    --sidebar-text: #e5e7eb;
+    --topbar-text: #e5e7eb;
+}
+
+/* For custom company colors, we'll use a JS solution to detect brightness */
+/* But provide fallback light colors for now */
+html[data-theme*="company"] .sidebar,
+html[data-theme*="company"] .topbar,
+html[data-theme*="company"] header {
+    color: var(--sidebar-text, #e5e7eb);
+}
+
+html[data-theme*="company"] .nav-text,
+html[data-theme*="company"] .sidebar-company-name {
+    color: var(--sidebar-text, #e5e7eb) !important;
+}
