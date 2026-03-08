@@ -8522,6 +8522,9 @@ def employer_edit_employee(request, employee_id):
             profile.employment_type = employment_type_value
             profile.on_payroll = include_on_payroll
             # Signature image + PIN for e-form signing
+            # Ensure variables are defined (they might be out of scope in some execution paths)
+            signature_image_file = locals().get('signature_image_file')
+            signature_pin_input = locals().get('signature_pin_input')
             if signature_image_file:
                 profile.signature_image = signature_image_file
             if signature_pin_input:
