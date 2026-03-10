@@ -85,9 +85,9 @@ def system_monitoring_view(request):
     # Get latest health checks
     latest_health = HealthCheckResult.objects.order_by('-timestamp')[:20]
     
-    # Get active alerts
+    # Get active alerts (alerts that haven't been resolved)
     active_alerts = Alert.objects.filter(
-        status='ACTIVE'
+        resolved_at__isnull=True
     ).order_by('-triggered_at')[:10]
     
     # Get alert rules
@@ -121,10 +121,14 @@ def alerts_view(request):
     """View all alerts"""
     alerts = Alert.objects.all().order_by('-triggered_at')
     
-    # Filter by status
+    # Filter by resolved status
     status_filter = request.GET.get('status')
-    if status_filter:
-        alerts = alerts.filter(status=status_filter)
+    if status_filter == 'active':
+        alerts = alerts.filter(resolved_at__isnull=True)
+    elif status_filter == 'resolved':
+        alerts = alerts.filter(resolved_at__isnull=False)
+    elif status_filter == 'acknowledged':
+        alerts = alerts.filter(acknowledged_at__isnull=False, resolved_at__isnull=True)
     
     paginator = Paginator(alerts, 50)
     page = request.GET.get('page', 1)
@@ -132,9 +136,9 @@ def alerts_view(request):
     
     context = {
         'alerts': alerts_page,
-        'active_count': Alert.objects.filter(status='ACTIVE').count(),
-        'acknowledged_count': Alert.objects.filter(status='ACKNOWLEDGED').count(),
-        'resolved_count': Alert.objects.filter(status='RESOLVED').count(),
+        'active_count': Alert.objects.filter(resolved_at__isnull=True).count(),
+        'acknowledged_count': Alert.objects.filter(acknowledged_at__isnull=False, resolved_at__isnull=True).count(),
+        'resolved_count': Alert.objects.filter(resolved_at__isnull=False).count(),
     }
     
     return render(request, 'blu_core/alerts.html', context)
@@ -459,7 +463,7 @@ def operational_overview_view(request):
         'recent_audit_logs': recent_audit_logs,
         
         # System Monitoring
-        'active_alerts': Alert.objects.filter(status='ACTIVE').count(),
+        'active_alerts': Alert.objects.filter(resolved_at__isnull=True).count(),
         'alert_rules': AlertRule.objects.filter(is_active=True).count(),
         
         # MFA
