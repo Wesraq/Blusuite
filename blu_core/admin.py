@@ -2,6 +2,7 @@ from django.contrib import admin
 from .audit import AuditLog
 from .monitoring import SystemMetric, HealthCheckResult, AlertRule, Alert
 from .mfa import MFAMethod, BackupCode, MFAChallenge
+from .settings_manager import SystemSetting, CompanySettingOverride, SettingsVersion, SettingsTemplate
 
 
 @admin.register(AuditLog)
@@ -149,3 +150,96 @@ class MFAChallengeAdmin(admin.ModelAdmin):
     
     def has_change_permission(self, request, obj=None):
         return False
+
+
+@admin.register(SystemSetting)
+class SystemSettingAdmin(admin.ModelAdmin):
+    list_display = ('key', 'category', 'data_type', 'value_display', 'is_required', 'is_sensitive', 'updated_at')
+    list_filter = ('category', 'data_type', 'is_required', 'is_sensitive')
+    search_fields = ('key', 'description')
+    readonly_fields = ('created_at', 'updated_at', 'updated_by')
+    ordering = ('category', 'key')
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('category', 'key', 'description')
+        }),
+        ('Value Configuration', {
+            'fields': ('value', 'default_value', 'data_type')
+        }),
+        ('Validation', {
+            'fields': ('validation_rules', 'is_required', 'is_sensitive')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at', 'updated_by')
+        }),
+    )
+    
+    def value_display(self, obj):
+        if obj.is_sensitive:
+            return '********'
+        return str(obj.value)[:50]
+    value_display.short_description = 'Value'
+
+
+@admin.register(CompanySettingOverride)
+class CompanySettingOverrideAdmin(admin.ModelAdmin):
+    list_display = ('company', 'setting_key', 'value_display', 'is_active', 'updated_at')
+    list_filter = ('is_active', 'system_setting__category', 'updated_at')
+    search_fields = ('company__name', 'system_setting__key')
+    readonly_fields = ('created_at', 'updated_at', 'updated_by')
+    ordering = ('company', 'system_setting__category', 'system_setting__key')
+    
+    def setting_key(self, obj):
+        return obj.system_setting.key
+    setting_key.short_description = 'Setting'
+    
+    def value_display(self, obj):
+        if obj.system_setting.is_sensitive:
+            return '********'
+        return str(obj.value)[:50]
+    value_display.short_description = 'Value'
+
+
+@admin.register(SettingsVersion)
+class SettingsVersionAdmin(admin.ModelAdmin):
+    list_display = ('company_name', 'category', 'version_number', 'created_at', 'created_by', 'changes_count')
+    list_filter = ('category', 'created_at')
+    search_fields = ('company__name', 'comment')
+    readonly_fields = ('company', 'category', 'settings_snapshot', 'changes', 'version_number', 'created_at', 'created_by')
+    ordering = ('-created_at',)
+    date_hierarchy = 'created_at'
+    
+    def company_name(self, obj):
+        return obj.company.name if obj.company else 'System'
+    company_name.short_description = 'Company'
+    
+    def changes_count(self, obj):
+        return len(obj.changes)
+    changes_count.short_description = 'Changes'
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(SettingsTemplate)
+class SettingsTemplateAdmin(admin.ModelAdmin):
+    list_display = ('name', 'category', 'is_active', 'is_default', 'updated_at')
+    list_filter = ('category', 'is_active', 'is_default')
+    search_fields = ('name', 'description')
+    ordering = ('category', 'name')
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'description', 'category')
+        }),
+        ('Configuration', {
+            'fields': ('settings_data', 'is_active', 'is_default')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
