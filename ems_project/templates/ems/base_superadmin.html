@@ -181,6 +181,22 @@
                             System Health
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{% url 'blu_core:operational_overview' %}" class="nav-link{% if 'operational' in request.path %} active{% endif %}">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                                    <path d="M4.93 4.93a10 10 0 0 0 0 14.14"></path>
+                                    <line x1="12" y1="1" x2="12" y2="6"></line>
+                                    <line x1="12" y1="18" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="7.86" y2="7.86"></line>
+                                    <line x1="16.14" y1="16.14" x2="19.78" y2="19.78"></line>
+                                </svg>
+                            </span>
+                            Operational Muscles
+                        </a>
+                    </li>
                     
                     <!-- Platform Administration Section (Superadmin modules) -->
                     {% if user.is_superadmin %}
