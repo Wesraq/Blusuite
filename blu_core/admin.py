@@ -3,6 +3,7 @@ from .audit import AuditLog
 from .monitoring import SystemMetric, HealthCheckResult, AlertRule, Alert
 from .mfa import MFAMethod, BackupCode, MFAChallenge
 from .settings_manager import SystemSetting, CompanySettingOverride, SettingsVersion, SettingsTemplate
+from .onboarding_automation import CompanyOnboarding, OnboardingReminder
 
 
 @admin.register(AuditLog)
@@ -243,3 +244,65 @@ class SettingsTemplateAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at')
         }),
     )
+
+
+@admin.register(CompanyOnboarding)
+class CompanyOnboardingAdmin(admin.ModelAdmin):
+    list_display = ('company', 'status', 'completion_percentage', 'current_step', 'started_at', 'completed_at')
+    list_filter = ('status', 'started_at', 'completed_at')
+    search_fields = ('company__name',)
+    readonly_fields = ('completion_percentage', 'is_complete', 'created_at', 'updated_at')
+    ordering = ('-started_at',)
+    
+    fieldsets = (
+        ('Company Information', {
+            'fields': ('company', 'status', 'current_step')
+        }),
+        ('Progress', {
+            'fields': ('completion_percentage', 'is_complete')
+        }),
+        ('Setup Steps', {
+            'fields': (
+                'company_info_complete',
+                'admin_account_complete',
+                'settings_configured',
+                'first_employee_added',
+                'first_department_created',
+                'attendance_configured',
+                'leave_policies_set',
+                'payroll_configured',
+                'documents_uploaded',
+                'integrations_setup',
+            )
+        }),
+        ('Timestamps', {
+            'fields': ('started_at', 'completed_at', 'created_at', 'updated_at')
+        }),
+    )
+    
+    def completion_percentage(self, obj):
+        return f"{obj.completion_percentage}%"
+    completion_percentage.short_description = 'Completion'
+
+
+@admin.register(OnboardingReminder)
+class OnboardingReminderAdmin(admin.ModelAdmin):
+    list_display = ('sent_to', 'reminder_type', 'sent_at', 'onboarding_type')
+    list_filter = ('reminder_type', 'sent_at')
+    search_fields = ('sent_to__email', 'sent_to__first_name', 'sent_to__last_name')
+    readonly_fields = ('sent_at',)
+    ordering = ('-sent_at',)
+    
+    def onboarding_type(self, obj):
+        if obj.employee_onboarding:
+            return f"Employee: {obj.employee_onboarding.employee.get_full_name()}"
+        elif obj.company_onboarding:
+            return f"Company: {obj.company_onboarding.company.name}"
+        return "N/A"
+    onboarding_type.short_description = 'Onboarding'
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
