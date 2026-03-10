@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .audit import AuditLog
 from .monitoring import SystemMetric, HealthCheckResult, AlertRule, Alert
+from .mfa import MFAMethod, BackupCode, MFAChallenge
 
 
 @admin.register(AuditLog)
@@ -93,3 +94,58 @@ class AlertAdmin(admin.ModelAdmin):
         return obj.is_active
     is_active_status.short_description = 'Active'
     is_active_status.boolean = True
+
+
+@admin.register(MFAMethod)
+class MFAMethodAdmin(admin.ModelAdmin):
+    list_display = ('user', 'method_type', 'is_primary', 'is_active', 'verified_status', 'last_used_at')
+    list_filter = ('method_type', 'is_primary', 'is_active', 'verified_at')
+    search_fields = ('user__email', 'email', 'phone_number')
+    readonly_fields = ('user', 'created_at', 'last_used_at', 'verified_at')
+    ordering = ('-created_at',)
+    
+    def verified_status(self, obj):
+        return obj.is_verified()
+    verified_status.short_description = 'Verified'
+    verified_status.boolean = True
+
+
+@admin.register(BackupCode)
+class BackupCodeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'code_masked', 'used_status', 'created_at', 'used_at')
+    list_filter = ('used_at', 'created_at')
+    search_fields = ('user__email',)
+    readonly_fields = ('user', 'code', 'created_at', 'used_at')
+    ordering = ('-created_at',)
+    
+    def code_masked(self, obj):
+        if obj.is_used():
+            return obj.code
+        return obj.code[:4] + '-****-****'
+    code_masked.short_description = 'Code'
+    
+    def used_status(self, obj):
+        return obj.is_used()
+    used_status.short_description = 'Used'
+    used_status.boolean = True
+
+
+@admin.register(MFAChallenge)
+class MFAChallengeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'method_type', 'created_at', 'expires_at', 'verified_status', 'attempts', 'ip_address')
+    list_filter = ('method_type', 'verified_at', 'created_at')
+    search_fields = ('user__email', 'ip_address')
+    readonly_fields = ('user', 'method_type', 'code', 'created_at', 'expires_at', 'verified_at', 'attempts', 'ip_address')
+    ordering = ('-created_at',)
+    date_hierarchy = 'created_at'
+    
+    def verified_status(self, obj):
+        return obj.is_verified()
+    verified_status.short_description = 'Verified'
+    verified_status.boolean = True
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False

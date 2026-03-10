@@ -57,6 +57,10 @@ django-ses>=3.5.0
 django-ratelimit>=4.1.0
 django-defender>=0.9.0
 
+# Multi-Factor Authentication
+pyotp>=2.9.0
+qrcode[pil]>=7.4.2
+
 # Payment Processing
 stripe>=5.0.0
 
