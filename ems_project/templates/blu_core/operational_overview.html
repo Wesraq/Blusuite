@@ -1,0 +1,258 @@
+{% extends 'ems/base.html' %}
+{% load static %}
+
+{% block title %}Operational Muscles - BluSuite{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-cogs me-2"></i>
+                Operational Muscles Dashboard
+            </h1>
+            <p class="text-muted">Access all 12 operational features from one place</p>
+        </div>
+    </div>
+
+    <!-- Audit & Security -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-shield-alt me-2"></i>
+                Audit & Security
+            </h4>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-history me-2"></i>
+                        Audit Logs
+                    </h5>
+                    <p class="card-text text-muted">Complete activity trail with {{ total_audit_logs|default:0 }} records</p>
+                    <a href="{% url 'blu_core:audit_logs' %}" class="btn btn-primary btn-sm">
+                        View Logs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Monitoring -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-heartbeat me-2"></i>
+                System Monitoring
+            </h4>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-line me-2"></i>
+                        System Monitoring
+                    </h5>
+                    <p class="card-text text-muted">{{ active_alerts|default:0 }} active alerts, {{ alert_rules|default:0 }} rules configured</p>
+                    <a href="{% url 'blu_core:system_monitoring' %}" class="btn btn-primary btn-sm">
+                        View Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-bell me-2"></i>
+                        Alerts
+                    </h5>
+                    <p class="card-text text-muted">{{ active_alerts|default:0 }} active system alerts</p>
+                    <a href="{% url 'blu_core:alerts' %}" class="btn btn-primary btn-sm">
+                        View Alerts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi-Factor Authentication -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-lock me-2"></i>
+                Multi-Factor Authentication
+            </h4>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-mobile-alt me-2"></i>
+                        MFA Settings
+                    </h5>
+                    <p class="card-text text-muted">{{ users_with_mfa|default:0 }} users with MFA enabled</p>
+                    <a href="{% url 'blu_core:mfa_settings' %}" class="btn btn-primary btn-sm">
+                        Manage MFA
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Management -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-sliders-h me-2"></i>
+                Settings Management
+            </h4>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-cog me-2"></i>
+                        Company Settings
+                    </h5>
+                    <p class="card-text text-muted">{{ system_settings|default:0 }} settings, {{ company_overrides|default:0 }} overrides</p>
+                    <a href="{% url 'blu_core:settings_management' %}" class="btn btn-primary btn-sm">
+                        Manage Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-user-plus me-2"></i>
+                Onboarding Automation
+            </h4>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-tasks me-2"></i>
+                        Onboarding Dashboard
+                    </h5>
+                    <p class="card-text text-muted">
+                        {% if company_onboarding %}
+                            {{ company_onboarding.completed_steps }}/{{ company_onboarding.total_steps }} steps completed
+                        {% else %}
+                            Not configured
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'blu_core:onboarding_dashboard' %}" class="btn btn-primary btn-sm">
+                        View Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics & Reporting -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-chart-bar me-2"></i>
+                Advanced Analytics & Reporting
+            </h4>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-analytics me-2"></i>
+                        Analytics Dashboard
+                    </h5>
+                    <p class="card-text text-muted">
+                        {% if latest_analytics %}
+                            Last updated: {{ latest_analytics.snapshot_date }}
+                        {% else %}
+                            No data yet
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'blu_core:analytics_dashboard' %}" class="btn btn-primary btn-sm">
+                        View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Reports
+                    </h5>
+                    <p class="card-text text-muted">{{ total_reports|default:0 }} reports generated</p>
+                    <a href="{% url 'blu_core:reports' %}" class="btn btn-primary btn-sm">
+                        View Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Metric Trends
+                    </h5>
+                    <p class="card-text text-muted">Track key metrics over time</p>
+                    <a href="{% url 'blu_core:metric_trends' %}" class="btn btn-primary btn-sm">
+                        View Trends
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Quick Stats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <h3 class="mb-0">{{ total_audit_logs|default:0 }}</h3>
+                                <small class="text-muted">Audit Logs</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <h3 class="mb-0">{{ active_alerts|default:0 }}</h3>
+                                <small class="text-muted">Active Alerts</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <h3 class="mb-0">{{ users_with_mfa|default:0 }}</h3>
+                                <small class="text-muted">Users with MFA</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <h3 class="mb-0">{{ total_reports|default:0 }}</h3>
+                                <small class="text-muted">Reports Generated</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

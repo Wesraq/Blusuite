@@ -308,6 +308,9 @@ urlpatterns = [
 
     # Audit Log — Administrators only
     path('audit-log/', core_views.audit_log_view, name='audit_log'),
+    
+    # Operational Muscles - All 12 operational features
+    path('operational/', include('blu_core.urls')),
 
     # Django Admin - Standard Django admin (staff only)
     path('admin/', admin.site.urls),
