@@ -1,258 +1,131 @@
-{% extends 'ems/base.html' %}
+{% extends 'ems/base_superadmin.html' %}
 {% load static %}
 
 {% block title %}Operational Muscles - BluSuite{% endblock %}
+{% block page_title %}Operational Muscles{% endblock %}
+{% block nav_dashboard %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3 mb-0">
-                <i class="fas fa-cogs me-2"></i>
-                Operational Muscles Dashboard
-            </h1>
-            <p class="text-muted">Access all 12 operational features from one place</p>
+<div class="page-card" style="margin: 24px; padding: 32px;">
+
+    <!-- Header -->
+    <div style="margin-bottom: 32px;">
+        <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700;">Operational Muscles Dashboard</h2>
+        <p style="margin: 0; color: #64748b; font-size: 14px;">Platform-wide operational systems — superadmin access only</p>
+    </div>
+
+    <!-- Quick Stats Bar -->
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 36px;">
+        <div style="flex: 1; min-width: 160px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ total_audit_logs|default:0 }}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Audit Log Entries</div>
+        </div>
+        <div style="flex: 1; min-width: 160px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: 700; color: {% if active_alerts > 0 %}#DC2626{% else %}#16a34a{% endif %};">{{ active_alerts|default:0 }}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Active Alerts</div>
+        </div>
+        <div style="flex: 1; min-width: 160px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ users_with_mfa|default:0 }}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Users with MFA</div>
+        </div>
+        <div style="flex: 1; min-width: 160px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ system_settings|default:0 }}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">System Settings</div>
+        </div>
+        <div style="flex: 1; min-width: 160px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ total_reports|default:0 }}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Reports Generated</div>
         </div>
     </div>
 
-    <!-- Audit & Security -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="mb-3">
-                <i class="fas fa-shield-alt me-2"></i>
-                Audit & Security
-            </h4>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-history me-2"></i>
-                        Audit Logs
-                    </h5>
-                    <p class="card-text text-muted">Complete activity trail with {{ total_audit_logs|default:0 }} records</p>
-                    <a href="{% url 'blu_core:audit_logs' %}" class="btn btn-primary btn-sm">
-                        View Logs
-                    </a>
-                </div>
-            </div>
+    <!-- Section: Audit & Security -->
+    <div style="margin-bottom: 32px;">
+        <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">Audit & Security</h4>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="{% url 'blu_core:audit_logs' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: block; transition: border-color 0.15s;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Audit Logs</div>
+                <div style="font-size: 13px; color: #64748b;">{{ total_audit_logs|default:0 }} total records — all user activity</div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">View Logs &rarr;</div>
+            </a>
         </div>
     </div>
 
-    <!-- System Monitoring -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="mb-3">
-                <i class="fas fa-heartbeat me-2"></i>
-                System Monitoring
-            </h4>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-chart-line me-2"></i>
-                        System Monitoring
-                    </h5>
-                    <p class="card-text text-muted">{{ active_alerts|default:0 }} active alerts, {{ alert_rules|default:0 }} rules configured</p>
-                    <a href="{% url 'blu_core:system_monitoring' %}" class="btn btn-primary btn-sm">
-                        View Dashboard
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-bell me-2"></i>
-                        Alerts
-                    </h5>
-                    <p class="card-text text-muted">{{ active_alerts|default:0 }} active system alerts</p>
-                    <a href="{% url 'blu_core:alerts' %}" class="btn btn-primary btn-sm">
-                        View Alerts
-                    </a>
-                </div>
-            </div>
+    <!-- Section: System Monitoring -->
+    <div style="margin-bottom: 32px;">
+        <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">System Monitoring</h4>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="{% url 'blu_core:system_monitoring' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: block;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">System Monitoring</div>
+                <div style="font-size: 13px; color: #64748b;">CPU, memory, disk — real-time metrics</div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">View Dashboard &rarr;</div>
+            </a>
+            <a href="{% url 'blu_core:alerts' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid {% if active_alerts > 0 %}#fca5a5{% else %}#e2e8f0{% endif %}; border-radius: 8px; padding: 20px; display: block;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Alerts</div>
+                <div style="font-size: 13px; color: #64748b;">{{ active_alerts|default:0 }} active &bull; {{ alert_rules|default:0 }} rules configured</div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">View Alerts &rarr;</div>
+            </a>
         </div>
     </div>
 
-    <!-- Multi-Factor Authentication -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="mb-3">
-                <i class="fas fa-lock me-2"></i>
-                Multi-Factor Authentication
-            </h4>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-mobile-alt me-2"></i>
-                        MFA Settings
-                    </h5>
-                    <p class="card-text text-muted">{{ users_with_mfa|default:0 }} users with MFA enabled</p>
-                    <a href="{% url 'blu_core:mfa_settings' %}" class="btn btn-primary btn-sm">
-                        Manage MFA
-                    </a>
-                </div>
-            </div>
+    <!-- Section: MFA -->
+    <div style="margin-bottom: 32px;">
+        <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">Multi-Factor Authentication</h4>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="{% url 'blu_core:mfa_settings' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: block;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">MFA Settings</div>
+                <div style="font-size: 13px; color: #64748b;">{{ users_with_mfa|default:0 }} users have MFA enabled</div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">Manage MFA &rarr;</div>
+            </a>
         </div>
     </div>
 
-    <!-- Settings Management -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="mb-3">
-                <i class="fas fa-sliders-h me-2"></i>
-                Settings Management
-            </h4>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-cog me-2"></i>
-                        Company Settings
-                    </h5>
-                    <p class="card-text text-muted">{{ system_settings|default:0 }} settings, {{ company_overrides|default:0 }} overrides</p>
-                    <a href="{% url 'blu_core:settings_management' %}" class="btn btn-primary btn-sm">
-                        Manage Settings
-                    </a>
-                </div>
-            </div>
+    <!-- Section: Settings -->
+    <div style="margin-bottom: 32px;">
+        <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">Settings Management</h4>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="{% url 'blu_core:settings_management' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: block;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">System Settings</div>
+                <div style="font-size: 13px; color: #64748b;">{{ system_settings|default:0 }} settings &bull; {{ company_overrides|default:0 }} company overrides</div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">Manage Settings &rarr;</div>
+            </a>
         </div>
     </div>
 
-    <!-- Onboarding -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="mb-3">
-                <i class="fas fa-user-plus me-2"></i>
-                Onboarding Automation
-            </h4>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-tasks me-2"></i>
-                        Onboarding Dashboard
-                    </h5>
-                    <p class="card-text text-muted">
-                        {% if company_onboarding %}
-                            {{ company_onboarding.completed_steps }}/{{ company_onboarding.total_steps }} steps completed
-                        {% else %}
-                            Not configured
-                        {% endif %}
-                    </p>
-                    <a href="{% url 'blu_core:onboarding_dashboard' %}" class="btn btn-primary btn-sm">
-                        View Dashboard
-                    </a>
+    <!-- Section: Onboarding -->
+    <div style="margin-bottom: 32px;">
+        <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">Onboarding Automation</h4>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="{% url 'blu_core:onboarding_dashboard' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: block;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Onboarding Dashboard</div>
+                <div style="font-size: 13px; color: #64748b;">
+                    {% if company_onboarding %}{{ company_onboarding.completed_steps }}/{{ company_onboarding.total_steps }} steps completed{% else %}No onboarding data yet{% endif %}
                 </div>
-            </div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">View Dashboard &rarr;</div>
+            </a>
         </div>
     </div>
 
-    <!-- Analytics & Reporting -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="mb-3">
-                <i class="fas fa-chart-bar me-2"></i>
-                Advanced Analytics & Reporting
-            </h4>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-analytics me-2"></i>
-                        Analytics Dashboard
-                    </h5>
-                    <p class="card-text text-muted">
-                        {% if latest_analytics %}
-                            Last updated: {{ latest_analytics.snapshot_date }}
-                        {% else %}
-                            No data yet
-                        {% endif %}
-                    </p>
-                    <a href="{% url 'blu_core:analytics_dashboard' %}" class="btn btn-primary btn-sm">
-                        View Analytics
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-file-alt me-2"></i>
-                        Reports
-                    </h5>
-                    <p class="card-text text-muted">{{ total_reports|default:0 }} reports generated</p>
-                    <a href="{% url 'blu_core:reports' %}" class="btn btn-primary btn-sm">
-                        View Reports
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-chart-line me-2"></i>
-                        Metric Trends
-                    </h5>
-                    <p class="card-text text-muted">Track key metrics over time</p>
-                    <a href="{% url 'blu_core:metric_trends' %}" class="btn btn-primary btn-sm">
-                        View Trends
-                    </a>
-                </div>
-            </div>
+    <!-- Section: Analytics -->
+    <div style="margin-bottom: 16px;">
+        <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">Advanced Analytics & Reporting</h4>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="{% url 'blu_core:analytics_dashboard' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: block;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Analytics Dashboard</div>
+                <div style="font-size: 13px; color: #64748b;">{% if latest_analytics %}Last snapshot: {{ latest_analytics.snapshot_date }}{% else %}No snapshots yet{% endif %}</div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">View Analytics &rarr;</div>
+            </a>
+            <a href="{% url 'blu_core:reports' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: block;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Reports</div>
+                <div style="font-size: 13px; color: #64748b;">{{ total_reports|default:0 }} reports generated</div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">View Reports &rarr;</div>
+            </a>
+            <a href="{% url 'blu_core:metric_trends' %}" style="flex: 1; min-width: 200px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: block;">
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Metric Trends</div>
+                <div style="font-size: 13px; color: #64748b;">Historical metric trend visualization</div>
+                <div style="margin-top: 12px; font-size: 12px; font-weight: 600; color: #E11D48;">View Trends &rarr;</div>
+            </a>
         </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Quick Stats
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <div class="text-center">
-                                <h3 class="mb-0">{{ total_audit_logs|default:0 }}</h3>
-                                <small class="text-muted">Audit Logs</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="text-center">
-                                <h3 class="mb-0">{{ active_alerts|default:0 }}</h3>
-                                <small class="text-muted">Active Alerts</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="text-center">
-                                <h3 class="mb-0">{{ users_with_mfa|default:0 }}</h3>
-                                <small class="text-muted">Users with MFA</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="text-center">
-                                <h3 class="mb-0">{{ total_reports|default:0 }}</h3>
-                                <small class="text-muted">Reports Generated</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}

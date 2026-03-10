@@ -8,7 +8,7 @@ app_name = 'blu_core'
 
 urlpatterns = [
     # Overview
-    path('operational/', operational_views.operational_overview_view, name='operational_overview'),
+    path('', operational_views.operational_overview_view, name='operational_overview'),
     
     # Audit & Security
     path('audit-logs/', operational_views.audit_logs_view, name='audit_logs'),
