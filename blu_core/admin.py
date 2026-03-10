@@ -4,6 +4,7 @@ from .monitoring import SystemMetric, HealthCheckResult, AlertRule, Alert
 from .mfa import MFAMethod, BackupCode, MFAChallenge
 from .settings_manager import SystemSetting, CompanySettingOverride, SettingsVersion, SettingsTemplate
 from .onboarding_automation import CompanyOnboarding, OnboardingReminder
+from .advanced_analytics import CompanyAnalytics, AnalyticsReport, MetricTrend
 
 
 @admin.register(AuditLog)
@@ -306,3 +307,90 @@ class OnboardingReminderAdmin(admin.ModelAdmin):
     
     def has_change_permission(self, request, obj=None):
         return False
+
+
+@admin.register(CompanyAnalytics)
+class CompanyAnalyticsAdmin(admin.ModelAdmin):
+    list_display = ('company', 'snapshot_date', 'total_employees', 'turnover_rate', 'average_attendance_rate', 'total_payroll_cost')
+    list_filter = ('snapshot_date', 'company')
+    search_fields = ('company__name',)
+    readonly_fields = ('created_at',)
+    ordering = ('-snapshot_date',)
+    date_hierarchy = 'snapshot_date'
+    
+    fieldsets = (
+        ('Company & Date', {
+            'fields': ('company', 'snapshot_date')
+        }),
+        ('Employee Metrics', {
+            'fields': ('total_employees', 'active_employees', 'new_hires_this_month', 'terminations_this_month', 'turnover_rate')
+        }),
+        ('Attendance Metrics', {
+            'fields': ('average_attendance_rate', 'total_absences', 'total_late_arrivals')
+        }),
+        ('Leave Metrics', {
+            'fields': ('total_leave_requests', 'approved_leaves', 'pending_leaves', 'total_leave_days_taken')
+        }),
+        ('Payroll Metrics', {
+            'fields': ('total_payroll_cost', 'average_salary', 'total_overtime_hours', 'total_overtime_cost')
+        }),
+        ('Performance & Training', {
+            'fields': ('average_performance_score', 'pending_performance_reviews', 'completed_performance_reviews', 'total_training_hours', 'employees_in_training', 'training_completion_rate')
+        }),
+        ('Documents & Onboarding', {
+            'fields': ('total_documents', 'pending_document_approvals', 'expired_documents', 'active_onboardings', 'completed_onboardings', 'average_onboarding_days')
+        }),
+        ('System Metrics', {
+            'fields': ('total_storage_used_mb', 'active_users_last_30_days', 'created_at')
+        }),
+    )
+
+
+@admin.register(AnalyticsReport)
+class AnalyticsReportAdmin(admin.ModelAdmin):
+    list_display = ('title', 'company', 'report_type', 'date_from', 'date_to', 'status', 'format', 'generated_at')
+    list_filter = ('report_type', 'status', 'format', 'is_scheduled', 'generated_at')
+    search_fields = ('title', 'company__name', 'description')
+    readonly_fields = ('generated_at', 'created_at', 'updated_at')
+    ordering = ('-created_at',)
+    date_hierarchy = 'created_at'
+    
+    fieldsets = (
+        ('Report Information', {
+            'fields': ('company', 'report_type', 'title', 'description')
+        }),
+        ('Date Range', {
+            'fields': ('date_from', 'date_to')
+        }),
+        ('Configuration', {
+            'fields': ('format', 'filters_json')
+        }),
+        ('Status', {
+            'fields': ('status', 'error_message', 'file_path', 'file_size_kb')
+        }),
+        ('Scheduling', {
+            'fields': ('is_scheduled', 'schedule_frequency', 'next_run_date')
+        }),
+        ('Distribution', {
+            'fields': ('generated_by', 'recipients', 'email_sent')
+        }),
+        ('Timestamps', {
+            'fields': ('generated_at', 'created_at', 'updated_at')
+        }),
+    )
+
+
+@admin.register(MetricTrend)
+class MetricTrendAdmin(admin.ModelAdmin):
+    list_display = ('company', 'metric_name', 'metric_category', 'date', 'value', 'change_percentage')
+    list_filter = ('metric_category', 'metric_name', 'date')
+    search_fields = ('company__name', 'metric_name')
+    readonly_fields = ('created_at',)
+    ordering = ('-date',)
+    date_hierarchy = 'date'
+    
+    def change_percentage(self, obj):
+        if obj.change_percentage:
+            return f"{obj.change_percentage:+.2f}%"
+        return "N/A"
+    change_percentage.short_description = 'Change %'
