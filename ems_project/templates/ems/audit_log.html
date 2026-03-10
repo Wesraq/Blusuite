@@ -1,0 +1,114 @@
+{% extends base_template %}
+{% block title %}Audit Log — BLU Suite{% endblock %}
+
+{% block content %}
+<div style="padding:24px;max-width:1400px;margin:0 auto;">
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+    <div>
+      <h1 style="font-size:1.5rem;font-weight:700;color:#111;margin:0;">Audit Log</h1>
+      <p style="color:#6b7280;margin:4px 0 0;">{{ total_count }} events recorded</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <form method="get" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+    <input name="q" value="{{ search }}" placeholder="Search by user or object…"
+           style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;width:220px;">
+    <select name="action" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;">
+      <option value="">All actions</option>
+      {% for val, label in action_choices %}
+        <option value="{{ val }}" {% if val == action_filter %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <input name="model" value="{{ model_filter }}" placeholder="Model (e.g. User, Payroll)…"
+           style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;width:200px;">
+    <button type="submit"
+            style="padding:8px 18px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:500;">
+      Filter
+    </button>
+    <a href="{% url 'audit_log' %}"
+       style="padding:8px 18px;background:#f3f4f6;color:#374151;border-radius:8px;text-decoration:none;font-weight:500;">
+      Clear
+    </a>
+  </form>
+
+  <!-- Table -->
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+      <thead style="background:#f9fafb;">
+        <tr>
+          <th style="padding:12px 16px;text-align:left;color:#6b7280;font-weight:600;border-bottom:1px solid #e5e7eb;">Timestamp</th>
+          <th style="padding:12px 16px;text-align:left;color:#6b7280;font-weight:600;border-bottom:1px solid #e5e7eb;">User</th>
+          <th style="padding:12px 16px;text-align:left;color:#6b7280;font-weight:600;border-bottom:1px solid #e5e7eb;">Action</th>
+          <th style="padding:12px 16px;text-align:left;color:#6b7280;font-weight:600;border-bottom:1px solid #e5e7eb;">Object</th>
+          <th style="padding:12px 16px;text-align:left;color:#6b7280;font-weight:600;border-bottom:1px solid #e5e7eb;">Changes</th>
+          <th style="padding:12px 16px;text-align:left;color:#6b7280;font-weight:600;border-bottom:1px solid #e5e7eb;">IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in page_obj %}
+        <tr style="border-bottom:1px solid #f3f4f6;{% cycle '' 'background:#fafafa;' %}">
+          <td style="padding:10px 16px;white-space:nowrap;color:#374151;">
+            {{ log.timestamp|date:"M d, Y H:i" }}
+          </td>
+          <td style="padding:10px 16px;color:#111;font-weight:500;">
+            {{ log.user_email|default:"—" }}
+          </td>
+          <td style="padding:10px 16px;">
+            {% with action=log.action %}
+            {% if "DELETE" in action or "FAILED" in action %}
+              <span style="padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:#fee2e2;color:#b91c1c;">{{ log.get_action_display }}</span>
+            {% elif "CREATE" in action or "LOGIN" == action or "ASSIGN" in action %}
+              <span style="padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:#dcfce7;color:#15803d;">{{ log.get_action_display }}</span>
+            {% elif "UPDATE" in action or "SALARY" in action or "PAYROLL" in action %}
+              <span style="padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:#fef9c3;color:#854d0e;">{{ log.get_action_display }}</span>
+            {% else %}
+              <span style="padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:#e0e7ff;color:#3730a3;">{{ log.get_action_display }}</span>
+            {% endif %}
+            {% endwith %}
+          </td>
+          <td style="padding:10px 16px;color:#374151;">
+            {% if log.model_name %}<span style="color:#9ca3af;font-size:0.8rem;">{{ log.model_name }}</span><br>{% endif %}
+            {{ log.object_repr|default:"—"|truncatechars:60 }}
+          </td>
+          <td style="padding:10px 16px;color:#6b7280;font-size:0.8rem;max-width:220px;">
+            {% if log.changes %}
+              {% for field, diff in log.changes.items %}
+                <div><strong>{{ field }}</strong>: {{ diff.old|default:"—" }} → {{ diff.new }}</div>
+              {% endfor %}
+            {% else %}—{% endif %}
+          </td>
+          <td style="padding:10px 16px;color:#9ca3af;font-size:0.8rem;white-space:nowrap;">
+            {{ log.ip_address|default:"—" }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="padding:40px;text-align:center;color:#9ca3af;">No audit events found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <div style="display:flex;justify-content:center;gap:8px;margin-top:20px;">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}&q={{ search }}&action={{ action_filter }}&model={{ model_filter }}"
+         style="padding:8px 14px;border:1px solid #d1d5db;border-radius:8px;color:#374151;text-decoration:none;">&laquo; Prev</a>
+    {% endif %}
+    <span style="padding:8px 14px;background:#1d4ed8;color:#fff;border-radius:8px;">
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&q={{ search }}&action={{ action_filter }}&model={{ model_filter }}"
+         style="padding:8px 14px;border:1px solid #d1d5db;border-radius:8px;color:#374151;text-decoration:none;">Next &raquo;</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

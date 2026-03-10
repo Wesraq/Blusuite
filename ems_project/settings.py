@@ -72,7 +72,7 @@ INSTALLED_APPS = [
     
     # BLU Suite core modules
     'tenant_management.apps.TenantManagementConfig',
-    'blu_core',
+    'blu_core.apps.BluCoreConfig',
     'blu_staff',
     'blu_assets.apps.BluAssetsConfig',  # Asset Management Suite (AMS) - Standalone
     'blu_staff.apps.assets_old_backup.apps.AssetsConfig',  # Legacy assets app (label "assets") for migration graph

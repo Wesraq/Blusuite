@@ -8,6 +8,26 @@ class TenantScopedQuerySet(models.QuerySet):
     def for_tenant(self, tenant):
         return self.filter(tenant=tenant)
 
+    def for_company(self, company):
+        """
+        Scope queryset to a company. Tries tenant FK first; falls back to
+        indirect company relationships so records never leak across tenants
+        even when tenant FK is null.
+        """
+        from django.db.models import Q
+        tenant = getattr(company, 'tenant', None)
+        if tenant:
+            return self.filter(tenant=tenant)
+        # Fallback: filter via any company-related field on the model
+        model_fields = {f.name for f in self.model._meta.get_fields()}
+        if 'company' in model_fields:
+            return self.filter(company=company)
+        if 'employee' in model_fields:
+            return self.filter(employee__company=company)
+        if 'user' in model_fields:
+            return self.filter(user__company=company)
+        return self.none()
+
 
 class TenantScopedManager(models.Manager):
     def get_queryset(self):
@@ -15,6 +35,9 @@ class TenantScopedManager(models.Manager):
 
     def for_tenant(self, tenant):
         return self.get_queryset().for_tenant(tenant)
+
+    def for_company(self, company):
+        return self.get_queryset().for_company(company)
 
 
 class TenantScopedModel(models.Model):

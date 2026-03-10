@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+from .audit import AuditLog
+
+__all__ = ['AuditLog']

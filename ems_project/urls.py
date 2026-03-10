@@ -15,6 +15,7 @@ from django.conf.urls.static import static
 
 from . import frontend_views, auth_views
 from blu_staff.apps.accounts import views as account_views
+from blu_core import views as core_views
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -305,6 +306,9 @@ urlpatterns = [
     # BLU Analytics - Analytics & Reporting
     path('analytics/', include('blu_analytics.urls')),
 
+    # Audit Log — Administrators only
+    path('audit-log/', core_views.audit_log_view, name='audit_log'),
+
     # Django Admin - Standard Django admin (staff only)
     path('admin/', admin.site.urls),
     path('admin/login/', auth_views.django_admin_login, name='django_admin_login'),
@@ -343,7 +347,7 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# Custom error handlers (uncomment when DEBUG=False for production)
+# Custom error handlers
 # handler404 = 'ems_project.error_views.handler404'
 # handler500 = 'ems_project.error_views.handler500'
-# handler403 = 'ems_project.error_views.handler403'
+handler403 = 'blu_core.views.handle_403'
