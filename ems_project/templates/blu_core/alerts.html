@@ -1,0 +1,94 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+{% block title %}Alerts - Operational{% endblock %}
+{% block page_title %}Alerts{% endblock %}
+
+{% block content %}
+<div style="margin: 24px;">
+  <div style="margin-bottom: 20px; font-size: 13px; color: #64748b;">
+    <a href="{% url 'blu_core:operational_overview' %}" style="color: #E11D48; text-decoration: none;">Operational</a>
+    <span style="margin: 0 8px;">›</span><span>Alerts</span>
+  </div>
+
+  <!-- Stats -->
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+    <div class="page-card" style="flex: 1; min-width: 140px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #dc2626;">{{ active_count|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Active</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 140px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #d97706;">{{ acknowledged_count|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Acknowledged</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 140px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #16a34a;">{{ resolved_count|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Resolved</div>
+    </div>
+  </div>
+
+  <div class="page-card" style="padding: 0; overflow: hidden;">
+    <!-- Filter bar -->
+    <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; align-items: center;">
+      <span style="font-size: 13px; font-weight: 600; color: #475569; margin-right: 4px;">Filter:</span>
+      <a href="{% url 'blu_core:alerts' %}" style="padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; {% if not request.GET.status %}background:#E11D48; color:#fff;{% else %}background:#f1f5f9; color:#475569;{% endif %}">All</a>
+      <a href="?status=active" style="padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; {% if request.GET.status == 'active' %}background:#E11D48; color:#fff;{% else %}background:#f1f5f9; color:#475569;{% endif %}">Active</a>
+      <a href="?status=acknowledged" style="padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; {% if request.GET.status == 'acknowledged' %}background:#E11D48; color:#fff;{% else %}background:#f1f5f9; color:#475569;{% endif %}">Acknowledged</a>
+      <a href="?status=resolved" style="padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; {% if request.GET.status == 'resolved' %}background:#E11D48; color:#fff;{% else %}background:#f1f5f9; color:#475569;{% endif %}">Resolved</a>
+    </div>
+
+    {% if alerts %}
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #f8fafc;">
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Rule</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Message</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Severity</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Value</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Triggered</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alert in alerts %}
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 11px 16px; font-weight: 600; color: #1e293b;">{{ alert.rule.name }}</td>
+          <td style="padding: 11px 16px; color: #64748b;">{{ alert.message|truncatechars:60 }}</td>
+          <td style="padding: 11px 16px;">
+            <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: {% if alert.severity == 'CRITICAL' %}#fee2e2; color:#dc2626{% elif alert.severity == 'HIGH' %}#ffedd5; color:#ea580c{% elif alert.severity == 'MEDIUM' %}#fef9c3; color:#a16207{% else %}#dbeafe; color:#1d4ed8{% endif %};">
+              {{ alert.severity }}
+            </span>
+          </td>
+          <td style="padding: 11px 16px; color: #475569; font-weight: 500;">{{ alert.metric_value|floatformat:1 }}%</td>
+          <td style="padding: 11px 16px; color: #64748b; white-space: nowrap;">{{ alert.triggered_at|date:"M d, Y H:i" }}</td>
+          <td style="padding: 11px 16px;">
+            {% if alert.resolved_at %}
+              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #dcfce7; color: #15803d;">Resolved</span>
+            {% elif alert.acknowledged_at %}
+              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #fef9c3; color: #a16207;">Acknowledged</span>
+            {% else %}
+              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #fee2e2; color: #dc2626;">Active</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if alerts.has_other_pages %}
+    <div style="padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0;">
+      <span style="font-size: 13px; color: #64748b;">Page {{ alerts.number }} of {{ alerts.paginator.num_pages }}</span>
+      <div style="display: flex; gap: 6px;">
+        {% if alerts.has_previous %}<a href="?page={{ alerts.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; color: #475569; text-decoration: none;">&laquo; Prev</a>{% endif %}
+        {% if alerts.has_next %}<a href="?page={{ alerts.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="padding: 6px 12px; background: #E11D48; color: #fff; border-radius: 6px; font-size: 13px; text-decoration: none;">Next &raquo;</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div style="padding: 60px 20px; text-align: center; color: #94a3b8;">
+      <div style="font-size: 36px; margin-bottom: 12px;">✅</div>
+      <div style="font-size: 15px; font-weight: 500; color: #16a34a;">No alerts found</div>
+      <div style="font-size: 13px; margin-top: 4px;">All systems are operating normally</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+{% block title %}Metric Trends - Operational{% endblock %}
+{% block page_title %}Metric Trends{% endblock %}
+
+{% block content %}
+<div style="margin: 24px;">
+  <div style="margin-bottom: 20px; font-size: 13px; color: #64748b;">
+    <a href="{% url 'blu_core:operational_overview' %}" style="color: #E11D48; text-decoration: none;">Operational</a>
+    <span style="margin: 0 8px;">›</span>
+    <a href="{% url 'blu_core:analytics_dashboard' %}" style="color: #E11D48; text-decoration: none;">Analytics</a>
+    <span style="margin: 0 8px;">›</span><span>Metric Trends</span>
+  </div>
+
+  <!-- Filter Controls -->
+  <div class="page-card" style="padding: 20px; margin-bottom: 24px;">
+    <form method="get" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+      <div>
+        <label style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 4px;">Metric</label>
+        <select name="metric" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; background: #fff; min-width: 200px;">
+          {% for m in metrics %}
+          <option value="{{ m.metric_name }}" {% if selected_metric == m.metric_name %}selected{% endif %}>
+            {{ m.metric_name|title }} ({{ m.metric_category }})
+          </option>
+          {% empty %}
+          <option value="employee_count">Employee Count</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 4px;">Period</label>
+        <select name="days" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; background: #fff;">
+          <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+          <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+          <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+          <option value="365" {% if days == 365 %}selected{% endif %}>Last 1 year</option>
+        </select>
+      </div>
+      <button type="submit" style="padding: 8px 18px; background: #E11D48; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">Apply</button>
+    </form>
+  </div>
+
+  {% if trends %}
+  <!-- Summary Stats -->
+  {% with first=trend_data|first last=trend_data|last %}
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">Data Points</div>
+      <div style="font-size: 26px; font-weight: 700; color: #1e293b;">{{ trends.count }}</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">Latest Value</div>
+      <div style="font-size: 26px; font-weight: 700; color: #1e293b;">{{ trends.last.value|floatformat:1 }}</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">Metric</div>
+      <div style="font-size: 15px; font-weight: 700; color: #1e293b;">{{ selected_metric|title }}</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">Period</div>
+      <div style="font-size: 15px; font-weight: 700; color: #1e293b;">{{ days }} days</div>
+    </div>
+  </div>
+  {% endwith %}
+
+  <!-- Trend Table -->
+  <div class="page-card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 14px;">
+      Trend Data — {{ selected_metric|title }}
+    </div>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #f8fafc;">
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Date</th>
+          <th style="padding: 11px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Value</th>
+          <th style="padding: 11px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Change %</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for trend in trends %}
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 11px 16px; color: #475569;">{{ trend.date|date:"M d, Y" }}</td>
+          <td style="padding: 11px 16px; text-align: right; font-weight: 600; color: #1e293b;">{{ trend.value|floatformat:2 }}</td>
+          <td style="padding: 11px 16px; text-align: right; font-weight: 600;
+            color: {% if trend.change_percentage > 0 %}#16a34a{% elif trend.change_percentage < 0 %}#dc2626{% else %}#64748b{% endif %};">
+            {% if trend.change_percentage > 0 %}+{% endif %}{{ trend.change_percentage|floatformat:1|default:"0.0" }}%
+          </td>
+          <td style="padding: 11px 16px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="flex: 1; max-width: 120px; background: #f1f5f9; border-radius: 4px; height: 6px; overflow: hidden; position: relative;">
+                <div style="background: #E11D48; height: 100%; border-radius: 4px; width: {{ trend.value|floatformat:0 }}%;"></div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="page-card" style="padding: 80px; text-align: center; color: #94a3b8;">
+    <div style="font-size: 48px; margin-bottom: 16px;">📈</div>
+    <div style="font-size: 18px; font-weight: 600; color: #475569; margin-bottom: 8px;">No Trend Data Available</div>
+    <div style="font-size: 14px; margin-bottom: 20px;">
+      {% if metrics %}
+        No data found for <strong>{{ selected_metric }}</strong> in the last {{ days }} days.
+      {% else %}
+        No metric trends have been recorded yet.
+      {% endif %}
+    </div>
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: inline-block; text-align: left; font-family: monospace; font-size: 13px; color: #1e293b;">
+      python manage.py calculate_analytics
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Available Metrics -->
+  {% if metrics %}
+  <div class="page-card" style="padding: 0; overflow: hidden; margin-top: 24px;">
+    <div style="padding: 14px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 14px;">All Available Metrics</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 20px;">
+      {% for m in metrics %}
+      <a href="?metric={{ m.metric_name }}&days={{ days }}"
+        style="padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; text-decoration: none;
+          {% if selected_metric == m.metric_name %}background:#E11D48; color:#fff;{% else %}background:#f1f5f9; color:#475569;{% endif %}">
+        {{ m.metric_name|title }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+{% block title %}MFA Settings - Operational{% endblock %}
+{% block page_title %}MFA Settings{% endblock %}
+
+{% block content %}
+<div style="margin: 24px;">
+  <div style="margin-bottom: 20px; font-size: 13px; color: #64748b;">
+    <a href="{% url 'blu_core:operational_overview' %}" style="color: #E11D48; text-decoration: none;">Operational</a>
+    <span style="margin: 0 8px;">›</span><span>MFA Settings</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+    <!-- MFA Status Card -->
+    <div class="page-card" style="padding: 24px;">
+      <h3 style="margin: 0 0 16px 0; font-size: 15px; font-weight: 700;">Your MFA Status</h3>
+      {% if has_mfa %}
+      <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #dcfce7; border-radius: 8px; margin-bottom: 16px;">
+        <span style="font-size: 18px;">🔒</span>
+        <div>
+          <div style="font-weight: 600; color: #15803d; font-size: 13px;">MFA Enabled</div>
+          <div style="font-size: 12px; color: #166534;">{{ mfa_methods.count }} active method(s)</div>
+        </div>
+      </div>
+      {% else %}
+      <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #fee2e2; border-radius: 8px; margin-bottom: 16px;">
+        <span style="font-size: 18px;">🔓</span>
+        <div>
+          <div style="font-weight: 600; color: #dc2626; font-size: 13px;">MFA Not Enabled</div>
+          <div style="font-size: 12px; color: #991b1b;">Your account is not protected with MFA</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if mfa_methods %}
+      <h4 style="margin: 16px 0 10px 0; font-size: 13px; font-weight: 600; color: #475569;">Active Methods</h4>
+      {% for method in mfa_methods %}
+      <div style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 600; font-size: 13px; color: #1e293b;">{{ method.method_type }}</div>
+          <div style="font-size: 12px; color: #64748b;">Created: {{ method.created_at|date:"M d, Y" }}</div>
+        </div>
+        <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #dcfce7; color: #15803d;">Active</span>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- Backup Codes -->
+    <div class="page-card" style="padding: 24px;">
+      <h3 style="margin: 0 0 16px 0; font-size: 15px; font-weight: 700;">Backup Codes</h3>
+      {% if backup_codes %}
+      <div style="padding: 12px 16px; background: #fef9c3; border-radius: 8px; margin-bottom: 16px;">
+        <div style="font-size: 13px; font-weight: 600; color: #a16207;">{{ backup_codes.count }} codes remaining</div>
+        <div style="font-size: 12px; color: #92400e; margin-top: 2px;">Keep these codes safe — they can be used to access your account if you lose your MFA device</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        {% for code in backup_codes %}
+        <div style="padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-family: monospace; font-size: 13px; font-weight: 600; color: #1e293b; text-align: center;">
+          {{ code.code }}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="padding: 40px; text-align: center; color: #94a3b8;">
+        <div style="font-size: 28px; margin-bottom: 8px;">🔑</div>
+        <div style="font-size: 13px;">No backup codes available</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Recent Challenges -->
+    <div class="page-card" style="padding: 0; overflow: hidden; grid-column: 1 / -1;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 14px;">Recent MFA Challenges</div>
+      {% if recent_challenges %}
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr style="background: #f8fafc;">
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Date</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Method</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Status</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Expires</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for challenge in recent_challenges %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 10px 16px; color: #64748b; white-space: nowrap;">{{ challenge.created_at|date:"M d, Y H:i" }}</td>
+            <td style="padding: 10px 16px; color: #475569; font-weight: 500;">{{ challenge.mfa_method.method_type|default:"—" }}</td>
+            <td style="padding: 10px 16px;">
+              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+                {% if challenge.is_verified %}background:#dcfce7; color:#15803d;{% else %}background:#f1f5f9; color:#475569;{% endif %}">
+                {% if challenge.is_verified %}Verified{% else %}Pending{% endif %}
+              </span>
+            </td>
+            <td style="padding: 10px 16px; color: #94a3b8; font-size: 12px;">{{ challenge.expires_at|date:"H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="padding: 40px; text-align: center; color: #94a3b8;">
+        <div style="font-size: 28px; margin-bottom: 8px;">📱</div>
+        <div>No MFA challenges recorded</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+{% block title %}Reports - Operational{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+{% block content %}
+<div style="margin: 24px;">
+  <div style="margin-bottom: 20px; font-size: 13px; color: #64748b;">
+    <a href="{% url 'blu_core:operational_overview' %}" style="color: #E11D48; text-decoration: none;">Operational</a>
+    <span style="margin: 0 8px;">›</span>
+    <a href="{% url 'blu_core:analytics_dashboard' %}" style="color: #E11D48; text-decoration: none;">Analytics</a>
+    <span style="margin: 0 8px;">›</span><span>Reports</span>
+  </div>
+
+  <!-- Stats -->
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ total_reports|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Total Reports</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #16a34a;">{{ completed_reports|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Completed</div>
+    </div>
+  </div>
+
+  <div class="page-card" style="padding: 0; overflow: hidden;">
+    <!-- Filters -->
+    <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+      <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; width: 100%;">
+        <div>
+          <label style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 4px;">Type</label>
+          <select name="type" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; background: #fff; min-width: 160px;">
+            <option value="">All Types</option>
+            {% for value, label in report_types %}
+            <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 4px;">Status</label>
+          <select name="status" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; background: #fff; min-width: 140px;">
+            <option value="">All Statuses</option>
+            <option value="PENDING" {% if request.GET.status == 'PENDING' %}selected{% endif %}>Pending</option>
+            <option value="RUNNING" {% if request.GET.status == 'RUNNING' %}selected{% endif %}>Running</option>
+            <option value="COMPLETED" {% if request.GET.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+            <option value="FAILED" {% if request.GET.status == 'FAILED' %}selected{% endif %}>Failed</option>
+          </select>
+        </div>
+        <button type="submit" style="padding: 7px 16px; background: #E11D48; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">Filter</button>
+        {% if request.GET.type or request.GET.status %}
+        <a href="{% url 'blu_core:reports' %}" style="padding: 7px 12px; background: #f1f5f9; color: #475569; border-radius: 6px; font-size: 13px; text-decoration: none;">Clear</a>
+        {% endif %}
+      </form>
+    </div>
+
+    {% if reports %}
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #f8fafc;">
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Name</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Type</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Period</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Status</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Created</th>
+          <th style="padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for report in reports %}
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 11px 16px; font-weight: 600; color: #1e293b;">{{ report.name }}</td>
+          <td style="padding: 11px 16px; color: #64748b;">{{ report.get_report_type_display|default:report.report_type }}</td>
+          <td style="padding: 11px 16px; color: #64748b; font-size: 12px; white-space: nowrap;">
+            {% if report.period_start and report.period_end %}
+              {{ report.period_start|date:"M d" }} – {{ report.period_end|date:"M d, Y" }}
+            {% else %}—{% endif %}
+          </td>
+          <td style="padding: 11px 16px;">
+            <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+              {% if report.status == 'COMPLETED' %}background:#dcfce7; color:#15803d;
+              {% elif report.status == 'RUNNING' %}background:#dbeafe; color:#1d4ed8;
+              {% elif report.status == 'FAILED' %}background:#fee2e2; color:#dc2626;
+              {% else %}background:#f1f5f9; color:#475569;{% endif %}">
+              {{ report.status }}
+            </span>
+          </td>
+          <td style="padding: 11px 16px; color: #64748b; white-space: nowrap;">{{ report.created_at|date:"M d, Y H:i" }}</td>
+          <td style="padding: 11px 16px; color: #64748b;">{{ report.created_by.email|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if reports.has_other_pages %}
+    <div style="padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0;">
+      <span style="font-size: 13px; color: #64748b;">Page {{ reports.number }} of {{ reports.paginator.num_pages }}</span>
+      <div style="display: flex; gap: 6px;">
+        {% if reports.has_previous %}<a href="?page={{ reports.previous_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; color: #475569; text-decoration: none;">&laquo; Prev</a>{% endif %}
+        {% if reports.has_next %}<a href="?page={{ reports.next_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="padding: 6px 12px; background: #E11D48; color: #fff; border-radius: 6px; font-size: 13px; text-decoration: none;">Next &raquo;</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div style="padding: 60px 20px; text-align: center; color: #94a3b8;">
+      <div style="font-size: 36px; margin-bottom: 12px;">📄</div>
+      <div style="font-size: 15px; font-weight: 500; color: #475569;">No reports found</div>
+      <div style="font-size: 13px; margin-top: 4px;">Reports will appear here once generated</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+{% block title %}Analytics Dashboard - Operational{% endblock %}
+{% block page_title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div style="margin: 24px;">
+  <div style="margin-bottom: 20px; font-size: 13px; color: #64748b;">
+    <a href="{% url 'blu_core:operational_overview' %}" style="color: #E11D48; text-decoration: none;">Operational</a>
+    <span style="margin: 0 8px;">›</span><span>Analytics Dashboard</span>
+  </div>
+
+  {% if has_data %}
+  <!-- KPI Stats from latest snapshot -->
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 26px; font-weight: 700; color: #1e293b;">{{ latest_analytics.total_employees|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Total Employees</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 26px; font-weight: 700; color: #16a34a;">{{ latest_analytics.active_employees|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Active Employees</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 26px; font-weight: 700; color: #dc2626;">{{ latest_analytics.turnover_rate|floatformat:1|default:0 }}%</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Turnover Rate</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 26px; font-weight: 700; color: #d97706;">{{ latest_analytics.avg_time_to_hire|floatformat:0|default:0 }}d</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Avg Time to Hire</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 26px; font-weight: 700; color: #7c3aed;">{{ latest_analytics.avg_attendance_rate|floatformat:1|default:0 }}%</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Attendance Rate</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+    <!-- Snapshot Details -->
+    <div class="page-card" style="padding: 24px;">
+      <h3 style="margin: 0 0 16px 0; font-size: 15px; font-weight: 700;">Latest Snapshot — {{ latest_analytics.snapshot_date|date:"M d, Y" }}</h3>
+      <div style="display: flex; flex-direction: column; gap: 0;">
+        {% if latest_analytics.headcount_by_department %}
+        <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">Headcount by Department</div>
+          <div style="font-size: 13px; font-weight: 500; color: #1e293b;">Available</div>
+        </div>
+        {% endif %}
+        <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+          <span style="font-size: 13px; color: #64748b;">New Hires (Month)</span>
+          <span style="font-size: 13px; font-weight: 600; color: #1e293b;">{{ latest_analytics.new_hires_this_month|default:0 }}</span>
+        </div>
+        <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+          <span style="font-size: 13px; color: #64748b;">Terminations (Month)</span>
+          <span style="font-size: 13px; font-weight: 600; color: #1e293b;">{{ latest_analytics.terminations_this_month|default:0 }}</span>
+        </div>
+        <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+          <span style="font-size: 13px; color: #64748b;">Avg Salary</span>
+          <span style="font-size: 13px; font-weight: 600; color: #1e293b;">${{ latest_analytics.avg_salary|floatformat:0|default:"—" }}</span>
+        </div>
+        <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+          <span style="font-size: 13px; color: #64748b;">Training Completion</span>
+          <span style="font-size: 13px; font-weight: 600; color: #1e293b;">{{ latest_analytics.training_completion_rate|floatformat:1|default:0 }}%</span>
+        </div>
+        <div style="padding: 10px 0; display: flex; justify-content: space-between;">
+          <span style="font-size: 13px; color: #64748b;">Open Leave Requests</span>
+          <span style="font-size: 13px; font-weight: 600; color: #1e293b;">{{ latest_analytics.open_leave_requests|default:0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Reports Quick Access -->
+    <div class="page-card" style="padding: 0; overflow: hidden;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 600; font-size: 14px;">Recent Reports</span>
+        <a href="{% url 'blu_core:reports' %}" style="font-size: 12px; color: #E11D48; text-decoration: none; font-weight: 600;">All Reports →</a>
+      </div>
+      {% if recent_reports %}
+        <div style="padding: 8px 0;">
+          {% for report in recent_reports %}
+          <div style="padding: 12px 20px; border-bottom: 1px solid #f8fafc;">
+            <div style="font-weight: 600; font-size: 13px; color: #1e293b;">{{ report.name }}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+              <span style="font-size: 12px; color: #64748b;">{{ report.report_type }}</span>
+              <span style="padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;
+                {% if report.status == 'COMPLETED' %}background:#dcfce7; color:#15803d;
+                {% elif report.status == 'RUNNING' %}background:#dbeafe; color:#1d4ed8;
+                {% elif report.status == 'FAILED' %}background:#fee2e2; color:#dc2626;
+                {% else %}background:#f1f5f9; color:#475569;{% endif %}">
+                {{ report.status }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="padding: 40px; text-align: center; color: #94a3b8;">
+          <div style="font-size: 28px; margin-bottom: 8px;">📄</div>
+          <div>No reports generated yet</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Trend Summary -->
+    <div class="page-card" style="padding: 24px; grid-column: 1 / -1;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0; font-size: 15px; font-weight: 700;">30-Day Snapshot History</h3>
+        <a href="{% url 'blu_core:metric_trends' %}" style="font-size: 12px; color: #E11D48; text-decoration: none; font-weight: 600;">View Trends →</a>
+      </div>
+      {% if recent_analytics %}
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background: #f8fafc;">
+              <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Date</th>
+              <th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Employees</th>
+              <th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Turnover</th>
+              <th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Attendance</th>
+              <th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">New Hires</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for snap in recent_analytics %}
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+              <td style="padding: 10px 16px; color: #475569;">{{ snap.snapshot_date|date:"M d" }}</td>
+              <td style="padding: 10px 16px; text-align: right; color: #1e293b; font-weight: 500;">{{ snap.total_employees|default:0 }}</td>
+              <td style="padding: 10px 16px; text-align: right; color: #dc2626; font-weight: 500;">{{ snap.turnover_rate|floatformat:1|default:0 }}%</td>
+              <td style="padding: 10px 16px; text-align: right; color: #16a34a; font-weight: 500;">{{ snap.avg_attendance_rate|floatformat:1|default:0 }}%</td>
+              <td style="padding: 10px 16px; text-align: right; color: #1e293b;">{{ snap.new_hires_this_month|default:0 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div style="padding: 30px; text-align: center; color: #94a3b8; font-size: 13px;">No snapshots in last 30 days. Run <code>python manage.py calculate_analytics</code></div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
+  <div class="page-card" style="padding: 80px; text-align: center; color: #94a3b8;">
+    <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+    <div style="font-size: 18px; font-weight: 600; color: #475569; margin-bottom: 8px;">No Analytics Data Yet</div>
+    <div style="font-size: 14px; margin-bottom: 20px;">Run the analytics calculation to start tracking metrics</div>
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: inline-block; text-align: left; font-family: monospace; font-size: 13px; color: #1e293b;">
+      python manage.py calculate_analytics
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

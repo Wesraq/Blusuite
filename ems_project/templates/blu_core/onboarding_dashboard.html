@@ -1,0 +1,140 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+{% block title %}Onboarding Dashboard - Operational{% endblock %}
+{% block page_title %}Onboarding Dashboard{% endblock %}
+
+{% block content %}
+<div style="margin: 24px;">
+  <div style="margin-bottom: 20px; font-size: 13px; color: #64748b;">
+    <a href="{% url 'blu_core:operational_overview' %}" style="color: #E11D48; text-decoration: none;">Operational</a>
+    <span style="margin: 0 8px;">›</span><span>Onboarding Dashboard</span>
+  </div>
+
+  <!-- Stats -->
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #1e293b;">{{ active_onboardings|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">In Progress</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #16a34a;">{{ completed_onboardings|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Completed</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #d97706;">{{ reminders.count|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Pending Reminders</div>
+    </div>
+    {% if company_onboarding %}
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 28px; font-weight: 700; color: #E11D48;">{{ company_onboarding.completed_steps|default:0 }}/{{ company_onboarding.total_steps|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Company Steps</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+    <!-- Company Onboarding Status -->
+    <div class="page-card" style="padding: 24px;">
+      <h3 style="margin: 0 0 16px 0; font-size: 15px; font-weight: 700;">Company Onboarding</h3>
+      {% if company_onboarding %}
+        <div style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; color: #475569; font-weight: 500;">Progress</span>
+            <span style="font-size: 13px; font-weight: 700; color: #1e293b;">
+              {% if company_onboarding.total_steps > 0 %}
+                {% widthratio company_onboarding.completed_steps company_onboarding.total_steps 100 %}%
+              {% else %}0%{% endif %}
+            </span>
+          </div>
+          <div style="background: #f1f5f9; border-radius: 6px; height: 8px; overflow: hidden;">
+            <div style="background: #E11D48; height: 100%; border-radius: 6px; width: {% if company_onboarding.total_steps > 0 %}{% widthratio company_onboarding.completed_steps company_onboarding.total_steps 100 %}{% else %}0{% endif %}%;"></div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+            <span style="font-size: 13px; color: #64748b;">Status</span>
+            <span style="font-size: 13px; font-weight: 600; color: #1e293b;">{{ company_onboarding.status|default:"—" }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+            <span style="font-size: 13px; color: #64748b;">Started</span>
+            <span style="font-size: 13px; color: #1e293b;">{{ company_onboarding.started_at|date:"M d, Y"|default:"—" }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+            <span style="font-size: 13px; color: #64748b;">Completed Steps</span>
+            <span style="font-size: 13px; font-weight: 600; color: #1e293b;">{{ company_onboarding.completed_steps }} / {{ company_onboarding.total_steps }}</span>
+          </div>
+        </div>
+      {% else %}
+        <div style="padding: 30px; text-align: center; color: #94a3b8;">
+          <div style="font-size: 28px; margin-bottom: 8px;">🏢</div>
+          <div style="font-size: 13px;">No company onboarding configured</div>
+          <div style="font-size: 12px; margin-top: 4px;">Run <code>python manage.py init_company_onboarding</code></div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Pending Reminders -->
+    <div class="page-card" style="padding: 0; overflow: hidden;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 14px;">Onboarding Reminders</div>
+      {% if reminders %}
+        <div style="padding: 8px 0; max-height: 320px; overflow-y: auto;">
+          {% for reminder in reminders %}
+          <div style="padding: 12px 20px; border-bottom: 1px solid #f8fafc;">
+            <div style="font-weight: 600; font-size: 13px; color: #1e293b;">{{ reminder.reminder_type|default:"Reminder" }}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ reminder.message|default:"—"|truncatechars:80 }}</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">{{ reminder.created_at|date:"M d, Y H:i" }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="padding: 40px; text-align: center; color: #94a3b8;">
+          <div style="font-size: 28px; margin-bottom: 8px;">✅</div>
+          <div>No pending reminders</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Employee Onboardings -->
+    <div class="page-card" style="padding: 0; overflow: hidden; grid-column: 1 / -1;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 14px;">Recent Employee Onboardings</div>
+      {% if employee_onboardings %}
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr style="background: #f8fafc;">
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Employee</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Start Date</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Expected Completion</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Status</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Buddy</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for onboarding in employee_onboardings %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 10px 16px; font-weight: 500; color: #1e293b;">{{ onboarding.employee.get_full_name|default:onboarding.employee.email }}</td>
+            <td style="padding: 10px 16px; color: #64748b;">{{ onboarding.start_date|date:"M d, Y" }}</td>
+            <td style="padding: 10px 16px; color: #64748b;">{{ onboarding.expected_completion_date|date:"M d, Y" }}</td>
+            <td style="padding: 10px 16px;">
+              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+                {% if onboarding.status == 'COMPLETED' %}background:#dcfce7; color:#15803d;
+                {% elif onboarding.status == 'IN_PROGRESS' %}background:#dbeafe; color:#1d4ed8;
+                {% else %}background:#f1f5f9; color:#475569;{% endif %}">
+                {{ onboarding.get_status_display|default:onboarding.status }}
+              </span>
+            </td>
+            <td style="padding: 10px 16px; color: #64748b;">{{ onboarding.buddy.get_full_name|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="padding: 40px; text-align: center; color: #94a3b8;">
+        <div style="font-size: 28px; margin-bottom: 8px;">👥</div>
+        <div>No employee onboardings found</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

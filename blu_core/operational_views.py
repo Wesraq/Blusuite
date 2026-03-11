@@ -252,10 +252,15 @@ def onboarding_dashboard_view(request):
     
     # Get employee onboardings
     from blu_staff.apps.onboarding.models import EmployeeOnboarding
-    employee_onboardings = EmployeeOnboarding.objects.filter(
-        tenant__company=request.user.company
-    ).order_by('-start_date')[:10]
-    
+    if hasattr(request.user, 'is_superadmin') and request.user.is_superadmin:
+        employee_onboardings = EmployeeOnboarding.objects.all().order_by('-start_date')[:10]
+    elif hasattr(request.user, 'company') and request.user.company:
+        employee_onboardings = EmployeeOnboarding.objects.filter(
+            tenant__company=request.user.company
+        ).order_by('-start_date')[:10]
+    else:
+        employee_onboardings = EmployeeOnboarding.objects.none()
+
     context = {
         'company_onboarding': company_onboarding,
         'reminders': reminders,

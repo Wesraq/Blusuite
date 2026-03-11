@@ -1,0 +1,184 @@
+{% extends 'ems/base_superadmin.html' %}
+{% load static %}
+{% block title %}System Monitoring - Operational{% endblock %}
+{% block page_title %}System Monitoring{% endblock %}
+
+{% block content %}
+<div style="margin: 24px;">
+
+  <div style="margin-bottom: 20px; font-size: 13px; color: #64748b;">
+    <a href="{% url 'blu_core:operational_overview' %}" style="color: #E11D48; text-decoration: none;">Operational</a>
+    <span style="margin: 0 8px;">›</span><span>System Monitoring</span>
+  </div>
+
+  <!-- Stats Row -->
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 30px; font-weight: 700; color: {% if avg_cpu > 80 %}#dc2626{% elif avg_cpu > 60 %}#d97706{% else %}#16a34a{% endif %};">{{ avg_cpu|default:0 }}%</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Avg CPU (1h)</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 30px; font-weight: 700; color: {% if avg_memory > 80 %}#dc2626{% elif avg_memory > 60 %}#d97706{% else %}#16a34a{% endif %};">{{ avg_memory|default:0 }}%</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Avg Memory (1h)</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 30px; font-weight: 700; color: {% if avg_disk > 80 %}#dc2626{% elif avg_disk > 60 %}#d97706{% else %}#16a34a{% endif %};">{{ avg_disk|default:0 }}%</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Avg Disk (1h)</div>
+    </div>
+    <div class="page-card" style="flex: 1; min-width: 150px; padding: 20px; text-align: center;">
+      <div style="font-size: 30px; font-weight: 700; color: {% if total_alerts > 0 %}#dc2626{% else %}#16a34a{% endif %};">{{ total_alerts|default:0 }}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Active Alerts</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+    <!-- Latest Metrics -->
+    <div class="page-card" style="padding: 0; overflow: hidden;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 14px;">Latest System Metrics</div>
+      {% if latest_metrics %}
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr style="background: #f8fafc;">
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Type</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Value</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for metric in latest_metrics %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 10px 16px; color: #475569; font-weight: 500;">{{ metric.metric_type }}</td>
+            <td style="padding: 10px 16px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="flex: 1; max-width: 100px; background: #f1f5f9; border-radius: 4px; height: 6px; overflow: hidden;">
+                  <div style="width: {{ metric.value }}%; background: {% if metric.value > 80 %}#dc2626{% elif metric.value > 60 %}#d97706{% else %}#16a34a{% endif %}; height: 100%;"></div>
+                </div>
+                <span style="font-weight: 600; color: #1e293b;">{{ metric.value|floatformat:1 }}%</span>
+              </div>
+            </td>
+            <td style="padding: 10px 16px; color: #94a3b8; font-size: 12px;">{{ metric.timestamp|date:"H:i:s" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="padding: 40px; text-align: center; color: #94a3b8;">
+        <div style="font-size: 28px; margin-bottom: 8px;">📊</div>
+        <div>No metrics collected yet</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Health Checks -->
+    <div class="page-card" style="padding: 0; overflow: hidden;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 14px;">Health Check Results</div>
+      {% if latest_health %}
+      <div style="padding: 8px 0;">
+        {% for check in latest_health %}
+        <div style="padding: 12px 20px; border-bottom: 1px solid #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 600; font-size: 13px; color: #1e293b;">{{ check.check_name }}</div>
+            {% if check.error_message %}
+            <div style="font-size: 12px; color: #dc2626; margin-top: 2px;">{{ check.error_message|truncatechars:60 }}</div>
+            {% endif %}
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 12px; color: #64748b;">{{ check.response_time_ms }}ms</span>
+            <span style="padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+              {% if check.status == 'HEALTHY' %}background:#dcfce7; color:#15803d;
+              {% elif check.status == 'DEGRADED' %}background:#fef9c3; color:#a16207;
+              {% else %}background:#fee2e2; color:#dc2626;{% endif %}">
+              {{ check.status }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="padding: 40px; text-align: center; color: #94a3b8;">
+        <div style="font-size: 28px; margin-bottom: 8px;">🩺</div>
+        <div>No health checks run yet</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Active Alerts -->
+    <div class="page-card" style="padding: 0; overflow: hidden; grid-column: 1 / -1;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 600; font-size: 14px;">Active Alerts</span>
+        <a href="{% url 'blu_core:alerts' %}" style="font-size: 12px; color: #E11D48; text-decoration: none; font-weight: 600;">View All Alerts →</a>
+      </div>
+      {% if active_alerts %}
+      <div style="padding: 8px 0;">
+        {% for alert in active_alerts %}
+        <div style="padding: 14px 20px; border-bottom: 1px solid #f8fafc; display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div style="font-weight: 600; font-size: 13px; color: #1e293b;">{{ alert.rule.name }}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ alert.message }}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: 16px;">
+            <span style="font-size: 12px; color: #94a3b8;">{{ alert.triggered_at|date:"M d H:i" }}</span>
+            <span style="padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+              {% if alert.severity == 'CRITICAL' %}background:#fee2e2; color:#dc2626;
+              {% elif alert.severity == 'HIGH' %}background:#ffedd5; color:#ea580c;
+              {% elif alert.severity == 'MEDIUM' %}background:#fef9c3; color:#a16207;
+              {% else %}background:#dbeafe; color:#1d4ed8;{% endif %}">
+              {{ alert.severity }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="padding: 40px; text-align: center; color: #94a3b8;">
+        <div style="font-size: 28px; margin-bottom: 8px;">✅</div>
+        <div style="font-weight: 500; color: #16a34a;">All systems operating normally</div>
+        <div style="font-size: 12px; margin-top: 4px;">No active alerts</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Alert Rules -->
+    <div class="page-card" style="padding: 0; overflow: hidden; grid-column: 1 / -1;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; font-size: 14px;">Alert Rules ({{ alert_rules.count }} active)</div>
+      {% if alert_rules %}
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr style="background: #f8fafc;">
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Rule Name</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Metric</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Threshold</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Severity</th>
+            <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rule in alert_rules %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 10px 16px; font-weight: 500; color: #1e293b;">{{ rule.name }}</td>
+            <td style="padding: 10px 16px; color: #475569;">{{ rule.metric_type }}</td>
+            <td style="padding: 10px 16px; color: #475569;">{{ rule.threshold }}%</td>
+            <td style="padding: 10px 16px;">
+              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+                {% if rule.severity == 'CRITICAL' %}background:#fee2e2; color:#dc2626;
+                {% elif rule.severity == 'HIGH' %}background:#ffedd5; color:#ea580c;
+                {% elif rule.severity == 'MEDIUM' %}background:#fef9c3; color:#a16207;
+                {% else %}background:#dbeafe; color:#1d4ed8;{% endif %}">
+                {{ rule.severity }}
+              </span>
+            </td>
+            <td style="padding: 10px 16px; color: #64748b;">{{ rule.duration_minutes }}min</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="padding: 40px; text-align: center; color: #94a3b8;">
+        <div>No alert rules configured</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
